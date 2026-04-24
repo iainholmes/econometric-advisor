@@ -467,12 +467,11 @@ async function generate(){
   document.getElementById('loading-msg').textContent='Building your toolkit…';
   const tk=buildToolkit(ans);
   let ai=null;
-  if(apiKey&&ans.context&&ans.context.trim().length>20){
-    document.getElementById('loading-msg').textContent='Analyzing your research description…';
+  if(apiKey){
+    document.getElementById('loading-msg').textContent='Writing your research narrative…';
     ai=await enrichWithAI(ans,tk);
   }
   renderResults(tk,ai);
-  // Fetch live literature after render
   fetchLiterature(ans,tk);
   show('results');
   setHdr('your toolkit',true);
@@ -481,18 +480,57 @@ async function generate(){
 
 // ── AI TAILORING ──────────────────────────────────────────────────────
 async function enrichWithAI(a,tk){
-  const prompt=`You are an expert applied econometrician advising a graduate student. Produce a short JSON response:
-{"study_summary":"2-3 sentence plain-English summary of this specific study","key_adjustments":["1-4 specific toolkit adjustments based on the description"],"specific_variables":["2-4 specific variable construction notes"],"watchout":"One specific tailored warning for THIS study"}
-Only valid JSON, no markdown.
+  // Build a readable answer summary for the prompt
+  const answerSummary = [
+    a.field && `Field: ${a.field}`,
+    a.question_type && `Research question type: ${a.question_type}`,
+    a.treatment && `Treatment/shock: ${a.treatment}`,
+    a.data_structure && `Data structure: ${[].concat(a.data_structure).join(', ')}`,
+    a.n_treated && `Number of treated units: ${a.n_treated}`,
+    a.outcome && `Outcome variable type: ${a.outcome}`,
+    a.endogeneity && `Endogeneity concern: ${a.endogeneity}`,
+    a.geo && `Geography role: ${a.geo}`,
+    a.functional_form && `Functional form hypothesis: ${a.functional_form}`,
+    a.ml_interest && `ML interest: ${a.ml_interest}`,
+    a.context && `Research description: "${a.context}"`,
+  ].filter(Boolean).join('\n');
 
-ANSWERS: ${JSON.stringify(a)}
-DESCRIPTION: "${a.context}"
-SECTIONS: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
+  const sectionList = tk.sections.map(s=>`- ${s.label}: ${s.method}`).join('\n');
+
+  const prompt=`You are an expert applied econometrician advising a graduate economics student on research design. The student answered a screening questionnaire and received an econometric toolkit. Your job is to produce two things:
+
+1. A plain-English narrative summary of their research design — written as if you are explaining their study to them for the first time, NOT as a list of methods. This should read like a mentor talking through the research plan: what they are trying to learn, what the core econometric challenge is, and what the toolkit is doing about it step by step. Write this for someone who understands economics but may not yet have internalized the full landscape of econometric methods. 3-5 sentences.
+
+2. For each toolkit section, a single plain-English sentence explaining WHY that specific section is in their toolkit — not what the method is, but why their answers triggered it. Keep each one under 20 words.
+
+STUDENT ANSWERS:
+${answerSummary}
+
+TOOLKIT SECTIONS GENERATED:
+${sectionList}
+
+Respond ONLY with valid JSON in exactly this format, no markdown fences:
+{
+  "narrative": "plain English narrative summary here",
+  "section_reasons": {
+    "Identification strategy": "why this is in their toolkit",
+    "Estimator & model specification": "why this is in their toolkit",
+    "Functional form": "why this is in their toolkit",
+    "Panel data structure": "why this is in their toolkit",
+    "Spatial econometrics": "why this is in their toolkit",
+    "ML-adjacent methods": "why this is in their toolkit",
+    "Inference & diagnostic checklist": "why this is in their toolkit"
+  },
+  "key_adjustments": ["adjustment 1 if description provided", "adjustment 2"],
+  "specific_variables": ["variable note 1 if description provided", "variable note 2"],
+  "watchout": "one specific tailored warning if description provided, otherwise empty string"
+}`;
+
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})
     });
     const d=await r.json();
     const t=d.content?.find(b=>b.type==='text')?.text||'';
@@ -813,21 +851,38 @@ function renderResults(tk,ai){
   const el=document.getElementById('results-inner');
   let html=`<p class="results-meta">${tk.sections.length} components identified · click any section to expand</p>`;
 
-  // AI panel
-  if(ai){
-    html+=`<div class="ai-panel">
-      <div class="ai-panel-hdr"><span class="star">✦</span><span class="label">AI tailoring — based on your description</span></div>
-      ${ai.study_summary?`<p class="ai-summary">${esc(ai.study_summary)}</p>`:''}
-      ${ai.key_adjustments?.length?`<div class="ai-section-label">Toolkit adjustments</div>${ai.key_adjustments.map(a=>`<div class="ai-adj">→ ${esc(a)}</div>`).join('')}`:''}
-      ${ai.specific_variables?.length?`<div class="ai-section-label" style="margin-top:12px">Variable construction</div>${ai.specific_variables.map(v=>`<div class="ai-adj">· ${esc(v)}</div>`).join('')}`:''}
-      ${ai.watchout?`<div class="ai-watch"><span style="font-size:10px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em">Study-specific caution · </span><span style="color:#a16207;font-size:13.5px">${esc(ai.watchout)}</span></div>`:''}
+  // ── NARRATIVE CARD ──
+  if(ai&&ai.narrative){
+    html+=`<div style="background:linear-gradient(135deg,#0a1628,#0f1f3d);border:0.5px solid #1e3a8a66;border-radius:14px;padding:22px 24px;margin-bottom:1.75rem">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+        <div style="width:28px;height:28px;border-radius:7px;background:#1e3a8a44;display:flex;align-items:center;justify-content:center;font-size:14px;color:#60a5fa">◎</div>
+        <span style="font-size:11px;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;font-weight:700">Your research design — plain English</span>
+      </div>
+      <p style="color:#c7d9f5;font-size:15.5px;line-height:1.9;margin-bottom:${(ai.key_adjustments?.length||ai.watchout)?'16px':'0'}">${esc(ai.narrative)}</p>
+      ${ai.key_adjustments?.length?`
+        <div style="border-top:0.5px solid #1e3a8a44;padding-top:14px;margin-top:4px">
+          <div style="font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px">Design-specific adjustments</div>
+          ${ai.key_adjustments.map(a=>`<div style="color:#7da8d4;font-size:13.5px;line-height:1.75;padding-left:14px;border-left:2px solid #1e3a8a;margin-bottom:6px">→ ${esc(a)}</div>`).join('')}
+        </div>`:''}
+      ${ai.specific_variables?.length?`
+        <div style="border-top:0.5px solid #1e3a8a44;padding-top:14px;margin-top:10px">
+          <div style="font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px">Variable construction notes</div>
+          ${ai.specific_variables.map(v=>`<div style="color:#7da8d4;font-size:13.5px;line-height:1.75;padding-left:14px;border-left:2px solid #1e3a8a;margin-bottom:6px">· ${esc(v)}</div>`).join('')}
+        </div>`:''}
+      ${ai.watchout?`
+        <div style="background:#0d1820;border:0.5px solid #1e3a5f;border-radius:8px;padding:11px 14px;margin-top:14px">
+          <span style="font-size:10px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em">Study-specific caution · </span>
+          <span style="color:#a16207;font-size:13.5px">${esc(ai.watchout)}</span>
+        </div>`:''}
     </div>`;
   }
 
-  // Toolkit sections
+  // ── TOOLKIT SECTIONS ──
   tk.sections.forEach((s,i)=>{
     const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
     const cl=s.conf==='high'?'Core recommendation':s.conf==='medium'?'Likely relevant':'Worth considering';
+    // Look up "why this?" reason from AI
+    const whyThis=ai?.section_reasons?.[s.label];
     html+=`<div class="section" id="sec-${i}" style="--sec-color:${s.color}">
       <div class="sec-hdr" onclick="togSec(${i})">
         <div class="sec-icon" style="background:${s.color}20;color:${s.color}">${s.icon}</div>
@@ -838,6 +893,7 @@ function renderResults(tk,ai){
         <div class="sec-chev">▾</div>
       </div>
       <div class="sec-body">
+        ${whyThis?`<div style="background:#0f172a;border-left:3px solid ${s.color};border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:14px;font-size:14px;color:${s.color}cc;line-height:1.6;font-style:italic">${esc(whyThis)}</div>`:''}
         <p class="sec-detail">${esc(s.detail)}</p>
         ${s.watch?`<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">${esc(s.watch)}</div></div>`:''}
         ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>`<div class="eq-line">${mathify(esc(ln))}</div>`).join('')}</div>`:''}
