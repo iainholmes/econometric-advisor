@@ -203,8 +203,31 @@ textarea.ctx::placeholder{color:var(--dim)}
 
 <!-- SCREENS -->
 <div id="screen-landing">
-  <div class="landing">
-    <div class="landing-inner">
+  <div class="landing" style="position:relative;overflow:hidden;min-height:100vh">
+    <!-- Watermark SVG fills entire viewport -->
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:min(90vw,90vh);height:min(90vw,90vh);opacity:0.045">
+        <defs><linearGradient id="wbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6"/><stop offset="100%" style="stop-color:#0f2557"/></linearGradient></defs>
+        <rect width="512" height="512" rx="112" fill="url(#wbg)"/>
+        <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="2"/>
+        <circle cx="256" cy="256" r="152" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+        <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="6"/>
+        <circle cx="256" cy="256" r="90" fill="#080e1c"/>
+        <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="256" cy="146" r="12" fill="#3b82f6"/>
+        <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="174" cy="339" r="12" fill="#a855f7"/>
+        <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="338" cy="339" r="12" fill="#10b981"/>
+        <circle cx="256" cy="256" r="16" fill="#1e40af"/>
+        <circle cx="256" cy="256" r="11" fill="#93c5fd"/>
+        <circle cx="256" cy="256" r="5" fill="#fff"/>
+        <text x="256" y="430" font-family="-apple-system,sans-serif" font-size="32" font-weight="700" fill="#e2e8f0" text-anchor="middle" letter-spacing="3">ADVISOR</text>
+        <text x="256" y="462" font-family="-apple-system,sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="6">ECONOMETRIC</text>
+      </svg>
+    </div>
+    <!-- Content sits above watermark -->
+    <div class="landing-inner" style="position:relative;z-index:1">
       <div class="landing-logo">
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
           <defs><linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a0f1e"/><stop offset="100%" style="stop-color:#0f2557"/></linearGradient></defs>
@@ -227,10 +250,10 @@ textarea.ctx::placeholder{color:var(--dim)}
         </svg>
       </div>
       <h1>Econometric Research Advisor</h1>
-      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit — identification strategy, estimator, functional form, spatial methods, R code, diagnostics, live literature, and a glowing path diagram showing exactly where your study sits in the architecture of applied econometrics.</p>
+      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit and a glowing path diagram showing exactly where your study sits in the architecture of applied econometrics.</p>
       <div class="tags">
         <span class="tag">Identification</span><span class="tag">Estimating equations</span>
-        <span class="tag">R code snippets</span><span class="tag">Spatial methods</span>
+        <span class="tag">R · Stata · Python</span><span class="tag">Spatial methods</span>
         <span class="tag">ML / Causal forests</span><span class="tag">AI tailoring</span>
         <span class="tag">Live literature</span><span class="tag">Path diagram</span>
       </div>
@@ -370,7 +393,7 @@ const QS=[
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────
-let step=-1, ans={}, apiKey=localStorage.getItem('ea_ak')||'';
+let step=-1, ans={}, apiKey=localStorage.getItem('ea_ak')||'', codeLang='r';
 
 // ── UTILS ─────────────────────────────────────────────────────────────
 function show(id){
@@ -610,6 +633,13 @@ async function fetchLiterature(a,tk){
   }).join('');
 }
 
+function stataFallback(method){
+  return `* Stata — ${method}\n* Install packages as needed: ssc install <package>\n* See section detail for specific commands`;
+}
+function pythonFallback(method){
+  return `# Python — ${method}\n# Install: pip install statsmodels linearmodels\n# See section detail for specific commands`;
+}
+
 // ── TOOLKIT BUILDER ───────────────────────────────────────────────────
 function buildToolkit(a){
   const{field,question_type,treatment,data_structure,n_treated,outcome,endogeneity,geo,functional_form,inference_concerns,ml_interest}=a;
@@ -685,6 +715,8 @@ function buildToolkit(a){
       idW='First-stage F must exceed Stock-Yogo threshold (~10). Exclusion restriction is untestable — defend on economic grounds. Always report full first-stage results.';
       idEq='Stage 1: D_i = π_0 + π_1 Z_i + X\'_i γ + v_i\nStage 2: Y_i = β_0 + β_1 D̂_i + β_2 d_i + β_3 d_i^2 + X\'_i δ + ε_i\nEndogeneity test: t-stat on v̂_i in Stage 2';
       idCode=`library(fixest)\n\n# 2SLS\niv <- feols(log_price ~ dist_mi + dist_sq + log_income + log_rooms |\n            log_pop_density ~ log_land_area,\n            data=df, vcov="HC3")\nsummary(iv, stage=1:2)\n\n# Control function approach\nfs <- lm(log_pop_density ~ log_land_area + dist_mi +\n         dist_sq + log_income + log_rooms, data=df)\ndf$vhat <- residuals(fs)\ncf <- lm(log_price ~ log_pop_density + vhat +\n         dist_mi + dist_sq + log_income + log_rooms, data=df)\nlibrary(lmtest); library(sandwich)\ncoeftest(cf, vcov=vcovHC(cf,"HC3"))`;
+      idCodeStata=`* Stata — IV / Control Function\n* Install: ssc install ivreg2, ssc install ranktest\n\n* 2SLS\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\n\n* First stage manually\nreg log_pop_density log_land_area dist_mi dist_sq log_income log_rooms\npredict vhat, resid\n\n* Control function (Stage 2 with residual)\nreg log_price log_pop_density vhat dist_mi dist_sq log_income log_rooms, robust\n* t-stat on vhat = Wu-Hausman endogeneity test`;
+      idCodePython=`# Python — IV / Control Function\nimport numpy as np\nimport pandas as pd\nfrom linearmodels.iv import IV2SLS\nfrom statsmodels.formula.api import ols\nfrom statsmodels.stats.sandwich_covariance import cov_hc3\n\n# 2SLS via linearmodels\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]',\n    data=df)\nres = mod.fit(cov_type='robust')\nprint(res.summary)\n\n# Control function\nfs = ols('log_pop_density ~ log_land_area + dist_mi + dist_sq'\n         ' + log_income + log_rooms', data=df).fit()\ndf['vhat'] = fs.resid\ncf = ols('log_price ~ log_pop_density + vhat + dist_mi + dist_sq'\n         ' + log_income + log_rooms', data=df).fit(\n             cov_type='HC3')\nprint(cf.summary())  # t-stat on vhat = endogeneity test`;
     } else {
       idC='high';idM='Instrumental Variables (2SLS)';
       idD='Build your IV around a variable strongly correlated with the endogenous regressor but plausibly exogenous to the outcome. Common sources: geographic features, historical characteristics, administrative boundaries, shift-share (Bartik) instruments.';
@@ -711,7 +743,11 @@ function buildToolkit(a){
     idEq='ln(P_i) = β_0 + β_1 d_i + β_2 d_i^2 + X\'_i δ + ε_i';
     idCode=`library(fixest)\nmod <- feols(log_price ~ dist_mi + dist_sq + controls,\n             data=df, vcov="HC3")\nsummary(mod); etable(mod)`;
   }
-  sections.push({icon:'◎',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,code:idCode,conf:idC});
+  sections.push({icon:'◎',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,
+    code:idCode,
+    codeStata:idCodeStata||stataFallback(idM),
+    codePython:idCodePython||pythonFallback(idM),
+    conf:idC});
 
   // 2. Estimator
   let estM,estD,estW,estEq,estCode,estC;
@@ -758,7 +794,11 @@ function buildToolkit(a){
     estEq='Y_i = β_0 + β_1 X_i + X\'_i δ + ε_i\nHC3: V̂=(X\'X)^{−1}X\'diag(ê_i^2/(1−h_{ii})^2)X(X\'X)^{−1}';
     estCode=`library(fixest)\nmod <- feols(outcome ~ X1+X2+X3, data=df, vcov="HC3")\nsummary(mod)`;
   }
-  sections.push({icon:'ƒ',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,code:estCode,conf:estC});
+  sections.push({icon:'ƒ',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,
+    code:estCode,
+    codeStata:isHedonic?`* Stata — Semi-Log Hedonic Pricing\n\n* OLS hedonic baseline\nreg log_price dist_mi dist_sq log_income log_pop_density log_rooms, robust\n\n* IV hedonic (ivregress)\nivregress 2sls log_price (log_pop_density = log_land_area) ///\n          dist_mi dist_sq log_income log_rooms, robust\n\n* First-stage stats\nestat firststage\n\n* Turning point\n* d* = -b_dist / (2 * b_dist_sq)\ndi "Turning point: " -_b[dist_mi] / (2*_b[dist_sq]) " miles"`:isPanel?`* Stata — TWFE\n* Install: ssc install reghdfe, ssc install ftools\n\nreghdfe outcome X_tv, absorb(unit_id year) vce(cluster unit_id)\n\n* Hausman test\nxtreg outcome X_tv, fe\nestimates store fe\nxtreg outcome X_tv, re\nestimates store re\nhausman fe re`:stataFallback(estM),
+    codePython:isHedonic?`# Python — Semi-Log Hedonic Pricing\nimport statsmodels.formula.api as smf\nfrom linearmodels.iv import IV2SLS\nimport numpy as np\n\n# OLS hedonic baseline\nols = smf.ols('log_price ~ dist_mi + dist_sq + log_income'\n              ' + log_pop_density + log_rooms', data=df).fit(\n                  cov_type='HC3')\nprint(ols.summary())\n\n# IV hedonic\niv = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df).fit(cov_type='robust')\nprint(iv.summary)\n\n# Turning point\nb1 = iv.params['dist_mi']; b2 = iv.params['dist_sq']\nprint(f"Turning point: {-b1/(2*b2):.2f} miles")`:pythonFallback(estM),
+    conf:estC});
 
   // 3. Functional form
   if(isNonLinear){
@@ -767,7 +807,9 @@ function buildToolkit(a){
       detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test — individual t-statistics are unreliable due to structural collinearity between d and d². Turning point d* = −β₁/2β₂ gives the distance at which the marginal effect changes sign. Natural cubic splines (GAM) are a flexible non-parametric upgrade that do not impose a symmetric parabola.',
       watch:'Quadratic forces symmetry. If the true gradient is asymmetric, a spline fits better — report both as a robustness check.',
       equation:'ln(P_i) = β_0 + β_1 d_i + β_2 d_i^2 + X\'_i δ + ε_i\nd* = −β_1 / 2β_2  (turning point)\nGAM: Y_i = β_0 + s(d_i) + X\'_i δ + ε_i',
-      code:`library(fixest); library(mgcv); library(car)\nmod_q <- feols(log_price ~ dist_mi + dist_sq + controls,\n               data=df, vcov="HC3")\nlinearHypothesis(mod_q, c("dist_mi=0","dist_sq=0"))\nb1<-coef(mod_q)["dist_mi"]; b2<-coef(mod_q)["dist_sq"]\ncat("d* =", round(-b1/(2*b2),2), "miles")\ngam_mod <- gam(log_price ~ s(dist_mi,k=6)+controls,\n               data=df, method="REML")\nplot(gam_mod, select=1, shade=TRUE)`});
+      code:`library(fixest); library(mgcv); library(car)\nmod_q <- feols(log_price ~ dist_mi + dist_sq + controls,\n               data=df, vcov="HC3")\nlinearHypothesis(mod_q, c("dist_mi=0","dist_sq=0"))\nb1<-coef(mod_q)["dist_mi"]; b2<-coef(mod_q)["dist_sq"]\ncat("d* =", round(-b1/(2*b2),2), "miles")\ngam_mod <- gam(log_price ~ s(dist_mi,k=6)+controls,\n               data=df, method="REML")\nplot(gam_mod, select=1, shade=TRUE)`,
+      codeStata:`* Stata — Quadratic specification\nreg log_price dist_mi dist_sq controls, robust\n\n* Joint F-test on distance terms\ntest dist_mi dist_sq\n\n* Turning point\ndi "d* = " -_b[dist_mi]/(2*_b[dist_sq]) " miles"\n\n* Spline robustness (install: ssc install mkspline)\nmkspline dist_sp = dist_mi, cubic nknots(5)\nreg log_price dist_sp* controls, robust`,
+      codePython:`# Python — Quadratic + spline\nimport statsmodels.formula.api as smf\nimport numpy as np\n\n# Quadratic\nmod_q = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n                data=df).fit(cov_type='HC3')\nprint(mod_q.summary())\n\n# Joint F-test\nfrom statsmodels.stats.anova import anova_lm\nhyp = '(dist_mi = 0), (dist_sq = 0)'\nprint(mod_q.f_test(hyp))\n\n# Turning point\nb1=mod_q.params['dist_mi']; b2=mod_q.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")\n\n# GAM spline\nfrom pygam import LinearGAM, s, l\ngam = LinearGAM(s(0) + l(1) + l(2)).fit(X, y)\ngam.summary()`});
   } else if(isDynamic){
     sections.push({icon:'∿',color:'#b45309',label:'Functional form — dynamic',conf:'high',
       method:'Dynamic Panel GMM (Arellano-Bond / Blundell-Bond)',
@@ -902,6 +944,7 @@ function renderResults(tk,ai){
   }
 
   // ── TOOLKIT SECTIONS ──
+  html += langToggleHTML();
   tk.sections.forEach((s,i)=>{
     const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
     const cl=s.conf==='high'?'Core recommendation':s.conf==='medium'?'Likely relevant':'Worth considering';
@@ -921,13 +964,21 @@ function renderResults(tk,ai){
         <p class="sec-detail">${esc(s.detail)}</p>
         ${s.watch?`<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">${esc(s.watch)}</div></div>`:''}
         ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>`<div class="eq-line">${mathify(esc(ln))}</div>`).join('')}</div>`:''}
-        ${s.code?`<button class="code-toggle" onclick="togCode(${i},this)">▸ show R code</button>
-        <div class="code-block" id="code-${i}">
-          <div class="code-header">
-            <span class="code-lang">R</span>
-            <button class="code-copy" onclick="cpCode(${i})">copy</button>
-          </div>
-          <pre class="code-pre" id="cpre-${i}">${esc(s.code)}</pre>
+        ${(s.code||s.codeStata||s.codePython)?`
+        <button class="code-toggle" onclick="togCode(${i},this)">▸ show code</button>
+        <div id="code-${i}" style="display:none">
+          ${s.code?`<div class="code-r code-block">
+            <div class="code-header"><span class="code-lang">R</span><button class="code-copy" onclick="cpCode('cpre-${i}-r')">copy</button></div>
+            <pre class="code-pre" id="cpre-${i}-r">${esc(s.code)}</pre>
+          </div>`:''}
+          ${s.codeStata?`<div class="code-stata code-block" style="display:none">
+            <div class="code-header"><span class="code-lang">Stata</span><button class="code-copy" onclick="cpCode('cpre-${i}-stata')">copy</button></div>
+            <pre class="code-pre" id="cpre-${i}-stata">${esc(s.codeStata)}</pre>
+          </div>`:''}
+          ${s.codePython?`<div class="code-python code-block" style="display:none">
+            <div class="code-header"><span class="code-lang">Python</span><button class="code-copy" onclick="cpCode('cpre-${i}-python')">copy</button></div>
+            <pre class="code-pre" id="cpre-${i}-python">${esc(s.codePython)}</pre>
+          </div>`:''}
         </div>`:''}
       </div>
     </div>`;
@@ -948,7 +999,33 @@ function renderResults(tk,ai){
   el.innerHTML=html;
 }
 
-function togSec(i){document.getElementById('sec-'+i).classList.toggle('open');}
+function setLang(l){
+  codeLang=l;
+  // Update toggle button states
+  ['r','stata','python'].forEach(lang=>{
+    const btn=document.getElementById('lang-btn-'+lang);
+    if(btn){
+      btn.style.background=lang===l?'#1e3a8a':'transparent';
+      btn.style.color=lang===l?'#93c5fd':var_hint();
+      btn.style.borderColor=lang===l?'#3b82f6':'var(--border)';
+    }
+  });
+  // Show/hide code blocks for each language
+  document.querySelectorAll('.code-r').forEach(el=>el.style.display=l==='r'?'block':'none');
+  document.querySelectorAll('.code-stata').forEach(el=>el.style.display=l==='stata'?'block':'none');
+  document.querySelectorAll('.code-python').forEach(el=>el.style.display=l==='python'?'block':'none');
+}
+function var_hint(){return '#475569';}
+
+function langToggleHTML(){
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;padding:12px 16px;background:var(--bg2);border-radius:10px;border:0.5px solid var(--border)">
+    <span style="font-size:11px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-right:4px">Code language</span>
+    <button id="lang-btn-r" onclick="setLang('r')" style="background:#1e3a8a;color:#93c5fd;border:0.5px solid #3b82f6;border-radius:7px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">R</button>
+    <button id="lang-btn-stata" onclick="setLang('stata')" style="background:transparent;color:var(--hint);border:0.5px solid var(--border);border-radius:7px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">Stata</button>
+    <button id="lang-btn-python" onclick="setLang('python')" style="background:transparent;color:var(--hint);border:0.5px solid var(--border);border-radius:7px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">Python</button>
+    <span style="font-size:11px;color:var(--dim);margin-left:6px">Toggle to switch all code snippets</span>
+  </div>`;
+}
 function togCode(i,btn){
   const c=document.getElementById('code-'+i);
   const open=c.style.display==='none'||c.style.display==='';
