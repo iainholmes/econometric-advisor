@@ -467,11 +467,12 @@ async function generate(){
   document.getElementById('loading-msg').textContent='Building your toolkit…';
   const tk=buildToolkit(ans);
   let ai=null;
-  if(apiKey){
+  if(apiKey&&apiKey.length>10){
     document.getElementById('loading-msg').textContent='Writing your research narrative…';
     ai=await enrichWithAI(ans,tk);
   }
   renderResults(tk,ai);
+  document.getElementById('loading-msg').textContent='Fetching live literature…';
   fetchLiterature(ans,tk);
   show('results');
   setHdr('your toolkit',true);
@@ -559,31 +560,44 @@ async function fetchLiterature(a,tk){
   const el=document.getElementById('lit-container');
   if(!el)return;
   const query=buildLitQuery(a,tk);
-  try{
-    const url=`https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&fields=title,authors,year,citationCount,externalIds,abstract&limit=8&offset=0`;
-    const r=await fetch(url);
-    const d=await r.json();
-    if(!d.data||d.data.length===0){el.innerHTML='<p class="lit-error">No results found for this query. Try adding more detail to your research description.</p>';return;}
-    el.innerHTML=d.data.map(p=>{
-      const doi=p.externalIds?.DOI;
-      const href=doi?`https://doi.org/${doi}`:`https://www.semanticscholar.org/paper/${p.paperId}`;
-      const authors=p.authors?.slice(0,3).map(a=>a.name.split(' ').pop()).join(', ')+(p.authors?.length>3?' et al.':'');
-      const abstract=p.abstract?p.abstract.slice(0,160)+'…':'';
-      return `<a class="lit-card" href="${esc(href)}" target="_blank" rel="noreferrer">
-        <div class="lit-meta">
-          <div class="lit-name">${esc(authors||'—')}</div>
-          <div class="lit-year">${p.year||'—'}</div>
-          <div class="lit-cite">${p.citationCount!=null?p.citationCount+' citations':''}</div>
-        </div>
-        <div class="lit-body">
-          <div class="lit-title">${esc(p.title||'Untitled')}</div>
-          ${abstract?`<div class="lit-desc">${esc(abstract)}</div>`:''}
-        </div>
-      </a>`;
-    }).join('');
-  }catch(e){
-    el.innerHTML=`<p class="lit-error">Could not reach Semantic Scholar. Check your connection or <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(buildLitQuery(a,tk))}" target="_blank" style="color:var(--blue)">search Google Scholar manually</a>.</p>`;
+  // Try direct first, fall back to CORS proxy
+  const endpoints=[
+    `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&fields=title,authors,year,citationCount,externalIds,abstract&limit=8`,
+    `https://corsproxy.io/?url=${encodeURIComponent('https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract&limit=8')}`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract&limit=8')}`,
+  ];
+  let data=null;
+  for(const url of endpoints){
+    try{
+      const r=await fetch(url,{headers:{'Accept':'application/json'}});
+      if(!r.ok)continue;
+      const raw=await r.json();
+      // allorigins wraps in {contents:'...'}
+      const parsed=raw.contents?JSON.parse(raw.contents):raw;
+      if(parsed.data&&parsed.data.length>0){data=parsed;break;}
+    }catch(e){continue;}
   }
+  if(!data||!data.data||data.data.length===0){
+    el.innerHTML=`<p class="lit-error">Could not load live results. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(query)}" target="_blank" style="color:var(--blue)">Search Google Scholar manually →</a></p>`;
+    return;
+  }
+  el.innerHTML=data.data.map(p=>{
+    const doi=p.externalIds?.DOI;
+    const href=doi?`https://doi.org/${doi}`:`https://www.semanticscholar.org/paper/${p.paperId}`;
+    const authors=p.authors?.slice(0,3).map(au=>au.name.split(' ').pop()).join(', ')+(p.authors?.length>3?' et al.':'');
+    const abstract=p.abstract?p.abstract.slice(0,180)+'…':'';
+    return `<a class="lit-card" href="${esc(href)}" target="_blank" rel="noreferrer">
+      <div class="lit-meta">
+        <div class="lit-name">${esc(authors||'—')}</div>
+        <div class="lit-year">${p.year||'—'}</div>
+        <div class="lit-cite">${p.citationCount!=null?p.citationCount.toLocaleString()+' citations':''}</div>
+      </div>
+      <div class="lit-body">
+        <div class="lit-title">${esc(p.title||'Untitled')}</div>
+        ${abstract?`<div class="lit-desc">${esc(abstract)}</div>`:''}
+      </div>
+    </a>`;
+  }).join('');
 }
 
 // ── TOOLKIT BUILDER ───────────────────────────────────────────────────
