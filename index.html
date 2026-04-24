@@ -370,7 +370,7 @@ function renderQ(){
     el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
-    <div class="chips">${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'checkmark':''}</span>${o.l}</button>`).join('')}</div>
+    <div class="chips">      ${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
     <div class="multi-actions"><button class="btn-cont" onclick="nextStep()">Continue</button><button class="btn-skip" onclick="nextStep()">Skip</button></div>`;
   } else {
     el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
@@ -420,7 +420,7 @@ async function enrichWithAI(a,tk){
 Only valid JSON, no markdown.
 ANSWERS:\n${answerSummary}\nSECTIONS: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
     const d=await r.json();
     const t=d.content?.find(b=>b.type==='text')?.text||'';
     return JSON.parse(t.replace(/```json|```/g,'').trim());
