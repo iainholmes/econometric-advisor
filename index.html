@@ -235,6 +235,9 @@ textarea.ctx::placeholder{color:var(--dim)}
         <span class="tag">Live literature</span><span class="tag">Path diagram</span>
       </div>
       <button class="btn-primary" onclick="startApp()">Begin assessment →</button>
+      <div style="margin-top:1rem">
+        <button onclick="resetKey()" style="background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">Reset API key</button>
+      </div>
     </div>
   </div>
 </div>
@@ -395,6 +398,12 @@ function mathify(s){
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── FLOW ──────────────────────────────────────────────────────────────
+function resetKey(){
+  localStorage.removeItem('ea_ak');
+  apiKey='';
+  document.getElementById('api-key-input').value='';
+  document.getElementById('api-modal').style.display='flex';
+}
 function startApp(){
   if(!apiKey){document.getElementById('api-modal').style.display='flex';return;}
   beginQuiz();
@@ -560,11 +569,12 @@ async function fetchLiterature(a,tk){
   const el=document.getElementById('lit-container');
   if(!el)return;
   const query=buildLitQuery(a,tk);
-  // Try direct first, fall back to CORS proxy
+  const ssUrl='https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract&limit=8';
+  // Always use proxies on deployed site — skip direct call to avoid CORS block
   const endpoints=[
-    `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&fields=title,authors,year,citationCount,externalIds,abstract&limit=8`,
-    `https://corsproxy.io/?url=${encodeURIComponent('https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract&limit=8')}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract&limit=8')}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(ssUrl)}`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent(ssUrl)}`,
+    `https://thingproxy.freeboard.io/fetch/${ssUrl}`,
   ];
   let data=null;
   for(const url of endpoints){
