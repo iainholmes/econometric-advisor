@@ -206,24 +206,20 @@ textarea.ctx::placeholder{color:var(--dim)}
   <div class="landing" style="position:relative;overflow:hidden;min-height:100vh">
     <!-- Watermark SVG fills entire viewport -->
     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:min(90vw,90vh);height:min(90vw,90vh);opacity:0.045">
-        <defs><linearGradient id="wbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6"/><stop offset="100%" style="stop-color:#0f2557"/></linearGradient></defs>
-        <rect width="512" height="512" rx="112" fill="url(#wbg)"/>
-        <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="2"/>
-        <circle cx="256" cy="256" r="152" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-        <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="6"/>
-        <circle cx="256" cy="256" r="90" fill="#080e1c"/>
-        <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="256" cy="146" r="12" fill="#3b82f6"/>
-        <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="174" cy="339" r="12" fill="#a855f7"/>
-        <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="338" cy="339" r="12" fill="#10b981"/>
-        <circle cx="256" cy="256" r="16" fill="#1e40af"/>
-        <circle cx="256" cy="256" r="11" fill="#93c5fd"/>
-        <circle cx="256" cy="256" r="5" fill="#fff"/>
-        <text x="256" y="430" font-family="-apple-system,sans-serif" font-size="32" font-weight="700" fill="#e2e8f0" text-anchor="middle" letter-spacing="3">ADVISOR</text>
-        <text x="256" y="462" font-family="-apple-system,sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="6">ECONOMETRIC</text>
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:min(96vw,96vh);height:min(96vw,96vh);opacity:0.13">
+        <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
+        <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1"/>
+        <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="5"/>
+        <circle cx="256" cy="256" r="90" fill="#0a0f1e"/>
+        <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="256" cy="146" r="10" fill="#1d4ed8"/><circle cx="256" cy="146" r="6" fill="#3b82f6"/>
+        <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c084fc"/>
+        <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#34d399"/>
+        <circle cx="256" cy="256" r="14" fill="#1e40af"/>
+        <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
+        <circle cx="256" cy="256" r="5" fill="#ffffff"/>
       </svg>
     </div>
     <!-- Content sits above watermark -->
@@ -695,7 +691,7 @@ function buildToolkit(a){
   const sections=[];
 
   // 1. Identification
-  let idM,idD,idW,idEq,idCode,idC;
+  let idM,idD,idW,idEq,idCode,idCodeStata,idCodePython,idC;
   if(hasNatExp&&treatment&&!['none','unsure'].includes(treatment)){
     if(fewTreated){
       idC='high';idM='Synthetic Control / Synthetic DiD';
