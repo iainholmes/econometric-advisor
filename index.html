@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Econometric Advisor</title>
+<meta name="description" content="A personalized econometric research design toolkit. Answer a short questionnaire and receive identification strategies, estimating equations, R code, and curated literature."/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230a0f1e'/%3E%3Cstop offset='100%25' style='stop-color:%230f2557'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23bg)'/%3E%3Ccircle cx='256' cy='256' r='110' fill='none' stroke='%233b82f6' stroke-width='4' opacity='.9'/%3E%3Ccircle cx='256' cy='256' r='90' fill='%23080e1c' opacity='.98'/%3E%3Cline x1='256' y1='254' x2='256' y2='152' stroke='%233b82f6' stroke-width='4' stroke-linecap='round' opacity='.9'/%3E%3Ccircle cx='256' cy='146' r='7' fill='%233b82f6'/%3E%3Cline x1='250' y1='262' x2='178' y2='334' stroke='%23a855f7' stroke-width='4' stroke-linecap='round' opacity='.95'/%3E%3Ccircle cx='174' cy='339' r='7' fill='%23a855f7'/%3E%3Cline x1='262' y1='262' x2='334' y2='334' stroke='%2310b981' stroke-width='4' stroke-linecap='round' opacity='.95'/%3E%3Ccircle cx='338' cy='339' r='7' fill='%2310b981'/%3E%3Ccircle cx='256' cy='256' r='10' fill='%2393c5fd'/%3E%3Ccircle cx='256' cy='256' r='5' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;--bg2:#0f172a;--bg3:#1a2540;
+  --blue:#3b82f6;--blue-dim:#1e3a8a;
+  --purple:#a855f7;--purple-dim:#4c1d95;
+  --green:#10b981;--green-dim:#064e3b;
+  --amber:#f59e0b;--amber-dim:#451a03;
+  --red:#ef4444;--red-dim:#450a0a;
+  --text:#e2e8f0;--muted:#475569;--hint:#1e293b;
+  --border:#1a2540;
+}
+body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:50}
+.hdr-icon svg{width:32px;height:32px}
+.hdr-title{font-size:13px;font-weight:500;color:var(--muted)}
+.hdr-sep{color:var(--hint);font-size:12px}
+.hdr-sub{font-size:12px;color:var(--hint)}
+.hdr-right{margin-left:auto}
+.btn-sm{background:transparent;border:0.5px solid var(--border);border-radius:7px;color:var(--muted);padding:5px 13px;font-size:11.5px;cursor:pointer;transition:border-color .15s;font-family:inherit}
+.btn-sm:hover{border-color:var(--blue)}
+
+/* PROGRESS */
+.prog-bar{height:2px;background:var(--bg2)}
+.prog-fill{height:100%;background:var(--blue);transition:width .35s}
+
+/* LANDING */
+.landing{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 48px);padding:2rem}
+.landing-inner{max-width:520px;width:100%;text-align:center}
+.landing-logo{margin:0 auto 2rem;width:80px;height:80px}
+.landing-logo svg{width:80px;height:80px}
+.landing h1{font-size:24px;font-weight:500;color:#f0f6ff;margin-bottom:.75rem;line-height:1.3}
+.landing p{color:var(--muted);font-size:14px;line-height:1.85;margin-bottom:2rem}
+.tags{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.tag{background:var(--bg2);color:#334155;font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border)}
+.btn-primary{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px 34px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;font-family:inherit}
+.btn-primary:hover{opacity:.88}
+
+/* QUIZ */
+.quiz{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 50px);padding:2rem}
+.quiz-inner{max-width:600px;width:100%}
+.q-label{font-size:9.5px;color:var(--blue);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:7px}
+.q-text{font-size:20px;font-weight:500;color:#e2e8f0;margin-bottom:6px;line-height:1.4}
+.q-sub{font-size:13.5px;color:var(--muted);margin-bottom:1.75rem}
+.chips{display:flex;flex-direction:column;gap:6px}
+.chip{background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;padding:11px 15px;color:#64748b;font-size:13.5px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
+.chip:hover{border-color:#334155;color:#94a3b8}
+.chip.sel{background:#0f2557;border-color:var(--blue);color:#93c5fd;font-weight:500}
+.chip.na{color:#1e3a5f;font-style:italic}
+.chip.na:hover{color:#334155}
+.multi-actions{display:flex;gap:8px;margin-top:1.25rem}
+.btn-cont{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-skip{background:transparent;border:0.5px solid var(--border);border-radius:9px;color:var(--muted);padding:11px 14px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.check-box{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);background:transparent;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;transition:all .15s;margin-right:8px;vertical-align:middle}
+.chip.sel .check-box{background:var(--blue);border-color:var(--blue)}
+textarea.ctx{width:100%;min-height:110px;background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;color:#c7d9f5;font-size:13.5px;padding:13px 15px;line-height:1.7;resize:vertical;outline:none;font-family:inherit}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 48px);flex-direction:column;gap:1.25rem}
+.spinner{width:42px;height:42px;border:2px solid var(--bg3);border-top:2px solid var(--blue);border-radius:50%;animation:spin .85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:13px}
+
+/* RESULTS */
+.results{max-width:860px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.results-meta{color:#1e3a5f;font-size:11.5px;margin-bottom:1.5rem}
+
+/* AI panel */
+.ai-panel{background:#0a1628;border:0.5px solid #1e3a8a55;border-radius:12px;padding:18px 20px;margin-bottom:1.75rem}
+.ai-panel-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ai-panel-hdr span{font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.ai-summary{color:#93c5fd;font-size:14px;line-height:1.8;margin-bottom:14px}
+.ai-adj-label{font-size:9.5px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px}
+.ai-adj{color:#7da8d4;font-size:13px;line-height:1.7;padding-left:12px;border-left:1.5px solid #1e3a8a;margin-bottom:5px}
+.ai-watch{background:#0d1820;border:0.5px solid #1e3a5f;border-radius:7px;padding:9px 13px;margin-top:8px}
+
+/* Sections */
+.section{background:var(--bg2);border-radius:11px;border:0.5px solid var(--border);overflow:hidden;margin-bottom:8px;transition:border-color .2s}
+.section.open{border-color:var(--sec-color,var(--blue))}
+.sec-hdr{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer}
+.sec-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sec-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:2px}
+.sec-method{font-size:13.5px;color:#e2e8f0;font-weight:500}
+.sec-chev{color:var(--hint);font-size:11px;margin-left:auto;transition:transform .2s}
+.section.open .sec-chev{transform:rotate(180deg)}
+.sec-body{border-top:0.5px solid var(--border);padding:15px 16px 17px;display:none}
+.section.open .sec-body{display:block}
+.sec-detail{color:#6b84a8;font-size:13.5px;line-height:1.85;white-space:pre-line}
+.watch-box{background:#0d1208;border-radius:7px;border:0.5px solid #1c2e14;padding:9px 12px;margin-top:11px}
+.watch-label{font-size:9.5px;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:3px}
+.watch-text{color:#a16207;font-size:12.5px;line-height:1.65}
+
+/* Equation */
+.eq-block{background:#060d1f;border-radius:8px;border:0.5px solid #1e3a8a;padding:12px 16px;margin-top:11px}
+.eq-label{font-size:9.5px;color:#60a5fa;text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:8px}
+.eq-line{color:#93c5fd;font-size:13px;font-family:'Courier New',monospace;line-height:1.95;white-space:pre-wrap}
+
+/* Code */
+.code-toggle{background:transparent;border:0.5px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;padding:4px 11px;cursor:pointer;margin-top:10px;font-family:inherit}
+.code-block{background:#060d1f;border-radius:8px;border:0.5px solid #1e293b;margin-top:8px;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:0.5px solid var(--border)}
+.code-lang{color:var(--muted);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+.code-copy{background:transparent;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;padding:2px 6px;font-family:inherit}
+.code-pre{margin:0;padding:12px 14px;color:#7dd3fc;font-size:12px;font-family:'Courier New',monospace;line-height:1.8;white-space:pre-wrap;overflow-x:auto}
+
+/* Confidence badge */
+.conf{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:5px;padding:2px 7px;margin-left:8px}
+.conf-high{color:#059669;background:#052e16;border:0.5px solid #05906933}
+.conf-med{color:#d97706;background:#1c1400;border:0.5px solid #d9770633}
+.conf-low{color:#64748b;background:var(--bg2);border:0.5px solid #64748b33}
+
+/* Sources & Lit */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:7px}
+.source-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:9px;padding:10px 13px;text-decoration:none;display:block;transition:border-color .15s}
+.source-card:hover{border-color:var(--blue)}
+.source-name{color:#b8d0f0;font-size:12.5px;font-weight:500;margin-bottom:3px}
+.source-desc{color:#1e3a5f;font-size:11.5px;line-height:1.5}
+.source-url{color:#1d4ed8;font-size:10.5px;margin-top:5px}
+.lit-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;padding:9px 13px;text-decoration:none;display:flex;align-items:baseline;gap:12px;transition:border-color .15s;margin-bottom:5px}
+.lit-card:hover{border-color:var(--purple)}
+.lit-name{color:#7c3aed;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.lit-desc{color:#1e3a5f;font-size:12px;line-height:1.5}
+.lit-arr{color:#2e1065;font-size:10px;margin-left:auto;flex-shrink:0}
+.sec-divider{font-size:9.5px;color:#1e3a5f;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:2rem 0 .75rem}
+
+/* TREE DIAGRAM */
+.tree-section{margin-top:2.5rem}
+.tree-hdr{background:#0a1628;border:0.5px solid #1e3a8a33;border-radius:12px;padding:16px 20px;margin-bottom:1rem}
+.tree-hdr h3{font-size:14px;font-weight:500;color:#93c5fd;margin-bottom:4px}
+.tree-hdr p{font-size:12.5px;color:#334155;line-height:1.6}
+.tree-svg-wrap{overflow-x:auto;border-radius:10px;background:var(--bg2);border:0.5px solid var(--border);padding:1rem}
+
+/* Glow animations */
+@keyframes glow-blue{0%,100%{filter:drop-shadow(0 0 4px #3b82f6aa)}50%{filter:drop-shadow(0 0 10px #3b82f6)}}
+@keyframes glow-purple{0%,100%{filter:drop-shadow(0 0 4px #a855f7aa)}50%{filter:drop-shadow(0 0 10px #a855f7)}}
+@keyframes glow-green{0%,100%{filter:drop-shadow(0 0 4px #10b981aa)}50%{filter:drop-shadow(0 0 10px #10b981)}}
+@keyframes glow-amber{0%,100%{filter:drop-shadow(0 0 4px #f59e0baa)}50%{filter:drop-shadow(0 0 10px #f59e0b)}}
+@keyframes glow-red{0%,100%{filter:drop-shadow(0 0 4px #ef4444aa)}50%{filter:drop-shadow(0 0 10px #ef4444)}}
+.glow-blue{animation:glow-blue 2.5s ease-in-out infinite}
+.glow-purple{animation:glow-purple 2.5s ease-in-out infinite}
+.glow-green{animation:glow-green 2.5s ease-in-out infinite}
+.glow-amber{animation:glow-amber 2.5s ease-in-out infinite}
+.glow-red{animation:glow-red 2.5s ease-in-out infinite}
+
+/* API key modal */
+.modal-bg{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal{background:#0f172a;border:0.5px solid var(--border);border-radius:14px;padding:28px;max-width:480px;width:100%}
+.modal h2{font-size:17px;font-weight:500;color:#e2e8f0;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.modal input{width:100%;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;color:#c7d9f5;font-size:13px;padding:11px 14px;outline:none;font-family:inherit;margin-bottom:12px}
+.modal-actions{display:flex;gap:8px}
+.modal-note{font-size:11px;color:#1e3a5f;margin-top:10px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr" id="hdr" style="display:none">
+  <div class="hdr-icon">
+    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="hbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a0f1e"/><stop offset="100%" style="stop-color:#0f2557"/></linearGradient></defs>
+      <rect width="512" height="512" rx="112" fill="url(#hbg)"/>
+      <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="4" opacity="0.9"/>
+      <circle cx="256" cy="256" r="90" fill="#080e1c" opacity="0.98"/>
+      <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+      <circle cx="256" cy="146" r="7" fill="#3b82f6"/>
+      <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="4" stroke-linecap="round" opacity="0.95"/>
+      <circle cx="174" cy="339" r="7" fill="#a855f7"/>
+      <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="4" stroke-linecap="round" opacity="0.95"/>
+      <circle cx="338" cy="339" r="7" fill="#10b981"/>
+      <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
+      <circle cx="256" cy="256" r="5" fill="#ffffff"/>
+    </svg>
+  </div>
+  <span class="hdr-title">Econometric Advisor</span>
+  <span class="hdr-sep">/</span>
+  <span class="hdr-sub" id="hdr-sub">assessment</span>
+  <div class="hdr-right">
+    <button class="btn-sm" id="btn-reset" onclick="resetApp()" style="display:none">&#8592; New assessment</button>
+  </div>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+<!-- SCREENS -->
+<div id="screen-landing">
+  <div class="landing">
+    <div class="landing-inner">
+      <div class="landing-logo">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a0f1e"/><stop offset="100%" style="stop-color:#0f2557"/></linearGradient></defs>
+          <rect width="512" height="512" rx="112" fill="url(#lbg)"/>
+          <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1" opacity="0.4"/>
+          <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1" opacity="0.35"/>
+          <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="4" opacity="0.9"/>
+          <circle cx="256" cy="256" r="90" fill="#080e1c" opacity="0.98"/>
+          <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+          <circle cx="256" cy="146" r="9" fill="#1d4ed8" opacity="0.95"/>
+          <circle cx="256" cy="146" r="5" fill="#3b82f6"/>
+          <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="4" stroke-linecap="round" opacity="0.95"/>
+          <circle cx="174" cy="339" r="9" fill="#9333ea" opacity="0.95"/>
+          <circle cx="174" cy="339" r="5" fill="#c084fc"/>
+          <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="4" stroke-linecap="round" opacity="0.95"/>
+          <circle cx="338" cy="339" r="9" fill="#059669" opacity="0.95"/>
+          <circle cx="338" cy="339" r="5" fill="#34d399"/>
+          <circle cx="256" cy="256" r="14" fill="#1e40af" opacity="0.95"/>
+          <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
+          <circle cx="256" cy="256" r="5" fill="#ffffff"/>
+        </svg>
+      </div>
+      <h1>Econometric Research Advisor</h1>
+      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit — identification strategy, estimator, functional form, spatial methods, R code, diagnostics, data sources, and literature. Describe your study in plain English at the end for AI-powered tailoring. Your research path is visualized in an interactive architecture diagram.</p>
+      <div class="tags">
+        <span class="tag">Identification</span>
+        <span class="tag">Estimating equations</span>
+        <span class="tag">R code</span>
+        <span class="tag">Spatial methods</span>
+        <span class="tag">ML / Causal forests</span>
+        <span class="tag">AI tailoring</span>
+        <span class="tag">Path diagram</span>
+        <span class="tag">Literature</span>
+      </div>
+      <button class="btn-primary" onclick="startApp()">Begin assessment &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-quiz" style="display:none">
+  <div class="quiz">
+    <div class="quiz-inner" id="quiz-inner"></div>
+  </div>
+</div>
+
+<div id="screen-loading" style="display:none">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p id="loading-msg">Building your toolkit&hellip;</p>
+  </div>
+</div>
+
+<div id="screen-results" style="display:none">
+  <div class="results" id="results-inner"></div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-bg" id="api-modal" style="display:none">
+  <div class="modal">
+    <h2>Anthropic API key</h2>
+    <p>Enter your Anthropic API key to enable AI-powered tailoring of your toolkit based on your plain-English research description. Your key is stored only in your browser's local storage and is never sent anywhere except directly to Anthropic.</p>
+    <input type="password" id="api-key-input" placeholder="sk-ant-..."/>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="saveKey()">Save key</button>
+      <button class="btn-skip" onclick="skipKey()">Skip &mdash; use static toolkit only</button>
+    </div>
+    <p class="modal-note">You can get an API key at console.anthropic.com. This key is used only for the optional research description analysis step.</p>
+  </div>
+</div>
+
+<script>
+// ── QUESTIONS ──────────────────────────────────────────────────────────
+var QUESTIONS = [
+  {id:"field", text:"What is your primary research field?", sub:"Shapes which estimators, data norms, and literature are relevant.", type:"chips", options:[
+    {l:"Environmental / Natural Resource Economics", v:"env"},
+    {l:"Urban / Housing Economics", v:"urban"},
+    {l:"Labor / Health Economics", v:"labor"},
+    {l:"Development / Public Economics", v:"dev"},
+    {l:"Agricultural Economics", v:"ag"},
+    {l:"Finance / Resource Markets", v:"finance"},
+    {l:"Other / General", v:"other"},
+    {l:"Not sure yet", v:"unsure"}
+  ]},
+  {id:"question_type", text:"What is the nature of your core research question?", sub:"Are you estimating a causal effect, valuing a non-market good, or describing a pattern?", type:"chips", options:[
+    {l:"Causal identification — does X cause Y?", v:"causal"},
+    {l:"Welfare / non-market valuation (WTP, WTA, implicit prices)", v:"welfare"},
+    {l:"Prediction / out-of-sample forecasting", v:"predict"},
+    {l:"Descriptive / correlational analysis", v:"descriptive"},
+    {l:"Structural / theory-based estimation", v:"structural"},
+    {l:"Not sure yet", v:"unsure"}
+  ]},
+  {id:"treatment", text:"Is there a treatment, policy, or shock you are analyzing?", sub:"If yes, what kind?", type:"chips", options:[
+    {l:"Environmental regulation or contamination event", v:"env_reg"},
+    {l:"Infrastructure project (dam, road, transit, plant)", v:"infra"},
+    {l:"Land use or zoning change", v:"landuse"},
+    {l:"Health or safety shock", v:"health"},
+    {l:"Economic policy or government program", v:"policy"},
+    {l:"Market shock or price change", v:"market"},
+    {l:"No explicit treatment — observational study", v:"none"},
+    {l:"Not sure / haven't decided", v:"unsure"}
+  ]},
+  {id:"data_structure", text:"What does your data look like?", sub:"Select all that apply — skip if undecided.", type:"multi", skippable:true, options:[
+    {l:"Cross-section (many units, one point in time)", v:"cross"},
+    {l:"Panel (same units observed across multiple periods)", v:"panel"},
+    {l:"Geographic / spatial data (coordinates, shapefiles, ZCTAs)", v:"spatial"},
+    {l:"Time series (one or few units over many periods)", v:"ts"},
+    {l:"Survey / microdata (individual-level responses)", v:"survey"},
+    {l:"High-dimensional (many covariates, possibly > observations)", v:"highdim"},
+    {l:"Not sure / data not collected yet", v:"unsure"}
+  ]},
+  {id:"n_treated", text:"How many units receive the treatment or shock?", sub:"This affects which identification strategies are feasible.", type:"chips", options:[
+    {l:"Just 1 (single city, county, facility, or event)", v:"one"},
+    {l:"Small group — 2 to 10 treated units", v:"few"},
+    {l:"Moderate — 11 to 50 treated units", v:"moderate"},
+    {l:"Large — more than 50 treated units", v:"many"},
+    {l:"No treatment / not applicable", v:"na"},
+    {l:"Not sure yet", v:"unsure"}
+  ]},
+  {id:"outcome", text:"What type is your dependent variable?", sub:"Determines which estimator family is appropriate.", type:"chips", options:[
+    {l:"Continuous (price, value, income, rate)", v:"continuous"},
+    {l:"Binary (yes/no, adopt/not adopt, 0/1)", v:"binary"},
+    {l:"Count (number of events, violations, incidents)", v:"count"},
+    {l:"Censored / corner solution (many zeros, truncated)", v:"censored"},
+    {l:"Ordered categorical (rating, Likert, quality index)", v:"ordinal"},
+    {l:"Unordered categorical (mode choice, land use type)", v:"multinomial"},
+    {l:"Bounded proportion / share (between 0 and 1)", v:"fractional"},
+    {l:"Time-to-event / duration (time until sale, failure)", v:"duration"},
+    {l:"Not sure yet", v:"unsure"}
+  ]},
+  {id:"endogeneity", text:"Are you worried about endogeneity or selection bias?", sub:"Does something unobserved likely drive both treatment and outcome?", type:"chips", options:[
+    {l:"Yes — I have a natural experiment, IV, or quasi-experiment", v:"natexp"},
+    {l:"Yes — but I haven't found a clean instrument yet", v:"endo_no_iv"},
+    {l:"Possibly — I need to test for it", v:"maybe"},
+    {l:"No — selection on observables is defensible", v:"no"},
+    {l:"Not sure", v:"unsure"}
+  ]},
+  {id:"geo", text:"Does geography matter structurally to your study?", sub:"Is spatial proximity, distance, or spillovers a core part of the analysis?", type:"chips", options:[
+    {l:"Yes — distance / proximity is a key variable", v:"distance"},
+    {l:"Yes — I expect spatial autocorrelation in residuals", v:"autocorr"},
+    {l:"Yes — both proximity effects and neighborhood spillovers", v:"both"},
+    {l:"No — geography is just a control or fixed effect", v:"no"},
+    {l:"Not applicable / not sure", v:"unsure"}
+  ]},
+  {id:"functional_form", text:"Do you have a hypothesis about the shape of the relationship?", sub:"Is the effect likely non-linear, threshold-based, or heterogeneous?", type:"chips", options:[
+    {l:"Non-linear / diminishing returns (quadratic, log-log, spline)", v:"nonlinear"},
+    {l:"Threshold / discontinuity at a cutoff", v:"threshold"},
+    {l:"Effect varies across subgroups or locations", v:"hetero"},
+    {l:"Dynamic — lagged outcome or adjustment over time matters", v:"dynamic"},
+    {l:"Standard linear relationship expected", v:"linear"},
+    {l:"Not sure — I want guidance", v:"unsure"}
+  ]},
+  {id:"inference_concerns", text:"Do you have specific inference or validation concerns?", sub:"Select all that apply.", type:"multi", skippable:true, options:[
+    {l:"Small number of clusters (fewer than 30)", v:"small_cluster"},
+    {l:"Multiple outcomes or hypothesis tests", v:"multiple_hyp"},
+    {l:"Pre-registration / power analysis needed", v:"power"},
+    {l:"Sensitivity to unobserved confounding", v:"sensitivity"},
+    {l:"Permutation / randomization inference preferred", v:"permutation"},
+    {l:"None of these / not sure", v:"none"}
+  ]},
+  {id:"ml_interest", text:"Are you interested in ML or high-dimensional methods?", sub:"These complement — not replace — causal identification.", type:"chips", options:[
+    {l:"Yes — for variable / control selection (LASSO, Ridge)", v:"regularize"},
+    {l:"Yes — for causal estimation with many controls (Double ML)", v:"dml"},
+    {l:"Yes — for heterogeneous treatment effects (Causal Forests)", v:"causal_forest"},
+    {l:"Yes — for prediction or out-of-sample forecasting", v:"ml_predict"},
+    {l:"No / not applicable", v:"no"},
+    {l:"Not sure", v:"unsure"}
+  ]},
+  {id:"context", text:"Describe your research idea.", sub:"Optional but significantly improves AI tailoring. Skip freely.", type:"textarea", skippable:true,
+   placeholder:"e.g. I want to study how PFAS contamination disclosure events affected housing prices in Brunswick and Cumberland counties NC, using parcel-level transaction data and EPA monitoring records..."}
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────
+var step = -1;
+var answers = {};
+var apiKey = '';
+try { apiKey = localStorage.getItem('ea_apikey') || ''; } catch(e) {}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function show(id) {
+  var screens = ['landing','quiz','loading','results'];
+  for (var i = 0; i < screens.length; i++) {
+    document.getElementById('screen-' + screens[i]).style.display = (screens[i] === id) ? 'block' : 'none';
+  }
+}
+function setHdr(sub, showReset) {
+  document.getElementById('hdr').style.display = 'flex';
+  document.getElementById('hdr-sub').textContent = sub;
+  document.getElementById('btn-reset').style.display = showReset ? 'inline-block' : 'none';
+}
+function setProgress(p) { document.getElementById('prog').style.width = p + '%'; }
+
+var SUB_MAP = {"0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","i":"ᵢ","j":"ⱼ","t":"ₜ","k":"ₖ","n":"ₙ"};
+var SUP_MAP = {"0":"⁰","1":"¹","2":"²","3":"³","T":"ᵀ","*":"*","'":"′"};
+function mathify(s) {
+  return s
+    .replace(/_\{([^}]+)\}/g, function(_,g){ return Array.from(g).map(function(c){ return SUB_MAP[c]||c; }).join(''); })
+    .replace(/\^\{([^}]+)\}/g, function(_,g){ return Array.from(g).map(function(c){ return SUP_MAP[c]||c; }).join(''); })
+    .replace(/_([a-z0-9])/gi, function(_,c){ return SUB_MAP[c]||('_'+c); })
+    .replace(/\^([0-9*'T])/g, function(_,c){ return SUP_MAP[c]||('^'+c); });
+}
+
+// ── APP FLOW ──────────────────────────────────────────────────────────
+function startApp() {
+  if (!apiKey) { document.getElementById('api-modal').style.display = 'flex'; return; }
+  beginQuiz();
+}
+function saveKey() {
+  var k = document.getElementById('api-key-input').value.trim();
+  if (k) { apiKey = k; try { localStorage.setItem('ea_apikey', k); } catch(e){} }
+  document.getElementById('api-modal').style.display = 'none';
+  beginQuiz();
+}
+function skipKey() { document.getElementById('api-modal').style.display = 'none'; beginQuiz(); }
+function beginQuiz() { step = 0; answers = {}; renderQuestion(); }
+function resetApp() {
+  step = -1; answers = {};
+  show('landing');
+  setProgress(0);
+  document.getElementById('btn-reset').style.display = 'none';
+  document.getElementById('hdr').style.display = 'none';
+}
+
+function renderQuestion() {
+  show('quiz');
+  setHdr('question ' + (step+1) + ' of ' + QUESTIONS.length, false);
+  setProgress((step / QUESTIONS.length) * 100);
+  var q = QUESTIONS[step];
+  var el = document.getElementById('quiz-inner');
+  var html = '<div class="q-label">Question ' + (step+1) + ' of ' + QUESTIONS.length + '</div>';
+  html += '<div class="q-text">' + q.text + '</div>';
+  html += '<div class="q-sub">' + (q.sub||'') + '</div>';
+
+  if (q.type === 'chips') {
+    html += '<div class="chips">';
+    for (var i = 0; i < q.options.length; i++) {
+      var o = q.options[i];
+      var cls = 'chip' + (answers[q.id] === o.v ? ' sel' : '') + (o.v === 'unsure' ? ' na' : '');
+      html += '<button class="' + cls + '" onclick="selectChip(\'' + o.v + '\')">' + o.l + '</button>';
+    }
+    html += '</div>';
+  } else if (q.type === 'multi') {
+    var sel = Array.isArray(answers[q.id]) ? answers[q.id] : [];
+    html += '<div class="chips">';
+    for (var i = 0; i < q.options.length; i++) {
+      var o = q.options[i];
+      var isSelected = sel.indexOf(o.v) > -1;
+      var cls = 'chip' + (isSelected ? ' sel' : '') + (o.v === 'unsure' ? ' na' : '');
+      html += '<button class="' + cls + '" onclick="toggleMulti(\'' + o.v + '\')">';
+      html += '<span class="check-box">' + (isSelected ? '✓' : '') + '</span>' + o.l + '</button>';
+    }
+    html += '</div>';
+    html += '<div class="multi-actions"><button class="btn-cont" onclick="advanceStep()">Continue &#8594;</button><button class="btn-skip" onclick="advanceStep()">Skip</button></div>';
+  } else {
+    var curVal = answers[q.id] || '';
+    html += '<textarea class="ctx" placeholder="' + (q.placeholder||'') + '" oninput="answers[\'' + q.id + '\']=this.value">' + curVal + '</textarea>';
+    html += '<div class="multi-actions"><button class="btn-cont" onclick="generate()">Generate toolkit &#8594;</button><button class="btn-skip" onclick="generate()">Skip</button></div>';
+  }
+  el.innerHTML = html;
+}
+
+function selectChip(v) {
+  answers[QUESTIONS[step].id] = v;
+  setTimeout(advanceStep, 180);
+}
+function toggleMulti(v) {
+  var id = QUESTIONS[step].id;
+  var prev = Array.isArray(answers[id]) ? answers[id] : [];
+  var idx = prev.indexOf(v);
+  if (idx > -1) { answers[id] = prev.filter(function(x){ return x !== v; }); }
+  else { answers[id] = prev.concat([v]); }
+  renderQuestion();
+}
+function advanceStep() {
+  if (step < QUESTIONS.length - 1) { step++; renderQuestion(); }
+  else { generate(); }
+}
+
+// ── GENERATE ──────────────────────────────────────────────────────────
+function generate() {
+  show('loading');
+  setHdr('generating toolkit', false);
+  setProgress(100);
+  document.getElementById('loading-msg').textContent = 'Building your toolkit\u2026';
+  var tk = buildToolkit(answers);
+  if (apiKey && answers.context && answers.context.trim().length > 20) {
+    document.getElementById('loading-msg').textContent = 'Analyzing your research description\u2026';
+    enrichWithAI(answers, tk).then(function(ai) {
+      renderResults(tk, ai);
+      show('results');
+      setHdr('your toolkit', true);
+      document.getElementById('btn-reset').style.display = 'inline-block';
+    });
+  } else {
+    renderResults(tk, null);
+    show('results');
+    setHdr('your toolkit', true);
+    document.getElementById('btn-reset').style.display = 'inline-block';
+  }
+}
+
+function enrichWithAI(ans, tk) {
+  var prompt = 'You are an expert applied econometrician advising a graduate student. They answered a questionnaire and also provided a free-text research description. Produce a short JSON response with these fields:\n{"study_summary":"2-3 sentence plain-English summary of this specific study","key_adjustments":["1-4 specific toolkit adjustments based on the description"],"specific_variables":["2-4 specific variable construction notes from their description"],"watchout":"One specific tailored warning for THIS study"}\nRespond ONLY with valid JSON, no markdown fences.\n\nANSWERS: ' + JSON.stringify(ans) + '\nDESCRIPTION: "' + ans.context + '"\nTOOLKIT SECTIONS: ' + tk.sections.map(function(s){ return s.label + ': ' + s.method; }).join(', ');
+  return fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{role:'user', content: prompt}]
+    })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    var t = (d.content && d.content.find(function(b){ return b.type==='text'; })) || {};
+    return JSON.parse((t.text||'').replace(/```json|```/g,'').trim());
+  }).catch(function(){ return null; });
+}
+
+// ── TOOLKIT BUILDER ───────────────────────────────────────────────────
+function buildToolkit(ans) {
+  var field = ans.field, question_type = ans.question_type, treatment = ans.treatment;
+  var data_structure = ans.data_structure, n_treated = ans.n_treated, outcome = ans.outcome;
+  var endogeneity = ans.endogeneity, geo = ans.geo, functional_form = ans.functional_form;
+  var inference_concerns = ans.inference_concerns, ml_interest = ans.ml_interest;
+
+  function ds(v){ return Array.isArray(data_structure) && data_structure.indexOf(v) > -1; }
+  function ic(v){ return Array.isArray(inference_concerns) && inference_concerns.indexOf(v) > -1; }
+
+  var isPanel = ds('panel'), isSpatial = ds('spatial'), isTS = ds('ts'), isHighDim = ds('highdim');
+  var hasNatExp = endogeneity === 'natexp';
+  var hasEndo = ['natexp','endo_no_iv','maybe'].indexOf(endogeneity) > -1;
+  var isGeo = geo && ['no','unsure'].indexOf(geo) === -1;
+  var isNonLinear = functional_form === 'nonlinear' || (functional_form === 'unsure' && isGeo);
+  var isThreshold = functional_form === 'threshold';
+  var isHetero = functional_form === 'hetero';
+  var isDynamic = functional_form === 'dynamic';
+  var isHedonic = field === 'urban' || (['env','ag'].indexOf(field) > -1 && ['infra','env_reg','landuse'].indexOf(treatment) > -1);
+  var fewTreated = ['one','few'].indexOf(n_treated) > -1;
+  var isBinary = outcome === 'binary', isCount = outcome === 'count';
+  var isCensored = outcome === 'censored', isDuration = outcome === 'duration';
+  var wantsML = ml_interest && ['no','unsure'].indexOf(ml_interest) === -1;
+  var hasSmallCluster = ic('small_cluster'), hasMultiHyp = ic('multiple_hyp');
+  var hasPower = ic('power'), hasSensitivity = ic('sensitivity');
+
+  var activeNodes = {};
+  activeNodes['root'] = true;
+  if (fewTreated) activeNodes['scm'] = true;
+  else if (isPanel || hasNatExp) activeNodes['did'] = true;
+  if (hasNatExp && isGeo && !isPanel && !fewTreated) activeNodes['iv'] = true;
+  if (isThreshold) activeNodes['rd'] = true;
+  if (!hasNatExp && ['causal','welfare'].indexOf(question_type) > -1) activeNodes['matching'] = true;
+  if (isPanel) activeNodes['q2-panel'] = true;
+  if (isSpatial || isGeo) activeNodes['q2-spatial'] = true;
+  if (isTS) activeNodes['q2-ts'] = true;
+  if (isBinary) activeNodes['q3-binary'] = true;
+  else if (isCount) activeNodes['q3-count'] = true;
+  else if (isCensored) activeNodes['q3-censored'] = true;
+  else if (isDuration) activeNodes['q3-duration'] = true;
+  else activeNodes['q3-continuous'] = true;
+  if (isNonLinear) activeNodes['ff-quad'] = true;
+  if (isHetero) activeNodes['ff-hetero'] = true;
+  if (isDynamic) activeNodes['ff-dynamic'] = true;
+  activeNodes['inf-se'] = true;
+  if (hasNatExp) activeNodes['inf-fs'] = true;
+  if (isPanel) activeNodes['inf-pretrend'] = true;
+  if (isGeo || isSpatial) activeNodes['inf-moran'] = true;
+  if (isNonLinear) activeNodes['inf-ftest'] = true;
+  activeNodes['inf-robust'] = true;
+
+  var sections = [];
+
+  // 1. IDENTIFICATION
+  var idM, idD, idW, idEq, idCode, idC;
+  if (hasNatExp && treatment && ['none','unsure'].indexOf(treatment) === -1) {
+    if (fewTreated) {
+      idC='high'; idM='Synthetic Control / Synthetic DiD';
+      idD='With 1\u201310 treated units, SCM constructs a weighted combination of untreated donor units whose pre-treatment characteristics match the treated unit. Synthetic DiD (Arkhangelsky 2021) combines SCM unit weights with DiD time weights and is doubly robust. Inference via placebo-in-space permutation.';
+      idW='Donor pool must be large (\u226510\u00d7 donors than treated). Pre-treatment fit quality is the key diagnostic. Short pre-treatment windows undermine credibility.';
+      idEq='SCM: Y\u0302\u2070\u2081\u209c = \u03a3\u2c7c w*\u2c7c Y\u2c7c\u209c\nw* = argmin ||X\u2081 \u2212 X\u2080 W||\u1d65  s.t. w\u2c7c\u22650, \u03a3w\u2c7c=1\nInference: p-val = rank(|\u03c4\u0302\u209c\u02b3\u1d49\u1d43\u1d3a\u1d49\u1d48|) / (N_donors+1)';
+      idCode='library(synthdid)\nsetup <- panel.matrices(df, unit="county", time="year",\n                        outcome="log_price", treatment="treated")\ntau <- synthdid_estimate(setup$Y, setup$N0, setup$T0)\nse <- sqrt(vcov(tau, method="placebo"))\ncat("SynthDiD:", tau, "SE:", se)';
+    } else if (isPanel) {
+      idC='high'; idM='Difference-in-Differences / Staggered DiD';
+      idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-Sant\'Anna (2021) or Sun-Abraham (2021) rather than standard TWFE \u2014 staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
+      idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition. With fewer than 30 treatment clusters, use wild cluster bootstrap.';
+      idEq='TWFE: Y\u1d62\u209c = \u03b1\u1d62 + \u03b3\u209c + \u03b2(Treated\u1d62 \u00d7 Post\u209c) + X\'\u1d62\u209c\u03b4 + \u03b5\u1d62\u209c\nCS ATT(g,t): E[Y\u209c(g) \u2212 Y\u209c(\u221e) | G=g]';
+      idCode='library(did)\nlibrary(fixest)\n\n# Callaway-Sant\'Anna (staggered rollout)\ncs <- att_gt(yname="outcome", tname="year",\n             idname="unit_id", gname="first_treat",\n             xformla=~X1+X2, data=df)\nagg <- aggte(cs, type="simple"); summary(agg)\nggdid(aggte(cs, type="dynamic"))  # event study plot\n\n# Bacon decomposition\nlibrary(bacondecomp)\nbacon(outcome ~ treat, data=df, id_var="unit_id", time_var="year")';
+    } else if (isGeo) {
+      idC='high'; idM='Instrumental Variables (2SLS) / Control Function';
+      idD='Your cross-sectional spatial design calls for an IV strategy. Use a geographic or administrative feature (ZCTA land area, elevation, watershed boundaries) as an instrument for the endogenous variable. The control function approach includes first-stage residuals in the second stage \u2014 simultaneously corrects for endogeneity and provides a direct statistical test.';
+      idW='First-stage F must exceed Stock-Yogo threshold (~10). The exclusion restriction is untestable \u2014 it must rest on economic logic. Always report first-stage results in full.';
+      idEq='Stage 1: D\u1d62 = \u03c0\u2080 + \u03c0\u2081 Z\u1d62 + X\'\u1d62 \u03b3 + v\u1d62\nStage 2: Y\u1d62 = \u03b2\u2080 + \u03b2\u2081 D\u0302\u1d62 + \u03b2\u2082 d\u1d62 + \u03b2\u2083 d\u1d62\u00b2 + X\'\u1d62 \u03b4 + \u03b5\u1d62\nControl fn: t-stat on v\u0302\u1d62 tests H\u2080 of exogeneity';
+      idCode='library(fixest)\n\n# 2SLS\niv <- feols(log_price ~ dist_mi + dist_sq + log_income + log_rooms |\n            log_pop_density ~ log_land_area,\n            data=df, vcov="HC3")\nsummary(iv, stage=1:2)\n\n# Control function (endogeneity test)\nfs <- lm(log_pop_density ~ log_land_area + dist_mi +\n         dist_sq + log_income + log_rooms, data=df)\ndf$vhat <- residuals(fs)\ncf <- lm(log_price ~ log_pop_density + vhat + dist_mi +\n         dist_sq + log_income + log_rooms, data=df)\ncoeftest(cf, vcov=vcovHC(cf,"HC3"))  # t-stat on vhat = Hausman';
+    } else {
+      idC='high'; idM='Instrumental Variables (2SLS)';
+      idD='Build your IV around a variable strongly correlated with the endogenous regressor but plausibly exogenous to the outcome. Common sources include geographic features, historical characteristics, administrative boundaries, and shift-share (Bartik) instruments.';
+      idW='A strong but invalid instrument produces worse bias than OLS. The exclusion restriction is never testable \u2014 defend it on theoretical grounds.';
+      idEq='Stage 1: D\u1d62 = \u03c0\u2080 + \u03c0\u2081 Z\u1d62 + X\'\u1d62 \u03b3 + v\u1d62\nStage 2: Y\u1d62 = \u03b2\u2080 + \u03b2\u2081 D\u0302\u1d62 + X\'\u1d62 \u03b4 + \u03b5\u1d62';
+      idCode='library(fixest)\niv <- feols(outcome ~ controls | endog ~ instrument,\n            data=df, vcov=~cluster_var)\nsummary(iv, stage=1:2)';
+    }
+  } else if (isThreshold) {
+    idC='high'; idM='Regression Discontinuity Design (RD)';
+    idD='At a policy or geographic threshold, units just above receive treatment while those just below do not. Use local linear regression on each side with CCT optimal bandwidth. Fuzzy RD uses the jump in treatment probability as an IV for actual treatment.';
+    idW='Never use polynomial degree > 2. Always report bandwidth sensitivity. Significant McCrary test = invalid RD.';
+    idEq='Sharp RD: Y\u1d62 = \u03b1 + \u03c4\u00b71[X\u1d62\u2265c] + f(X\u1d62\u2212c) + \u03b5\u1d62\nh_CCT = argmin MSE(\u03c4\u0302\u210e)';
+    idCode='library(rdrobust); library(rddensity)\nrd <- rdrobust(y=df$outcome, x=df$running, c=0)\nsummary(rd)\nrddensity(df$running, c=0) |> summary()  # McCrary test';
+  } else if (hasEndo) {
+    idC='medium'; idM='OLS Baseline + Endogeneity Diagnostics';
+    idD='Begin with OLS as a benchmark. Run Wu-Hausman test to formally test endogeneity. Use Oster (2019) coefficient stability to bound sensitivity to unobserved confounding when no valid instrument is available.';
+    idW='Hausman has low power in small samples. Report both OLS and IV if available and discuss coefficient divergence.';
+    idEq='Control fn: include v\u0302\u1d62 in OLS; t-stat on v\u0302\u1d62 is direct endogeneity test\nOster \u03b4*: selection needed to explain away effect';
+    idCode='fs <- lm(treatment ~ instrument + controls, data=df)\ndf$vhat <- residuals(fs)\ncf <- lm(outcome ~ treatment + vhat + controls, data=df)\ncoeftest(cf, vcov=vcovHC(cf,"HC3"))';
+  } else {
+    idC='low'; idM='Descriptive OLS / Hedonic Pricing Baseline';
+    idD='For a descriptive study, OLS with robust SEs is the appropriate baseline. Focus on model specification quality and functional form. Frame estimates as conditional correlations, not causal effects.';
+    idW='Avoid causal language unless identification is formally established.';
+    idEq='ln(P\u1d62) = \u03b2\u2080 + \u03b2\u2081 d\u1d62 + \u03b2\u2082 d\u1d62\u00b2 + X\'\u1d62 \u03b4 + \u03b5\u1d62';
+    idCode='library(fixest)\nmod <- feols(log_price ~ dist_mi + dist_sq +\n             log_income + log_density + log_rooms,\n             data=df, vcov="HC3")\nsummary(mod); etable(mod)';
+  }
+  sections.push({icon:'\u25ce', color:'#3b82f6', label:'Identification strategy', method:idM, detail:idD, watch:idW, equation:idEq, code:idCode, conf:idC});
+
+  // 2. ESTIMATOR
+  var estM, estD, estW, estEq, estCode, estC;
+  if (isBinary) {
+    estC='high'; estM='Logit / Probit \u2014 Binary Choice Model';
+    estD='With a binary outcome, pooled OLS is inconsistent. Use logit or probit. Always report Average Marginal Effects (AMEs) \u2014 not raw coefficients, which are log-odds ratios. For panel binary outcomes, use conditional logit (FE logit) or correlated random effects probit.';
+    estW='Interaction coefficients \u2260 interaction effects in logit/probit. For rare outcomes (< 5%), consider rare-events logit.';
+    estEq='Pr(Y=1|X) = \u039b(X\'\u03b2)  [logit]  or  \u03a6(X\'\u03b2)  [probit]\nAME\u2c7c = (1/n) \u03a3\u1d62 \u2202Pr(Y\u1d62=1|X\u1d62)/\u2202X\u1d62\u2c7c';
+    estCode='library(fixest); library(marginaleffects)\nlogit <- feglm(outcome ~ X1+X2+X3,\n               family=binomial("logit"), data=df)\navg_slopes(logit)  # Average marginal effects';
+  } else if (isCount) {
+    estC='high'; estM='Poisson / Negative Binomial \u2014 Count Data';
+    estD='PPML is consistent even under distributional misspecification as long as the conditional mean exp(X\u03b2) is correctly specified. Test for overdispersion using Cameron-Trivedi; if present, use Negative Binomial.';
+    estW='Never use OLS on count data.';
+    estEq='E[Y\u1d62|X\u1d62] = exp(X\'\u1d62 \u03b2)  [PPML]\nNB: Var[Y\u1d62|X\u1d62] = \u03bc\u1d62(1+\u03b1\u03bc\u1d62)';
+    estCode='library(fixest)\nppml <- fepois(count ~ X1+X2 | unit+year,\n               data=df, vcov=~cluster)\nsummary(ppml)';
+  } else if (isCensored) {
+    estC='high'; estM='Tobit / Two-Part Model \u2014 Censored Outcome';
+    estD='Tobit assumes a latent continuous variable censored at zero. If participation and intensity have different determinants \u2014 nearly always true in environmental economics \u2014 a two-part model is more flexible and usually preferred.';
+    estW='Tobit requires normally distributed errors. Two-part models are more robust.';
+    estEq='Tobit: Y*\u1d62 = X\'\u1d62 \u03b2 + \u03b5\u1d62;  Y\u1d62 = max(0, Y*\u1d62)\nTwo-part: Pr(Y>0|X) = \u03a6(X\'\u03b3);  E[Y|Y>0] = X\'\u03b2 + \u03c3\u03bb(X\'\u03b3/\u03c3)';
+    estCode='library(AER); library(pscl)\ntobit <- tobit(outcome ~ X1+X2, left=0, data=df)\nhurdle <- hurdle(outcome ~ X1+X2, dist="poisson", data=df)';
+  } else if (isDuration) {
+    estC='high'; estM='Duration / Survival Analysis (Cox PH / Weibull)';
+    estD='Time-to-event outcomes require survival analysis. Cox PH estimates hazard ratios semi-parametrically without specifying the baseline hazard. Test the proportional hazards assumption via Schoenfeld residuals.';
+    estW='PH assumption must be tested. Censoring must be non-informative.';
+    estEq='Cox PH: h(t|X) = h\u2080(t)\u00b7exp(X\'\u03b2)\nHR = exp(\u03b2\u2c7c) for unit increase in X\u2c7c';
+    estCode='library(survival); library(survminer)\ncox <- coxph(Surv(time,event) ~ X1+X2+X3, data=df)\ncox.zph(cox)  # PH assumption test\nggsurvplot(survfit(cox), data=df)';
+  } else if (isPanel) {
+    estC='high'; estM='Two-Way Fixed Effects \u2014 Panel Within Estimator';
+    estD='FE within estimator is the appropriate default for panel continuous outcomes \u2014 not pooled OLS. Pooled OLS ignores unit heterogeneity \u03b1\u1d62; when \u03b1\u1d62 correlates with regressors (almost always), OLS is biased. TWFE adds time FEs. Use Mundlak (CRE) when time-invariant variables need to be estimated alongside FEs.';
+    estW='FE eliminates between-unit variation \u2014 time-invariant variables cannot be estimated. With staggered adoption, use Callaway-Sant\'Anna.';
+    estEq='Within: \u0178\u1d62\u209c = \u03b2\u2081 \u1e8a\u1d62\u209c + \u025b\u1d62\u209c,  \u0178\u1d62\u209c=Y\u1d62\u209c\u2212\u0233\u1d62\nTWFE: Y\u1d62\u209c = \u03b1\u1d62 + \u03b3\u209c + \u03b2\u2081 X\u1d62\u209c + X\'\u1d62\u209c\u03b4 + \u03b5\u1d62\u209c';
+    estCode='library(fixest)\ntwfe <- feols(outcome ~ X_tv | unit_id + year,\n              data=df, vcov=~unit_id)\nsummary(twfe); etable(twfe)';
+  } else if (isHedonic) {
+    estC='high'; estM='Semi-Log Hedonic Pricing Model';
+    estD='Log-transform the dependent variable so coefficients are semi-elasticities (% change in price per unit change in attribute). The implicit price of any attribute represents marginal WTP in competitive equilibrium.';
+    estW='OVB is endemic in hedonic models. Quasi-experimental variation is needed for causal claims.';
+    estEq='ln(P\u1d62) = \u03b2\u2080 + \u03b2\u2081 d\u1d62 + \u03b2\u2082 d\u1d62\u00b2 + \u03b2\u2083 ln(Inc) + \u03b2\u2084 ln(Den) + \u03b2\u2085 Rooms + \u03b5\u1d62\nMWTP_d = \u2202P/\u2202d = P\u00b7(\u03b2\u2081 + 2\u03b2\u2082 d\u1d62)';
+    estCode='library(fixest)\nhed <- feols(log_price ~ dist_mi + dist_sq +\n             log_income + log_pop_density + log_rooms,\n             data=df, vcov="HC3")\n# IV version\nhed_iv <- feols(log_price ~ dist_mi + dist_sq +\n                log_income + log_rooms |\n                log_pop_density ~ log_land_area,\n                data=df, vcov="HC3")\nb1 <- coef(hed_iv)["dist_mi"]\nb2 <- coef(hed_iv)["dist_sq"]\ncat("Turning point:", round(-b1/(2*b2),2), "miles")';
+  } else {
+    estC='medium'; estM='OLS with HC3 Robust Standard Errors';
+    estD='For a cross-sectional continuous outcome, OLS with HC3 SEs is the appropriate baseline. Cluster SEs at the level of treatment assignment if observations share a common source of variation.';
+    estW='Cluster at treatment assignment level. Fewer than 30 clusters: use wild cluster bootstrap.';
+    estEq='Y\u1d62 = \u03b2\u2080 + \u03b2\u2081 X\u1d62 + X\'\u1d62 \u03b4 + \u03b5\u1d62\nHC3: V\u0302 = (X\'X)^{\u22121}X\'diag(\u1ebd\u1d62\u00b2/(1\u2212h\u1d62\u1d62)\u00b2)X(X\'X)^{\u22121}';
+    estCode='library(fixest)\nmod <- feols(outcome ~ X1+X2+X3, data=df, vcov="HC3")\nsummary(mod)';
+  }
+  sections.push({icon:'f', color:'#7c3aed', label:'Estimator & model specification', method:estM, detail:estD, watch:estW, equation:estEq, code:estCode, conf:estC});
+
+  // 3. FUNCTIONAL FORM
+  if (isNonLinear) {
+    sections.push({icon:'\u223f', color:'#b45309', label:'Functional form', conf:'high',
+      method:'Quadratic Specification / Spline \u2014 Non-Linear Gradient',
+      detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test \u2014 individual t-statistics are unreliable due to structural collinearity. Turning point d* = \u2212\u03b2\u2081/2\u03b2\u2082 gives the distance at which the marginal effect changes sign. Natural cubic splines (GAM) are a flexible non-parametric upgrade.',
+      watch:'Quadratic forces symmetry. If true gradient is asymmetric, a spline fits better. Report as robustness check.',
+      equation:'ln(P\u1d62) = \u03b2\u2080 + \u03b2\u2081 d\u1d62 + \u03b2\u2082 d\u1d62\u00b2 + X\'\u1d62 \u03b4 + \u03b5\u1d62\nd* = \u2212\u03b2\u2081 / 2\u03b2\u2082\nGAM: s(d\u1d62) = penalized smoothing spline',
+      code:'library(fixest); library(mgcv); library(car)\n# Quadratic\nmod_q <- feols(log_price ~ dist_mi + dist_sq + controls,\n               data=df, vcov="HC3")\n# Joint F-test\nlinearHypothesis(mod_q, c("dist_mi=0","dist_sq=0"))\n# Turning point\nb1 <- coef(mod_q)["dist_mi"]; b2 <- coef(mod_q)["dist_sq"]\ncat("d* =", round(-b1/(2*b2),2), "miles")\n# Spline robustness\ngam_mod <- gam(log_price ~ s(dist_mi,k=6)+controls,\n               data=df, method="REML")\nplot(gam_mod, select=1, shade=TRUE)'});
+  } else if (isDynamic) {
+    sections.push({icon:'\u223f', color:'#b45309', label:'Functional form \u2014 dynamic', conf:'high',
+      method:'Dynamic Panel GMM (Arellano-Bond / Blundell-Bond)',
+      detail:'A lagged dependent variable in a panel setting invalidates the within (FE) estimator due to Nickell bias. Arellano-Bond (1991) difference GMM instruments lagged levels for the first-differenced lagged outcome. Blundell-Bond system GMM improves efficiency when the series is highly persistent.',
+      watch:'Instrument proliferation weakens the Hansen J-test \u2014 use instrument collapse. Always report AR(2) test and Hansen J-test.',
+      equation:'FE Nickell bias: plim(\u03b2\u0302_FE) \u2248 \u03b2 \u2212 (1+\u03b2)/(T\u22121)\nAB: \u0394Y\u1d62\u209c = \u03b2\u0394Y\u1d62,\u209c\u208b\u2081 + \u0394X\'\u1d62\u209c\u03b4 + \u0394\u03b5\u1d62\u209c',
+      code:'library(pgmm)\nab <- pgmm(log_price ~ lag(log_price,1)+X1+X2 |\n           lag(log_price,2:4), data=pdata,\n           effect="individual", model="twosteps",\n           transformation="d")\nsummary(ab, robust=TRUE)'});
+  }
+
+  // 4. PANEL
+  if (isPanel && !isDynamic) {
+    sections.push({icon:'\u25a3', color:'#0e7490', label:'Panel data structure', conf:'high',
+      method:'Two-Way Fixed Effects / Callaway-Sant\'Anna / Mundlak CRE',
+      detail:'TWFE absorbs time-invariant unit confounders and common time shocks. Use fixest::feols() for speed. Run Hausman test for FE vs RE. For staggered treatment, run Bacon decomposition to diagnose TWFE estimand composition. Mundlak CRE bridges FE and RE when time-invariant variables need to be estimated.',
+      watch:'TWFE eliminates between-unit variation. With staggered adoption, standard TWFE includes forbidden already-treated comparisons.',
+      equation:'TWFE: Y\u1d62\u209c = \u03b1\u1d62 + \u03b3\u209c + \u03b2\u00b7Treat\u1d62\u209c + X\'\u1d62\u209c\u03b4 + \u03b5\u1d62\u209c\nHausman: H=(\u03b2\u0302_FE\u2212\u03b2\u0302_RE)\'[V\u0302_FE\u2212V\u0302_RE]^{\u22121}(\u03b2\u0302_FE\u2212\u03b2\u0302_RE)~\u03c7\u00b2(k)',
+      code:'library(fixest); library(bacondecomp); library(plm)\ntwfe <- feols(outcome ~ treat | unit_id + year,\n              data=df, vcov=~unit_id)\nbacon(outcome~treat, data=df, id_var="unit_id", time_var="year")\npd <- pdata.frame(df, index=c("unit_id","year"))\nphtest(plm(outcome~treat, data=pd, model="within"),\n       plm(outcome~treat, data=pd, model="random"))'});
+  }
+
+  // 5. SPATIAL
+  if (isGeo || isSpatial) {
+    sections.push({icon:'\u25c8', color:'#059669', label:'Spatial econometrics', conf: isGeo ? 'high' : 'medium',
+      method:"Moran's I \u2192 SAR / SEM / SDM / Spatial Panel",
+      detail:"Start with OLS residuals and test Moran's I (spdep in R). Robust LM-lag \u2192 SAR; robust LM-error \u2192 SEM. SDM nests both and is the most general first-order specification. Decompose into direct and indirect (spillover) effects via LeSage-Pace. For panel + spatial, use FE-SAR via splm.",
+      watch:"W specification is a modeling assumption \u2014 report sensitivity to alternative W. OLS is inconsistent under SAR.",
+      equation:'SAR: Y = \u03c1WY + X\u03b2 + \u03b5\nSEM: Y = X\u03b2 + u,  u = \u03bbWu + \u03b5\nSDM: Y = \u03c1WY + X\u03b2 + WX\u03b8 + \u03b5',
+      code:"library(spdep); library(spatialreg)\ncoords <- cbind(df$lon, df$lat)\nW <- nb2listw(knn2nb(knearneigh(coords,k=5)), style='W')\nmoran.test(residuals(lm(outcome~X1+X2,data=df)), W)\nlm.LMtests(lm(outcome~X1+X2,data=df), W,\n           test=c('RLMlag','RLMerr'))\nsar <- lagsarlm(outcome~X1+X2, data=df, listw=W)\nimpacts(lagsarlm(outcome~X1+X2,data=df,listw=W,\n                 type='mixed'), listw=W, R=500)"});
+  }
+
+  // 6. ML
+  if (wantsML || isHighDim) {
+    var mlM, mlD, mlW, mlEq, mlCode, mlC;
+    if (ml_interest === 'dml') {
+      mlC='high'; mlM='Double / Debiased ML (Chernozhukov 2018)';
+      mlD='DML partials out high-dimensional controls on both outcome and treatment using ML, then regresses residualized outcome on residualized treatment. Cross-fitting prevents overfitting bias. Requires a valid identification strategy upstream.';
+      mlW='Never report DML without a valid ID strategy. Requires overlap and Neyman orthogonality.';
+      mlEq='\u1ef8\u1d62 = Y\u1d62 \u2212 \u1ebc[Y\u1d62|X\u1d62],  D\u0303\u1d62 = D\u1d62 \u2212 \u1ebc[D\u1d62|X\u1d62]  (cross-fit)\nFinal: \u1ef8\u1d62 = \u03b8 D\u0303\u1d62 + \u03b5\u1d62';
+      mlCode='library(DoubleML); library(mlr3learners)\nml_l <- lrn("regr.ranger", num.trees=500)\nml_m <- lrn("regr.ranger", num.trees=500)\ndata <- DoubleMLData$new(df, y_col="outcome",\n                         d_cols="treatment",\n                         x_cols=high_dim_controls)\ndml <- DoubleMLPLR$new(data, ml_l, ml_m, n_folds=5)\ndml$fit(); dml$summary()';
+    } else if (ml_interest === 'causal_forest') {
+      mlC='high'; mlM='Causal Forests / GRF (Athey-Wager 2019)';
+      mlD='Causal forests estimate \u03c4(x) = E[Y(1)\u2212Y(0)|X=x] with honest confidence intervals. Requires overlap and a valid upstream identification assumption.';
+      mlW='Report calibration test. GRF requires overlap \u2014 every unit must have positive probability of both treatment statuses.';
+      mlEq='\u03c4\u0302(x) = E[Y(1)\u2212Y(0)|X=x] via honest causal forest\nBLP: \u03c4\u0302(x) \u2248 \u03b2\u2080 + \u03b2\u2081(\u03c4\u0302(x)\u2212\u0113) + \u03b5';
+      mlCode='library(grf)\nX <- as.matrix(df[,covariates])\ncf <- causal_forest(X, df$outcome, df$treatment,\n                    num.trees=4000, honesty=TRUE)\naverage_treatment_effect(cf)\ntest_calibration(cf)\nbest_linear_projection(cf, A=X[,key_mods])';
+    } else {
+      mlC='medium'; mlM='LASSO / Ridge / Post-Double Selection';
+      mlD='LASSO (L1) shrinks some coefficients exactly to zero \u2014 variable selection. Post-double selection (Belloni 2014) uses LASSO to select controls predicting both outcome and treatment, then estimates via OLS on the union \u2014 producing valid inference unlike naive LASSO.';
+      mlW='Standard LASSO inference is invalid. Use LASSO only for variable selection, then OLS on selected variables.';
+      mlEq='LASSO: \u03b2\u0302 = argmin ||Y\u2212X\u03b2||\u00b2 + \u03bb||\u03b2||_1\nPost-DS: OLS on I_Y \u222a I_D  (union of LASSO-selected)';
+      mlCode='library(glmnet); library(hdm)\nlasso_cv <- cv.glmnet(X_mat, y, alpha=1, nfolds=10)\ncoef(lasso_cv, s="lambda.min")\npds <- rlassoEffect(X_mat, df$outcome, df$treatment)\nsummary(pds)';
+    }
+    sections.push({icon:'\u25c9', color:'#be185d', label:'ML-adjacent methods', method:mlM, detail:mlD, watch:mlW, equation:mlEq, code:mlCode, conf:mlC});
+  }
+
+  // 7. INFERENCE
+  var items = [];
+  if (hasEndo) items.push('Wu-Hausman / control function \u2014 t-stat on v\u0302\u1d62 in Stage 2 directly tests H\u2080 of exogeneity');
+  if (hasNatExp) items.push('First-stage F-statistic \u2014 Stock-Yogo threshold: F > 10; Montiel-Pflueger (2022) robust test for precision');
+  if (isPanel) items.push('Pre-trend event study plot + joint F-test \u2014 H\u2080: all pre-period \u03b2\u2096 = 0');
+  if (isGeo || isSpatial) items.push("Moran's I on OLS residuals \u2014 test under multiple W specifications");
+  if (isNonLinear) items.push('Joint F-test on quadratic terms \u2014 individual t-stats unreliable due to structural collinearity');
+  if (fewTreated) items.push('Placebo-in-space inference \u2014 p-value = rank of treated effect in placebo distribution');
+  if (hasSmallCluster) items.push('Wild cluster bootstrap (fwildclusterboot in R) \u2014 asymptotic cluster SEs unreliable < 30 clusters');
+  if (hasMultiHyp) items.push('Benjamini-Hochberg FDR correction for multiple outcomes');
+  if (hasPower) items.push('Power analysis / MDE calculation \u2014 report minimum detectable effect at 80% power, 5% significance');
+  if (hasSensitivity) items.push('Oster (2019) coefficient stability; E-values (VanderWeele & Ding 2017)');
+  items.push('HC3 robust SEs (cross-section) or clustered SEs at treatment-assignment level');
+  items.push('Robustness checks \u2014 alternative distance measures, bandwidth sensitivity, subsamples, placebo dates');
+  sections.push({icon:'\u22a2', color:'#dc2626', label:'Inference & diagnostic checklist', conf:'high', method:'Validation layer', detail:items.map(function(i){ return '\u2022 '+i; }).join('\n'), watch:'Robustness checks are not optional in environmental or urban economics journals.', equation:null, code:null});
+
+  // SOURCES
+  var sources = [];
+  if (['urban','env','ag'].indexOf(field) > -1 || isHedonic) {
+    sources.push({n:'American Community Survey (ACS)', u:'https://data.census.gov', d:'Median home values, income, rooms, density \u2014 ZCTA and tract'});
+    sources.push({n:'FHFA House Price Index', u:'https://www.fhfa.gov/data/hpi', d:'Repeat-sales HPI by metro and zip code'});
+    sources.push({n:'Zillow Research Data', u:'https://www.zillow.com/research/data/', d:'ZHVI, rental index, historical prices by zip'});
+  }
+  if (['infra','env_reg'].indexOf(treatment) > -1) {
+    sources.push({n:'National Inventory of Dams (NID)', u:'https://nid.sec.usace.army.mil/', d:'Geolocated dam coordinates, type, purpose \u2014 USACE'});
+    sources.push({n:'EPA ECHO / Toxic Release Inventory', u:'https://echo.epa.gov', d:'Facility-level compliance, TRI emissions'});
+    sources.push({n:'FEMA National Flood Hazard Layer', u:'https://msc.fema.gov/portal/home', d:'100-year floodplain boundaries, SFHA designations'});
+    sources.push({n:'EPA PFAS Analytics Tool', u:'https://www.epa.gov/pfas/pfas-analytics-tool', d:'PFAS contamination monitoring data by site'});
+  }
+  if (isGeo || isSpatial) {
+    sources.push({n:'Census TIGER/Line Shapefiles', u:'https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html', d:'ZCTA, county, tract boundaries and centroids'});
+    sources.push({n:'Census Gazetteer Files', u:'https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html', d:'ZCTA land area \u2014 density and IV construction'});
+  }
+  sources.push({n:'FRED \u2014 St. Louis Fed', u:'https://fred.stlouisfed.org', d:'Economic indicators, mortgage rates, price deflators'});
+  sources.push({n:'Harvard Dataverse', u:'https://dataverse.harvard.edu', d:'Replication datasets for published economics papers'});
+
+  // LITERATURE
+  var lit = [];
+  if (isHedonic) lit.push({n:'Rosen (1974)', d:'Hedonic Prices and Implicit Markets \u2014 foundational hedonic model.', u:'https://www.jstor.org/stable/1830899'});
+  if (fewTreated) lit.push({n:'Arkhangelsky et al. (2021)', d:'Synthetic Difference-in-Differences.', u:'https://www.aeaweb.org/articles?id=10.1257/aer.20190159'});
+  if (isPanel) {
+    lit.push({n:'Callaway & Sant\'Anna (2021)', d:'DiD with Multiple Time Periods.', u:'https://www.sciencedirect.com/science/article/abs/pii/S0304407620303948'});
+    lit.push({n:'Goodman-Bacon (2021)', d:'DiD with Variation in Treatment Timing \u2014 Bacon decomposition.', u:'https://www.sciencedirect.com/science/article/abs/pii/S0304407621001445'});
+  }
+  if (hasNatExp && !isPanel) lit.push({n:'Angrist & Pischke (2009)', d:'Mostly Harmless Econometrics \u2014 IV, RD, DiD methods.', u:'https://press.princeton.edu/books/paperback/9780691120355'});
+  if (isThreshold) lit.push({n:'Calonico, Cattaneo & Titiunik (2014)', d:'Robust Nonparametric CI for RD Designs.', u:'https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA11757'});
+  if (isGeo || isSpatial) {
+    lit.push({n:'Anselin (1988)', d:'Spatial Econometrics: Methods and Models.', u:'https://link.springer.com/book/10.1007/978-94-015-7799-1'});
+    lit.push({n:'LeSage & Pace (2009)', d:'Introduction to Spatial Econometrics.', u:'https://www.taylorfrancis.com/books/mono/10.1201/9781420064254'});
+  }
+  if (treatment === 'infra') lit.push({n:'Bohlen & Lewis (2009)', d:'Economic Impacts of Hydropower Dams on Property Values.', u:'https://www.sciencedirect.com/science/article/pii/S0301479709000541'});
+  if (['env_reg','env'].indexOf(treatment) > -1 || field === 'env') lit.push({n:'Greenstone & Gallagher (2008)', d:'Does Hazardous Waste Matter? Superfund evidence.', u:'https://academic.oup.com/qje/article/123/3/951/1930017'});
+  if (wantsML) {
+    lit.push({n:'Chernozhukov et al. (2018)', d:'Double/Debiased Machine Learning.', u:'https://academic.oup.com/ectj/article/21/1/C1/5056401'});
+    lit.push({n:'Athey & Wager (2019)', d:'Estimating Treatment Effects with Causal Forests.', u:'https://projecteuclid.org/journals/statistical-science/volume-34/issue-4'});
+  }
+  lit.push({n:'Angrist & Pischke (2014)', d:'Mastering Metrics \u2014 accessible credibility revolution overview.', u:'https://press.princeton.edu/books/paperback/9780691152844'});
+
+  return {sections: sections, sources: sources, lit: lit, activeNodes: activeNodes};
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────
+function renderResults(tk, ai) {
+  var el = document.getElementById('results-inner');
+  var html = '<p class="results-meta">' + tk.sections.length + ' components identified &middot; click any section to expand</p>';
+
+  if (ai) {
+    html += '<div class="ai-panel">';
+    html += '<div class="ai-panel-hdr"><span>&#10022;</span><span>AI tailoring &mdash; based on your description</span></div>';
+    if (ai.study_summary) html += '<p class="ai-summary">' + ai.study_summary + '</p>';
+    if (ai.key_adjustments && ai.key_adjustments.length) {
+      html += '<div class="ai-adj-label">Toolkit adjustments</div>';
+      ai.key_adjustments.forEach(function(a){ html += '<div class="ai-adj">\u2192 ' + a + '</div>'; });
+    }
+    if (ai.specific_variables && ai.specific_variables.length) {
+      html += '<div class="ai-adj-label" style="margin-top:10px">Variable construction</div>';
+      ai.specific_variables.forEach(function(v){ html += '<div class="ai-adj">\u00b7 ' + v + '</div>'; });
+    }
+    if (ai.watchout) html += '<div class="ai-watch"><span style="font-size:9.5px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em">Study-specific caution &middot; </span><span style="color:#a16207;font-size:12.5px">' + ai.watchout + '</span></div>';
+    html += '</div>';
+  }
+
+  tk.sections.forEach(function(s, i) {
+    var confClass = s.conf === 'high' ? 'conf-high' : s.conf === 'medium' ? 'conf-med' : 'conf-low';
+    var confLabel = s.conf === 'high' ? 'Core recommendation' : s.conf === 'medium' ? 'Likely relevant' : 'Worth considering';
+    html += '<div class="section" id="sec-' + i + '" style="--sec-color:' + s.color + '">';
+    html += '<div class="sec-hdr" onclick="toggleSection(' + i + ')">';
+    html += '<div class="sec-icon" style="background:' + s.color + '18;color:' + s.color + '">' + s.icon + '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div class="sec-label" style="color:' + s.color + '">' + s.label + '<span class="conf ' + confClass + '">' + confLabel + '</span></div>';
+    html += '<div class="sec-method">' + s.method + '</div>';
+    html += '</div><div class="sec-chev">&#9662;</div></div>';
+    html += '<div class="sec-body">';
+    html += '<p class="sec-detail">' + s.detail + '</p>';
+    if (s.watch) html += '<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">' + s.watch + '</div></div>';
+    if (s.equation) {
+      html += '<div class="eq-block"><div class="eq-label">Estimating equation</div>';
+      s.equation.split('\n').forEach(function(ln){ html += '<div class="eq-line">' + mathify(ln) + '</div>'; });
+      html += '</div>';
+    }
+    if (s.code) {
+      html += '<button class="code-toggle" onclick="toggleCode(' + i + ')">&#9656; show R code</button>';
+      html += '<div class="code-block" id="code-' + i + '" style="display:none">';
+      html += '<div class="code-header"><span class="code-lang">R</span><button class="code-copy" onclick="copyCode(' + i + ')">copy</button></div>';
+      html += '<pre class="code-pre" id="codepre-' + i + '">' + s.code + '</pre></div>';
+    }
+    html += '</div></div>';
+  });
+
+  html += '<div class="sec-divider">Open-access data sources</div><div class="grid-2">';
+  tk.sources.forEach(function(s){
+    html += '<a class="source-card" href="' + s.u + '" target="_blank" rel="noreferrer">';
+    html += '<div class="source-name">' + s.n + '</div>';
+    html += '<div class="source-desc">' + s.d + '</div>';
+    html += '<div class="source-url">&#8599; ' + s.u.replace('https://','').split('/')[0] + '</div></a>';
+  });
+  html += '</div>';
+
+  html += '<div class="sec-divider">Key literature</div>';
+  tk.lit.forEach(function(p){
+    html += '<a class="lit-card" href="' + p.u + '" target="_blank" rel="noreferrer">';
+    html += '<span class="lit-name">' + p.n + '</span>';
+    html += '<span class="lit-desc">' + p.d + '</span>';
+    html += '<span class="lit-arr">&#8599;</span></a>';
+  });
+
+  html += renderTree(tk.activeNodes);
+  el.innerHTML = html;
+}
+
+function toggleSection(i) { document.getElementById('sec-'+i).classList.toggle('open'); }
+function toggleCode(i) {
+  var c = document.getElementById('code-'+i);
+  var open = c.style.display === 'none';
+  c.style.display = open ? 'block' : 'none';
+  c.previousElementSibling.textContent = open ? '\u25be hide R code' : '\u25b6 show R code';
+}
+function copyCode(i) {
+  var text = document.getElementById('codepre-'+i).textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    var b = document.getElementById('code-'+i).querySelector('.code-copy');
+    b.textContent = '\u2713 copied';
+    setTimeout(function(){ b.textContent = 'copy'; }, 1800);
+  }
+}
+
+// ── TREE DIAGRAM ──────────────────────────────────────────────────────
+function renderTree(active) {
+  function nd(id, x, y, w, h, color, label, sub) {
+    var on = !!active[id];
+    var fill = on ? color + '22' : '#0f172a';
+    var stroke = on ? color : '#1a2540';
+    var textC = on ? color : '#334155';
+    var glowClass = '';
+    if (on) {
+      if (color === '#3b82f6') glowClass = 'glow-blue';
+      else if (color === '#a855f7') glowClass = 'glow-purple';
+      else if (color === '#10b981') glowClass = 'glow-green';
+      else if (color === '#f59e0b') glowClass = 'glow-amber';
+      else glowClass = 'glow-red';
+    }
+    var subLine = sub ? '<text x="' + (x+w/2) + '" y="' + (y+h/2+9) + '" text-anchor="middle" fill="' + (on ? color+'99' : '#1e293b') + '" font-size="8.5" font-family="-apple-system,sans-serif">' + sub + '</text>' : '';
+    return '<g' + (glowClass ? ' class="' + glowClass + '"' : '') + '><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (on ? 1.5 : 0.5) + '"/><text x="' + (x+w/2) + '" y="' + (y+h/2+(sub?-4:0)) + '" text-anchor="middle" dominant-baseline="central" fill="' + textC + '" font-size="9.5" font-weight="' + (on ? 600 : 400) + '" font-family="-apple-system,sans-serif">' + label + '</text>' + subLine + '</g>';
+  }
+  function ln(x1, y1, x2, y2, on, color) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (on ? color : '#1a2540') + '" stroke-width="' + (on ? 1.5 : 0.5) + '" stroke-dasharray="' + (on ? 'none' : '4 3') + '" opacity="' + (on ? 0.8 : 0.3) + '"/>';
+  }
+
+  var bl = '#3b82f6', pu = '#a855f7', gr = '#10b981', am = '#f59e0b', re = '#dc2626';
+
+  var svg = '<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:-apple-system,sans-serif"><style>';
+  svg += '@keyframes glow-blue{0%,100%{filter:drop-shadow(0 0 3px #3b82f6aa)}50%{filter:drop-shadow(0 0 8px #3b82f6)}}';
+  svg += '@keyframes glow-purple{0%,100%{filter:drop-shadow(0 0 3px #a855f7aa)}50%{filter:drop-shadow(0 0 8px #a855f7)}}';
+  svg += '@keyframes glow-green{0%,100%{filter:drop-shadow(0 0 3px #10b981aa)}50%{filter:drop-shadow(0 0 8px #10b981)}}';
+  svg += '@keyframes glow-amber{0%,100%{filter:drop-shadow(0 0 3px #f59e0baa)}50%{filter:drop-shadow(0 0 8px #f59e0b)}}';
+  svg += '@keyframes glow-red{0%,100%{filter:drop-shadow(0 0 3px #ef4444aa)}50%{filter:drop-shadow(0 0 8px #ef4444)}}';
+  svg += '.glow-blue{animation:glow-blue 2.5s ease-in-out infinite}.glow-purple{animation:glow-purple 2.5s ease-in-out infinite}.glow-green{animation:glow-green 2.5s ease-in-out infinite}.glow-amber{animation:glow-amber 2.5s ease-in-out infinite}.glow-red{animation:glow-red 2.5s ease-in-out infinite}';
+  svg += '</style>';
+
+  // ROOT
+  svg += nd('root', 260, 10, 180, 34, bl, 'Applied Econometrics', 'Three foundational questions');
+
+  // Q1 Q2 Q3 header row
+  svg += ln(290, 44, 110, 78, !!active['root'], bl);
+  svg += ln(350, 44, 350, 78, !!active['root'], pu);
+  svg += ln(410, 44, 580, 78, !!active['root'], gr);
+  svg += nd('q1', 30, 78, 160, 34, bl, 'Q1 \u2014 Identification', 'Why is OLS biased?');
+  svg += nd('q2', 270, 78, 160, 34, pu, 'Q2 \u2014 Data structure', 'How is data organised?');
+  svg += nd('q3', 500, 78, 170, 34, gr, 'Q3 \u2014 Outcome type', 'Distribution of Y');
+
+  // Q1 leaves
+  var q1nodes = [
+    ['did',    10, 152, 64, 30, bl, 'DiD', 'TWFE/CS'],
+    ['scm',    82, 152, 56, 30, bl, 'SCM', 'Synth.DiD'],
+    ['iv',    146, 152, 64, 30, bl, 'IV/2SLS', 'Exclusion'],
+    ['rd',    218, 152, 46, 30, bl, 'RD', 'Threshold'],
+    ['matching',272,152,72, 30, bl, 'Matching', 'Selection-obs.']
+  ];
+  q1nodes.forEach(function(n){
+    svg += ln(110, 112, n[1]+n[3]/2, n[2], !!active[n[0]], n[5]);
+    svg += nd(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
+  });
+
+  // Q2 leaves
+  var q2nodes = [
+    ['q2-panel',   268, 152, 72, 30, pu, 'Panel', 'TWFE/FE'],
+    ['q2-spatial', 348, 152, 72, 30, pu, 'Spatial', 'SAR/SEM'],
+    ['q2-ts',      428, 152, 70, 30, pu, 'Time series', 'ARIMA/VAR']
+  ];
+  q2nodes.forEach(function(n){
+    svg += ln(350, 112, n[1]+n[3]/2, n[2], !!active[n[0]], n[5]);
+    svg += nd(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
+  });
+
+  // Q3 leaves
+  var q3nodes = [
+    ['q3-continuous', 500, 152, 76, 30, gr, 'Continuous', 'OLS/TWFE'],
+    ['q3-binary',     584, 152, 66, 30, gr, 'Binary', 'Logit/Probit'],
+    ['q3-count',      500, 192, 66, 30, gr, 'Count', 'Poisson'],
+    ['q3-censored',   574, 192, 76, 30, gr, 'Censored', 'Tobit/2-part'],
+    ['q3-duration',   500, 232, 76, 30, gr, 'Duration', 'Cox PH']
+  ];
+  q3nodes.forEach(function(n){
+    svg += ln(585, 112, n[1]+n[3]/2, n[2], !!active[n[0]], n[5]);
+    svg += nd(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
+  });
+
+  // Functional form row label
+  svg += '<text x="350" y="282" text-anchor="middle" fill="#1e3a5f" font-size="8.5" font-family="-apple-system,sans-serif" letter-spacing="1">FUNCTIONAL FORM \u2014 sits inside the estimating equation</text>';
+  var ffnodes = [
+    ['ff-log',     10, 292, 72, 30, am, 'Log / semi-log', 'Elasticity'],
+    ['ff-quad',    90, 292, 80, 30, am, 'Quadratic', 'd*=\u2212\u03b2\u2081/2\u03b2\u2082'],
+    ['ff-spline',  178,292, 64, 30, am, 'Spline/GAM', 'Flexible'],
+    ['ff-hetero',  250,292, 84, 30, am, 'Interactions', 'Hetero. effects'],
+    ['ff-dynamic', 342,292, 82, 30, am, 'Dynamic GMM', 'Lagged DV'],
+    ['ff-qr',      432,292, 78, 30, am, 'Quantile reg.', 'Distribution'],
+    ['ff-rd',      518,292, 64, 30, am, 'RD spec.', 'Threshold']
+  ];
+  ffnodes.forEach(function(n){ svg += nd(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]); });
+
+  // Inference row label
+  svg += '<text x="350" y="362" text-anchor="middle" fill="#1e3a5f" font-size="8.5" font-family="-apple-system,sans-serif" letter-spacing="1">INFERENCE LAYER \u2014 always active, regardless of path</text>';
+  var infnodes = [
+    ['inf-pretrend', 10, 370, 84, 30, re, 'Pre-trends', 'DiD validity'],
+    ['inf-fs',       102,370, 76, 30, re, 'First-stage F', 'IV strength'],
+    ['inf-moran',    186,370, 76, 30, re, "Moran's I", 'Spatial autocorr'],
+    ['inf-ftest',    270,370, 76, 30, re, 'Joint F-test', 'Quad. terms'],
+    ['inf-se',       354,370, 84, 30, re, 'HC3 / Cluster SE', 'Robust errors'],
+    ['inf-robust',   446,370, 94, 30, re, 'Robustness checks', 'Alt. spec.'],
+    ['inf-other',    548,370, 78, 30, re, 'Power / MDE', 'Pre-reg.']
+  ];
+  infnodes.forEach(function(n){ svg += nd(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]); });
+
+  // Legend
+  svg += '<rect x="10" y="418" width="680" height="38" rx="7" fill="#0f172a" stroke="#1a2540" stroke-width="0.5"/>';
+  svg += '<circle cx="38" cy="437" r="5" fill="#3b82f6" class="glow-blue"/>';
+  svg += '<text x="50" y="441" fill="#3b82f6" font-size="10" font-family="-apple-system,sans-serif">Active in your design</text>';
+  svg += '<rect x="180" y="431" width="16" height="12" rx="3" fill="#0f172a" stroke="#1a2540" stroke-width="0.5"/>';
+  svg += '<text x="202" y="441" fill="#334155" font-size="10" font-family="-apple-system,sans-serif">Not triggered</text>';
+  svg += '<text x="350" y="441" text-anchor="middle" fill="#1e3a5f" font-size="10" font-family="-apple-system,sans-serif">Glowing nodes = your research path through the architecture</text>';
+  svg += '</svg>';
+
+  return '<div class="tree-section"><div class="tree-hdr"><h3>Your research design path</h3><p>Glowing nodes correspond to the methods activated by your answers. Dim nodes are the paths not taken \u2014 visible so you can see where your study sits in the full architecture of applied econometrics.</p></div><div class="tree-svg-wrap">' + svg + '</div></div>';
+}
+</script>
+</body>
+</html>
