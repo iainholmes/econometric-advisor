@@ -514,7 +514,7 @@ async function loadDrawerContent(p,idx){
 
   // Render static content immediately
   const abstract=p.abstract||'Abstract not available for this paper.';
-  const authors=p.authors?.map(au=>au.name).join(', ')||'Unknown authors';
+  const authors=typeof p.authors==='string'?p.authors:Array.isArray(p.authors)?p.authors.map(au=>typeof au==='string'?au:au.name||'').join(', '):'Unknown authors';
   let html=``;
 
   // Stats row
