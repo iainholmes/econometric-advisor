@@ -48,21 +48,23 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading p{color:var(--muted);font-size:14px}
 /* RESULTS */
-.results{max-width:880px;margin:0 auto;padding:2rem 2rem 5rem}
-.results-meta{color:var(--hint);font-size:13px;margin-bottom:1.75rem}
-/* NARRATIVE — two-column layout */
-.narrative{background:linear-gradient(135deg,#0a1628,#0f1f3d);border:.5px solid #1e3a8a66;border-radius:14px;padding:22px 24px;margin-bottom:1.75rem}
-.narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:16px}
-.narrative-hdr .star{font-size:14px;color:#60a5fa}
-.narrative-hdr .lbl{font-size:11px;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
-.narrative-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-.narrative-left p{color:#c7d9f5;font-size:14px;line-height:1.85;margin:0}
-.narrative-right{display:flex;flex-direction:column;gap:10px}
-.adj-label{font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px}
-.adj-item{color:#7da8d4;font-size:13px;line-height:1.7;padding-left:12px;border-left:2px solid #1e3a8a;margin-bottom:5px}
-.caution{background:#0d1820;border:.5px solid #1e3a5f;border-radius:8px;padding:10px 13px}
-.caution-label{font-size:10px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em;margin-bottom:4px}
-.caution-text{color:#a16207;font-size:13px;line-height:1.65}
+.results{max-width:1200px;margin:0 auto;padding:2rem 2.5rem 5rem}
+.results-meta{color:var(--hint);font-size:13px;margin-bottom:1.25rem}
+/* NARRATIVE — wide three-column compact layout */
+.narrative{background:linear-gradient(135deg,#0a1628,#0f1f3d);border:.5px solid #1e3a8a66;border-radius:14px;padding:16px 22px;margin-bottom:1.25rem}
+.narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.narrative-hdr .star{font-size:13px;color:#60a5fa}
+.narrative-hdr .lbl{font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.narrative-body{display:grid;grid-template-columns:2fr 1.2fr 1.1fr;gap:20px;align-items:start}
+.narrative-left p{color:#c7d9f5;font-size:13.5px;line-height:1.75;margin:0}
+.narrative-mid{display:flex;flex-direction:column;gap:5px}
+.narrative-right{display:flex;flex-direction:column;gap:8px}
+.adj-label{font-size:9.5px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:5px}
+.adj-item{color:#7da8d4;font-size:12.5px;line-height:1.6;padding-left:10px;border-left:2px solid #1e3a8a;margin-bottom:4px}
+.caution{background:#0d1820;border:.5px solid #1e3a5f;border-radius:8px;padding:9px 12px}
+.caution-label{font-size:9.5px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em;margin-bottom:3px}
+.caution-text{color:#a16207;font-size:12.5px;line-height:1.6}
+@media(max-width:900px){.narrative-body{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.narrative-body{grid-template-columns:1fr}}
 /* SECTIONS */
 .section{background:var(--bg2);border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .2s}
@@ -126,7 +128,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .tree-hdr{background:#0a1628;border:.5px solid #1e3a8a33;border-radius:12px;padding:18px 22px;margin-bottom:1.25rem}
 .tree-hdr h3{font-size:16px;font-weight:500;color:#93c5fd;margin-bottom:5px}
 .tree-hdr p{font-size:13.5px;color:var(--hint);line-height:1.65}
-.tree-wrap{overflow-x:auto;border-radius:12px;background:var(--bg2);border:.5px solid var(--border);padding:1.5rem}
+.tree-wrap{overflow-x:auto;border-radius:12px;background:var(--bg2);border:.5px solid var(--border);padding:2rem}
 @keyframes gb{0%,100%{filter:drop-shadow(0 0 5px #3b82f6cc)}50%{filter:drop-shadow(0 0 14px #3b82f6)}}
 @keyframes gp{0%,100%{filter:drop-shadow(0 0 5px #a855f7cc)}50%{filter:drop-shadow(0 0 14px #a855f7)}}
 @keyframes gg{0%,100%{filter:drop-shadow(0 0 5px #10b981cc)}50%{filter:drop-shadow(0 0 14px #10b981)}}
@@ -745,11 +747,10 @@ function renderResults(tk,ai){
         <div class="narrative-left">
           <p>${esc(ai.narrative)}</p>
         </div>
+        <div class="narrative-mid">
+          ${ai.key_adjustments?.length?`<div class="adj-label">Design-specific adjustments</div>${ai.key_adjustments.map(a=>`<div class="adj-item">-- ${esc(a)}</div>`).join('')}`:''}
+        </div>
         <div class="narrative-right">
-          ${ai.key_adjustments?.length?`<div>
-            <div class="adj-label">Design-specific adjustments</div>
-            ${ai.key_adjustments.map(a=>`<div class="adj-item">-- ${esc(a)}</div>`).join('')}
-          </div>`:''}
           ${ai.watchout?`<div class="caution">
             <div class="caution-label">Study-specific caution</div>
             <div class="caution-text">${esc(ai.watchout)}</div>
@@ -815,13 +816,13 @@ function renderTree(active){
   function node(id,x,y,w,h,color,label,sub){
     const on=active.has(id);
     const g=on?gc(color):'';
-    return `<g class="${g}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${on?color+'22':'#0f172a'}" stroke="${on?color:DIM}" stroke-width="${on?1.5:.5}"/>
-    <text x="${x+w/2}" y="${y+h/2+(sub?-7:0)}" text-anchor="middle" dominant-baseline="central" fill="${on?color:DT}" font-size="11" font-weight="${on?600:400}" font-family="-apple-system,sans-serif">${label}</text>
-    ${sub?`<text x="${x+w/2}" y="${y+h/2+8}" text-anchor="middle" dominant-baseline="central" fill="${on?color+'99':DIM}" font-size="9.5" font-family="-apple-system,sans-serif">${sub}</text>`:''}</g>`;
+    return `<g class="${g}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${on?color+'22':'#0f172a'}" stroke="${on?color:DIM}" stroke-width="${on?2:.5}"/>
+    <text x="${x+w/2}" y="${y+h/2+(sub?-10:0)}" text-anchor="middle" dominant-baseline="central" fill="${on?color:DT}" font-size="15" font-weight="${on?600:400}" font-family="-apple-system,sans-serif">${label}</text>
+    ${sub?`<text x="${x+w/2}" y="${y+h/2+13}" text-anchor="middle" dominant-baseline="central" fill="${on?color+'99':DIM}" font-size="12.5" font-family="-apple-system,sans-serif">${sub}</text>`:''}</g>`;
   }
   function conn(x1,y1,x2,y2,on,color){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on?color:DIM}" stroke-width="${on?1.5:.5}" stroke-dasharray="${on?'none':'5 3'}" opacity="${on?.85:.3}"/>`;}
 
-  let s=`<svg viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:640px">
+  let s=`<svg viewBox="0 0 1400 940" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:900px">
   <style>
     @keyframes gb{0%,100%{filter:drop-shadow(0 0 5px #3b82f6cc)}50%{filter:drop-shadow(0 0 14px #3b82f6)}}
     @keyframes gp{0%,100%{filter:drop-shadow(0 0 5px #a855f7cc)}50%{filter:drop-shadow(0 0 14px #a855f7)}}
@@ -832,37 +833,37 @@ function renderTree(active){
     .gg{animation:gg 2.5s ease-in-out infinite}.ga{animation:ga 2.5s ease-in-out infinite}.gr{animation:gr 2.5s ease-in-out infinite}
   </style>`;
 
-  s+=node('root',280,10,200,42,BL,'Applied Econometrics','Three foundational questions');
-  s+=conn(330,52,160,108,true,BL);s+=conn(380,52,380,108,true,PU);s+=conn(430,52,600,108,true,GR);
-  s+=node('q1',60,108,200,44,BL,'Q1 -- Identification','Why is OLS biased?');
-  s+=node('q2',280,108,200,44,PU,'Q2 -- Data structure','How is data organised?');
-  s+=node('q3',500,108,240,44,GR,'Q3 -- Outcome type',"What is Y's distribution?");
+  s+=node('root',500,16,400,72,BL,'Applied Econometrics','Three foundational questions');
+  s+=conn(600,88,280,180,true,BL);s+=conn(700,88,700,180,true,PU);s+=conn(800,88,1100,180,true,GR);
+  s+=node('q1',80,180,380,74,BL,'Q1 -- Identification','Why is OLS biased?');
+  s+=node('q2',500,180,400,74,PU,'Q2 -- Data structure','How is data organised?');
+  s+=node('q3',940,180,440,74,GR,'Q3 -- Outcome type',"What is Y's distribution?");
 
-  const q1n=[{id:'did',x:8,y:198,w:98,h:40,l:'DiD / SDID',s:'Panel + shock'},{id:'scm',x:114,y:198,w:80,h:40,l:'SCM',s:'1-10 treated'},{id:'iv',x:202,y:198,w:78,h:40,l:'IV / 2SLS',s:'Cross-sect.'},{id:'rd',x:8,y:246,w:78,h:40,l:'RD',s:'Threshold'},{id:'matching',x:94,y:246,w:90,h:40,l:'Matching',s:'Observational'}];
-  q1n.forEach(n=>{s+=conn(160,152,n.x+n.w/2,n.y,active.has('q1')&&active.has(n.id),BL);s+=node(n.id,n.x,n.y,n.w,n.h,BL,n.l,n.s);});
+  const q1n=[{id:'did',x:16,y:320,w:170,h:70,l:'DiD / SDID',s:'Panel + shock'},{id:'scm',x:200,y:320,w:140,h:70,l:'SCM',s:'1-10 treated'},{id:'iv',x:352,y:320,w:140,h:70,l:'IV / 2SLS',s:'Cross-sect.'},{id:'rd',x:16,y:406,w:140,h:70,l:'RD',s:'Threshold'},{id:'matching',x:168,y:406,w:160,h:70,l:'Matching',s:'Observational'}];
+  q1n.forEach(n=>{s+=conn(270,254,n.x+n.w/2,n.y,active.has('q1')&&active.has(n.id),BL);s+=node(n.id,n.x,n.y,n.w,n.h,BL,n.l,n.s);});
 
-  const q2n=[{id:'ds-panel',x:278,y:198,w:92,h:40,l:'Panel',s:'TWFE / FE'},{id:'ds-spatial',x:378,y:198,w:92,h:40,l:'Spatial',s:'SAR / SEM'},{id:'ds-ts',x:478,y:198,w:86,h:40,l:'Time series',s:'ARIMA / VAR'}];
-  q2n.forEach(n=>{s+=conn(380,152,n.x+n.w/2,n.y,active.has('q2')&&active.has(n.id),PU);s+=node(n.id,n.x,n.y,n.w,n.h,PU,n.l,n.s);});
+  const q2n=[{id:'ds-panel',x:508,y:320,w:168,h:70,l:'Panel',s:'TWFE / FE'},{id:'ds-spatial',x:692,y:320,w:168,h:70,l:'Spatial',s:'SAR / SEM'},{id:'ds-ts',x:508,y:406,w:160,h:70,l:'Time series',s:'ARIMA / VAR'}];
+  q2n.forEach(n=>{s+=conn(700,254,n.x+n.w/2,n.y,active.has('q2')&&active.has(n.id),PU);s+=node(n.id,n.x,n.y,n.w,n.h,PU,n.l,n.s);});
 
-  const q3n=[{id:'out-continuous',x:498,y:198,w:96,h:40,l:'Continuous',s:'OLS / TWFE'},{id:'out-binary',x:602,y:198,w:84,h:40,l:'Binary',s:'Logit/Probit'},{id:'out-count',x:498,y:246,w:76,h:40,l:'Count',s:'Poisson'},{id:'out-censored',x:582,y:246,w:90,h:40,l:'Censored',s:'Tobit / 2-part'},{id:'out-duration',x:680,y:198,w:76,h:40,l:'Duration',s:'Cox PH'}];
-  q3n.forEach(n=>{s+=conn(620,152,n.x+n.w/2,n.y,active.has('q3')&&active.has(n.id),GR);s+=node(n.id,n.x,n.y,n.w,n.h,GR,n.l,n.s);});
+  const q3n=[{id:'out-continuous',x:948,y:320,w:172,h:70,l:'Continuous',s:'OLS / TWFE'},{id:'out-binary',x:1134,y:320,w:152,h:70,l:'Binary',s:'Logit/Probit'},{id:'out-count',x:948,y:406,w:140,h:70,l:'Count',s:'Poisson'},{id:'out-censored',x:1104,y:406,w:162,h:70,l:'Censored',s:'Tobit / 2-part'},{id:'out-duration',x:1282,y:320,w:102,h:70,l:'Duration',s:'Cox PH'}];
+  q3n.forEach(n=>{s+=conn(1160,254,n.x+n.w/2,n.y,active.has('q3')&&active.has(n.id),GR);s+=node(n.id,n.x,n.y,n.w,n.h,GR,n.l,n.s);});
 
-  s+=`<text x="380" y="308" text-anchor="middle" fill="${DT}" font-size="10" font-family="-apple-system,sans-serif" letter-spacing="1.5">FUNCTIONAL FORM</text>`;
+  s+=`<text x="700" y="540" text-anchor="middle" fill="${DT}" font-size="13" font-family="-apple-system,sans-serif" letter-spacing="2">FUNCTIONAL FORM</text>`;
   const ffn=[{id:'ff-log',l:'Log/semi-log',s:'Elasticity'},{id:'ff-quad',l:'Quadratic',s:'d*=-b1/2b2'},{id:'ff-spline',l:'Spline/GAM',s:'Flexible'},{id:'ff-hetero',l:'Interactions',s:'Hetero.'},{id:'ff-dynamic',l:'Dynamic GMM',s:'Lagged DV'},{id:'ff-qr',l:'Quantile',s:'Distributional'},{id:'ff-rd',l:'RD spec.',s:'Threshold'}];
-  const ffw=88,ffg=8,ffs=(760-ffn.length*(ffw+ffg)+ffg)/2;
-  ffn.forEach((n,i)=>{s+=node(n.id,ffs+i*(ffw+ffg),318,ffw,40,AM,n.l,n.s);});
+  const ffw=162,ffg=14,ffs=(1400-ffn.length*(ffw+ffg)+ffg)/2;
+  ffn.forEach((n,i)=>{s+=node(n.id,ffs+i*(ffw+ffg),556,ffw,70,AM,n.l,n.s);});
 
-  s+=`<text x="380" y="388" text-anchor="middle" fill="${DT}" font-size="10" font-family="-apple-system,sans-serif" letter-spacing="1.5">INFERENCE LAYER</text>`;
+  s+=`<text x="700" y="680" text-anchor="middle" fill="${DT}" font-size="13" font-family="-apple-system,sans-serif" letter-spacing="2">INFERENCE LAYER</text>`;
   const infn=[{id:'inf-pretrend',l:'Pre-trends',s:'DiD validity'},{id:'inf-fs',l:'First-stage F',s:'IV strength'},{id:'inf-moran',l:"Moran's I",s:'Spatial'},{id:'inf-ftest',l:'Joint F-test',s:'Quad. terms'},{id:'inf-se',l:'HC3/Cluster SE',s:'Robust errors'},{id:'inf-robust',l:'Robustness',s:'Alt. specs.'},{id:'inf-power',l:'Power/MDE',s:'Pre-reg.'}];
-  const infw=88,infg=8,infs=(760-infn.length*(infw+infg)+infg)/2;
-  infn.forEach((n,i)=>{s+=node(n.id,infs+i*(infw+infg),398,infw,40,RE,n.l,n.s);});
+  const infw=162,infg=14,infs=(1400-infn.length*(infw+infg)+infg)/2;
+  infn.forEach((n,i)=>{s+=node(n.id,infs+i*(infw+infg),696,infw,70,RE,n.l,n.s);});
 
-  s+=`<rect x="8" y="458" width="744" height="44" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width=".5"/>`;
-  s+=`<circle cx="36" cy="480" r="9" fill="#3b82f620" stroke="#3b82f6" stroke-width="1.5" class="gb"/>`;
-  s+=`<circle cx="36" cy="480" r="5" fill="#3b82f6"/>`;
-  s+=`<text x="54" y="480" dominant-baseline="central" fill="#93c5fd" font-size="11" font-family="-apple-system,sans-serif">Active in your design</text>`;
-  s+=`<circle cx="${8+744/2+16}" cy="480" r="7" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>`;
-  s+=`<text x="${8+744/2+30}" y="480" dominant-baseline="central" fill="${DT}" font-size="11" font-family="-apple-system,sans-serif">Not triggered -- path not taken</text>`;
+  s+=`<rect x="14" y="800" width="1372" height="72" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width=".5"/>`;
+  s+=`<circle cx="60" cy="836" r="14" fill="#3b82f620" stroke="#3b82f6" stroke-width="2" class="gb"/>`;
+  s+=`<circle cx="60" cy="836" r="8" fill="#3b82f6"/>`;
+  s+=`<text x="84" y="836" dominant-baseline="central" fill="#93c5fd" font-size="16" font-family="-apple-system,sans-serif">Active in your design</text>`;
+  s+=`<circle cx="730" cy="836" r="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>`;
+  s+=`<text x="752" y="836" dominant-baseline="central" fill="${DT}" font-size="16" font-family="-apple-system,sans-serif">Not triggered -- path not taken</text>`;
   s+=`</svg>`;
 
   return `<div class="tree-section">
