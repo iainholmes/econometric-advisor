@@ -510,12 +510,14 @@ async function loadDrawerContent(p,idx){
   try{
     const detailUrl=`https://api.semanticscholar.org/graph/v1/paper/${p.paperId}?fields=tldr,references,citations,venue,fieldsOfStudy`;
     const proxies=[
+      detailUrl,
+      'https://api.allorigins.win/get?url='+encodeURIComponent(detailUrl),
       'https://corsproxy.io/?url='+encodeURIComponent(detailUrl),
-      'https://api.allorigins.win/get?url='+encodeURIComponent(detailUrl)
+      'https://thingproxy.freeboard.io/fetch/'+detailUrl
     ];
     for(const url of proxies){
       try{
-        const r=await fetch(url);if(!r.ok)continue;
+        const r=await fetch(url,{signal:AbortSignal.timeout(6000)});if(!r.ok)continue;
         const raw=await r.json();
         const d=raw.contents?JSON.parse(raw.contents):raw;
         if(d.tldr?.text)tldr=d.tldr.text;
@@ -634,13 +636,15 @@ async function fetchLiterature(a,tk){
   const query=buildLitQuery(a);
   const ssUrl='https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract,venue&limit=8';
   const proxies=[
+    ssUrl,
+    'https://api.allorigins.win/get?url='+encodeURIComponent(ssUrl),
     'https://corsproxy.io/?url='+encodeURIComponent(ssUrl),
-    'https://api.allorigins.win/get?url='+encodeURIComponent(ssUrl)
+    'https://thingproxy.freeboard.io/fetch/'+ssUrl
   ];
   let data=null;
   for(const url of proxies){
     try{
-      const r=await fetch(url);
+      const r=await fetch(url,{signal:AbortSignal.timeout(6000)});
       if(!r.ok)continue;
       const raw=await r.json();
       const parsed=raw.contents?JSON.parse(raw.contents):raw;
