@@ -572,7 +572,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         </svg>
       </div>
       <h1>Econometric Research Advisor</h1>
-      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit and an interactive knowledge graph showing exactly where your study sits in the architecture of applied econometrics.</p>
+      <p>Answer about a dozen questions about your research design (some are conditionally skipped based on prior answers). The advisor generates a personalized toolkit and an interactive knowledge graph showing exactly where your study sits in the architecture of applied econometrics.</p>
       <div class="tags">
         <span class="tag">Identification</span><span class="tag">Estimating equations</span>
         <span class="tag">R · Stata · Python</span><span class="tag">Spatial methods</span>
@@ -627,21 +627,30 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 
 <script>
 const QS=[
-  {id:"field",text:"What is your primary research field?",sub:"Shapes which estimators, data norms, and literature are relevant.",type:"chips",opts:[
+  {id:"context",text:"Describe your research idea.",sub:"Strongly recommended — this single field improves every downstream recommendation more than any other answer. Even a few sentences help.",type:"textarea",skippable:true,
+   placeholder:"e.g. I want to study how PFAS contamination events affected housing prices in Brunswick and Cumberland counties NC, using parcel-level transaction data and EPA monitoring records..."},
+  {id:"stage",text:"Where are you in the research process?",sub:"Advice differs sharply between proposing a study and revising one with results in hand.",type:"chips",opts:[
+    {l:"Proposal stage — choosing a question and design",v:"proposal"},
+    {l:"Data collection / preparation underway",v:"data_prep"},
+    {l:"Estimation in progress — running models now",v:"estimating"},
+    {l:"Have results, refining specification & robustness",v:"refining"},
+    {l:"Revising for committee, journal, or thesis defense",v:"revising"},
+    {l:"Not sure yet",v:"unsure"}]},
+  {id:"field",text:"What is your primary research field?",sub:"Shapes which estimators, data norms, and literature are most relevant.",type:"chips",opts:[
     {l:"Environmental / Natural Resource Economics",v:"env"},
     {l:"Urban / Housing Economics",v:"urban"},
     {l:"Labor / Health Economics",v:"labor"},
     {l:"Development / Public Economics",v:"dev"},
     {l:"Agricultural Economics",v:"ag"},
     {l:"Finance / Resource Markets",v:"finance"},
-    {l:"Other / General",v:"other"},
-    {l:"Not sure yet",v:"unsure"}]},
-  {id:"question_type",text:"What is the nature of your core research question?",sub:"Are you estimating a causal effect, valuing a non-market good, or describing a pattern?",type:"chips",opts:[
-    {l:"Causal identification -- does X cause Y?",v:"causal"},
+    {l:"Macro / International",v:"macro"},
+    {l:"Industrial Organization",v:"io"},
+    {l:"Not sure / cross-field",v:"unsure"}]},
+  {id:"question_type",text:"What is the goal of your empirical strategy?",sub:"What kind of answer are you trying to produce?",type:"chips",opts:[
+    {l:"Causal identification — does X cause Y?",v:"causal"},
     {l:"Welfare / non-market valuation (WTP, WTA, implicit prices)",v:"welfare"},
     {l:"Prediction / out-of-sample forecasting",v:"predict"},
     {l:"Descriptive / correlational analysis",v:"descriptive"},
-    {l:"Structural / theory-based estimation",v:"structural"},
     {l:"Not sure yet",v:"unsure"}]},
   {id:"treatment",text:"Is there a treatment, policy, or shock you are analyzing?",sub:"If yes, what kind?",type:"chips",opts:[
     {l:"Environmental regulation or contamination event",v:"env_reg"},
@@ -650,23 +659,24 @@ const QS=[
     {l:"Health or safety shock",v:"health"},
     {l:"Economic policy or government program",v:"policy"},
     {l:"Market shock or price change",v:"market"},
-    {l:"No explicit treatment -- observational study",v:"none"},
+    {l:"No explicit treatment — observational study",v:"none"},
     {l:"Not sure / haven't decided",v:"unsure"}]},
-  {id:"data_structure",text:"What does your data look like?",sub:"Select all that apply -- skip if undecided.",type:"multi",skippable:true,opts:[
+  {id:"n_treated",text:"How many units receive the treatment or shock?",sub:"This affects which identification strategies are feasible. Skipped automatically if you have no explicit treatment.",type:"chips",
+   skipIf:(a)=>a.treatment==='none'||a.treatment==='unsure',
+   opts:[
+    {l:"Just 1 (single city, county, facility, or event)",v:"one"},
+    {l:"Small group — 2 to 10 treated units",v:"few"},
+    {l:"Moderate — 11 to 50 treated units",v:"moderate"},
+    {l:"Large — more than 50 treated units",v:"many"},
+    {l:"Not sure yet",v:"unsure"}]},
+  {id:"data_structure",text:"What does your data look like?",sub:"Select all that apply — skip if undecided.",type:"multi",skippable:true,opts:[
     {l:"Cross-section (many units, one point in time)",v:"cross"},
     {l:"Panel (same units observed across multiple periods)",v:"panel"},
     {l:"Geographic / spatial data (coordinates, shapefiles, ZCTAs)",v:"spatial"},
     {l:"Time series (one or few units over many periods)",v:"ts"},
     {l:"Survey / microdata (individual-level responses)",v:"survey"},
-    {l:"High-dimensional (many covariates, possibly > observations)",v:"highdim"},
+    {l:"Repeated cross-sections (different units each wave)",v:"repcross"},
     {l:"Not sure / data not collected yet",v:"unsure"}]},
-  {id:"n_treated",text:"How many units receive the treatment or shock?",sub:"This affects which identification strategies are feasible.",type:"chips",opts:[
-    {l:"Just 1 (single city, county, facility, or event)",v:"one"},
-    {l:"Small group -- 2 to 10 treated units",v:"few"},
-    {l:"Moderate -- 11 to 50 treated units",v:"moderate"},
-    {l:"Large -- more than 50 treated units",v:"many"},
-    {l:"No treatment / not applicable",v:"na"},
-    {l:"Not sure yet",v:"unsure"}]},
   {id:"outcome",text:"What type is your dependent variable?",sub:"Determines which estimator family is appropriate.",type:"chips",opts:[
     {l:"Continuous (price, value, income, rate)",v:"continuous"},
     {l:"Binary (yes/no, adopt/not adopt, 0/1)",v:"binary"},
@@ -677,25 +687,25 @@ const QS=[
     {l:"Bounded proportion / share (between 0 and 1)",v:"fractional"},
     {l:"Time-to-event / duration (time until sale, failure)",v:"duration"},
     {l:"Not sure yet",v:"unsure"}]},
-  {id:"endogeneity",text:"Are you worried about endogeneity or selection bias?",sub:"Does something unobserved likely drive both treatment and outcome?",type:"chips",opts:[
-    {l:"Yes -- I have a natural experiment, IV, or quasi-experiment",v:"natexp"},
-    {l:"Yes -- but I haven't found a clean instrument yet",v:"endo_no_iv"},
-    {l:"Possibly -- I need to test for it",v:"maybe"},
-    {l:"No -- selection on observables is defensible",v:"no"},
+  {id:"endogeneity",text:"Are you worried about endogeneity or selection bias?",sub:"This is the most consequential answer in the screener. \"Selection on observables\" means you're confident that, after including your controls, treatment is as-good-as-randomly assigned — most observational studies do not actually meet this bar. Be honest.",type:"chips",opts:[
+    {l:"Yes — I have a natural experiment, IV, or quasi-experiment",v:"natexp"},
+    {l:"Yes — but I haven't found a clean instrument yet",v:"endo_no_iv"},
+    {l:"Possibly — I want guidance on how to test for it",v:"maybe"},
+    {l:"No — I'm confident selection on observables holds",v:"no"},
     {l:"Not sure",v:"unsure"}]},
   {id:"geo",text:"Does geography matter structurally to your study?",sub:"Is spatial proximity, distance, or spillovers a core part of the analysis?",type:"chips",opts:[
-    {l:"Yes -- distance / proximity is a key variable",v:"distance"},
-    {l:"Yes -- I expect spatial autocorrelation in residuals",v:"autocorr"},
-    {l:"Yes -- both proximity effects and neighborhood spillovers",v:"both"},
-    {l:"No -- geography is just a control or fixed effect",v:"no"},
+    {l:"Yes — distance / proximity is a key variable",v:"distance"},
+    {l:"Yes — I expect spatial autocorrelation in residuals",v:"autocorr"},
+    {l:"Yes — both proximity effects and neighborhood spillovers",v:"both"},
+    {l:"No — geography is just a control or fixed effect",v:"no"},
     {l:"Not applicable / not sure",v:"unsure"}]},
   {id:"functional_form",text:"Do you have a hypothesis about the shape of the relationship?",sub:"Is the effect likely non-linear, threshold-based, or heterogeneous?",type:"chips",opts:[
     {l:"Non-linear / diminishing returns (quadratic, log-log, spline)",v:"nonlinear"},
     {l:"Threshold / discontinuity at a cutoff",v:"threshold"},
     {l:"Effect varies across subgroups or locations",v:"hetero"},
-    {l:"Dynamic -- lagged outcome or adjustment over time matters",v:"dynamic"},
-    {l:"Standard linear relationship expected",v:"linear"},
-    {l:"Not sure -- I want guidance",v:"unsure"}]},
+    {l:"Dynamic — lagged outcome or adjustment over time matters",v:"dynamic"},
+    {l:"Linear is fine for my purposes (effects approximately constant)",v:"linear"},
+    {l:"Not sure — I want guidance",v:"unsure"}]},
   {id:"inference_concerns",text:"Do you have specific inference or validation concerns?",sub:"Select all that apply.",type:"multi",skippable:true,opts:[
     {l:"Small number of clusters (fewer than 30)",v:"small_cluster"},
     {l:"Multiple outcomes or hypothesis tests",v:"multiple_hyp"},
@@ -703,15 +713,13 @@ const QS=[
     {l:"Sensitivity to unobserved confounding",v:"sensitivity"},
     {l:"Permutation / randomization inference preferred",v:"permutation"},
     {l:"None of these / not sure",v:"none"}]},
-  {id:"ml_interest",text:"Are you interested in ML or high-dimensional methods?",sub:"These complement -- not replace -- causal identification.",type:"chips",opts:[
-    {l:"Yes -- for variable / control selection (LASSO, Ridge)",v:"regularize"},
-    {l:"Yes -- for causal estimation with many controls (Double ML)",v:"dml"},
-    {l:"Yes -- for heterogeneous treatment effects (Causal Forests)",v:"causal_forest"},
-    {l:"Yes -- for prediction or out-of-sample forecasting",v:"ml_predict"},
+  {id:"ml_interest",text:"Are you interested in ML or high-dimensional methods?",sub:"These complement — not replace — causal identification. Especially relevant if you have many candidate controls.",type:"chips",opts:[
+    {l:"Yes — high-dimensional X, need variable / control selection (LASSO, Ridge)",v:"regularize"},
+    {l:"Yes — for causal estimation with many controls (Double ML)",v:"dml"},
+    {l:"Yes — for heterogeneous treatment effects (Causal Forests)",v:"causal_forest"},
+    {l:"Yes — for prediction or out-of-sample forecasting",v:"ml_predict"},
     {l:"No / not applicable",v:"no"},
-    {l:"Not sure",v:"unsure"}]},
-  {id:"context",text:"Describe your research idea.",sub:"Optional but significantly improves AI tailoring. Skip freely.",type:"textarea",skippable:true,
-   placeholder:"e.g. I want to study how PFAS contamination events affected housing prices in Brunswick and Cumberland counties NC, using parcel-level transaction data and EPA monitoring records..."}
+    {l:"Not sure",v:"unsure"}]}
 ];
 
 let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||'',codeLang='r';
@@ -736,21 +744,22 @@ function resetApp(){step=-1;ans={};show('landing');document.getElementById('hdr'
 
 function openClaudeHandoff(){
   // Build a summary prompt the user can carry into claude.ai for deeper analysis with file uploads
-  const a=ans;
+  const v=k=>{const x=ans[k];if(!x||x==='_skipped')return null;return x;};
   const lines=[];
   lines.push("I am working on an econometrics research project and have already used the Econometric Advisor app to map out my study. Here is a summary of where I am, and I would like to continue with deeper analysis — including the option to upload papers, code, data, and visualizations for review.");
   lines.push("");
   lines.push("MY RESEARCH DESIGN");
-  if(a.field)lines.push("- Field: "+a.field);
-  if(a.question_type)lines.push("- Research question type: "+a.question_type);
-  if(a.treatment)lines.push("- Treatment / shock: "+a.treatment);
-  if(a.data_structure)lines.push("- Data structure: "+[].concat(a.data_structure).join(", "));
-  if(a.n_treated)lines.push("- Number of treated units: "+a.n_treated);
-  if(a.outcome)lines.push("- Outcome variable type: "+a.outcome);
-  if(a.endogeneity)lines.push("- Endogeneity concern: "+a.endogeneity);
-  if(a.geo)lines.push("- Geography role: "+a.geo);
-  if(a.functional_form)lines.push("- Functional form hypothesis: "+a.functional_form);
-  if(a.context){lines.push("");lines.push("STUDY DESCRIPTION");lines.push(a.context);}
+  if(v('stage'))lines.push("- Research stage: "+v('stage'));
+  if(v('field'))lines.push("- Field: "+v('field'));
+  if(v('question_type'))lines.push("- Research question type: "+v('question_type'));
+  if(v('treatment'))lines.push("- Treatment / shock: "+v('treatment'));
+  if(v('data_structure'))lines.push("- Data structure: "+[].concat(v('data_structure')).join(", "));
+  if(v('n_treated'))lines.push("- Number of treated units: "+v('n_treated'));
+  if(v('outcome'))lines.push("- Outcome variable type: "+v('outcome'));
+  if(v('endogeneity'))lines.push("- Endogeneity concern: "+v('endogeneity'));
+  if(v('geo'))lines.push("- Geography role: "+v('geo'));
+  if(v('functional_form'))lines.push("- Functional form hypothesis: "+v('functional_form'));
+  if(v('context')){lines.push("");lines.push("STUDY DESCRIPTION");lines.push(v('context'));}
   if(_toolkit&&_toolkit.sections){
     lines.push("");
     lines.push("TOOLKIT THE ADVISOR RECOMMENDED");
@@ -782,16 +791,29 @@ function renderQ(){
     <div class="chips">${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
     <div class="multi-actions"><button class="btn-cont" onclick="nextStep()">Continue</button><button class="btn-skip" onclick="nextStep()">Skip</button></div>`;
   } else {
+    const isLast=step===QS.length-1;
+    const primaryLbl=isLast?'Generate toolkit':'Continue';
+    const skipLbl=isLast?'Skip':'Skip this question';
+    const action=isLast?'generate':'nextStep';
     el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
     <textarea class="ctx" placeholder="${q.placeholder||''}" oninput="ans['${q.id}']=this.value">${ans[q.id]||''}</textarea>
-    <div class="multi-actions"><button class="btn-cont" onclick="generate()">Generate toolkit</button><button class="btn-skip" onclick="generate()">Skip</button></div>`;
+    <div class="multi-actions"><button class="btn-cont" onclick="${action}()">${primaryLbl}</button><button class="btn-skip" onclick="${action}()">${skipLbl}</button></div>`;
   }
 }
 function selChip(v){ans[QS[step].id]=v;setTimeout(nextStep,180);}
 function togMulti(v){const id=QS[step].id;const prev=Array.isArray(ans[id])?ans[id]:[];ans[id]=prev.includes(v)?prev.filter(x=>x!==v):[...prev,v];renderQ();}
-function nextStep(){if(step<QS.length-1){step++;renderQ();}else generate();}
+function nextStep(){
+  let next=step+1;
+  // Skip questions whose skipIf predicate returns true given current answers
+  while(next<QS.length&&typeof QS[next].skipIf==='function'&&QS[next].skipIf(ans)){
+    // Mark answer as 'skipped' for downstream logic that checks for presence
+    ans[QS[next].id]='_skipped';
+    next++;
+  }
+  if(next<QS.length){step=next;renderQ();}else generate();
+}
 
 let _toolkit=null,_aiPayload=null;
 
@@ -814,8 +836,17 @@ async function generate(){
   document.getElementById('btn-reset').style.display='inline-flex';
 }
 
-async function enrichWithAI(a,tk){
+async function enrichWithAI(_a,tk){
+  // Treat skipped/empty answers as absent
+  const v=k=>{const x=ans[k];if(!x||x==='_skipped')return null;return x;};
+  const a={
+    field:v('field'),question_type:v('question_type'),treatment:v('treatment'),
+    n_treated:v('n_treated'),outcome:v('outcome'),endogeneity:v('endogeneity'),
+    geo:v('geo'),functional_form:v('functional_form'),
+    data_structure:v('data_structure'),context:v('context'),stage:v('stage')
+  };
   const answerSummary=[
+    a.stage&&`Research stage: ${a.stage}`,
     a.field&&`Field: ${a.field}`,
     a.question_type&&`Research question type: ${a.question_type}`,
     a.treatment&&`Treatment/shock: ${a.treatment}`,
@@ -839,8 +870,16 @@ ANSWERS:\n${answerSummary}\nSECTIONS: ${tk.sections.map(s=>s.label+': '+s.method
   }catch(e){return null;}
 }
 
-async function fetchSectionRationales(a,tk){
+async function fetchSectionRationales(_a,tk){
+  const v=k=>{const x=ans[k];if(!x||x==='_skipped')return null;return x;};
+  const a={
+    field:v('field'),question_type:v('question_type'),treatment:v('treatment'),
+    outcome:v('outcome'),endogeneity:v('endogeneity'),geo:v('geo'),
+    functional_form:v('functional_form'),data_structure:v('data_structure'),
+    context:v('context'),stage:v('stage')
+  };
   const answerSummary=[
+    a.stage&&`Stage: ${a.stage}`,
     a.field&&`Field: ${a.field}`,
     a.question_type&&`Research type: ${a.question_type}`,
     a.treatment&&`Treatment: ${a.treatment}`,
@@ -998,23 +1037,27 @@ STUDENT RESEARCH CONTEXT: ${context}`;
 }
 
 async function fetchLiterature(a,tk){
-  _drawerAnswers=a;
+  // Filter '_skipped' values so the prompt doesn't reference fake answers
+  const cleaned={};
+  Object.keys(a).forEach(k=>{const x=a[k];if(x&&x!=='_skipped')cleaned[k]=x;});
+  _drawerAnswers=cleaned;
   const el=document.getElementById('lit-container');
   if(!el)return;
   if(!apiKey||apiKey.length<20){
-    const q=buildLitQuery(a);
+    const q=buildLitQuery(cleaned);
     el.innerHTML=`<p class="lit-error">Add an API key on the landing page to load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar instead ↗</a></p>`;
     return;
   }
   el.innerHTML=`<p class="lit-loading">Generating literature recommendations...</p>`;
   const context=[
-    a.field&&`Field: ${a.field}`,
-    a.question_type&&`Research type: ${a.question_type}`,
-    a.treatment&&`Treatment: ${a.treatment}`,
-    a.endogeneity&&`Identification: ${a.endogeneity}`,
-    a.geo&&`Geography: ${a.geo}`,
-    a.functional_form&&`Functional form: ${a.functional_form}`,
-    a.context&&`Study: "${a.context}"`
+    cleaned.stage&&`Stage: ${cleaned.stage}`,
+    cleaned.field&&`Field: ${cleaned.field}`,
+    cleaned.question_type&&`Research type: ${cleaned.question_type}`,
+    cleaned.treatment&&`Treatment: ${cleaned.treatment}`,
+    cleaned.endogeneity&&`Identification: ${cleaned.endogeneity}`,
+    cleaned.geo&&`Geography: ${cleaned.geo}`,
+    cleaned.functional_form&&`Functional form: ${cleaned.functional_form}`,
+    cleaned.context&&`Study: "${cleaned.context}"`
   ].filter(Boolean).join('; ');
   const prompt=`You are an expert applied econometrician. Based on this student's research design, recommend 6-8 highly relevant academic papers. Return ONLY valid JSON, no markdown:
 {"papers":[{"title":"exact paper title","authors":"Last1, Last2, Last3","year":2021,"journal":"journal or working paper series","doi_or_url":"https://... full URL to paper if known, else empty string","abstract":"2-3 sentence description of what the paper does and finds","estimator":"the main econometric method used","relevance":"one sentence on why this paper is relevant to their specific design","citations":"approximate citation count as string e.g. 2400"}]}
@@ -1085,6 +1128,8 @@ function scrollAndFlash(idx){
 }
 
 function buildToolkit(a){
+  // Normalize: turn '_skipped' values into undefined so downstream conditionals work cleanly
+  a=Object.fromEntries(Object.entries(a).map(([k,v])=>[k,v==='_skipped'?undefined:v]));
   const{field,question_type,treatment,data_structure,n_treated,outcome,endogeneity,geo,functional_form,inference_concerns,ml_interest}=a;
   const isPanel=Array.isArray(data_structure)&&data_structure.includes('panel');
   const isSpatial=Array.isArray(data_structure)&&data_structure.includes('spatial');
