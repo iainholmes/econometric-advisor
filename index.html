@@ -50,6 +50,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* RESULTS */
 .results{max-width:1200px;margin:0 auto;padding:2rem 2.5rem 5rem}
 .results-meta{color:var(--hint);font-size:13px;margin-bottom:1.25rem}
+.toolkit-inner{max-width:880px;margin:0 auto}
 /* NARRATIVE — wide three-column compact layout */
 .narrative{background:linear-gradient(135deg,#0a1628,#0f1f3d);border:.5px solid #1e3a8a66;border-radius:14px;padding:16px 22px;margin-bottom:1.25rem}
 .narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:12px}
@@ -760,7 +761,7 @@ function renderResults(tk,ai){
     </div>`;
   }
 
-  html+=`<div class="lang-bar">
+  html+=`<div class="toolkit-inner"><div class="lang-bar">
     <div class="lang-bar-left">
       <div class="lbl">Code language</div>
       <div class="desc">Toggle to switch all code snippets simultaneously</div>
@@ -806,6 +807,7 @@ function renderResults(tk,ai){
   html+=`</div>`;
 
   html+=`<div class="sec-divider">Current literature -- live from Semantic Scholar</div><div id="lit-container"><p class="lit-loading">Searching Semantic Scholar...</p></div>`;
+  html+=`</div>`; // close toolkit-inner
   html+=renderTree(tk.active);
   el.innerHTML=html;
 }
