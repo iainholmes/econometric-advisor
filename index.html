@@ -425,15 +425,20 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <!-- Static rings -->
         <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
         <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1"/>
-        <!-- Inner connecting ring (the one that lights up) -->
+        <!-- Inner connecting ring (the one that lights up when pulses arrive) -->
         <circle id="wm-inner-ring" cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="5">
-          <!-- Brightens when all three pulses arrive at endpoints (3s mark of 9s cycle) -->
-          <animate attributeName="stroke-width" values="5;5;9;9;5;5" keyTimes="0;0.32;0.36;0.44;0.5;1" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="stroke" values="#4f9aff;#4f9aff;#ffffff;#ffffff;#4f9aff;#4f9aff" keyTimes="0;0.32;0.36;0.44;0.5;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-width"
+                   values="5;5;9;9;5;5"
+                   keyTimes="0;0.32;0.36;0.44;0.5;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke"
+                   values="#4f9aff;#4f9aff;#ffffff;#ffffff;#4f9aff;#4f9aff"
+                   keyTimes="0;0.32;0.36;0.44;0.5;1"
+                   dur="9s" repeatCount="indefinite"/>
         </circle>
         <circle cx="256" cy="256" r="90" fill="#020e1f"/>
 
-        <!-- Static spokes (always visible) -->
+        <!-- Static spokes -->
         <line x1="256" y1="254" x2="256" y2="152" stroke="#4f9aff" stroke-width="5" stroke-linecap="round"/>
         <line x1="250" y1="262" x2="178" y2="334" stroke="#c47cff" stroke-width="5" stroke-linecap="round"/>
         <line x1="262" y1="262" x2="334" y2="334" stroke="#1fd298" stroke-width="5" stroke-linecap="round"/>
@@ -442,46 +447,90 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c47cff"/>
         <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#1fd298"/>
 
-        <!-- ANIMATED PULSES — all three fire simultaneously from exact center (256,256) -->
-        <!-- Cycle: 0-3s travel outward, 3-4s arrive & light ring, 4-7s ring expands & fades, 7-9s pause -->
-        <!-- Total cycle: 9s -->
+        <!-- ANIMATED PULSES — fire simultaneously from exact center (256,256) -->
+        <!-- 9s cycle: 0→0.33 travel, 0.33→0.5 ring brightens, 0.5→0.78 ring expands & fades, 0.78→1 pause -->
 
-        <g class="pulse-blue">
-          <circle r="6" fill="#4f9aff" opacity="0">
-            <animate attributeName="cx" values="256" dur="9s" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;146" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
-          </circle>
-        </g>
-        <g class="pulse-purple">
-          <circle r="6" fill="#c47cff" opacity="0">
-            <animate attributeName="cx" values="256;174" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;339" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
-          </circle>
-        </g>
-        <g class="pulse-green">
-          <circle r="6" fill="#1fd298" opacity="0">
-            <animate attributeName="cx" values="256;338" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;339" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
-          </circle>
-        </g>
+        <!-- Blue pulse: center → north (256,146). cx is static at 256. -->
+        <circle cx="256" cy="256" r="0" fill="#4f9aff" opacity="0">
+          <animate attributeName="cy"
+                   values="256;146;146;256"
+                   keyTimes="0;0.33;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="0;6;11;0;0"
+                   keyTimes="0;0.18;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0.9;1;0;0"
+                   keyTimes="0;0.08;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+        </circle>
 
-        <!-- Expanding ring: emits from inner ring (r=110), expands outward, fades -->
-        <!-- Times in 9s cycle: 0.36s = 3.24s, 0.78s = 7.02s -->
+        <!-- Purple pulse: center → SW (174,339) -->
+        <circle cx="256" cy="256" r="0" fill="#c47cff" opacity="0">
+          <animate attributeName="cx"
+                   values="256;174;174;256"
+                   keyTimes="0;0.33;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="cy"
+                   values="256;339;339;256"
+                   keyTimes="0;0.33;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="0;6;11;0;0"
+                   keyTimes="0;0.18;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0.9;1;0;0"
+                   keyTimes="0;0.08;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Green pulse: center → SE (338,339) -->
+        <circle cx="256" cy="256" r="0" fill="#1fd298" opacity="0">
+          <animate attributeName="cx"
+                   values="256;338;338;256"
+                   keyTimes="0;0.33;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="cy"
+                   values="256;339;339;256"
+                   keyTimes="0;0.33;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="0;6;11;0;0"
+                   keyTimes="0;0.18;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0.9;1;0;0"
+                   keyTimes="0;0.08;0.32;0.34;1"
+                   dur="9s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Expanding ring emitted from inner ring at t=0.5 — expands outward and fades -->
         <circle cx="256" cy="256" r="110" fill="none" stroke="#ffffff" stroke-width="3" opacity="0">
-          <animate attributeName="r" values="110;110;145;180;210" keyTimes="0;0.36;0.55;0.7;0.78" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;0;0.9;0.4;0;0" keyTimes="0;0.36;0.42;0.6;0.78;1" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="stroke-width" values="3;3;2.5;1.5;0.5" keyTimes="0;0.36;0.55;0.7;0.78" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="110;110;110;180;210;110"
+                   keyTimes="0;0.36;0.5;0.7;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0;0.85;0.35;0;0"
+                   keyTimes="0;0.36;0.5;0.7;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-width"
+                   values="3;3;3;1.5;0.5;3"
+                   keyTimes="0;0.36;0.5;0.7;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
         </circle>
         <!-- Second slower ring trailing -->
         <circle cx="256" cy="256" r="110" fill="none" stroke="#ffffff" stroke-width="2" opacity="0">
-          <animate attributeName="r" values="110;110;130;165;195" keyTimes="0;0.4;0.6;0.72;0.78" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;0;0.5;0.2;0;0" keyTimes="0;0.4;0.5;0.65;0.78;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="110;110;110;165;195;110"
+                   keyTimes="0;0.4;0.55;0.72;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0;0.5;0.2;0;0"
+                   keyTimes="0;0.4;0.55;0.72;0.78;1"
+                   dur="9s" repeatCount="indefinite"/>
         </circle>
 
         <!-- Center dot (top layer, always visible) -->
@@ -489,10 +538,16 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
         <circle cx="256" cy="256" r="5" fill="#fff"/>
 
-        <!-- Center pulse-out flash (when pulses spawn at 0s of cycle) -->
+        <!-- Center spawn flash at t=0 -->
         <circle cx="256" cy="256" r="5" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0">
-          <animate attributeName="r" values="5;30;5" keyTimes="0;0.08;0.18" dur="9s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;0.6;0;0" keyTimes="0;0.04;0.18;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="r"
+                   values="5;5;28;5;5"
+                   keyTimes="0;0.02;0.14;0.22;1"
+                   dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="0;0.7;0.4;0;0"
+                   keyTimes="0;0.04;0.14;0.22;1"
+                   dur="9s" repeatCount="indefinite"/>
         </circle>
       </svg>
     </div>
