@@ -488,8 +488,8 @@ function openDrawer(idx){
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('paper-drawer').classList.add('open');
   document.getElementById('drawer-title-text').textContent=p.title||'Untitled';
-  const authors=p.authors?.slice(0,4).map(au=>au.name).join(', ')+(p.authors?.length>4?' et al.':'');
-  document.getElementById('drawer-meta-line').textContent=(authors||'Unknown authors')+(p.year?' · '+p.year:'')+(p.venue?' · '+p.venue:'');
+  const authors=typeof p.authors==='string'?p.authors:(p.authors?.slice(0,4).map(au=>au.name||au).join(', ')||'Unknown authors');
+  document.getElementById('drawer-meta-line').textContent=authors+(p.year?' · '+p.year:'')+(p.journal?' · '+p.journal:'')+(p.venue?' · '+p.venue:'');
   document.getElementById('drawer-body').innerHTML=`<div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper details...</div>`;
   loadDrawerContent(p,idx);
 }
@@ -503,28 +503,13 @@ function closeDrawer(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
 
 async function loadDrawerContent(p,idx){
-  const doi=p.externalIds?.DOI;
-  const href=doi?`https://doi.org/${doi}`:`https://www.semanticscholar.org/paper/${p.paperId}`;
+  const href=p.doi_or_url||p.externalIds?.DOI&&`https://doi.org/${p.externalIds.DOI}`||`https://scholar.google.com/scholar?q=${encodeURIComponent(p.title||'')}`;
   // Fetch full paper details including TLDR from Semantic Scholar
   let tldr='',relatedPapers=[];
   try{
     const detailUrl=`https://api.semanticscholar.org/graph/v1/paper/${p.paperId}?fields=tldr,references,citations,venue,fieldsOfStudy`;
-    const detailProxies=[
-      detailUrl,
-      'https://corsproxy.io/?url='+encodeURIComponent(detailUrl)
-    ];
-    for(const url of detailProxies){
-      try{
-        const r=await fetch(url,{signal:AbortSignal.timeout(8000)});if(!r.ok)continue;
-        const raw=await r.json();
-        const d=raw.contents?JSON.parse(raw.contents):raw;
-        if(d.tldr?.text)tldr=d.tldr.text;
-        const refs=(d.references||[]).filter(r=>r.title).slice(0,3);
-        const cits=(d.citations||[]).filter(c=>c.title).slice(0,3);
-        relatedPapers=[...refs,...cits].slice(0,4);
-        break;
-      }catch(e){continue;}
-    }
+    // Papers are Claude-generated — no paperId, use stored data directly
+    tldr=p.abstract||'';
   }catch(e){}
 
   // Render static content immediately
@@ -536,13 +521,14 @@ async function loadDrawerContent(p,idx){
   html+=`<div class="dp-section"><div class="dp-stats">`;
   if(p.year)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.year}</div><div class="dp-stat-lbl">Year</div></div>`;
   if(p.citationCount!=null)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.citationCount.toLocaleString()}</div><div class="dp-stat-lbl">Citations</div></div>`;
-  if(p.venue)html+=`<div class="dp-stat"><div class="dp-stat-val" style="font-size:11px">${esc(p.venue.slice(0,24))}</div><div class="dp-stat-lbl">Venue</div></div>`;
+  const venue=p.journal||p.venue||'';if(venue)html+=`<div class="dp-stat"><div class="dp-stat-val" style="font-size:11px">${esc(venue.slice(0,24))}</div><div class="dp-stat-lbl">Journal</div></div>`;
   html+=`</div></div>`;
 
   // TLDR
-  if(tldr){
+  const tldrText=tldr||p.estimator?`Method: ${p.estimator||tldr}`:'';
+  if(tldrText){
     html+=`<div class="dp-section"><div class="dp-label">One-sentence summary</div>
-    <div class="dp-tldr">${esc(tldr)}</div></div>`;
+    <div class="dp-tldr">${esc(p.abstract?p.abstract.split('.')[0]+'.':tldrText)}</div></div>`;
   }
 
   // Abstract
@@ -556,14 +542,16 @@ async function loadDrawerContent(p,idx){
   </div></div>`;
 
   // Related papers
-  if(relatedPapers.length){
-    html+=`<div class="dp-section"><div class="dp-label">Related papers</div>`;
-    relatedPapers.forEach(rp=>{
-      const rpHref=rp.paperId?`https://www.semanticscholar.org/paper/${rp.paperId}`:'#';
-      html+=`<a href="${esc(rpHref)}" target="_blank" rel="noreferrer" style="display:block;padding:8px 12px;background:#0f172a;border:.5px solid #1e2d4a;border-radius:7px;margin-bottom:6px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='#a855f766'" onmouseout="this.style.borderColor='#1e2d4a'">
+  // Show other papers in the list as related
+  const otherPapers=_drawerPapers.filter((_,j)=>j!==idx).slice(0,3);
+  if(otherPapers.length){
+    html+=`<div class="dp-section"><div class="dp-label">Other recommended papers</div>`;
+    otherPapers.forEach((rp,j)=>{
+      const rIdx=_drawerPapers.indexOf(rp);
+      html+=`<div onclick="openDrawer(${rIdx})" style="display:block;padding:8px 12px;background:#0f172a;border:.5px solid #1e2d4a;border-radius:7px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='#a855f766'" onmouseout="this.style.borderColor='#1e2d4a'">
         <div style="color:#c7d9f5;font-size:12.5px;font-weight:500;line-height:1.4">${esc(rp.title||'Untitled')}</div>
-        ${rp.year?`<div style="color:var(--hint);font-size:11px;margin-top:3px">${rp.year}</div>`:''}
-      </a>`;
+        <div style="color:var(--hint);font-size:11px;margin-top:3px">${rp.authors||''} ${rp.year?'· '+rp.year:''}</div>
+      </div>`;
     });
     html+=`</div>`;
   }
@@ -575,7 +563,7 @@ async function loadDrawerContent(p,idx){
 
   // Now fire Claude API analysis async
   if(apiKey&&apiKey.length>20){
-    fetchPaperAnalysis(p,abstract,idx);
+    fetchPaperAnalysis(p,p.abstract||abstract,idx);
   } else {
     const box=document.getElementById('ai-analysis-box');
     if(box)box.innerHTML=`<div style="color:var(--hint);font-size:12.5px">Add an API key on the landing page to enable AI-powered paper analysis.</div>`;
@@ -631,46 +619,55 @@ async function fetchLiterature(a,tk){
   _drawerAnswers=a;
   const el=document.getElementById('lit-container');
   if(!el)return;
-  const query=buildLitQuery(a);
-  const ssUrl='https://api.semanticscholar.org/graph/v1/paper/search?query='+encodeURIComponent(query)+'&fields=title,authors,year,citationCount,externalIds,abstract,venue&limit=8';
-  let data=null;
-  try{
-    const r=await fetch(ssUrl,{
-      headers:{'x-api-key':''},
-      signal:AbortSignal.timeout(10000)
-    });
-    if(r.ok){
-      const parsed=await r.json();
-      if(parsed.data&&parsed.data.length>0)data=parsed;
-    }
-  }catch(e){}
-  if(!data){
-    try{
-      const r=await fetch('https://corsproxy.io/?url='+encodeURIComponent(ssUrl),{signal:AbortSignal.timeout(8000)});
-      if(r.ok){const raw=await r.json();const parsed=raw.contents?JSON.parse(raw.contents):raw;if(parsed.data&&parsed.data.length>0)data=parsed;}
-    }catch(e){}
-  }
-  if(!data||!data.data){
-    el.innerHTML=`<p class="lit-error">Could not load results. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(query)}" target="_blank" style="color:var(--blue)">Search Google Scholar instead ↗</a></p>`;
+  if(!apiKey||apiKey.length<20){
+    const q=buildLitQuery(a);
+    el.innerHTML=`<p class="lit-error">Add an API key on the landing page to load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar instead ↗</a></p>`;
     return;
   }
-  _drawerPapers=data.data;
-  el.innerHTML=data.data.map((p,i)=>{
-    const authors=p.authors?.slice(0,3).map(au=>au.name.split(' ').pop()).join(', ')+(p.authors?.length>3?' et al.':'');
-    const preview=p.abstract?p.abstract.slice(0,160)+'...':'';
-    return `<div class="lit-card" onclick="openDrawer(${i})">
-      <div class="lit-meta">
-        <div class="lit-authors">${esc(authors||'--')}</div>
-        <div class="lit-year">${p.year||'--'}</div>
-        <div class="lit-cite">${p.citationCount!=null?p.citationCount.toLocaleString()+' cit.':''}</div>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div class="lit-title">${esc(p.title||'Untitled')}</div>
-        ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
-        <div class="lit-open-hint">Click to open in panel</div>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML=`<p class="lit-loading">Generating literature recommendations...</p>`;
+  const context=[
+    a.field&&`Field: ${a.field}`,
+    a.question_type&&`Research type: ${a.question_type}`,
+    a.treatment&&`Treatment: ${a.treatment}`,
+    a.endogeneity&&`Identification: ${a.endogeneity}`,
+    a.geo&&`Geography: ${a.geo}`,
+    a.functional_form&&`Functional form: ${a.functional_form}`,
+    a.context&&`Study: "${a.context}"`
+  ].filter(Boolean).join('; ');
+  const prompt=`You are an expert applied econometrician. Based on this student's research design, recommend 6-8 highly relevant academic papers. Return ONLY valid JSON, no markdown:
+{"papers":[{"title":"exact paper title","authors":"Last1, Last2, Last3","year":2021,"journal":"journal or working paper series","doi_or_url":"https://... full URL to paper if known, else empty string","abstract":"2-3 sentence description of what the paper does and finds","estimator":"the main econometric method used","relevance":"one sentence on why this paper is relevant to their specific design","citations":"approximate citation count as string e.g. 2400"}]}
+Include foundational papers AND recent applied work. Prioritize papers directly relevant to their identification strategy, data structure, and field.
+RESEARCH CONTEXT: ${context}
+TOOLKIT: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    });
+    const d=await r.json();
+    const t=d.content?.find(b=>b.type==='text')?.text||'';
+    const result=JSON.parse(t.replace(/```json|```/g,'').trim());
+    _drawerPapers=result.papers;
+    el.innerHTML=result.papers.map((p,i)=>{
+      const preview=p.abstract?p.abstract.slice(0,160)+'...':'';
+      return `<div class="lit-card" onclick="openDrawer(${i})">
+        <div class="lit-meta">
+          <div class="lit-authors">${esc(p.authors||'--')}</div>
+          <div class="lit-year">${p.year||'--'}</div>
+          <div class="lit-cite">${p.citations?p.citations+' cit.':''}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="lit-title">${esc(p.title||'Untitled')}</div>
+          ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
+          <div class="lit-open-hint">Click to open in panel</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    const q=buildLitQuery(a);
+    el.innerHTML=`<p class="lit-error">Could not load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar ↗</a></p>`;
+  }
 }
 
 function setLang(l){
