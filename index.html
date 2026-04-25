@@ -50,15 +50,20 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* RESULTS */
 .results{max-width:880px;margin:0 auto;padding:2rem 2rem 5rem}
 .results-meta{color:var(--hint);font-size:13px;margin-bottom:1.75rem}
-/* NARRATIVE */
+/* NARRATIVE — two-column layout */
 .narrative{background:linear-gradient(135deg,#0a1628,#0f1f3d);border:.5px solid #1e3a8a66;border-radius:14px;padding:22px 24px;margin-bottom:1.75rem}
-.narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:16px}
 .narrative-hdr .star{font-size:14px;color:#60a5fa}
 .narrative-hdr .lbl{font-size:11px;color:#60a5fa;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
-.narrative p{color:#c7d9f5;font-size:15.5px;line-height:1.9;margin-bottom:14px}
-.adj-label{font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px;border-top:.5px solid #1e3a8a44;padding-top:14px;margin-top:4px}
-.adj-item{color:#7da8d4;font-size:13.5px;line-height:1.75;padding-left:14px;border-left:2px solid #1e3a8a;margin-bottom:6px}
-.caution{background:#0d1820;border:.5px solid #1e3a5f;border-radius:8px;padding:11px 14px;margin-top:14px}
+.narrative-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.narrative-left p{color:#c7d9f5;font-size:14px;line-height:1.85;margin:0}
+.narrative-right{display:flex;flex-direction:column;gap:10px}
+.adj-label{font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px}
+.adj-item{color:#7da8d4;font-size:13px;line-height:1.7;padding-left:12px;border-left:2px solid #1e3a8a;margin-bottom:5px}
+.caution{background:#0d1820;border:.5px solid #1e3a5f;border-radius:8px;padding:10px 13px}
+.caution-label{font-size:10px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em;margin-bottom:4px}
+.caution-text{color:#a16207;font-size:13px;line-height:1.65}
+@media(max-width:640px){.narrative-body{grid-template-columns:1fr}}
 /* SECTIONS */
 .section{background:var(--bg2);border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .2s}
 .section.open{border-color:var(--sec-color,var(--blue))}
@@ -246,7 +251,6 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 </div>
 
 <script>
-// ── QUESTIONS ──────────────────────────────────────────────────────────
 const QS=[
   {id:"field",text:"What is your primary research field?",sub:"Shapes which estimators, data norms, and literature are relevant.",type:"chips",opts:[
     {l:"Environmental / Natural Resource Economics",v:"env"},
@@ -335,18 +339,13 @@ const QS=[
    placeholder:"e.g. I want to study how PFAS contamination events affected housing prices in Brunswick and Cumberland counties NC, using parcel-level transaction data and EPA monitoring records..."}
 ];
 
-// ── STATE ──────────────────────────────────────────────────────────────
 let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||'',codeLang='r';
 
-// ── UTILS ──────────────────────────────────────────────────────────────
 function show(id){['landing','quiz','loading','results'].forEach(s=>{document.getElementById('screen-'+s).style.display=s===id?'block':'none';});}
 function setHdr(sub,showReset){const h=document.getElementById('hdr');h.style.display='flex';document.getElementById('hdr-sub').textContent=sub;document.getElementById('btn-reset').style.display=showReset?'inline-block':'none';}
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
-const _S={"0":"0","1":"1","2":"2","3":"3","i":"i","t":"t","k":"k","n":"n"};
-function mathify(s){return s.replace(/_\{([^}]+)\}/g,(_,g)=>g.split('').map(c=>({"0":"0","1":"1","2":"2","3":"3","i":"i","j":"j","t":"t","k":"k","n":"n"}[c]||c)).join('')).replace(/\^\{([^}]+)\}/g,(_,g)=>g.split('').map(c=>({"0":"0","1":"1","2":"2","3":"3","T":"T","2":"2"}[c]||c)).join(''));}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ── FLOW ───────────────────────────────────────────────────────────────
 function startApp(){if(!apiKey){document.getElementById('api-modal').style.display='flex';return;}beginQuiz();}
 function saveKey(){const k=document.getElementById('api-key-input').value.trim();if(k){apiKey=k;localStorage.setItem('ea_ak',k);}document.getElementById('api-modal').style.display='none';beginQuiz();}
 function skipKey(){document.getElementById('api-modal').style.display='none';beginQuiz();}
@@ -370,7 +369,7 @@ function renderQ(){
     el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
-    <div class="chips">      ${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
+    <div class="chips">${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
     <div class="multi-actions"><button class="btn-cont" onclick="nextStep()">Continue</button><button class="btn-skip" onclick="nextStep()">Skip</button></div>`;
   } else {
     el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
@@ -384,7 +383,6 @@ function selChip(v){ans[QS[step].id]=v;setTimeout(nextStep,180);}
 function togMulti(v){const id=QS[step].id;const prev=Array.isArray(ans[id])?ans[id]:[];ans[id]=prev.includes(v)?prev.filter(x=>x!==v):[...prev,v];renderQ();}
 function nextStep(){if(step<QS.length-1){step++;renderQ();}else generate();}
 
-// ── GENERATE ───────────────────────────────────────────────────────────
 async function generate(){
   show('loading');setHdr('generating toolkit',false);setProgress(100);
   document.getElementById('loading-msg').textContent='Building your toolkit...';
@@ -401,7 +399,6 @@ async function generate(){
   document.getElementById('btn-reset').style.display='inline-block';
 }
 
-// ── AI ENRICHMENT ──────────────────────────────────────────────────────
 async function enrichWithAI(a,tk){
   const answerSummary=[
     a.field&&`Field: ${a.field}`,
@@ -427,7 +424,6 @@ ANSWERS:\n${answerSummary}\nSECTIONS: ${tk.sections.map(s=>s.label+': '+s.method
   }catch(e){return null;}
 }
 
-// ── LITERATURE ─────────────────────────────────────────────────────────
 function buildLitQuery(a){
   const terms=[];
   if(['env','urban'].includes(a.field))terms.push('hedonic pricing housing');
@@ -475,7 +471,6 @@ async function fetchLiterature(a,tk){
   }).join('');
 }
 
-// ── LANG TOGGLE ────────────────────────────────────────────────────────
 function setLang(l){
   codeLang=l;
   ['r','stata','python'].forEach(lang=>{
@@ -487,7 +482,6 @@ function setLang(l){
   document.querySelectorAll('.code-python').forEach(el=>el.style.display=l==='python'?'block':'none');
 }
 
-// ── SECTION INTERACTIONS ───────────────────────────────────────────────
 function togSec(i){const s=document.getElementById('sec-'+i);if(s)s.classList.toggle('open');}
 function togCode(i,btn){
   const c=document.getElementById('code-wrap-'+i);
@@ -499,7 +493,6 @@ function togCode(i,btn){
 }
 function cpCode(id){const el=document.getElementById(id);if(el)navigator.clipboard?.writeText(el.textContent);}
 
-// ── TOOLKIT BUILDER ────────────────────────────────────────────────────
 function buildToolkit(a){
   const{field,question_type,treatment,data_structure,n_treated,outcome,endogeneity,geo,functional_form,inference_concerns,ml_interest}=a;
   const isPanel=Array.isArray(data_structure)&&data_structure.includes('panel');
@@ -611,7 +604,6 @@ function buildToolkit(a){
   }
   sections.push({icon:'O',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,codeR:idR,codeStata:idSta,codePython:idPy,conf:idC});
 
-  // ESTIMATOR
   let estM,estD,estW,estEq,estR,estSta,estPy,estC;
   if(isBinary){
     estC='high';estM='Logit / Probit -- Binary Choice Model';
@@ -636,7 +628,7 @@ function buildToolkit(a){
     estEq='Tobit: Y*_i = X_i-beta + epsilon_i; Y_i = max(0, Y*_i)';
     estR=`library(AER); library(pscl)\ntobit <- tobit(outcome ~ X1+X2, left=0, data=df)\nhurdle <- hurdle(outcome ~ X1+X2, dist="poisson", data=df)`;
     estSta=`tobit outcome X1 X2, ll(0)\n* Two-part:\nprobit I_outcome X1 X2\nreg outcome X1 X2 if I_outcome==1, robust`;
-    estPy=`from statsmodels.regression.linear_model import OLS\n# Two-part model\nfrom statsmodels.discrete.discrete_model import Probit\npart1 = Probit(df['I_outcome'], df[['const','X1','X2']]).fit()\npart2 = OLS(df.loc[df['outcome']>0,'outcome'],\n            df.loc[df['outcome']>0,['const','X1','X2']]).fit(cov_type='HC3')`;
+    estPy=`from statsmodels.regression.linear_model import OLS\nfrom statsmodels.discrete.discrete_model import Probit\npart1 = Probit(df['I_outcome'], df[['const','X1','X2']]).fit()\npart2 = OLS(df.loc[df['outcome']>0,'outcome'],\n            df.loc[df['outcome']>0,['const','X1','X2']]).fit(cov_type='HC3')`;
   } else if(isDuration){
     estC='high';estM='Duration / Survival Analysis (Cox PH)';
     estD='Cox PH estimates hazard ratios semi-parametrically without specifying the baseline hazard.';
@@ -672,7 +664,6 @@ function buildToolkit(a){
   }
   sections.push({icon:'f',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC});
 
-  // FUNCTIONAL FORM
   if(isNonLinear){
     sections.push({icon:'~',color:'#b45309',label:'Functional form',conf:'high',
       method:'Quadratic Specification / Spline -- Non-Linear Gradient',
@@ -684,7 +675,6 @@ function buildToolkit(a){
       codePython:`import statsmodels.formula.api as smf\nmod_q = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n                data=df).fit(cov_type='HC3')\nb1=mod_q.params['dist_mi']; b2=mod_q.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")`});
   }
 
-  // PANEL
   if(isPanel&&!isDynamic){
     sections.push({icon:'#',color:'#0e7490',label:'Panel data structure',conf:'high',
       method:"Two-Way Fixed Effects / Callaway-SantAnna / Mundlak CRE",
@@ -696,7 +686,6 @@ function buildToolkit(a){
       codePython:`import pyfixest as pf\nfit = pf.feols("outcome ~ treat | unit_id + year",\n               data=df, vcov={"CRV1":"unit_id"})\nfit.summary()`});
   }
 
-  // SPATIAL
   if(isGeo||isSpatial){
     sections.push({icon:'@',color:'#059669',label:'Spatial econometrics',conf:isGeo?'high':'medium',
       method:"Moran's I -- SAR / SEM / SDM",
@@ -708,7 +697,6 @@ function buildToolkit(a){
       codePython:`from libpysal.weights import KNN\nfrom esda.moran import Moran\nfrom spreg import ML_Lag\ncoords = list(zip(df['lon'], df['lat']))\nW = KNN.from_array(coords, k=5); W.transform='r'\nfrom spreg import OLS\nols = OLS(y, X, w=W)\nfrom esda.moran import Moran\nmi = Moran(ols.u, W)\nprint(f"Moran's I: {mi.I:.4f} p={mi.p_norm:.4f}")`});
   }
 
-  // INFERENCE
   const items=[];
   if(hasEndo)items.push('Wu-Hausman / control function -- t-stat on v-hat in Stage 2 directly tests H0 of exogeneity');
   if(hasNatExp)items.push('First-stage F-statistic -- Stock-Yogo threshold: F > 10 for single instrument');
@@ -724,7 +712,6 @@ function buildToolkit(a){
   items.push('Robustness checks -- alternative distance measures, bandwidth sensitivity, placebo dates');
   sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in environmental or urban economics journals.',equation:null,codeR:null,codeStata:null,codePython:null});
 
-  // SOURCES
   const sources=[];
   if(['urban','env','ag'].includes(field)||isHedonic){
     sources.push({n:'American Community Survey (ACS)',u:'https://data.census.gov',d:'Median home values, income, rooms, density'});
@@ -747,22 +734,31 @@ function buildToolkit(a){
   return{sections,sources,active};
 }
 
-// ── RENDER RESULTS ─────────────────────────────────────────────────────
 function renderResults(tk,ai){
   const el=document.getElementById('results-inner');
-  let html=`<p class="results-meta">${tk.sections.length} components identified - click any section to expand</p>`;
+  let html=`<p class="results-meta">${tk.sections.length} components identified -- click any section to expand</p>`;
 
-  // NARRATIVE
   if(ai&&ai.narrative){
     html+=`<div class="narrative">
       <div class="narrative-hdr"><span class="star">*</span><span class="lbl">Your research design -- plain English</span></div>
-      <p>${esc(ai.narrative)}</p>
-      ${ai.key_adjustments?.length?`<div class="adj-label">Design-specific adjustments</div>${ai.key_adjustments.map(a=>`<div class="adj-item">- ${esc(a)}</div>`).join('')}`:''}
-      ${ai.watchout?`<div class="caution"><span style="font-size:10px;color:#f59e0b;text-transform:uppercase;font-weight:700;letter-spacing:.08em">Study-specific caution: </span><span style="color:#a16207;font-size:13.5px">${esc(ai.watchout)}</span></div>`:''}
+      <div class="narrative-body">
+        <div class="narrative-left">
+          <p>${esc(ai.narrative)}</p>
+        </div>
+        <div class="narrative-right">
+          ${ai.key_adjustments?.length?`<div>
+            <div class="adj-label">Design-specific adjustments</div>
+            ${ai.key_adjustments.map(a=>`<div class="adj-item">-- ${esc(a)}</div>`).join('')}
+          </div>`:''}
+          ${ai.watchout?`<div class="caution">
+            <div class="caution-label">Study-specific caution</div>
+            <div class="caution-text">${esc(ai.watchout)}</div>
+          </div>`:''}
+        </div>
+      </div>
     </div>`;
   }
 
-  // LANG TOGGLE
   html+=`<div class="lang-bar">
     <div class="lang-bar-left">
       <div class="lbl">Code language</div>
@@ -775,7 +771,6 @@ function renderResults(tk,ai){
     </div>
   </div>`;
 
-  // SECTIONS
   tk.sections.forEach((s,i)=>{
     const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
     const cl=s.conf==='high'?'Core recommendation':s.conf==='medium'?'Likely relevant':'Worth considering';
@@ -805,18 +800,15 @@ function renderResults(tk,ai){
     </div>`;
   });
 
-  // SOURCES
   html+=`<div class="sec-divider">Open-access data sources</div><div class="grid-2">`;
   tk.sources.forEach(s=>{html+=`<a class="source-card" href="${esc(s.u)}" target="_blank" rel="noreferrer"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></a>`;});
   html+=`</div>`;
 
   html+=`<div class="sec-divider">Current literature -- live from Semantic Scholar</div><div id="lit-container"><p class="lit-loading">Searching Semantic Scholar...</p></div>`;
-
   html+=renderTree(tk.active);
   el.innerHTML=html;
 }
 
-// ── TREE ───────────────────────────────────────────────────────────────
 function renderTree(active){
   const BL='#3b82f6',PU='#a855f7',GR='#10b981',AM='#f59e0b',RE='#ef4444',DIM='#1e293b',DT='#334155';
   function gc(color){return color===BL?'gb':color===PU?'gp':color===GR?'gg':color===AM?'ga':'gr';}
@@ -866,11 +858,11 @@ function renderTree(active){
   infn.forEach((n,i)=>{s+=node(n.id,infs+i*(infw+infg),398,infw,40,RE,n.l,n.s);});
 
   s+=`<rect x="8" y="458" width="744" height="44" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width=".5"/>`;
-  s+=`<circle cx="36" cy="480" r="7" fill="#3b82f620" stroke="#3b82f6" stroke-width="1.5" class="gb"/>`;
-  s+=`<circle cx="36" cy="480" r="4" fill="#3b82f6"/>`;
-  s+=`<text x="52" y="480" dominant-baseline="central" fill="#93c5fd" font-size="12" font-family="-apple-system,sans-serif">Active in your design -- node glows in family colour</text>`;
-  s+=`<rect x="${760/2+20}" y="472" width="16" height="16" rx="3" fill="#0f172a" stroke="#1e293b" stroke-width=".5"/>`;
-  s+=`<text x="${760/2+44}" y="480" dominant-baseline="central" fill="${DT}" font-size="12" font-family="-apple-system,sans-serif">Not triggered -- path not taken</text>`;
+  s+=`<circle cx="36" cy="480" r="9" fill="#3b82f620" stroke="#3b82f6" stroke-width="1.5" class="gb"/>`;
+  s+=`<circle cx="36" cy="480" r="5" fill="#3b82f6"/>`;
+  s+=`<text x="54" y="480" dominant-baseline="central" fill="#93c5fd" font-size="11" font-family="-apple-system,sans-serif">Active in your design</text>`;
+  s+=`<circle cx="${8+744/2+16}" cy="480" r="7" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>`;
+  s+=`<text x="${8+744/2+30}" y="480" dominant-baseline="central" fill="${DT}" font-size="11" font-family="-apple-system,sans-serif">Not triggered -- path not taken</text>`;
   s+=`</svg>`;
 
   return `<div class="tree-section">
