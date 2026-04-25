@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Econometric Advisor</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='512' height='512' rx='112' fill='%230a0f1e'/%3E%3Ccircle cx='256' cy='256' r='110' fill='none' stroke='%233b82f6' stroke-width='4'/%3E%3Ccircle cx='256' cy='256' r='90' fill='%23080e1c'/%3E%3Cline x1='256' y1='254' x2='256' y2='152' stroke='%233b82f6' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='256' cy='146' r='7' fill='%233b82f6'/%3E%3Cline x1='250' y1='262' x2='178' y2='334' stroke='%23a855f7' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='174' cy='339' r='7' fill='%23a855f7'/%3E%3Cline x1='262' y1='262' x2='334' y2='334' stroke='%2310b981' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='338' cy='339' r='7' fill='%2310b981'/%3E%3Ccircle cx='256' cy='256' r='10' fill='%2393c5fd'/%3E%3Ccircle cx='256' cy='256' r='5' fill='%23fff'/%3E%3C/svg%3E"/>
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#011425;--bg2:#0d2030;--bg3:#1F4959;
   --surface:#5C7C89;--light:#ffffff;
   --blue:#5C7C89;--purple:#7a9aaa;--green:#7eb8a0;--amber:#c9a96e;--red:#c47a7a;
-  --text:#ffffff;--muted:#9ab8c4;--hint:#5C7C89;--dim:#1F4959;--border:#1F4959
+  --text:#ffffff;--muted:#9ab8c4;--hint:#5C7C89;--dim:#1F4959;--border:#1F4959;
+  --kg-problem:#ef4444;--kg-logic:#3b82f6;--kg-tool:#10b981;--kg-diag:#f59e0b
 }
 body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#011425;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
 .hdr{display:none;align-items:center;gap:12px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#011425;z-index:50}
@@ -99,19 +101,27 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-loading{color:var(--muted);font-size:13.5px;padding:1rem 0;text-align:center}
 .lit-error{color:var(--muted);font-size:13px;padding:1rem;background:var(--bg2);border-radius:8px;border:.5px solid var(--border)}
 .lit-open-hint{font-size:11px;color:var(--hint);margin-top:6px;font-style:italic}
-/* TOOLKIT */
-.toolkit-inner{max-width:1200px;margin:0 auto}
-/* LANG TOGGLE */
-.lang-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;padding:15px 18px;background:#0d2030;border-radius:12px;border:.5px solid var(--border)}
-.lang-bar-left{flex:1}
-.lang-bar-left .lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px}
-.lang-bar-left .desc{font-size:14.5px;color:var(--text);font-weight:500}
-.lang-btns{display:flex;gap:8px;flex-shrink:0}
-.lang-btn{border-radius:9px;padding:9px 22px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;border:.5px solid var(--border);background:transparent;color:var(--muted)}
-.lang-btn.active{background:var(--bg2);color:var(--text);border-color:var(--surface)}
+/* TOOLKIT WITH LEFT RAIL */
+.toolkit-section{margin-top:2rem}
+.toolkit-header{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
+.toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
+.lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0d2030;border:.5px solid var(--border);border-radius:11px;padding:13px 12px}
+.lang-rail-lbl{font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.11em;font-weight:600;margin-bottom:4px;text-align:center}
+.lang-btn-rail{border-radius:8px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;border:.5px solid var(--border);background:transparent;color:var(--muted);text-align:center;letter-spacing:.02em}
+.lang-btn-rail:hover{color:var(--text);border-color:var(--surface)}
+.lang-btn-rail.active{background:var(--bg3);color:var(--text);border-color:var(--surface);font-weight:600}
+.toolkit-stack{min-width:0}
+@media(max-width:760px){
+  .toolkit-layout{grid-template-columns:1fr}
+  .lang-rail{position:fixed;bottom:14px;left:14px;right:14px;top:auto;flex-direction:row;justify-content:center;z-index:40;padding:9px;backdrop-filter:blur(12px);background:rgba(13,32,48,.94)}
+  .lang-rail-lbl{display:none}
+  .lang-btn-rail{flex:1;padding:8px 10px;font-size:12.5px}
+  .toolkit-stack{padding-bottom:70px}
+}
 /* SECTIONS */
-.section{background:#0d2030;border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .2s}
+.section{background:#0d2030;border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .25s,box-shadow .25s}
 .section.open{border-color:var(--surface)}
+.section.flash{border-color:var(--surface);box-shadow:0 0 0 2px var(--surface),0 0 22px var(--surface)}
 .sec-hdr{display:flex;align-items:center;gap:13px;padding:15px 18px;cursor:pointer;user-select:none}
 .sec-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .sec-label{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
@@ -121,6 +131,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .sec-body{border-top:.5px solid var(--border);padding:18px;display:none}
 .section.open .sec-body{display:block}
 .why-this{border-left:3px solid var(--surface);padding:10px 14px;margin-bottom:14px;font-size:14px;line-height:1.6;font-style:italic;border-radius:0 6px 6px 0;background:#ffffff06;color:var(--muted)}
+.why-fit{background:linear-gradient(135deg,#1F495922,#0d2030);border:.5px solid var(--surface);border-radius:9px;padding:14px 16px;margin-bottom:14px}
+.why-fit-label{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.11em;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.why-fit-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--surface)}
+.why-fit-text{color:var(--text);font-size:13.5px;line-height:1.8}
+.why-fit-loading{color:var(--muted);font-size:12.5px;font-style:italic;display:flex;align-items:center;gap:8px}
+.why-fit-spin{width:11px;height:11px;border:1.5px solid var(--bg3);border-top:1.5px solid var(--surface);border-radius:50%;animation:spin .85s linear infinite;flex-shrink:0}
 .sec-detail{color:var(--muted);font-size:14px;line-height:1.85;white-space:pre-line}
 .watch-box{background:var(--bg3);border-radius:8px;border:.5px solid var(--border);padding:11px 14px;margin-top:13px}
 .watch-label{font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:4px}
@@ -140,20 +156,55 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .conf-high{color:#7eb8a0;background:#0d2920;border:.5px solid #7eb8a044}
 .conf-med{color:var(--amber);background:#2a1e0a;border:.5px solid #c9a96e44}
 .conf-low{color:var(--hint);background:var(--bg2);border:.5px solid var(--border)}
-/* TREE */
-.tree-section{margin-top:2.5rem}
-.tree-hdr{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:1.25rem}
-.tree-hdr h3{font-size:16px;font-weight:400;color:var(--text);margin-bottom:5px;letter-spacing:.02em}
-.tree-hdr p{font-size:13.5px;color:var(--muted);line-height:1.65}
-.tree-wrap{overflow-x:auto;border-radius:12px;background:#0d2030;border:.5px solid var(--border);padding:2rem}
-@keyframes gb{0%,100%{filter:drop-shadow(0 0 5px #3b82f6cc)}50%{filter:drop-shadow(0 0 14px #3b82f6)}}
-@keyframes gp{0%,100%{filter:drop-shadow(0 0 5px #a855f7cc)}50%{filter:drop-shadow(0 0 14px #a855f7)}}
-@keyframes gg{0%,100%{filter:drop-shadow(0 0 5px #10b981cc)}50%{filter:drop-shadow(0 0 14px #10b981)}}
-@keyframes ga{0%,100%{filter:drop-shadow(0 0 5px #f59e0bcc)}50%{filter:drop-shadow(0 0 14px #f59e0b)}}
-@keyframes gr{0%,100%{filter:drop-shadow(0 0 5px #ef4444cc)}50%{filter:drop-shadow(0 0 14px #ef4444)}}
-.gb{animation:gb 2.5s ease-in-out infinite}.gp{animation:gp 2.5s ease-in-out infinite}
-.gg{animation:gg 2.5s ease-in-out infinite}.ga{animation:ga 2.5s ease-in-out infinite}
-.gr{animation:gr 2.5s ease-in-out infinite}
+/* KNOWLEDGE GRAPH */
+.kg-section{margin-top:2.5rem;margin-bottom:2.5rem}
+.kg-header{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:1.25rem}
+.kg-header h3{font-size:16px;font-weight:400;color:var(--text);margin-bottom:5px;letter-spacing:.02em}
+.kg-header p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.kg-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;padding-top:14px;border-top:.5px solid var(--border)}
+.kg-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.kg-legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.kg-reveal-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0d2030;border:.5px solid var(--surface);border-radius:11px;padding:14px 18px;margin-bottom:14px;flex-wrap:wrap}
+.kg-reveal-text{flex:1;min-width:240px;color:var(--muted);font-size:13.5px;line-height:1.6}
+.kg-reveal-text strong{color:var(--text);font-weight:500}
+.kg-reveal-btn{background:var(--surface);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.02em;white-space:nowrap;transition:background .15s}
+.kg-reveal-btn:hover{background:#6d8d9a}
+.kg-reveal-btn:disabled{background:var(--bg3);color:var(--muted);cursor:default}
+.kg-wrap{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:1.25rem;overflow:hidden}
+.kg-canvas{width:100%;height:780px;display:block}
+@media(max-width:760px){.kg-canvas{height:660px}}
+.kg-node-rect{transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer}
+.kg-node-text{font-family:-apple-system,'Helvetica Neue',sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
+.kg-edge{transition:all .4s cubic-bezier(.4,0,.2,1)}
+.kg-edge-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s}
+.kg-edge-label.active{fill:#cbd5e1}
+.kg-cluster-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10.5px;letter-spacing:.18em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+@keyframes kgPulseRed{0%,100%{filter:drop-shadow(0 0 6px rgba(239,68,68,.85))}50%{filter:drop-shadow(0 0 18px rgba(239,68,68,1))}}
+@keyframes kgPulseBlue{0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.85))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,1))}}
+@keyframes kgPulseGreen{0%,100%{filter:drop-shadow(0 0 6px rgba(16,185,129,.85))}50%{filter:drop-shadow(0 0 18px rgba(16,185,129,1))}}
+@keyframes kgPulseAmber{0%,100%{filter:drop-shadow(0 0 6px rgba(245,158,11,.85))}50%{filter:drop-shadow(0 0 18px rgba(245,158,11,1))}}
+.glow-problem{animation:kgPulseRed 2.6s ease-in-out infinite}
+.glow-logic{animation:kgPulseBlue 2.6s ease-in-out infinite}
+.glow-tool{animation:kgPulseGreen 2.6s ease-in-out infinite}
+.glow-diag{animation:kgPulseAmber 2.6s ease-in-out infinite}
+/* KG POPUP */
+.kg-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;opacity:0;pointer-events:none;transition:opacity .2s;display:flex;align-items:center;justify-content:center;padding:1rem}
+.kg-popup-overlay.open{opacity:1;pointer-events:all}
+.kg-popup{background:#0d2030;border:.5px solid var(--surface);border-radius:13px;padding:24px 26px;max-width:480px;width:100%;transform:scale(.95);transition:transform .25s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
+.kg-popup-overlay.open .kg-popup{transform:scale(1)}
+.kg-popup-cat{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:8px}
+.kg-popup-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.35;letter-spacing:.02em}
+.kg-popup-def{color:var(--muted);font-size:13.5px;line-height:1.85;margin-bottom:16px}
+.kg-popup-rels{margin-top:14px}
+.kg-popup-rels-lbl{font-size:9.5px;color:var(--hint);text-transform:uppercase;letter-spacing:.11em;font-weight:600;margin-bottom:8px}
+.kg-popup-rel{display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:6px;padding:7px 10px;background:var(--bg3);border-radius:7px}
+.kg-popup-rel-arrow{color:var(--surface);font-style:italic;flex-shrink:0;font-size:11.5px}
+.kg-popup-rel-target{color:var(--text);font-weight:500}
+.kg-popup-actions{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+.kg-popup-btn{background:var(--surface);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;flex:1;min-width:130px}
+.kg-popup-btn:hover{background:#6d8d9a}
+.kg-popup-btn.secondary{background:transparent;border:.5px solid var(--border);color:var(--muted)}
+.kg-popup-btn.secondary:hover{border-color:var(--surface);color:var(--text)}
 /* DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:#00000077;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer-overlay.open{opacity:1;pointer-events:all}
@@ -268,12 +319,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         </svg>
       </div>
       <h1>Econometric Research Advisor</h1>
-      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit and a glowing path diagram showing exactly where your study sits in the architecture of applied econometrics.</p>
+      <p>Answer up to 12 questions about your research design. The advisor generates a personalized toolkit and an interactive knowledge graph showing exactly where your study sits in the architecture of applied econometrics.</p>
       <div class="tags">
         <span class="tag">Identification</span><span class="tag">Estimating equations</span>
         <span class="tag">R · Stata · Python</span><span class="tag">Spatial methods</span>
         <span class="tag">ML / Causal forests</span><span class="tag">AI tailoring</span>
-        <span class="tag">Live literature</span><span class="tag">Path diagram</span>
+        <span class="tag">Live literature</span><span class="tag">Knowledge graph</span>
       </div>
       <button class="btn-primary" onclick="startApp()">Begin assessment</button>
       <div style="margin-top:1rem">
@@ -304,6 +355,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
     </div>
     <p class="modal-note">Get your key at console.anthropic.com under API Keys.</p>
   </div>
+</div>
+
+<!-- KG POPUP -->
+<div class="kg-popup-overlay" id="kg-popup-overlay" onclick="if(event.target===this)closeKgPopup()">
+  <div class="kg-popup" id="kg-popup"></div>
 </div>
 
 <script>
@@ -439,17 +495,22 @@ function selChip(v){ans[QS[step].id]=v;setTimeout(nextStep,180);}
 function togMulti(v){const id=QS[step].id;const prev=Array.isArray(ans[id])?ans[id]:[];ans[id]=prev.includes(v)?prev.filter(x=>x!==v):[...prev,v];renderQ();}
 function nextStep(){if(step<QS.length-1){step++;renderQ();}else generate();}
 
+let _toolkit=null,_aiPayload=null;
+
 async function generate(){
   show('loading');setHdr('generating toolkit',false);setProgress(100);
   document.getElementById('loading-msg').textContent='Building your toolkit...';
   const tk=buildToolkit(ans);
+  _toolkit=tk;
   let ai=null;
   if(apiKey&&apiKey.length>20){
     document.getElementById('loading-msg').textContent='Writing your research narrative...';
     ai=await enrichWithAI(ans,tk);
   }
+  _aiPayload=ai;
   renderResults(tk,ai);
   fetchLiterature(ans,tk);
+  if(apiKey&&apiKey.length>20)fetchSectionRationales(ans,tk);
   show('results');
   setHdr('your toolkit',true);
   document.getElementById('btn-reset').style.display='inline-block';
@@ -480,6 +541,41 @@ ANSWERS:\n${answerSummary}\nSECTIONS: ${tk.sections.map(s=>s.label+': '+s.method
   }catch(e){return null;}
 }
 
+async function fetchSectionRationales(a,tk){
+  const answerSummary=[
+    a.field&&`Field: ${a.field}`,
+    a.question_type&&`Research type: ${a.question_type}`,
+    a.treatment&&`Treatment: ${a.treatment}`,
+    a.data_structure&&`Data: ${[].concat(a.data_structure).join(', ')}`,
+    a.outcome&&`Outcome: ${a.outcome}`,
+    a.endogeneity&&`Endogeneity: ${a.endogeneity}`,
+    a.geo&&`Geography: ${a.geo}`,
+    a.functional_form&&`Functional form: ${a.functional_form}`,
+    a.context&&`Study: "${a.context}"`
+  ].filter(Boolean).join('; ');
+  const sectionList=tk.sections.map((s,i)=>`${i}: "${s.label}" -- ${s.method}`).join('\n');
+  const prompt=`You are an expert applied econometrician. For each toolkit section below, write ONE 2-3 sentence paragraph explaining specifically how this method connects to THIS student's research design and why it fits their study. Speak directly to the student as a mentor. Reference their specific context (treatment type, data, geography, outcome) by name where relevant. Do NOT just describe the method generically -- explain why it's right for THEIR study.
+Return ONLY valid JSON, no markdown:
+{"rationales":{"0":"paragraph for section 0","1":"paragraph for section 1",...}}
+STUDENT CONTEXT: ${answerSummary}
+SECTIONS:
+${sectionList}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const t=d.content?.find(b=>b.type==='text')?.text||'';
+    const result=JSON.parse(t.replace(/```json|```/g,'').trim());
+    Object.entries(result.rationales||{}).forEach(([idx,text])=>{
+      const el=document.getElementById('why-fit-'+idx);
+      if(el)el.innerHTML=`<div class="why-fit-label">Why this fits your research</div><div class="why-fit-text">${esc(text)}</div>`;
+    });
+  }catch(e){
+    document.querySelectorAll('[id^="why-fit-"]').forEach(el=>{
+      el.style.display='none';
+    });
+  }
+}
+
 function buildLitQuery(a){
   const terms=[];
   if(['env','urban'].includes(a.field))terms.push('hedonic pricing housing');
@@ -492,7 +588,6 @@ function buildLitQuery(a){
   return terms.slice(0,3).join(' ');
 }
 
-// ── PAPER DRAWER STATE ────────────────────────────────────────────────
 let _drawerPapers=[];
 let _drawerAnswers={};
 
@@ -515,53 +610,34 @@ function closeDrawer(){
   document.querySelectorAll('.lit-card').forEach(c=>c.classList.remove('active'));
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgPopup();}});
 
 async function loadDrawerContent(p,idx){
   const href=p.doi_or_url||p.externalIds?.DOI&&`https://doi.org/${p.externalIds.DOI}`||`https://scholar.google.com/scholar?q=${encodeURIComponent(p.title||'')}`;
-  // Fetch full paper details including TLDR from Semantic Scholar
-  let tldr='',relatedPapers=[];
-  try{
-    const detailUrl=`https://api.semanticscholar.org/graph/v1/paper/${p.paperId}?fields=tldr,references,citations,venue,fieldsOfStudy`;
-    // Papers are Claude-generated — no paperId, use stored data directly
-    tldr=p.abstract||'';
-  }catch(e){}
-
-  // Render static content immediately
+  let tldr='';
+  try{tldr=p.abstract||'';}catch(e){}
   const abstract=p.abstract||'Abstract not available for this paper.';
-  const authors=typeof p.authors==='string'?p.authors:Array.isArray(p.authors)?p.authors.map(au=>typeof au==='string'?au:au.name||'').join(', '):'Unknown authors';
   let html=``;
-
-  // Stats row
   html+=`<div class="dp-section"><div class="dp-stats">`;
   if(p.year)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.year}</div><div class="dp-stat-lbl">Year</div></div>`;
   if(p.citationCount!=null)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.citationCount.toLocaleString()}</div><div class="dp-stat-lbl">Citations</div></div>`;
   const venue=p.journal||p.venue||'';if(venue)html+=`<div class="dp-stat"><div class="dp-stat-val" style="font-size:11px">${esc(venue.slice(0,24))}</div><div class="dp-stat-lbl">Journal</div></div>`;
   html+=`</div></div>`;
-
-  // TLDR
   const tldrText=tldr||p.estimator?`Method: ${p.estimator||tldr}`:'';
   if(tldrText){
     html+=`<div class="dp-section"><div class="dp-label">One-sentence summary</div>
     <div class="dp-tldr">${esc(p.abstract?p.abstract.split('.')[0]+'.':tldrText)}</div></div>`;
   }
-
-  // Abstract
   html+=`<div class="dp-section"><div class="dp-label">Abstract</div>
   <div class="dp-abstract">${esc(abstract)}</div></div>`;
-
-  // AI analysis placeholder — will populate async
   html+=`<div class="dp-section"><div class="dp-label">Research design analysis</div>
   <div class="dp-ai-box" id="ai-analysis-box">
     <div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Claude is analyzing this paper for your research design...</div>
   </div></div>`;
-
-  // Related papers
-  // Show other papers in the list as related
   const otherPapers=_drawerPapers.filter((_,j)=>j!==idx).slice(0,3);
   if(otherPapers.length){
     html+=`<div class="dp-section"><div class="dp-label">Other recommended papers</div>`;
-    otherPapers.forEach((rp,j)=>{
+    otherPapers.forEach((rp)=>{
       const rIdx=_drawerPapers.indexOf(rp);
       html+=`<div onclick="openDrawer(${rIdx})" style="display:block;padding:8px 12px;background:var(--bg3);border:.5px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='var(--surface)'" onmouseout="this.style.borderColor='var(--border)'">
         <div style="color:var(--text);font-size:12.5px;font-weight:500;line-height:1.4">${esc(rp.title||'Untitled')}</div>
@@ -570,13 +646,8 @@ async function loadDrawerContent(p,idx){
     });
     html+=`</div>`;
   }
-
-  // External link
   html+=`<div class="dp-section"><a class="dp-open-btn" href="${esc(href)}" target="_blank" rel="noreferrer">Open full paper ↗</a></div>`;
-
   document.getElementById('drawer-body').innerHTML=html;
-
-  // Now fire Claude API analysis async
   if(apiKey&&apiKey.length>20){
     fetchPaperAnalysis(p,p.abstract||abstract,idx);
   } else {
@@ -585,7 +656,7 @@ async function loadDrawerContent(p,idx){
   }
 }
 
-async function fetchPaperAnalysis(p,abstract,idx){
+async function fetchPaperAnalysis(p,abstract){
   const a=_drawerAnswers;
   const context=[
     a.field&&`Field: ${a.field}`,
@@ -595,7 +666,6 @@ async function fetchPaperAnalysis(p,abstract,idx){
     a.geo&&`Geography: ${a.geo}`,
     a.context&&`Study description: "${a.context}"`
   ].filter(Boolean).join('; ');
-
   const prompt=`You are an expert applied econometrician. A graduate student is using this paper in their research. Analyze it and return ONLY valid JSON, no markdown:
 {
   "estimator": "one sentence: what estimator or method does this paper use?",
@@ -606,7 +676,6 @@ async function fetchPaperAnalysis(p,abstract,idx){
 PAPER TITLE: ${p.title}
 PAPER ABSTRACT: ${abstract.slice(0,800)}
 STUDENT RESEARCH CONTEXT: ${context}`;
-
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -689,7 +758,7 @@ function setLang(l){
   codeLang=l;
   ['r','stata','python'].forEach(lang=>{
     const btn=document.getElementById('lang-btn-'+lang);
-    if(btn){btn.className='lang-btn'+(lang===l?' active':'');}
+    if(btn){btn.className='lang-btn-rail'+(lang===l?' active':'');}
   });
   document.querySelectorAll('.code-r').forEach(el=>el.style.display=l==='r'?'block':'none');
   document.querySelectorAll('.code-stata').forEach(el=>el.style.display=l==='stata'?'block':'none');
@@ -706,6 +775,18 @@ function togCode(i,btn){
   if(open)setLang(codeLang);
 }
 function cpCode(id){const el=document.getElementById(id);if(el)navigator.clipboard?.writeText(el.textContent);}
+
+function scrollAndFlash(idx){
+  const sec=document.getElementById('sec-'+idx);
+  if(!sec)return;
+  if(!sec.classList.contains('open'))sec.classList.add('open');
+  const offset=sec.getBoundingClientRect().top+window.pageYOffset-80;
+  window.scrollTo({top:offset,behavior:'smooth'});
+  sec.classList.remove('flash');
+  void sec.offsetWidth;
+  sec.classList.add('flash');
+  setTimeout(()=>sec.classList.remove('flash'),2400);
+}
 
 function buildToolkit(a){
   const{field,question_type,treatment,data_structure,n_treated,outcome,endogeneity,geo,functional_form,inference_concerns,ml_interest}=a;
@@ -731,35 +812,53 @@ function buildToolkit(a){
   const hasPower=Array.isArray(inference_concerns)&&inference_concerns.includes('power');
   const hasSensitivity=Array.isArray(inference_concerns)&&inference_concerns.includes('sensitivity');
 
-  const active=new Set(['root','q1','q2','q3']);
-  if(fewTreated)active.add('scm');
-  else if(isPanel||hasNatExp)active.add('did');
-  if(hasNatExp&&isGeo&&!isPanel&&!fewTreated)active.add('iv');
-  if(isThreshold)active.add('rd');
-  if(!hasNatExp&&['causal','welfare'].includes(question_type)&&!isThreshold)active.add('matching');
-  if(isPanel)active.add('ds-panel');
-  if(isSpatial||isGeo)active.add('ds-spatial');
-  if(isTS)active.add('ds-ts');
-  if(isBinary)active.add('out-binary');
-  else if(isCount)active.add('out-count');
-  else if(isCensored)active.add('out-censored');
-  else if(isDuration)active.add('out-duration');
-  else active.add('out-continuous');
-  if(isNonLinear)active.add('ff-quad');
-  if(isHetero)active.add('ff-hetero');
-  if(isDynamic)active.add('ff-dynamic');
-  active.add('inf-se');active.add('inf-robust');
-  if(hasNatExp)active.add('inf-fs');
-  if(isPanel)active.add('inf-pretrend');
-  if(isGeo||isSpatial)active.add('inf-moran');
-  if(isNonLinear)active.add('inf-ftest');
+  // KG ACTIVE NODES
+  const active=new Set();
+  // Problem nodes (red)
+  if(hasEndo)active.add('p_endogeneity');
+  if(hasEndo&&hasNatExp)active.add('p_simultaneity');
+  if(['env','urban','dev'].includes(field)||isHedonic)active.add('p_ovb');
+  if(isGeo||isSpatial)active.add('p_spatial_dep');
+  if(question_type==='causal'||hasNatExp)active.add('p_selection');
+  active.add('p_heterosked');
+  // Strategic logic nodes (blue)
+  if(hasNatExp)active.add('l_natexp');
+  if(isPanel||hasNatExp)active.add('l_parallel');
+  if(hasNatExp)active.add('l_exclusion');
+  if(question_type==='causal')active.add('l_late');
+  if(!hasNatExp&&['causal','welfare'].includes(question_type))active.add('l_obs');
+  if(isThreshold)active.add('l_continuity');
+  // Tool nodes (green)
+  if(fewTreated&&hasNatExp)active.add('t_scm');
+  if(isPanel&&hasNatExp)active.add('t_did');
+  if(hasNatExp&&isGeo&&!isPanel&&!fewTreated)active.add('t_iv');
+  if(hasNatExp&&!fewTreated&&!isPanel)active.add('t_iv');
+  if(isThreshold)active.add('t_rd');
+  if(isPanel)active.add('t_fe');
+  if(isGeo||isSpatial)active.add('t_sar');
+  if(!hasNatExp&&['causal','welfare'].includes(question_type)&&!isThreshold)active.add('t_matching');
+  if(isBinary)active.add('t_logit');
+  if(isCount)active.add('t_poisson');
+  if(isCensored)active.add('t_tobit');
+  if(isDuration)active.add('t_cox');
+  if(isHedonic||(!isBinary&&!isCount&&!isCensored&&!isDuration))active.add('t_ols');
+  // Diagnostic nodes (yellow)
+  if(hasNatExp)active.add('d_firststage');
+  if(hasNatExp)active.add('d_sargan');
+  if(hasEndo)active.add('d_hausman');
+  if(isPanel)active.add('d_pretrend');
+  if(isGeo||isSpatial)active.add('d_moran');
+  if(isNonLinear)active.add('d_ftest');
+  if(fewTreated)active.add('d_placebo');
+  if(hasSmallCluster)active.add('d_wildboot');
+  active.add('d_robust');
 
   const sections=[];
-  let idM,idD,idW,idEq,idR,idSta,idPy,idC;
+  let idM,idD,idW,idEq,idR,idSta,idPy,idC,idTags=[];
 
   if(hasNatExp&&treatment&&!['none','unsure'].includes(treatment)){
     if(fewTreated){
-      idC='high';idM='Synthetic Control / Synthetic DiD';
+      idC='high';idM='Synthetic Control / Synthetic DiD';idTags=['t_scm','d_placebo'];
       idD='With 1-10 treated units, SCM constructs a weighted combination of untreated donor units whose pre-treatment characteristics match the treated unit. Synthetic DiD (Arkhangelsky 2021) combines SCM unit weights with DiD time weights and is doubly robust. Inference via placebo-in-space permutation.';
       idW='Donor pool must be large (at least 10x donors than treated). Pre-treatment fit quality is the key diagnostic.';
       idEq='SCM: Y-hat(0,1t) = sum_j w*_j Y_jt\nInference: p-val = rank(|tau-hat_treated|) / (N_donors + 1)';
@@ -767,7 +866,7 @@ function buildToolkit(a){
       idSta=`* Stata -- Synthetic Control\n* ssc install synth\nsynth log_price log_income log_density, ///\n    trunit(treated_id) trperiod(2020) ///\n    xperiod(2015(1)2019) counit(1 2 3 4 5)`;
       idPy=`# Python -- Synthetic Control\n# pip install SyntheticControlMethods\nfrom SyntheticControlMethods import Synth\nsc = Synth(df, "log_price", "unit_id", "year",\n           treatment_period=2020, treated_unit="county_A")\nsc.fit()\nsc.plot()`;
     } else if(isPanel){
-      idC='high';idM='Difference-in-Differences / Staggered DiD';
+      idC='high';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
       idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-SantAnna (2021) rather than standard TWFE -- staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
       idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition.';
       idEq='TWFE: Y_it = alpha_i + gamma_t + beta(Treated_i x Post_t) + X_it-delta + epsilon_it\nCS ATT(g,t): E[Y_t(g) - Y_t(inf) | G=g]';
@@ -775,7 +874,7 @@ function buildToolkit(a){
       idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
       idPy=`# Python -- DiD\nimport pyfixest as pf\n\n# TWFE\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
     } else if(isGeo){
-      idC='high';idM='Instrumental Variables (2SLS) / Control Function';
+      idC='high';idM='Instrumental Variables (2SLS) / Control Function';idTags=['t_iv','l_exclusion','d_firststage','d_sargan'];
       idD='Your cross-sectional spatial design calls for an IV strategy. Use a geographic or administrative feature (ZCTA land area, elevation, watershed boundaries) as an instrument for the endogenous variable. The control function approach includes first-stage residuals in the second stage to simultaneously correct for endogeneity and test its presence.';
       idW='First-stage F must exceed Stock-Yogo threshold (~10). Exclusion restriction is untestable -- defend on economic grounds.';
       idEq='Stage 1: D_i = pi_0 + pi_1 Z_i + X_i-gamma + v_i\nStage 2: Y_i = beta_0 + beta_1 D-hat_i + beta_2 d_i + beta_3 d_i^2 + X_i-delta + epsilon_i\nEndogeneity test: t-stat on v-hat_i in Stage 2';
@@ -783,7 +882,7 @@ function buildToolkit(a){
       idSta=`* Stata -- IV / Control Function\n* ssc install ivreg2\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\nestat firststage\n\n* Control function\nreg log_pop_density log_land_area dist_mi dist_sq log_income log_rooms\npredict vhat, resid\nreg log_price log_pop_density vhat dist_mi dist_sq log_income log_rooms, robust`;
       idPy=`# Python -- IV / Control Function\nfrom linearmodels.iv import IV2SLS\nimport statsmodels.formula.api as smf\n\n# 2SLS\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df)\nres = mod.fit(cov_type='robust')\nprint(res.summary)\n\n# Turning point\nb1=res.params['dist_mi']; b2=res.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")`;
     } else {
-      idC='high';idM='Instrumental Variables (2SLS)';
+      idC='high';idM='Instrumental Variables (2SLS)';idTags=['t_iv','l_exclusion','d_firststage'];
       idD='Build your IV around a variable strongly correlated with the endogenous regressor but plausibly exogenous to the outcome. Report first-stage F and Sargan-Hansen J-test if overidentified.';
       idW='A strong but invalid instrument is worse than OLS. The exclusion restriction must be argued on economic grounds.';
       idEq='Stage 1: D_i = pi_0 + pi_1 Z_i + X_i-gamma + v_i\nStage 2: Y_i = beta_0 + beta_1 D-hat_i + X_i-delta + epsilon_i';
@@ -792,7 +891,7 @@ function buildToolkit(a){
       idPy=`# Python\nfrom linearmodels.iv import IV2SLS\nmod = IV2SLS.from_formula(\n    'outcome ~ 1 + controls + [endog ~ instrument]', data=df)\nprint(mod.fit(cov_type='robust').summary)`;
     }
   } else if(isThreshold){
-    idC='high';idM='Regression Discontinuity Design (RD)';
+    idC='high';idM='Regression Discontinuity Design (RD)';idTags=['t_rd','l_continuity'];
     idD='At a policy or geographic threshold, use local linear regression on each side with CCT optimal bandwidth. Fuzzy RD uses the jump in treatment probability as an IV for actual treatment.';
     idW='Never use polynomial degree > 2. Report bandwidth sensitivity. Significant McCrary test invalidates the design.';
     idEq='Sharp RD: Y_i = alpha + tau * 1[X_i >= c] + f(X_i - c) + epsilon_i';
@@ -800,7 +899,7 @@ function buildToolkit(a){
     idSta=`* ssc install rdrobust\nrdrobust outcome running, c(0)\nrddensity running, c(0)`;
     idPy=`# pip install rdrobust\nfrom rdrobust import rdrobust, rddensity\nout = rdrobust(y=df['outcome'], x=df['running'], c=0)\nprint(out)`;
   } else if(hasEndo){
-    idC='medium';idM='OLS Baseline + Endogeneity Diagnostics';
+    idC='medium';idM='OLS Baseline + Endogeneity Diagnostics';idTags=['t_ols','d_hausman','p_endogeneity'];
     idD='Begin with OLS as a benchmark. Run the Wu-Hausman test to formally test endogeneity before committing to IV.';
     idW='Hausman has low power in small samples. Report both OLS and IV and discuss coefficient divergence.';
     idEq='Control fn: t-stat on v-hat_i in Stage 2 tests H0 of exogeneity';
@@ -808,7 +907,7 @@ function buildToolkit(a){
     idSta=`reg treatment instrument controls\npredict vhat, resid\nreg outcome treatment vhat controls, robust`;
     idPy=`import statsmodels.formula.api as smf\nfs = smf.ols('treatment ~ instrument + controls', data=df).fit()\ndf['vhat'] = fs.resid\ncf = smf.ols('outcome ~ treatment + vhat + controls', data=df).fit(cov_type='HC3')\nprint(cf.summary())`;
   } else {
-    idC='low';idM='Descriptive OLS / Hedonic Pricing Baseline';
+    idC='low';idM='Descriptive OLS / Hedonic Pricing Baseline';idTags=['t_ols'];
     idD='For a descriptive study, OLS with robust SEs is the appropriate baseline. Frame estimates as conditional correlations, not causal effects.';
     idW='Avoid causal language unless identification is formally established.';
     idEq='ln(P_i) = beta_0 + beta_1 d_i + beta_2 d_i^2 + X_i-delta + epsilon_i';
@@ -816,11 +915,11 @@ function buildToolkit(a){
     idSta=`reg log_price dist_mi dist_sq controls, robust\nesttab using results.rtf, replace`;
     idPy=`import statsmodels.formula.api as smf\nmod = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n              data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   }
-  sections.push({icon:'O',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,codeR:idR,codeStata:idSta,codePython:idPy,conf:idC});
+  sections.push({icon:'O',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,codeR:idR,codeStata:idSta,codePython:idPy,conf:idC,kgTags:idTags});
 
-  let estM,estD,estW,estEq,estR,estSta,estPy,estC;
+  let estM,estD,estW,estEq,estR,estSta,estPy,estC,estTags=[];
   if(isBinary){
-    estC='high';estM='Logit / Probit -- Binary Choice Model';
+    estC='high';estM='Logit / Probit -- Binary Choice Model';estTags=['t_logit'];
     estD='With a binary outcome, OLS is inconsistent. Use logit or probit. Always report Average Marginal Effects (AMEs) -- not raw coefficients.';
     estW='Interaction coefficients do not equal interaction effects in logit/probit.';
     estEq='Pr(Y=1|X) = Lambda(X-beta) [logit] or Phi(X-beta) [probit]\nAME_j = (1/n) sum_i dPr(Y_i=1|X_i)/dX_ij';
@@ -828,7 +927,7 @@ function buildToolkit(a){
     estSta=`logit outcome X1 X2 X3\nmargins, dydx(*)`;
     estPy=`from statsmodels.discrete.discrete_model import Logit\nimport numpy as np\nmod = Logit(df['outcome'], df[['const','X1','X2','X3']]).fit()\nprint(mod.get_margeff().summary())`;
   } else if(isCount){
-    estC='high';estM='Poisson / Negative Binomial -- Count Data';
+    estC='high';estM='Poisson / Negative Binomial -- Count Data';estTags=['t_poisson'];
     estD='PPML is consistent even under distributional misspecification as long as the conditional mean is correctly specified.';
     estW='Never use OLS on count data.';
     estEq='E[Y_i|X_i] = exp(X_i-beta)';
@@ -836,7 +935,7 @@ function buildToolkit(a){
     estSta=`poisson count X1 X2 i.unit i.year, vce(cluster cluster_var)\nglm count X1 X2, family(poisson) link(log) robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.poisson('count ~ X1 + X2', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   } else if(isCensored){
-    estC='high';estM='Tobit / Two-Part Model -- Censored Outcome';
+    estC='high';estM='Tobit / Two-Part Model -- Censored Outcome';estTags=['t_tobit'];
     estD='If participation and intensity have different determinants, a two-part model is preferred over Tobit.';
     estW='Tobit requires normally distributed errors. Two-part models are more robust.';
     estEq='Tobit: Y*_i = X_i-beta + epsilon_i; Y_i = max(0, Y*_i)';
@@ -844,7 +943,7 @@ function buildToolkit(a){
     estSta=`tobit outcome X1 X2, ll(0)\n* Two-part:\nprobit I_outcome X1 X2\nreg outcome X1 X2 if I_outcome==1, robust`;
     estPy=`from statsmodels.regression.linear_model import OLS\nfrom statsmodels.discrete.discrete_model import Probit\npart1 = Probit(df['I_outcome'], df[['const','X1','X2']]).fit()\npart2 = OLS(df.loc[df['outcome']>0,'outcome'],\n            df.loc[df['outcome']>0,['const','X1','X2']]).fit(cov_type='HC3')`;
   } else if(isDuration){
-    estC='high';estM='Duration / Survival Analysis (Cox PH)';
+    estC='high';estM='Duration / Survival Analysis (Cox PH)';estTags=['t_cox'];
     estD='Cox PH estimates hazard ratios semi-parametrically without specifying the baseline hazard.';
     estW='PH assumption must be tested via Schoenfeld residuals.';
     estEq='Cox PH: h(t|X) = h_0(t) * exp(X-beta)\nHR = exp(beta_j)';
@@ -852,7 +951,7 @@ function buildToolkit(a){
     estSta=`stset time, failure(event)\nstcox X1 X2 X3, schoenfeld(sch*) scaledsch(sca*)\nstphtest, detail`;
     estPy=`from lifelines import CoxPHFitter\ncph = CoxPHFitter()\ncph.fit(df, duration_col='time', event_col='event')\ncph.print_summary()\ncph.check_assumptions(df)`;
   } else if(isPanel){
-    estC='high';estM='Two-Way Fixed Effects -- Panel Within Estimator';
+    estC='high';estM='Two-Way Fixed Effects -- Panel Within Estimator';estTags=['t_fe','d_hausman'];
     estD='FE within estimator is the appropriate default for panel continuous outcomes -- not pooled OLS. Pooled OLS ignores unit heterogeneity alpha_i; when alpha_i correlates with regressors OLS is biased.';
     estW='FE eliminates between-unit variation -- time-invariant variables cannot be estimated. With staggered adoption, use Callaway-SantAnna.';
     estEq='TWFE: Y_it = alpha_i + gamma_t + beta_1 X_it + X_it-delta + epsilon_it\nHausman test: compare FE vs RE estimates';
@@ -860,7 +959,7 @@ function buildToolkit(a){
     estSta=`* ssc install reghdfe\nreghdfe outcome X_tv, absorb(unit_id year) vce(cluster unit_id)\n\n* Hausman test\nxtreg outcome X_tv, fe\nestimates store fe\nxtreg outcome X_tv, re\nestimates store re\nhausman fe re`;
     estPy=`import pyfixest as pf\nfit = pf.feols("outcome ~ X_tv | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\nfit.summary()`;
   } else if(isHedonic){
-    estC='high';estM='Semi-Log Hedonic Pricing Model';
+    estC='high';estM='Semi-Log Hedonic Pricing Model';estTags=['t_ols','p_ovb'];
     estD='Log-transform the dependent variable so coefficients are semi-elasticities. The implicit price of any attribute represents marginal WTP in competitive equilibrium.';
     estW='OVB is endemic in hedonic models. Quasi-experimental variation is needed for causal claims.';
     estEq='ln(P_i) = beta_0 + beta_1 d_i + beta_2 d_i^2 + beta_3 ln(Inc_i) + beta_4 ln(Den_i) + beta_5 Rooms_i + epsilon_i\nMWTP_d = dP/dd = P*(beta_1 + 2*beta_2*d_i)';
@@ -868,7 +967,7 @@ function buildToolkit(a){
     estSta=`* IV hedonic\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\ndi "d* = " -_b[dist_mi]/(2*_b[dist_sq]) " miles"`;
     estPy=`from linearmodels.iv import IV2SLS\nimport numpy as np\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df)\nres = mod.fit(cov_type='robust')\nb1=res.params['dist_mi']; b2=res.params['dist_sq']\nprint(f"Turning point: {-b1/(2*b2):.2f} miles")`;
   } else {
-    estC='medium';estM='OLS with HC3 Robust Standard Errors';
+    estC='medium';estM='OLS with HC3 Robust Standard Errors';estTags=['t_ols','p_heterosked'];
     estD='For a cross-sectional continuous outcome, OLS with HC3 SEs is the appropriate baseline.';
     estW='Cluster at treatment assignment level. Fewer than 30 clusters: use wild cluster bootstrap.';
     estEq='Y_i = beta_0 + beta_1 X_i + X_i-delta + epsilon_i';
@@ -876,10 +975,10 @@ function buildToolkit(a){
     estSta=`reg outcome X1 X2 X3, robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.ols('outcome ~ X1 + X2 + X3', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   }
-  sections.push({icon:'f',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC});
+  sections.push({icon:'f',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC,kgTags:estTags});
 
   if(isNonLinear){
-    sections.push({icon:'~',color:'#b45309',label:'Functional form',conf:'high',
+    sections.push({icon:'~',color:'#b45309',label:'Functional form',conf:'high',kgTags:['d_ftest'],
       method:'Quadratic Specification / Spline -- Non-Linear Gradient',
       detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test -- individual t-statistics are unreliable due to structural collinearity. Turning point d* = -beta1/(2*beta2).',
       watch:'Quadratic forces symmetry. Report spline as a robustness check.',
@@ -890,7 +989,7 @@ function buildToolkit(a){
   }
 
   if(isPanel&&!isDynamic){
-    sections.push({icon:'#',color:'#0e7490',label:'Panel data structure',conf:'high',
+    sections.push({icon:'#',color:'#0e7490',label:'Panel data structure',conf:'high',kgTags:['t_fe','t_did','d_pretrend'],
       method:"Two-Way Fixed Effects / Callaway-SantAnna / Mundlak CRE",
       detail:'TWFE absorbs time-invariant unit confounders and common time shocks. For staggered treatment, run Bacon decomposition to diagnose TWFE estimand composition.',
       watch:'With staggered adoption, TWFE includes forbidden already-treated comparisons.',
@@ -901,7 +1000,7 @@ function buildToolkit(a){
   }
 
   if(isGeo||isSpatial){
-    sections.push({icon:'@',color:'#059669',label:'Spatial econometrics',conf:isGeo?'high':'medium',
+    sections.push({icon:'@',color:'#059669',label:'Spatial econometrics',conf:isGeo?'high':'medium',kgTags:['t_sar','d_moran','p_spatial_dep'],
       method:"Moran's I -- SAR / SEM / SDM",
       detail:"Test OLS residuals with Moran's I. Robust LM-lag favors SAR; robust LM-error favors SEM. Decompose into direct and indirect spillover effects via LeSage-Pace.",
       watch:"W specification is a modeling assumption -- report sensitivity to alternative W matrices.",
@@ -912,19 +1011,20 @@ function buildToolkit(a){
   }
 
   const items=[];
-  if(hasEndo)items.push('Wu-Hausman / control function -- t-stat on v-hat in Stage 2 directly tests H0 of exogeneity');
-  if(hasNatExp)items.push('First-stage F-statistic -- Stock-Yogo threshold: F > 10 for single instrument');
-  if(isPanel)items.push('Pre-trend event study plot + joint F-test -- H0: all pre-period betas = 0');
-  if(isGeo||isSpatial)items.push("Moran's I on OLS residuals -- test under multiple W specifications");
-  if(isNonLinear)items.push('Joint F-test on quadratic terms -- individual t-stats unreliable due to collinearity');
-  if(fewTreated)items.push('Placebo-in-space inference -- p-value = rank of treated effect in placebo distribution');
-  if(hasSmallCluster)items.push('Wild cluster bootstrap -- asymptotic cluster SEs unreliable with < 30 clusters');
+  const infTags=['d_robust'];
+  if(hasEndo){items.push('Wu-Hausman / control function -- t-stat on v-hat in Stage 2 directly tests H0 of exogeneity');infTags.push('d_hausman');}
+  if(hasNatExp){items.push('First-stage F-statistic -- Stock-Yogo threshold: F > 10 for single instrument');infTags.push('d_firststage');}
+  if(isPanel){items.push('Pre-trend event study plot + joint F-test -- H0: all pre-period betas = 0');infTags.push('d_pretrend');}
+  if(isGeo||isSpatial){items.push("Moran's I on OLS residuals -- test under multiple W specifications");infTags.push('d_moran');}
+  if(isNonLinear){items.push('Joint F-test on quadratic terms -- individual t-stats unreliable due to collinearity');infTags.push('d_ftest');}
+  if(fewTreated){items.push('Placebo-in-space inference -- p-value = rank of treated effect in placebo distribution');infTags.push('d_placebo');}
+  if(hasSmallCluster){items.push('Wild cluster bootstrap -- asymptotic cluster SEs unreliable with < 30 clusters');infTags.push('d_wildboot');}
   if(hasMultiHyp)items.push('Benjamini-Hochberg FDR correction for multiple outcomes');
   if(hasPower)items.push('Power analysis / MDE -- report minimum detectable effect at 80% power, 5% significance');
   if(hasSensitivity)items.push('Oster (2019) coefficient stability; E-values for sensitivity to unobservables');
   items.push('HC3 robust SEs (cross-section) or clustered SEs at treatment-assignment level');
   items.push('Robustness checks -- alternative distance measures, bandwidth sensitivity, placebo dates');
-  sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in environmental or urban economics journals.',equation:null,codeR:null,codeStata:null,codePython:null});
+  sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in environmental or urban economics journals.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
 
   const sources=[];
   if(['urban','env','ag'].includes(field)||isHedonic){
@@ -972,7 +1072,6 @@ function renderResults(tk,ai){
     </div>`;
   }
 
-
   html+=`<div class="two-col-panel">
     <div class="two-col-left">
       <div class="sec-divider">Open-access data sources</div>
@@ -983,20 +1082,19 @@ function renderResults(tk,ai){
       <div class="sec-divider">AI-curated literature -- tailored to your research design</div>
       <div id="lit-container"><p class="lit-loading">Generating literature recommendations...</p></div>
     </div>
-  </div>`
-
-  html+=renderTree(tk.active);
-  html+=`<div class="toolkit-inner"><div class="lang-bar">
-    <div class="lang-bar-left">
-      <div class="lbl">Code language</div>
-      <div class="desc">Toggle to switch all code snippets simultaneously</div>
-    </div>
-    <div class="lang-btns">
-      <button id="lang-btn-r" class="lang-btn active" onclick="setLang('r')">R</button>
-      <button id="lang-btn-stata" class="lang-btn" onclick="setLang('stata')">Stata</button>
-      <button id="lang-btn-python" class="lang-btn" onclick="setLang('python')">Python</button>
-    </div>
   </div>`;
+
+  // METHODOLOGICAL SPECIFICATIONS WITH LEFT RAIL
+  html+=`<div class="toolkit-section">
+    <div class="toolkit-header">Methodological specifications</div>
+    <div class="toolkit-layout">
+      <div class="lang-rail">
+        <div class="lang-rail-lbl">Code</div>
+        <button id="lang-btn-r" class="lang-btn-rail active" onclick="setLang('r')">R</button>
+        <button id="lang-btn-stata" class="lang-btn-rail" onclick="setLang('stata')">Stata</button>
+        <button id="lang-btn-python" class="lang-btn-rail" onclick="setLang('python')">Python</button>
+      </div>
+      <div class="toolkit-stack">`;
 
   tk.sections.forEach((s,i)=>{
     const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
@@ -1014,6 +1112,9 @@ function renderResults(tk,ai){
       </div>
       <div class="sec-body">
         ${whyThis?`<div class="why-this" style="color:${s.color};border-left-color:${s.color}">${esc(whyThis)}</div>`:''}
+        <div class="why-fit" id="why-fit-${i}">
+          <div class="why-fit-loading"><div class="why-fit-spin"></div>Generating personalized rationale for your research...</div>
+        </div>
         <p class="sec-detail">${esc(s.detail)}</p>
         ${s.watch?`<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">${esc(s.watch)}</div></div>`:''}
         ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>`<div class="eq-line">${esc(ln)}</div>`).join('')}</div>`:''}
@@ -1026,71 +1127,395 @@ function renderResults(tk,ai){
       </div>
     </div>`;
   });
+  html+=`</div></div></div>`;
 
-  html+=`</div>`; // close toolkit-inner
+  // KNOWLEDGE GRAPH (replaces tree)
+  html+=renderKnowledgeGraph(tk);
+
+  // Fallback hide of why-fit if no API key
   el.innerHTML=html;
+  if(!apiKey||apiKey.length<20){
+    document.querySelectorAll('[id^="why-fit-"]').forEach(b=>b.style.display='none');
+  }
+  // Init D3 graph after DOM is in place
+  setTimeout(()=>initKnowledgeGraph(tk.active),50);
 }
 
-function renderTree(active){
-  const BL='#3b82f6',PU='#a855f7',GR='#10b981',AM='#f59e0b',RE='#ef4444',DIM='#1e293b',DT='#334155';
-  function gc(color){return color===BL?'gb':color===PU?'gp':color===GR?'gg':color===AM?'ga':'gr';}
-  function node(id,x,y,w,h,color,label,sub){
-    const on=active.has(id);
-    const g=on?gc(color):'';
-    return `<g class="${g}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${on?color+'22':'#0f172a'}" stroke="${on?color:DIM}" stroke-width="${on?2:.5}"/>
-    <text x="${x+w/2}" y="${y+h/2+(sub?-10:0)}" text-anchor="middle" dominant-baseline="central" fill="${on?color:DT}" font-size="15" font-weight="${on?600:400}" font-family="-apple-system,sans-serif">${label}</text>
-    ${sub?`<text x="${x+w/2}" y="${y+h/2+13}" text-anchor="middle" dominant-baseline="central" fill="${on?color+'99':DIM}" font-size="12.5" font-family="-apple-system,sans-serif">${sub}</text>`:''}</g>`;
+// ── KNOWLEDGE GRAPH BLUEPRINT ────────────────────────────────────────────
+const KG_BLUEPRINT={
+  nodes:[
+    // PROBLEMS (red)
+    {id:'p_endogeneity',label:'Endogeneity',cat:'problem',
+     def:'A regressor is correlated with the error term, biasing OLS estimates. Arises from omitted variables, simultaneity, or measurement error.'},
+    {id:'p_ovb',label:'Omitted Variable Bias',cat:'problem',
+     def:'When an unobserved variable correlated with both X and Y is excluded, the estimated coefficient on X absorbs its effect.'},
+    {id:'p_simultaneity',label:'Simultaneity',cat:'problem',
+     def:'Y and X are jointly determined (Y depends on X and X depends on Y), creating reverse-causality bias.'},
+    {id:'p_selection',label:'Selection Bias',cat:'problem',
+     def:'Treatment assignment is correlated with potential outcomes, so treated and control groups differ systematically beyond the treatment.'},
+    {id:'p_spatial_dep',label:'Spatial Dependence',cat:'problem',
+     def:"Outcomes in nearby units are correlated through spillovers or shared shocks, violating OLS independence and biasing standard errors."},
+    {id:'p_heterosked',label:'Heteroskedasticity',cat:'problem',
+     def:'Error variance changes with X. OLS coefficients remain unbiased but standard errors are wrong without a robust correction.'},
+    // STRATEGIC LOGIC (blue)
+    {id:'l_natexp',label:'Natural Experiment',cat:'logic',
+     def:'A real-world event creates as-if-random variation in treatment, providing exogenous identification without lab randomization.'},
+    {id:'l_obs',label:'Selection on Observables',cat:'logic',
+     def:'The conditional independence assumption: once you control for observed covariates, treatment is as good as random.'},
+    {id:'l_parallel',label:'Parallel Trends',cat:'logic',
+     def:'In the absence of treatment, treated and control units would have followed the same trend over time. The core DiD assumption.'},
+    {id:'l_exclusion',label:'Exclusion Restriction',cat:'logic',
+     def:'The instrument Z affects Y ONLY through its effect on X. Untestable, defended on economic theory.'},
+    {id:'l_continuity',label:'Continuity at Cutoff',cat:'logic',
+     def:'Potential outcomes are continuous functions of the running variable at the threshold; only treatment status jumps discontinuously.'},
+    {id:'l_late',label:'LATE',cat:'logic',
+     def:'Local Average Treatment Effect: the effect on COMPLIERS -- units whose treatment status responds to the instrument or shock.'},
+    // TOOLS (green)
+    {id:'t_ols',label:'OLS',cat:'tool',
+     def:'Ordinary Least Squares. The baseline linear estimator. Unbiased only under exogeneity (E[epsilon|X]=0).'},
+    {id:'t_fe',label:'Fixed Effects',cat:'tool',
+     def:'Within estimator that absorbs all time-invariant unit-specific confounders by demeaning at the unit level.'},
+    {id:'t_did',label:'Diff-in-Diff',cat:'tool',
+     def:'Compares change over time in treated units vs change in control units. Causal under parallel trends.'},
+    {id:'t_iv',label:'2SLS / IV',cat:'tool',
+     def:'Two-stage least squares. First stage projects endogenous X onto an instrument Z; second stage uses fitted X-hat.'},
+    {id:'t_rd',label:'Regression Discontinuity',cat:'tool',
+     def:'Local linear regression on each side of a threshold. Causal under continuity assumption.'},
+    {id:'t_scm',label:'Synthetic Control',cat:'tool',
+     def:'Constructs a counterfactual as a weighted combination of donor units that match the treated unit pre-treatment.'},
+    {id:'t_matching',label:'Matching / PSM',cat:'tool',
+     def:'Pairs treated and control units with similar covariates. Identification relies on selection on observables.'},
+    {id:'t_sar',label:'SAR / SEM',cat:'tool',
+     def:'Spatial Autoregressive (SAR) model includes Wy on the RHS; Spatial Error Model puts spatial structure in epsilon.'},
+    {id:'t_logit',label:'Logit / Probit',cat:'tool',
+     def:'Maximum likelihood estimators for binary outcomes. Report AMEs, not raw coefficients.'},
+    {id:'t_poisson',label:'Poisson / PPML',cat:'tool',
+     def:'For count outcomes. PPML is consistent under correct conditional mean specification, robust to distribution.'},
+    {id:'t_tobit',label:'Tobit',cat:'tool',
+     def:'For censored outcomes (e.g. corner solutions at zero). Assumes normal errors -- two-part models more robust.'},
+    {id:'t_cox',label:'Cox PH',cat:'tool',
+     def:'Semi-parametric hazard model for time-to-event outcomes. Estimates hazard ratios without specifying baseline hazard.'},
+    // DIAGNOSTICS (amber)
+    {id:'d_hausman',label:'Hausman Test',cat:'diag',
+     def:'Compares two estimators (e.g. FE vs RE, OLS vs IV); rejection means the more efficient estimator is inconsistent.'},
+    {id:'d_firststage',label:'First-Stage F',cat:'diag',
+     def:'Tests instrument relevance in IV. Stock-Yogo: F > 10 needed for a single instrument to avoid weak-IV bias.'},
+    {id:'d_sargan',label:'Sargan / J-Test',cat:'diag',
+     def:'In overidentified IV, tests whether instruments are jointly exogenous. Rejection means at least one instrument is invalid.'},
+    {id:'d_pretrend',label:'Pre-Trend Test',cat:'diag',
+     def:'Event-study plot of pre-period coefficients with joint F-test of zero. Validates parallel trends in DiD.'},
+    {id:'d_moran',label:"Moran's I",cat:'diag',
+     def:'Tests for spatial autocorrelation in residuals. Significant Moran I means OLS standard errors are biased.'},
+    {id:'d_ftest',label:'Joint F-Test',cat:'diag',
+     def:'Tests whether a SET of coefficients is jointly zero. Required for quadratic, polynomial, or interaction terms.'},
+    {id:'d_placebo',label:'Placebo Test',cat:'diag',
+     def:'Apply the same estimator to untreated units or pre-treatment periods. Significant effect = invalid identification.'},
+    {id:'d_wildboot',label:'Wild Cluster Bootstrap',cat:'diag',
+     def:'Resampling-based inference reliable with few clusters (<30) where asymptotic cluster-robust SEs over-reject.'},
+    {id:'d_robust',label:'HC3 / Cluster SE',cat:'diag',
+     def:'Robust standard errors. HC3 for cross-section heteroskedasticity; cluster SEs at treatment-assignment level.'}
+  ],
+  edges:[
+    // Problems → Tools (is solved by)
+    {s:'p_endogeneity',t:'t_iv',label:'is solved by'},
+    {s:'p_endogeneity',t:'t_did',label:'is solved by'},
+    {s:'p_endogeneity',t:'t_fe',label:'is solved by'},
+    {s:'p_ovb',t:'t_fe',label:'is solved by'},
+    {s:'p_ovb',t:'t_iv',label:'is solved by'},
+    {s:'p_simultaneity',t:'t_iv',label:'is solved by'},
+    {s:'p_selection',t:'t_did',label:'is solved by'},
+    {s:'p_selection',t:'t_matching',label:'is solved by'},
+    {s:'p_selection',t:'t_rd',label:'is solved by'},
+    {s:'p_spatial_dep',t:'t_sar',label:'is solved by'},
+    {s:'p_heterosked',t:'d_robust',label:'is corrected by'},
+    // Logic → Tools (enables)
+    {s:'l_natexp',t:'t_iv',label:'enables'},
+    {s:'l_natexp',t:'t_did',label:'enables'},
+    {s:'l_natexp',t:'t_scm',label:'enables'},
+    {s:'l_obs',t:'t_matching',label:'enables'},
+    {s:'l_obs',t:'t_ols',label:'enables'},
+    {s:'l_parallel',t:'t_did',label:'is required by'},
+    {s:'l_exclusion',t:'t_iv',label:'is required by'},
+    {s:'l_continuity',t:'t_rd',label:'is required by'},
+    {s:'l_late',t:'t_iv',label:'is identified by'},
+    {s:'l_late',t:'t_rd',label:'is identified by'},
+    // Tools → Diagnostics (is validated by)
+    {s:'t_iv',t:'d_firststage',label:'is validated by'},
+    {s:'t_iv',t:'d_sargan',label:'is validated by'},
+    {s:'t_iv',t:'d_hausman',label:'is validated by'},
+    {s:'t_did',t:'d_pretrend',label:'is validated by'},
+    {s:'t_fe',t:'d_hausman',label:'is validated by'},
+    {s:'t_rd',t:'d_placebo',label:'is validated by'},
+    {s:'t_scm',t:'d_placebo',label:'is validated by'},
+    {s:'t_sar',t:'d_moran',label:'is validated by'},
+    {s:'t_ols',t:'d_robust',label:'requires'},
+    {s:'t_ols',t:'d_ftest',label:'uses'},
+    {s:'t_did',t:'d_wildboot',label:'uses'},
+    {s:'t_fe',t:'d_robust',label:'requires'}
+  ]
+};
+
+// Map KG node ids to accordion section indices via section.kgTags
+function kgFindSectionForNode(nodeId,sections){
+  for(let i=0;i<sections.length;i++){
+    if(Array.isArray(sections[i].kgTags)&&sections[i].kgTags.includes(nodeId))return i;
   }
-  function conn(x1,y1,x2,y2,on,color){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on?color:DIM}" stroke-width="${on?1.5:.5}" stroke-dasharray="${on?'none':'5 3'}" opacity="${on?.85:.3}"/>`;}
+  return -1;
+}
 
-  let s=`<svg viewBox="0 0 1400 940" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:900px">
-  <style>
-    @keyframes gb{0%,100%{filter:drop-shadow(0 0 5px #3b82f6cc)}50%{filter:drop-shadow(0 0 14px #3b82f6)}}
-    @keyframes gp{0%,100%{filter:drop-shadow(0 0 5px #a855f7cc)}50%{filter:drop-shadow(0 0 14px #a855f7)}}
-    @keyframes gg{0%,100%{filter:drop-shadow(0 0 5px #10b981cc)}50%{filter:drop-shadow(0 0 14px #10b981)}}
-    @keyframes ga{0%,100%{filter:drop-shadow(0 0 5px #f59e0bcc)}50%{filter:drop-shadow(0 0 14px #f59e0b)}}
-    @keyframes gr{0%,100%{filter:drop-shadow(0 0 5px #ef4444cc)}50%{filter:drop-shadow(0 0 14px #ef4444)}}
-    .gb{animation:gb 2.5s ease-in-out infinite}.gp{animation:gp 2.5s ease-in-out infinite}
-    .gg{animation:gg 2.5s ease-in-out infinite}.ga{animation:ga 2.5s ease-in-out infinite}.gr{animation:gr 2.5s ease-in-out infinite}
-  </style>`;
+let _kgRevealed=false;
+let _kgActive=new Set();
 
-  s+=node('root',500,16,400,72,BL,'Applied Econometrics','Three foundational questions');
-  s+=conn(600,88,280,180,true,BL);s+=conn(700,88,700,180,true,PU);s+=conn(800,88,1100,180,true,GR);
-  s+=node('q1',80,180,380,74,BL,'Q1 -- Identification','Why is OLS biased?');
-  s+=node('q2',500,180,400,74,PU,'Q2 -- Data structure','How is data organised?');
-  s+=node('q3',940,180,440,74,GR,'Q3 -- Outcome type',"What is Y's distribution?");
-
-  const q1n=[{id:'did',x:16,y:320,w:170,h:70,l:'DiD / SDID',s:'Panel + shock'},{id:'scm',x:200,y:320,w:140,h:70,l:'SCM',s:'1-10 treated'},{id:'iv',x:352,y:320,w:140,h:70,l:'IV / 2SLS',s:'Cross-sect.'},{id:'rd',x:16,y:406,w:140,h:70,l:'RD',s:'Threshold'},{id:'matching',x:168,y:406,w:160,h:70,l:'Matching',s:'Observational'}];
-  q1n.forEach(n=>{s+=conn(270,254,n.x+n.w/2,n.y,active.has('q1')&&active.has(n.id),BL);s+=node(n.id,n.x,n.y,n.w,n.h,BL,n.l,n.s);});
-
-  const q2n=[{id:'ds-panel',x:508,y:320,w:168,h:70,l:'Panel',s:'TWFE / FE'},{id:'ds-spatial',x:692,y:320,w:168,h:70,l:'Spatial',s:'SAR / SEM'},{id:'ds-ts',x:508,y:406,w:160,h:70,l:'Time series',s:'ARIMA / VAR'}];
-  q2n.forEach(n=>{s+=conn(700,254,n.x+n.w/2,n.y,active.has('q2')&&active.has(n.id),PU);s+=node(n.id,n.x,n.y,n.w,n.h,PU,n.l,n.s);});
-
-  const q3n=[{id:'out-continuous',x:948,y:320,w:172,h:70,l:'Continuous',s:'OLS / TWFE'},{id:'out-binary',x:1134,y:320,w:152,h:70,l:'Binary',s:'Logit/Probit'},{id:'out-count',x:948,y:406,w:140,h:70,l:'Count',s:'Poisson'},{id:'out-censored',x:1104,y:406,w:162,h:70,l:'Censored',s:'Tobit / 2-part'},{id:'out-duration',x:1282,y:320,w:102,h:70,l:'Duration',s:'Cox PH'}];
-  q3n.forEach(n=>{s+=conn(1160,254,n.x+n.w/2,n.y,active.has('q3')&&active.has(n.id),GR);s+=node(n.id,n.x,n.y,n.w,n.h,GR,n.l,n.s);});
-
-  s+=`<text x="700" y="540" text-anchor="middle" fill="${DT}" font-size="13" font-family="-apple-system,sans-serif" letter-spacing="2">FUNCTIONAL FORM</text>`;
-  const ffn=[{id:'ff-log',l:'Log/semi-log',s:'Elasticity'},{id:'ff-quad',l:'Quadratic',s:'d*=-b1/2b2'},{id:'ff-spline',l:'Spline/GAM',s:'Flexible'},{id:'ff-hetero',l:'Interactions',s:'Hetero.'},{id:'ff-dynamic',l:'Dynamic GMM',s:'Lagged DV'},{id:'ff-qr',l:'Quantile',s:'Distributional'},{id:'ff-rd',l:'RD spec.',s:'Threshold'}];
-  const ffw=162,ffg=14,ffs=(1400-ffn.length*(ffw+ffg)+ffg)/2;
-  ffn.forEach((n,i)=>{s+=node(n.id,ffs+i*(ffw+ffg),556,ffw,70,AM,n.l,n.s);});
-
-  s+=`<text x="700" y="680" text-anchor="middle" fill="${DT}" font-size="13" font-family="-apple-system,sans-serif" letter-spacing="2">INFERENCE LAYER</text>`;
-  const infn=[{id:'inf-pretrend',l:'Pre-trends',s:'DiD validity'},{id:'inf-fs',l:'First-stage F',s:'IV strength'},{id:'inf-moran',l:"Moran's I",s:'Spatial'},{id:'inf-ftest',l:'Joint F-test',s:'Quad. terms'},{id:'inf-se',l:'HC3/Cluster SE',s:'Robust errors'},{id:'inf-robust',l:'Robustness',s:'Alt. specs.'},{id:'inf-power',l:'Power/MDE',s:'Pre-reg.'}];
-  const infw=162,infg=14,infs=(1400-infn.length*(infw+infg)+infg)/2;
-  infn.forEach((n,i)=>{s+=node(n.id,infs+i*(infw+infg),696,infw,70,RE,n.l,n.s);});
-
-  s+=`<rect x="14" y="800" width="1372" height="72" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width=".5"/>`;
-  s+=`<circle cx="60" cy="836" r="14" fill="#3b82f620" stroke="#3b82f6" stroke-width="2" class="gb"/>`;
-  s+=`<circle cx="60" cy="836" r="8" fill="#3b82f6"/>`;
-  s+=`<text x="84" y="836" dominant-baseline="central" fill="#93c5fd" font-size="16" font-family="-apple-system,sans-serif">Active in your design</text>`;
-  s+=`<circle cx="730" cy="836" r="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>`;
-  s+=`<text x="752" y="836" dominant-baseline="central" fill="${DT}" font-size="16" font-family="-apple-system,sans-serif">Not triggered -- path not taken</text>`;
-  s+=`</svg>`;
-
-  return `<div class="tree-section">
-    <div class="tree-hdr"><h3>Your research design path</h3><p>Glowing nodes are the methods activated by your answers. Dim nodes are paths not taken -- visible so you can see where your study sits in the full architecture of applied econometrics.</p></div>
-    <div class="tree-wrap">${s}</div>
+function renderKnowledgeGraph(tk){
+  return `<div class="kg-section">
+    <div class="kg-header">
+      <h3>The econometric architecture</h3>
+      <p>This is the conceptual map of applied econometrics: <strong>Problems</strong> create the need for <strong>Strategic Logic</strong>, which justifies the <strong>Tools</strong> used to estimate causal effects, which are validated by <strong>Diagnostics</strong>. Click any node to see its definition and how it connects. Click <strong>Trace my study</strong> to highlight the path your research design follows.</p>
+      <div class="kg-legend">
+        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-problem)"></span>Problems</div>
+        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-logic)"></span>Strategic Logic</div>
+        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-tool)"></span>Tools / Estimators</div>
+        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-diag)"></span>Diagnostics</div>
+      </div>
+    </div>
+    <div class="kg-reveal-bar">
+      <div class="kg-reveal-text">The graph below shows all four pillars of applied econometrics. <strong>Click the button</strong> to light up the path your research design takes through this architecture.</div>
+      <button id="kg-reveal-btn" class="kg-reveal-btn" onclick="revealKgPath()">Trace my study through the architecture</button>
+    </div>
+    <div class="kg-wrap"><svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1200 780" preserveAspectRatio="xMidYMid meet"></svg></div>
   </div>`;
+}
+
+function initKnowledgeGraph(activeSet){
+  _kgActive=activeSet||new Set();
+  _kgRevealed=false;
+  const svg=d3.select('#kg-canvas');
+  if(svg.empty())return;
+  svg.selectAll('*').remove();
+
+  const W=1200,H=780;
+  // Cluster centers (4 quadrants)
+  const clusters={
+    problem:{cx:300,cy:170,label:'PROBLEMS',color:'#ef4444'},
+    logic:{cx:900,cy:170,label:'STRATEGIC LOGIC',color:'#3b82f6'},
+    tool:{cx:600,cy:480,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    diag:{cx:600,cy:700,label:'DIAGNOSTICS',color:'#f59e0b'}
+  };
+
+  // Distribute nodes within each cluster
+  const byCat={problem:[],logic:[],tool:[],diag:[]};
+  KG_BLUEPRINT.nodes.forEach(n=>byCat[n.cat].push(n));
+
+  // Layout: cluster nodes in radial pattern around their cluster center
+  const positions={};
+  Object.keys(byCat).forEach(cat=>{
+    const c=clusters[cat];
+    const list=byCat[cat];
+    const n=list.length;
+    if(cat==='problem'||cat==='logic'){
+      // 6 nodes each — 2 columns × 3 rows
+      const cols=2,rowGap=70,colGap=180;
+      list.forEach((node,i)=>{
+        const r=Math.floor(i/cols),col=i%cols;
+        positions[node.id]={x:c.cx-colGap/2+col*colGap,y:c.cy-rowGap+r*rowGap};
+      });
+    } else if(cat==='tool'){
+      // 11 nodes — arranged in 2 rows
+      const cols=6;
+      list.forEach((node,i)=>{
+        const r=Math.floor(i/cols),col=i%cols;
+        const xOff=(cols-1)*150/2;
+        positions[node.id]={x:c.cx-xOff+col*150,y:c.cy-30+r*60};
+      });
+    } else { // diag
+      // 9 nodes — 1 row
+      const cols=Math.min(list.length,9);
+      const xStart=c.cx-(cols-1)*125/2;
+      list.forEach((node,i)=>{
+        positions[node.id]={x:xStart+i*125,y:c.cy};
+      });
+    }
+  });
+
+  // Draw cluster labels
+  Object.entries(clusters).forEach(([cat,c])=>{
+    let labelY=c.cy;
+    if(cat==='problem'||cat==='logic')labelY=c.cy-115;
+    else if(cat==='tool')labelY=c.cy-75;
+    else labelY=c.cy-40;
+    svg.append('text')
+      .attr('class','kg-cluster-label')
+      .attr('x',c.cx).attr('y',labelY)
+      .attr('fill',c.color).attr('opacity',.45)
+      .text(c.label);
+  });
+
+  // Arrowhead marker
+  const defs=svg.append('defs');
+  ['#475569','#cbd5e1'].forEach((color,i)=>{
+    defs.append('marker')
+      .attr('id','arrow-'+(i===0?'dim':'lit'))
+      .attr('viewBox','0 -5 10 10')
+      .attr('refX',9).attr('refY',0)
+      .attr('markerWidth',5).attr('markerHeight',5)
+      .attr('orient','auto')
+      .append('path').attr('d','M0,-5L10,0L0,5').attr('fill',color);
+  });
+
+  // Draw edges
+  const edgeG=svg.append('g').attr('class','kg-edges');
+  KG_BLUEPRINT.edges.forEach((e,idx)=>{
+    const s=positions[e.s],t=positions[e.t];
+    if(!s||!t)return;
+    // Compute endpoints offset to node edge
+    const dx=t.x-s.x,dy=t.y-s.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    const ux=dx/len,uy=dy/len;
+    // Approximate node radius (rect half-width)
+    const nodeOffS=58,nodeOffT=58;
+    const sx=s.x+ux*nodeOffS,sy=s.y+uy*nodeOffS;
+    const tx=t.x-ux*nodeOffT,ty=t.y-uy*nodeOffT;
+
+    edgeG.append('line')
+      .attr('class','kg-edge')
+      .attr('id','kge-'+idx)
+      .attr('x1',sx).attr('y1',sy).attr('x2',tx).attr('y2',ty)
+      .attr('stroke','#334155').attr('stroke-width',.7)
+      .attr('opacity',.35).attr('marker-end','url(#arrow-dim)');
+
+    // Edge label at midpoint, only show on active edges (default hidden)
+    const mx=(sx+tx)/2,my=(sy+ty)/2;
+    edgeG.append('text')
+      .attr('class','kg-edge-label')
+      .attr('id','kgel-'+idx)
+      .attr('x',mx).attr('y',my-3)
+      .attr('opacity',0)
+      .text(e.label);
+  });
+
+  // Draw nodes
+  const nodeG=svg.append('g').attr('class','kg-nodes');
+  const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  KG_BLUEPRINT.nodes.forEach(n=>{
+    const p=positions[n.id];
+    if(!p)return;
+    const color=colorMap[n.cat];
+    const w=n.label.length>14?140:n.label.length>9?120:108;
+    const h=44;
+    const g=nodeG.append('g')
+      .attr('class','kg-node-g')
+      .attr('id','kgn-'+n.id)
+      .attr('transform',`translate(${p.x},${p.y})`)
+      .style('cursor','pointer')
+      .on('click',()=>onKgNodeClick(n.id));
+
+    g.append('rect')
+      .attr('class','kg-node-rect')
+      .attr('x',-w/2).attr('y',-h/2)
+      .attr('width',w).attr('height',h).attr('rx',9)
+      .attr('fill','#0f172a')
+      .attr('stroke','#1e293b')
+      .attr('stroke-width',.7);
+
+    g.append('text')
+      .attr('class','kg-node-text')
+      .attr('fill','#475569')
+      .attr('font-size',13)
+      .attr('font-weight',500)
+      .text(n.label);
+  });
+}
+
+function revealKgPath(){
+  if(_kgRevealed)return;
+  _kgRevealed=true;
+  const btn=document.getElementById('kg-reveal-btn');
+  if(btn){btn.disabled=true;btn.textContent='Architecture revealed';}
+
+  const svg=d3.select('#kg-canvas');
+  const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  const glowMap={problem:'glow-problem',logic:'glow-logic',tool:'glow-tool',diag:'glow-diag'};
+
+  // Light up active nodes
+  KG_BLUEPRINT.nodes.forEach(n=>{
+    if(_kgActive.has(n.id)){
+      const g=d3.select('#kgn-'+n.id);
+      const color=colorMap[n.cat];
+      g.select('rect')
+        .transition().duration(700)
+        .attr('fill',color+'22')
+        .attr('stroke',color)
+        .attr('stroke-width',2);
+      g.select('text')
+        .transition().duration(700)
+        .attr('fill',color)
+        .attr('font-weight',600);
+      // Add glow class to the rect for animation
+      g.select('rect').classed(glowMap[n.cat],true);
+    }
+  });
+
+  // Light up edges where BOTH endpoints are active
+  KG_BLUEPRINT.edges.forEach((e,idx)=>{
+    if(_kgActive.has(e.s)&&_kgActive.has(e.t)){
+      // Determine edge color based on the source node category
+      const sNode=KG_BLUEPRINT.nodes.find(n=>n.id===e.s);
+      const edgeColor=sNode?colorMap[sNode.cat]:'#cbd5e1';
+      d3.select('#kge-'+idx)
+        .transition().duration(700)
+        .attr('stroke',edgeColor)
+        .attr('stroke-width',1.5)
+        .attr('opacity',.8)
+        .attr('marker-end','url(#arrow-lit)');
+      d3.select('#kgel-'+idx)
+        .transition().duration(700)
+        .attr('opacity',.85)
+        .attr('fill','#cbd5e1');
+    }
+  });
+}
+
+function onKgNodeClick(nodeId){
+  const n=KG_BLUEPRINT.nodes.find(x=>x.id===nodeId);
+  if(!n||!_toolkit)return;
+  const secIdx=kgFindSectionForNode(nodeId,_toolkit.sections);
+  // Build relations list
+  const outgoing=KG_BLUEPRINT.edges.filter(e=>e.s===nodeId);
+  const incoming=KG_BLUEPRINT.edges.filter(e=>e.t===nodeId);
+  const labelById=Object.fromEntries(KG_BLUEPRINT.nodes.map(x=>[x.id,x.label]));
+  const catColors={problem:'var(--kg-problem)',logic:'var(--kg-logic)',tool:'var(--kg-tool)',diag:'var(--kg-diag)'};
+  const catLabels={problem:'Problem',logic:'Strategic Logic',tool:'Tool / Estimator',diag:'Diagnostic'};
+
+  let relsHtml='';
+  if(outgoing.length||incoming.length){
+    relsHtml+=`<div class="kg-popup-rels"><div class="kg-popup-rels-lbl">Connections</div>`;
+    outgoing.forEach(e=>{
+      relsHtml+=`<div class="kg-popup-rel"><span>${esc(n.label)}</span><span class="kg-popup-rel-arrow">${esc(e.label)} →</span><span class="kg-popup-rel-target">${esc(labelById[e.t]||e.t)}</span></div>`;
+    });
+    incoming.forEach(e=>{
+      relsHtml+=`<div class="kg-popup-rel"><span class="kg-popup-rel-target">${esc(labelById[e.s]||e.s)}</span><span class="kg-popup-rel-arrow">${esc(e.label)} →</span><span>${esc(n.label)}</span></div>`;
+    });
+    relsHtml+=`</div>`;
+  }
+
+  let actionHtml=`<div class="kg-popup-actions">`;
+  if(secIdx>=0){
+    actionHtml+=`<button class="kg-popup-btn" onclick="closeKgPopup();scrollAndFlash(${secIdx})">Jump to section in toolkit →</button>`;
+  }
+  actionHtml+=`<button class="kg-popup-btn secondary" onclick="closeKgPopup()">Close</button>`;
+  actionHtml+=`</div>`;
+
+  const html=`<div class="kg-popup-cat" style="color:${catColors[n.cat]}">${catLabels[n.cat]}</div>
+    <div class="kg-popup-title">${esc(n.label)}</div>
+    <div class="kg-popup-def">${esc(n.def)}</div>
+    ${relsHtml}
+    ${actionHtml}`;
+  document.getElementById('kg-popup').innerHTML=html;
+  document.getElementById('kg-popup-overlay').classList.add('open');
+}
+
+function closeKgPopup(){
+  document.getElementById('kg-popup-overlay').classList.remove('open');
 }
 </script>
 
