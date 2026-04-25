@@ -9,23 +9,29 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#011425;--bg2:#0d2030;--bg3:#1F4959;
-  --surface:#5C7C89;--light:#ffffff;
-  --blue:#5C7C89;--purple:#7a9aaa;--green:#7eb8a0;--amber:#c9a96e;--red:#c47a7a;
-  --text:#ffffff;--muted:#9ab8c4;--hint:#5C7C89;--dim:#1F4959;--border:#1F4959;
+  --bg:#020e1f;--bg2:#0a1d33;--bg3:#15304d;
+  --surface:#3d6b85;--light:#ffffff;
+  --blue:#3d6b85;--purple:#7a9aaa;--green:#7eb8a0;--amber:#c9a96e;--red:#c47a7a;
+  --text:#ffffff;--muted:#a8c2d4;--hint:#5a7a92;--dim:#15304d;--border:#1f3d5c;
   --kg-problem:#ef4444;--kg-logic:#3b82f6;--kg-tool:#10b981;--kg-diag:#f59e0b
 }
-body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#011425;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
-.hdr{display:none;align-items:center;gap:14px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#011425;z-index:50}
+body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#020e1f;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
+.hdr{display:none;align-items:center;gap:14px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#020e1f;z-index:50}
 .hdr-logo svg{width:48px;height:48px}
 .hdr-name{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.005em}
+.hdr-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hdr-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 14px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.005em;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.hdr-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
+.hdr-btn-icon{font-size:13px;line-height:1}
+.hdr-btn.primary{background:var(--surface);border-color:var(--surface);color:#fff}
+.hdr-btn.primary:hover{background:#4d7e98}
 .hdr-sep{color:var(--dim);font-size:14px;margin:0 4px}
 .hdr-sub{font-size:13px;color:var(--muted)}
 .prog-bar{height:2px;background:var(--bg2)}.prog-fill{height:100%;background:var(--surface);transition:width .35s}
 .btn-sm{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
 .btn-sm:hover{border-color:var(--surface);color:var(--text)}
 /* LANDING */
-.landing{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;position:relative;overflow:hidden;background:#011425}
+.landing{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;position:relative;overflow:hidden;background:#020e1f}
 .wm{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden}
 .wm svg{width:320vmin;height:320vmin;opacity:.10}
 .landing-inner{max-width:540px;width:100%;text-align:center;position:relative;z-index:1}
@@ -62,7 +68,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .results{max-width:1200px;margin:0 auto;padding:2rem 2.5rem 5rem}
 .results-meta{color:var(--hint);font-size:13px;margin-bottom:1.25rem}
 /* NARRATIVE */
-.narrative{background:#0d2030;border:.5px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:1.5rem}
+.narrative{background:#0a1d33;border:.5px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:1.5rem}
 .narrative-hdr{display:flex;align-items:center;gap:11px;margin-bottom:18px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
 .narrative-hdr .star{font-size:18px;color:var(--surface);line-height:1}
 .narrative-hdr .lbl{font-size:20px;color:var(--text);text-transform:none;letter-spacing:.01em;font-weight:500}
@@ -84,34 +90,34 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .sources-stack{display:flex;flex-direction:column;gap:8px}
 @media(max-width:720px){.two-col-panel{grid-template-columns:1fr}}
 /* SEC DIVIDER */
-.section-title{font-size:21px;color:var(--text);font-weight:500;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
-.section-title-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none}
+.section-title{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.section-title-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.4}
 .sec-divider{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
 /* SOURCES */
-.source-card{background:#0d2030;border:.5px solid var(--border);border-radius:10px;padding:12px 15px;text-decoration:none;display:block;transition:all .15s;margin-bottom:8px}
+.source-card{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:12px 15px;text-decoration:none;display:block;transition:all .15s;margin-bottom:8px}
 .source-card:hover{border-color:var(--surface);background:var(--bg3)}
 .source-name{color:var(--text);font-size:13.5px;font-weight:500;margin-bottom:4px}
 .source-desc{color:var(--muted);font-size:12.5px;line-height:1.55}
 .source-url{color:var(--surface);font-size:11px;margin-top:6px}
 /* LIT CARDS */
-.lit-card{background:#0d2030;border:.5px solid var(--border);border-radius:9px;padding:12px 16px;display:flex;align-items:flex-start;gap:14px;transition:all .15s;margin-bottom:6px;cursor:pointer}
-.lit-card:hover{border-color:#5C7C89;background:#1F4959}
-.lit-card.active{border-color:#5C7C89;background:#1F4959}
-.lit-meta{flex-shrink:0;min-width:80px}
-.lit-authors{color:var(--surface);font-size:11.5px;font-weight:600;line-height:1.4}
-.lit-year{color:var(--muted);font-size:11px;margin-top:2px}
-.lit-cite{color:var(--hint);font-size:10.5px;margin-top:2px}
-.lit-title{color:var(--text);font-size:13.5px;font-weight:500;margin-bottom:3px;line-height:1.45}
+.lit-card{background:#0a1d33;border:.5px solid var(--border);border-radius:9px;padding:13px 16px;display:flex;flex-direction:column;gap:7px;transition:all .15s;margin-bottom:7px;cursor:pointer}
+.lit-card:hover{border-color:var(--surface);background:var(--bg3)}
+.lit-card.active{border-color:var(--surface);background:var(--bg3)}
+.lit-meta-row{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.lit-authors{color:var(--muted);font-size:11.5px;font-weight:600;line-height:1.3;letter-spacing:.01em}
+.lit-year{color:var(--hint);font-size:11px;font-weight:500}
+.lit-cite{color:var(--hint);font-size:10.5px}
+.lit-title{color:var(--text);font-size:14px;font-weight:500;line-height:1.45;margin:0}
 .lit-abstract-preview{color:var(--muted);font-size:12.5px;line-height:1.55}
 .lit-loading{color:var(--muted);font-size:13.5px;padding:1rem 0;text-align:center}
 .lit-error{color:var(--muted);font-size:13px;padding:1rem;background:var(--bg2);border-radius:8px;border:.5px solid var(--border)}
-.lit-open-hint{font-size:11px;color:var(--hint);margin-top:6px;font-style:italic}
+.lit-open-hint{font-size:11px;color:var(--hint);font-style:italic;margin-top:2px}
 /* TOOLKIT WITH LEFT RAIL */
 .toolkit-section{margin-top:2rem}
-.toolkit-header{font-size:21px;color:var(--text);font-weight:500;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
-.toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0}
+.toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;line-height:1.4}
 .toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
-.lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0d2030;border:.5px solid var(--border);border-radius:11px;padding:14px 12px}
+.lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0a1d33;border:.5px solid var(--border);border-radius:11px;padding:14px 12px}
 .lang-rail-lbl{font-size:11.5px;color:var(--text);font-weight:600;letter-spacing:.02em;text-align:center;line-height:1.3}
 .lang-rail-sub{font-size:9.5px;color:var(--hint);text-align:center;font-weight:400;letter-spacing:.04em;margin-top:1px;margin-bottom:4px;line-height:1.3}
 .lang-btn-rail{border-radius:8px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;border:.5px solid var(--border);background:transparent;color:var(--muted);text-align:center;letter-spacing:.02em}
@@ -126,7 +132,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   .toolkit-stack{padding-bottom:70px}
 }
 /* SECTIONS */
-.section{background:#0d2030;border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .25s,box-shadow .25s}
+.section{background:#0a1d33;border-radius:12px;border:.5px solid var(--border);overflow:hidden;margin-bottom:9px;transition:border-color .25s,box-shadow .25s}
 .section.open{border-color:var(--surface)}
 .section.flash{border-color:var(--surface);box-shadow:0 0 0 2px var(--surface),0 0 22px var(--surface)}
 .sec-hdr{display:flex;align-items:center;gap:13px;padding:15px 18px;cursor:pointer;user-select:none}
@@ -138,7 +144,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .sec-body{border-top:.5px solid var(--border);padding:18px;display:none}
 .section.open .sec-body{display:block}
 .why-this{border-left:3px solid var(--surface);padding:10px 14px;margin-bottom:14px;font-size:14px;line-height:1.6;font-style:italic;border-radius:0 6px 6px 0;background:#ffffff06;color:var(--muted)}
-.why-fit{background:linear-gradient(135deg,#1F495922,#0d2030);border:.5px solid var(--surface);border-radius:9px;padding:14px 16px;margin-bottom:14px}
+.why-fit{background:linear-gradient(135deg,#15304d22,#0a1d33);border:.5px solid var(--surface);border-radius:9px;padding:14px 16px;margin-bottom:14px}
 .why-fit-label{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.11em;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:7px}
 .why-fit-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--surface)}
 .why-fit-text{color:var(--text);font-size:13.5px;line-height:1.8}
@@ -148,12 +154,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .watch-box{background:var(--bg3);border-radius:8px;border:.5px solid var(--border);padding:11px 14px;margin-top:13px}
 .watch-label{font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:4px}
 .watch-text{color:var(--muted);font-size:13.5px;line-height:1.7}
-.eq-block{background:#011425;border-radius:9px;border:.5px solid var(--border);padding:14px 18px;margin-top:13px}
+.eq-block{background:#020e1f;border-radius:9px;border:.5px solid var(--border);padding:14px 18px;margin-top:13px}
 .eq-label{font-size:10px;color:var(--surface);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:9px}
 .eq-line{color:var(--muted);font-size:13.5px;font-family:'Courier New',monospace;line-height:2;white-space:pre-wrap}
 /* CODE */
 .code-toggle{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--hint);font-size:12px;padding:5px 12px;cursor:pointer;margin-top:12px;font-family:inherit}
-.code-block{background:#011425;border-radius:9px;border:.5px solid var(--border);margin-top:9px;overflow:hidden;display:none}
+.code-block{background:#020e1f;border-radius:9px;border:.5px solid var(--border);margin-top:9px;overflow:hidden;display:none}
 .code-header{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;border-bottom:.5px solid var(--border)}
 .code-lang-lbl{color:var(--hint);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em}
 .code-copy{background:transparent;border:none;color:var(--hint);font-size:11px;cursor:pointer;font-family:inherit}
@@ -166,32 +172,62 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* KNOWLEDGE GRAPH */
 .kg-section{margin-top:2.5rem;margin-bottom:2.5rem}
 .kg-header{margin-bottom:1.25rem}
-.kg-header h3{font-size:21px;font-weight:500;color:var(--text);margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
-.kg-header h3 .kg-sub{font-size:13px;color:var(--muted);font-weight:400}
+.kg-header h3{font-size:22px;font-weight:600;color:var(--text);margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.kg-header h3 .kg-sub{font-size:13px;color:var(--muted);font-weight:400;line-height:1.4}
 .kg-header p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px}
 .kg-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;padding-top:14px;border-top:.5px solid var(--border)}
 .kg-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
 .kg-legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.kg-reveal-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0d2030;border:.5px solid var(--surface);border-radius:11px;padding:14px 18px;margin-bottom:14px;flex-wrap:wrap}
+.kg-reveal-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0a1d33;border:.5px solid var(--surface);border-radius:11px;padding:14px 18px;margin-bottom:14px;flex-wrap:wrap}
 .kg-reveal-text{flex:1;min-width:240px;color:var(--muted);font-size:13.5px;line-height:1.6}
 .kg-reveal-text strong{color:var(--text);font-weight:500}
 .kg-reveal-btn{background:var(--surface);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.02em;white-space:nowrap;transition:background .15s}
 .kg-reveal-btn:hover{background:#6d8d9a}
 .kg-reveal-btn:disabled{background:var(--bg3);color:var(--muted);cursor:default}
 /* KG WRAP + CONTROLS */
-.kg-wrap{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:0;overflow:hidden;position:relative}
+.kg-wrap{background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:0;overflow:hidden;position:relative;display:grid;grid-template-columns:148px 1fr;gap:0}
+.kg-filter-rail{background:rgba(2,14,31,.55);border-right:.5px solid var(--border);padding:14px 12px;display:flex;flex-direction:column;gap:6px}
+.kg-filter-lbl{font-size:9.5px;color:var(--hint);text-transform:uppercase;letter-spacing:.13em;font-weight:600;margin-bottom:6px;padding:0 6px}
+.kg-filter-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:9px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;text-align:left;letter-spacing:.005em;transition:all .15s;display:flex;align-items:center;gap:8px;line-height:1.2}
+.kg-filter-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
+.kg-filter-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--border)}
+.kg-filter-btn.active{background:var(--bg3);color:var(--text);font-weight:600}
+.kg-filter-btn[data-cat="all"].active{border-color:var(--surface)}
+.kg-filter-btn[data-cat="all"].active .dot{background:var(--surface)}
+.kg-filter-btn[data-cat="problem"].active{border-color:var(--kg-problem)}
+.kg-filter-btn[data-cat="problem"].active .dot,.kg-filter-btn[data-cat="problem"] .dot{background:var(--kg-problem)}
+.kg-filter-btn[data-cat="logic"].active{border-color:var(--kg-logic)}
+.kg-filter-btn[data-cat="logic"].active .dot,.kg-filter-btn[data-cat="logic"] .dot{background:var(--kg-logic)}
+.kg-filter-btn[data-cat="tool"].active{border-color:var(--kg-tool)}
+.kg-filter-btn[data-cat="tool"].active .dot,.kg-filter-btn[data-cat="tool"] .dot{background:var(--kg-tool)}
+.kg-filter-btn[data-cat="diag"].active{border-color:var(--kg-diag)}
+.kg-filter-btn[data-cat="diag"].active .dot,.kg-filter-btn[data-cat="diag"] .dot{background:var(--kg-diag)}
+.kg-canvas-area{position:relative}
 .kg-canvas{width:100%;height:780px;display:block;cursor:grab}
 .kg-canvas:active{cursor:grabbing}
 .kg-canvas.over-node{cursor:pointer}
-@media(max-width:760px){.kg-canvas{height:660px}}
+@media(max-width:760px){
+  .kg-wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .kg-filter-rail{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:.5px solid var(--border)}
+  .kg-filter-lbl{display:none}
+  .kg-filter-btn{flex:1;min-width:auto;font-size:11px;padding:7px 8px}
+  .kg-canvas{height:600px}
+}
 .kg-controls{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
-.kg-ctl-btn{width:34px;height:34px;background:rgba(13,32,48,.92);border:.5px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:inherit;font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:all .15s;backdrop-filter:blur(6px);padding:0}
+.kg-ctl-btn{width:34px;height:34px;background:rgba(10,29,51,.92);border:.5px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:inherit;font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:all .15s;backdrop-filter:blur(6px);padding:0}
 .kg-ctl-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--surface)}
 .kg-ctl-btn.reset{font-size:11px;font-weight:600;letter-spacing:.04em}
-.kg-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(13,32,48,.92);backdrop-filter:blur(6px);border:.5px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--muted);font-size:12px;letter-spacing:.02em;pointer-events:none;z-index:5;transition:opacity .6s;display:flex;align-items:center;gap:14px}
+.kg-ctl-btn.expand{font-size:14px}
+.kg-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(10,29,51,.92);backdrop-filter:blur(6px);border:.5px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--muted);font-size:12px;letter-spacing:.02em;pointer-events:none;z-index:5;transition:opacity .6s;display:flex;align-items:center;gap:14px}
 .kg-hint.fade{opacity:0}
 .kg-hint-key{display:inline-flex;align-items:center;gap:5px}
 .kg-hint-icon{font-size:11px;opacity:.7}
+/* EXPAND MODE — overlay near-fullscreen */
+.kg-expanded{position:fixed;inset:32px;z-index:160;border-radius:14px;border:.5px solid var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.6);background:#0a1d33}
+.kg-expanded .kg-canvas{height:calc(100vh - 64px)}
+.kg-expand-backdrop{position:fixed;inset:0;background:rgba(2,14,31,.86);backdrop-filter:blur(4px);z-index:159;opacity:0;pointer-events:none;transition:opacity .25s}
+.kg-expand-backdrop.active{opacity:1;pointer-events:all}
+@media(max-width:760px){.kg-expanded{inset:14px}}
 /* KG NODES + EDGES */
 .kg-node-rect{transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .kg-node-text{font-family:-apple-system,'Helvetica Neue',sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
@@ -218,7 +254,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* KG SIDE DRAWER (slim) */
 .kg-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:175;opacity:0;pointer-events:none;transition:opacity .25s}
 .kg-drawer-overlay.open{opacity:1;pointer-events:all}
-.kg-drawer{position:fixed;top:0;right:0;height:100vh;width:420px;max-width:90vw;background:#011425;border-left:.5px solid var(--surface);z-index:176;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.kg-drawer{position:fixed;top:0;right:0;height:100vh;width:420px;max-width:90vw;background:#020e1f;border-left:.5px solid var(--surface);z-index:176;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 .kg-drawer.open{transform:translateX(0)}
 .kg-drawer-hdr{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:.5px solid var(--border);flex-shrink:0}
 .kg-drawer-cat{font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:5px;display:inline-block;padding:3px 8px;border-radius:5px}
@@ -235,8 +271,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-drawer-body::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:2px}
 .kg-drawer-section{margin-bottom:20px}
 .kg-drawer-lbl{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:8px}
-.kg-drawer-def{color:var(--text);font-size:13.5px;line-height:1.75;background:#0d2030;border:.5px solid var(--border);border-radius:8px;padding:12px 14px}
-.kg-drawer-rel{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.45;margin-bottom:6px;padding:8px 11px;background:#0d2030;border:.5px solid var(--border);border-radius:7px}
+.kg-drawer-def{color:var(--text);font-size:13.5px;line-height:1.75;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px 14px}
+.kg-drawer-rel{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.45;margin-bottom:6px;padding:8px 11px;background:#0a1d33;border:.5px solid var(--border);border-radius:7px}
 .kg-drawer-rel-from{color:var(--text);font-weight:500;flex-shrink:0}
 .kg-drawer-rel-to{color:var(--text);font-weight:500;flex-shrink:0}
 .kg-drawer-rel-arrow{color:var(--surface);font-style:italic;font-size:11.5px;flex:1;text-align:center;letter-spacing:.01em}
@@ -248,9 +284,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:#00000077;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;right:0;height:100vh;width:75vw;max-width:75vw;background:#011425;border-left:.5px solid #1F4959;z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:75vw;max-width:75vw;background:#020e1f;border-left:.5px solid #15304d;z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 .drawer.open{transform:translateX(0)}
-.drawer-header{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:.5px solid var(--border);flex-shrink:0;background:#011425}
+.drawer-header{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:.5px solid var(--border);flex-shrink:0;background:#020e1f}
 .drawer-logo{width:48px;height:48px;opacity:1;flex-shrink:0}
 .drawer-title{flex:1;min-width:0}
 .drawer-title-text{color:var(--text);font-size:15px;font-weight:400;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:.01em}
@@ -265,9 +301,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .dp-section{margin-bottom:26px}
 .dp-label{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .dp-label::after{content:'';flex:1;height:.5px;background:var(--border)}
-.dp-tldr{background:#0d2030;border:.5px solid var(--border);border-radius:9px;padding:14px 16px;color:var(--text);font-size:14px;line-height:1.85;font-style:italic}
+.dp-tldr{background:#0a1d33;border:.5px solid var(--border);border-radius:9px;padding:14px 16px;color:var(--text);font-size:14px;line-height:1.85;font-style:italic}
 .dp-abstract{color:var(--muted);font-size:14px;line-height:1.9}
-.dp-ai-box{background:#0d2030;border:.5px solid var(--border);border-radius:9px;padding:16px 18px}
+.dp-ai-box{background:#0a1d33;border:.5px solid var(--border);border-radius:9px;padding:16px 18px}
 .dp-ai-loading{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:9px}
 .dp-ai-spinner{width:14px;height:14px;border:1.5px solid var(--bg3);border-top:1.5px solid var(--surface);border-radius:50%;animation:spin .85s linear infinite;flex-shrink:0}
 .dp-bullet{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
@@ -282,9 +318,70 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .dp-stat-lbl{color:var(--hint);font-size:11px;margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
 .dp-open-btn{display:block;width:100%;background:transparent;border:.5px solid var(--border);border-radius:9px;color:var(--muted);font-size:13px;padding:13px;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;transition:all .15s;letter-spacing:.02em}
 .dp-open-btn:hover{background:var(--bg2);border-color:var(--surface);color:var(--text)}
+/* REFERENCE LIBRARY (slide-over panel from right) */
+.lib-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:185;opacity:0;pointer-events:none;transition:opacity .28s}
+.lib-overlay.open{opacity:1;pointer-events:all}
+.lib{position:fixed;top:0;right:0;height:100vh;width:90vw;max-width:1180px;background:#020e1f;border-left:.5px solid var(--surface);z-index:186;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+.lib.open{transform:translateX(0)}
+.lib-hdr{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:.5px solid var(--border);background:#0a1d33}
+.lib-hdr-icon{width:40px;height:40px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);flex-shrink:0}
+.lib-hdr-title{flex:1;min-width:0}
+.lib-hdr-title-main{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.005em;line-height:1.2}
+.lib-hdr-title-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.lib-hdr-close{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.lib-hdr-close:hover{border-color:var(--surface);color:var(--text)}
+.lib-body{display:grid;grid-template-columns:280px 1fr;min-height:0}
+.lib-side{background:#0a1d33;border-right:.5px solid var(--border);overflow-y:auto;padding:18px 12px}
+.lib-side::-webkit-scrollbar,.lib-main::-webkit-scrollbar{width:5px}
+.lib-side::-webkit-scrollbar-thumb,.lib-main::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.lib-side-grp{margin-bottom:14px}
+.lib-side-grp-lbl{font-size:9.5px;color:var(--hint);text-transform:uppercase;letter-spacing:.13em;font-weight:700;padding:0 10px 8px;display:block}
+.lib-fam{padding:10px 12px;border-radius:9px;cursor:pointer;border:.5px solid transparent;transition:all .15s;margin-bottom:3px;background:transparent}
+.lib-fam:hover{background:var(--bg2)}
+.lib-fam.active{background:var(--bg3);border-color:var(--surface)}
+.lib-fam-name{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.3;display:flex;align-items:center;gap:8px}
+.lib-fam-icon{font-size:14px;color:var(--surface);flex-shrink:0;width:20px;text-align:center}
+.lib-fam-sub{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4;padding-left:28px}
+.lib-fam-count{margin-left:auto;font-size:10.5px;color:var(--hint);background:var(--bg2);padding:2px 7px;border-radius:5px;font-weight:600}
+.lib-main{overflow-y:auto;padding:30px 36px 60px;background:#020e1f}
+.lib-welcome{text-align:center;padding:80px 30px;color:var(--muted)}
+.lib-welcome-icon{font-size:32px;color:var(--surface);margin-bottom:16px}
+.lib-welcome-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+.lib-welcome-sub{font-size:13.5px;line-height:1.7;max-width:440px;margin:0 auto}
+.lib-fam-hdr{margin-bottom:24px;padding-bottom:18px;border-bottom:.5px solid var(--border)}
+.lib-fam-hdr-name{font-size:24px;font-weight:600;color:var(--text);letter-spacing:-.005em;margin-bottom:6px}
+.lib-fam-hdr-desc{font-size:14px;color:var(--muted);line-height:1.7;max-width:760px}
+.lib-rel-banner{margin:18px 0 24px;padding:14px 16px;border-left:3px solid var(--surface);background:#0a1d33;border-radius:0 8px 8px 0}
+.lib-rel-banner-lbl{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:6px}
+.lib-rel-banner-text{font-size:13px;color:var(--muted);line-height:1.7}
+.lib-method{background:#0a1d33;border:.5px solid var(--border);border-radius:11px;padding:20px 22px;margin-bottom:14px;transition:border-color .2s}
+.lib-method:hover{border-color:var(--bg3)}
+.lib-method-hdr{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.lib-method-name{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-.005em}
+.lib-method-abbr{font-size:11.5px;color:var(--surface);background:var(--bg3);padding:2px 8px;border-radius:5px;font-weight:600;letter-spacing:.02em}
+.lib-method-sub{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.lib-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.lib-tag{font-size:10.5px;background:var(--bg2);color:var(--muted);padding:3px 9px;border-radius:5px;border:.5px solid var(--border);letter-spacing:.01em}
+.lib-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.lib-fields{grid-template-columns:1fr}}
+.lib-field{background:rgba(2,14,31,.5);border-radius:8px;padding:11px 14px;border-left:2px solid var(--bg3)}
+.lib-field-lbl{font-size:9.5px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:5px}
+.lib-field-text{font-size:13px;color:var(--muted);line-height:1.65}
+.lib-field-text strong{color:var(--text);font-weight:600}
+.lib-field.what{border-left-color:var(--kg-logic)}
+.lib-field.assume{border-left-color:var(--kg-tool)}
+.lib-field.est{border-left-color:var(--surface)}
+.lib-field.watch{border-left-color:var(--kg-diag)}
+.lib-field.env{border-left-color:var(--kg-problem)}
+@media(max-width:760px){
+  .lib{width:100vw}
+  .lib-body{grid-template-columns:1fr}
+  .lib-side{max-height:42vh}
+}
+
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:#00000088;display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
-.modal{background:#0d2030;border:.5px solid var(--border);border-radius:14px;padding:30px;max-width:500px;width:100%}
+.modal{background:#0a1d33;border:.5px solid var(--border);border-radius:14px;padding:30px;max-width:500px;width:100%}
 .modal h2{font-size:18px;font-weight:400;color:var(--text);margin-bottom:10px;letter-spacing:.02em}
 .modal p{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:18px}
 .modal input{width:100%;background:var(--bg);border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:12px 15px;outline:none;font-family:inherit;margin-bottom:14px}
@@ -297,15 +394,15 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 <div class="hdr" id="hdr">
   <div class="hdr-logo">
     <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <rect width="512" height="512" rx="112" fill="#0a0f1e"/>
-      <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="4"/>
-      <circle cx="256" cy="256" r="90" fill="#080e1c"/>
-      <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="256" cy="146" r="7" fill="#3b82f6"/>
-      <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="174" cy="339" r="7" fill="#a855f7"/>
-      <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="338" cy="339" r="7" fill="#10b981"/>
+      <rect width="512" height="512" rx="112" fill="#0a1d33"/>
+      <circle cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="4"/>
+      <circle cx="256" cy="256" r="90" fill="#020e1f"/>
+      <line x1="256" y1="254" x2="256" y2="152" stroke="#4f9aff" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="256" cy="146" r="7" fill="#4f9aff"/>
+      <line x1="250" y1="262" x2="178" y2="334" stroke="#c47cff" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="174" cy="339" r="7" fill="#c47cff"/>
+      <line x1="262" y1="262" x2="334" y2="334" stroke="#1fd298" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="338" cy="339" r="7" fill="#1fd298"/>
       <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
       <circle cx="256" cy="256" r="5" fill="#fff"/>
     </svg>
@@ -313,8 +410,10 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <span class="hdr-name">Econometric Advisor</span>
   <span class="hdr-sep">/</span>
   <span id="hdr-sub" class="hdr-sub">assessment</span>
-  <div style="margin-left:auto">
-    <button class="btn-sm" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
+  <div class="hdr-actions">
+    <button class="hdr-btn" id="btn-library" onclick="openLibrary()" style="display:none"><span class="hdr-btn-icon">⊞</span>Reference library</button>
+    <button class="hdr-btn" id="btn-handoff" onclick="openClaudeHandoff()" style="display:none"><span class="hdr-btn-icon">↗</span>Continue in Claude</button>
+    <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
 </div>
 <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
@@ -326,87 +425,74 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <!-- Static rings -->
         <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
         <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1"/>
-        <circle cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="5"/>
-        <circle cx="256" cy="256" r="90" fill="#0a0f1e"/>
-        <!-- Static spokes -->
+        <!-- Inner connecting ring (the one that lights up) -->
+        <circle id="wm-inner-ring" cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="5">
+          <!-- Brightens when all three pulses arrive at endpoints (3s mark of 9s cycle) -->
+          <animate attributeName="stroke-width" values="5;5;9;9;5;5" keyTimes="0;0.32;0.36;0.44;0.5;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke" values="#4f9aff;#4f9aff;#ffffff;#ffffff;#4f9aff;#4f9aff" keyTimes="0;0.32;0.36;0.44;0.5;1" dur="9s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="256" cy="256" r="90" fill="#020e1f"/>
+
+        <!-- Static spokes (always visible) -->
         <line x1="256" y1="254" x2="256" y2="152" stroke="#4f9aff" stroke-width="5" stroke-linecap="round"/>
         <line x1="250" y1="262" x2="178" y2="334" stroke="#c47cff" stroke-width="5" stroke-linecap="round"/>
         <line x1="262" y1="262" x2="334" y2="334" stroke="#1fd298" stroke-width="5" stroke-linecap="round"/>
-        <!-- Spoke endpoint dots -->
+        <!-- Static endpoint dots -->
         <circle cx="256" cy="146" r="10" fill="#1d4ed8"/><circle cx="256" cy="146" r="6" fill="#4f9aff"/>
         <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c47cff"/>
         <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#1fd298"/>
 
-        <!-- ANIMATED PULSES per spoke -->
-        <!-- Blue spoke: north (256,146) -->
+        <!-- ANIMATED PULSES — all three fire simultaneously from exact center (256,256) -->
+        <!-- Cycle: 0-3s travel outward, 3-4s arrive & light ring, 4-7s ring expands & fades, 7-9s pause -->
+        <!-- Total cycle: 9s -->
+
         <g class="pulse-blue">
-          <!-- Traveling pulse bullet -->
-          <circle r="9" fill="#4f9aff" opacity="0">
-            <animate attributeName="cx" values="256;256;256" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;146;146" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Smoke ring expanding from endpoint -->
-          <circle cx="256" cy="146" r="10" fill="none" stroke="#4f9aff" stroke-width="3" opacity="0">
-            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Second slower smoke ring trailing -->
-          <circle cx="256" cy="146" r="10" fill="none" stroke="#4f9aff" stroke-width="2" opacity="0">
-            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
+          <circle r="6" fill="#4f9aff" opacity="0">
+            <animate attributeName="cx" values="256" dur="9s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;146" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
           </circle>
         </g>
-
-        <!-- Purple spoke: SW (174,339) -->
         <g class="pulse-purple">
-          <circle r="9" fill="#c47cff" opacity="0">
-            <animate attributeName="cx" values="256;256;174" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;256;339" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="174" cy="339" r="10" fill="none" stroke="#c47cff" stroke-width="3" opacity="0">
-            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="174" cy="339" r="10" fill="none" stroke="#c47cff" stroke-width="2" opacity="0">
-            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+          <circle r="6" fill="#c47cff" opacity="0">
+            <animate attributeName="cx" values="256;174" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;339" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
           </circle>
         </g>
-
-        <!-- Green spoke: SE (338,339) -->
         <g class="pulse-green">
-          <circle r="9" fill="#1fd298" opacity="0">
-            <animate attributeName="cx" values="256;256;338" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="cy" values="256;256;339" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="338" cy="339" r="10" fill="none" stroke="#1fd298" stroke-width="3" opacity="0">
-            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="338" cy="339" r="10" fill="none" stroke="#1fd298" stroke-width="2" opacity="0">
-            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+          <circle r="6" fill="#1fd298" opacity="0">
+            <animate attributeName="cx" values="256;338" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;339" keyTimes="0;0.33" dur="9s" fill="freeze" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0;0" keyTimes="0;0.05;0.32;0.34;1" dur="9s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="2;7;12;3" keyTimes="0;0.15;0.32;0.34" dur="9s" repeatCount="indefinite"/>
           </circle>
         </g>
 
-        <!-- Center dot (top layer) -->
+        <!-- Expanding ring: emits from inner ring (r=110), expands outward, fades -->
+        <!-- Times in 9s cycle: 0.36s = 3.24s, 0.78s = 7.02s -->
+        <circle cx="256" cy="256" r="110" fill="none" stroke="#ffffff" stroke-width="3" opacity="0">
+          <animate attributeName="r" values="110;110;145;180;210" keyTimes="0;0.36;0.55;0.7;0.78" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0;0.9;0.4;0;0" keyTimes="0;0.36;0.42;0.6;0.78;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-width" values="3;3;2.5;1.5;0.5" keyTimes="0;0.36;0.55;0.7;0.78" dur="9s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Second slower ring trailing -->
+        <circle cx="256" cy="256" r="110" fill="none" stroke="#ffffff" stroke-width="2" opacity="0">
+          <animate attributeName="r" values="110;110;130;165;195" keyTimes="0;0.4;0.6;0.72;0.78" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0;0.5;0.2;0;0" keyTimes="0;0.4;0.5;0.65;0.78;1" dur="9s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Center dot (top layer, always visible) -->
         <circle cx="256" cy="256" r="14" fill="#1e40af"/>
         <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
         <circle cx="256" cy="256" r="5" fill="#fff"/>
 
-        <!-- Subtle center glow that pulses with each spoke firing -->
-        <circle cx="256" cy="256" r="20" fill="none" stroke="#fff" stroke-width="1.5" opacity="0">
-          <animate attributeName="r" values="14;28;14" keyTimes="0;0.05;0.5" dur="1.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;0.5;0" keyTimes="0;0.05;0.5" dur="1.5s" repeatCount="indefinite"/>
+        <!-- Center pulse-out flash (when pulses spawn at 0s of cycle) -->
+        <circle cx="256" cy="256" r="5" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0">
+          <animate attributeName="r" values="5;30;5" keyTimes="0;0.08;0.18" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.6;0;0" keyTimes="0;0.04;0.18;1" dur="9s" repeatCount="indefinite"/>
         </circle>
       </svg>
     </div>
@@ -439,7 +525,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <span class="tag">Live literature</span><span class="tag">Knowledge graph</span>
       </div>
       <button class="btn-primary" onclick="startApp()">Begin assessment</button>
-      <div style="margin-top:1rem">
+      <div style="margin-top:1rem;display:flex;gap:18px;justify-content:center;align-items:center">
+        <button onclick="openLibrary()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⊞&nbsp;Browse reference library</button>
+        <span style="color:var(--dim);font-size:10px">·</span>
         <button onclick="resetKey()" style="background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">Reset API key</button>
       </div>
     </div>
@@ -574,7 +662,13 @@ const QS=[
 let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||'',codeLang='r';
 
 function show(id){['landing','quiz','loading','results'].forEach(s=>{document.getElementById('screen-'+s).style.display=s===id?'block':'none';});}
-function setHdr(sub,showReset){const h=document.getElementById('hdr');h.style.display='flex';document.getElementById('hdr-sub').textContent=sub;document.getElementById('btn-reset').style.display=showReset?'inline-block':'none';}
+function setHdr(sub,showResults){
+  const h=document.getElementById('hdr');h.style.display='flex';
+  document.getElementById('hdr-sub').textContent=sub;
+  document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
+  document.getElementById('btn-library').style.display='inline-flex';
+  document.getElementById('btn-handoff').style.display=showResults?'inline-flex':'none';
+}
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -584,6 +678,35 @@ function skipKey(){document.getElementById('api-modal').style.display='none';beg
 function resetKey(){localStorage.removeItem('ea_ak');apiKey='';document.getElementById('api-key-input').value='';document.getElementById('api-modal').style.display='flex';}
 function beginQuiz(){step=0;ans={};renderQ();}
 function resetApp(){step=-1;ans={};show('landing');document.getElementById('hdr').style.display='none';setProgress(0);}
+
+function openClaudeHandoff(){
+  // Build a summary prompt the user can carry into claude.ai for deeper analysis with file uploads
+  const a=ans;
+  const lines=[];
+  lines.push("I am working on an econometrics research project and have already used the Econometric Advisor app to map out my study. Here is a summary of where I am, and I would like to continue with deeper analysis — including the option to upload papers, code, data, and visualizations for review.");
+  lines.push("");
+  lines.push("MY RESEARCH DESIGN");
+  if(a.field)lines.push("- Field: "+a.field);
+  if(a.question_type)lines.push("- Research question type: "+a.question_type);
+  if(a.treatment)lines.push("- Treatment / shock: "+a.treatment);
+  if(a.data_structure)lines.push("- Data structure: "+[].concat(a.data_structure).join(", "));
+  if(a.n_treated)lines.push("- Number of treated units: "+a.n_treated);
+  if(a.outcome)lines.push("- Outcome variable type: "+a.outcome);
+  if(a.endogeneity)lines.push("- Endogeneity concern: "+a.endogeneity);
+  if(a.geo)lines.push("- Geography role: "+a.geo);
+  if(a.functional_form)lines.push("- Functional form hypothesis: "+a.functional_form);
+  if(a.context){lines.push("");lines.push("STUDY DESCRIPTION");lines.push(a.context);}
+  if(_toolkit&&_toolkit.sections){
+    lines.push("");
+    lines.push("TOOLKIT THE ADVISOR RECOMMENDED");
+    _toolkit.sections.forEach(s=>lines.push("- "+s.label+": "+s.method));
+  }
+  lines.push("");
+  lines.push("I'd like to share files (drafts, code, output, plots, data samples) and have you help me critique, refine, or extend this work. Please ask what I'd like to focus on first.");
+  const prompt=lines.join("\n");
+  const url="https://claude.ai/new?q="+encodeURIComponent(prompt);
+  window.open(url,'_blank','noopener');
+}
 
 function renderQ(){
   show('quiz');
@@ -633,7 +756,7 @@ async function generate(){
   if(apiKey&&apiKey.length>20)fetchSectionRationales(ans,tk);
   show('results');
   setHdr('your toolkit',true);
-  document.getElementById('btn-reset').style.display='inline-block';
+  document.getElementById('btn-reset').style.display='inline-flex';
 }
 
 async function enrichWithAI(a,tk){
@@ -730,7 +853,7 @@ function closeDrawer(){
   document.querySelectorAll('.lit-card').forEach(c=>c.classList.remove('active'));
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgDrawer();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgDrawer();closeLibrary();if(_kgIsExpanded)kgToggleExpand();}});
 
 async function loadDrawerContent(p,idx){
   const href=p.doi_or_url||p.externalIds?.DOI&&`https://doi.org/${p.externalIds.DOI}`||`https://scholar.google.com/scholar?q=${encodeURIComponent(p.title||'')}`;
@@ -854,18 +977,16 @@ TOOLKIT: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
     const result=JSON.parse(t.replace(/```json|```/g,'').trim());
     _drawerPapers=result.papers;
     el.innerHTML=result.papers.map((p,i)=>{
-      const preview=p.abstract?p.abstract.slice(0,160)+'...':'';
+      const preview=p.abstract?p.abstract.slice(0,180)+'...':'';
       return `<div class="lit-card" onclick="openDrawer(${i})">
-        <div class="lit-meta">
-          <div class="lit-authors">${esc(p.authors||'--')}</div>
-          <div class="lit-year">${p.year||'--'}</div>
-          <div class="lit-cite">${p.citations?p.citations+' cit.':''}</div>
+        <div class="lit-meta-row">
+          <span class="lit-authors">${esc(p.authors||'Unknown authors')}</span>
+          <span class="lit-year">· ${p.year||'--'}</span>
+          ${p.citations?`<span class="lit-cite">· ${p.citations} cit.</span>`:''}
         </div>
-        <div style="flex:1;min-width:0">
-          <div class="lit-title">${esc(p.title||'Untitled')}</div>
-          ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
-          <div class="lit-open-hint">Click to open in panel</div>
-        </div>
+        <div class="lit-title">${esc(p.title||'Untitled')}</div>
+        ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
+        <div class="lit-open-hint">Click to open analysis →</div>
       </div>`;
     }).join('');
   }catch(e){
@@ -1390,9 +1511,9 @@ let _kgActive=new Set();
 function renderKnowledgeGraph(tk){
   return `<div class="kg-section">
     <div class="kg-header">
-      <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node</span></h3>
-      <div style="background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
-        <p>This is the conceptual map of applied econometrics: <strong style="color:var(--text)">Problems</strong> create the need for <strong style="color:var(--text)">Strategic Logic</strong>, which justifies the <strong style="color:var(--text)">Tools</strong> used to estimate causal effects, which are validated by <strong style="color:var(--text)">Diagnostics</strong>. Hover any node to focus on it and its connections; click to read its definition and jump to the relevant toolkit section.</p>
+      <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node to learn more</span></h3>
+      <div style="background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
+        <p>This is the conceptual map of applied econometrics: <strong style="color:var(--text)">Problems</strong> create the need for <strong style="color:var(--text)">Strategic Logic</strong>, which justifies the <strong style="color:var(--text)">Tools</strong> used to estimate causal effects, which are validated by <strong style="color:var(--text)">Diagnostics</strong>. Use the filter rail to focus on one layer at a time; click any node to read its definition and jump to the relevant toolkit section.</p>
         <div class="kg-legend">
           <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-problem)"></span>Problems</div>
           <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-logic)"></span>Strategic Logic</div>
@@ -1405,16 +1526,28 @@ function renderKnowledgeGraph(tk){
       <div class="kg-reveal-text">The graph below shows all four pillars of applied econometrics. <strong>Click the button</strong> to light up the path your research design takes through this architecture.</div>
       <button id="kg-reveal-btn" class="kg-reveal-btn" onclick="revealKgPath()">Trace my study through the architecture</button>
     </div>
-    <div class="kg-wrap">
-      <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 880" preserveAspectRatio="xMidYMid meet"></svg>
-      <div class="kg-controls">
-        <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
-        <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
-        <button class="kg-ctl-btn reset" onclick="kgResetView()" title="Fit to view">FIT</button>
+    <div class="kg-expand-backdrop" id="kg-expand-backdrop" onclick="kgToggleExpand()"></div>
+    <div class="kg-wrap" id="kg-wrap">
+      <div class="kg-filter-rail">
+        <div class="kg-filter-lbl">Focus layer</div>
+        <button class="kg-filter-btn active" data-cat="all" onclick="kgFilter('all')"><span class="dot"></span>All four layers</button>
+        <button class="kg-filter-btn" data-cat="problem" onclick="kgFilter('problem')"><span class="dot"></span>Problems</button>
+        <button class="kg-filter-btn" data-cat="logic" onclick="kgFilter('logic')"><span class="dot"></span>Strategic Logic</button>
+        <button class="kg-filter-btn" data-cat="tool" onclick="kgFilter('tool')"><span class="dot"></span>Tools / Estimators</button>
+        <button class="kg-filter-btn" data-cat="diag" onclick="kgFilter('diag')"><span class="dot"></span>Diagnostics</button>
       </div>
-      <div class="kg-hint" id="kg-hint">
-        <span class="kg-hint-key"><span class="kg-hint-icon">↔</span> drag to pan</span>
-        <span class="kg-hint-key"><span class="kg-hint-icon">⇅</span> scroll to zoom</span>
+      <div class="kg-canvas-area">
+        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 880" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="kg-controls">
+          <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
+          <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
+          <button class="kg-ctl-btn reset" onclick="kgResetView()" title="Fit to view">FIT</button>
+          <button class="kg-ctl-btn expand" onclick="kgToggleExpand()" title="Expand / collapse" id="kg-expand-btn">⛶</button>
+        </div>
+        <div class="kg-hint" id="kg-hint">
+          <span class="kg-hint-key"><span class="kg-hint-icon">↔</span> drag to pan</span>
+          <span class="kg-hint-key"><span class="kg-hint-icon">⇅</span> scroll to zoom</span>
+        </div>
       </div>
     </div>
   </div>`;
@@ -1496,6 +1629,7 @@ function initKnowledgeGraph(activeSet){
     else labelY=c.cy-50;
     _kgZoomLayer.append('text')
       .attr('class','kg-cluster-label')
+      .attr('data-cat',cat)
       .attr('x',c.cx).attr('y',labelY)
       .attr('fill',c.color).attr('opacity',.5)
       .text(c.label);
@@ -1593,6 +1727,21 @@ function initKnowledgeGraph(activeSet){
     });
   svg.call(_kgZoom);
 
+  // Compute bounding boxes per category for filter zoom-to-fit
+  const bounds={};
+  Object.keys(byCat).forEach(cat=>{
+    let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
+    byCat[cat].forEach(n=>{
+      const p=positions[n.id];
+      if(!p)return;
+      const w=n.label.length>14?148:n.label.length>9?124:112,h=46;
+      x1=Math.min(x1,p.x-w/2);y1=Math.min(y1,p.y-h/2);
+      x2=Math.max(x2,p.x+w/2);y2=Math.max(y2,p.y+h/2);
+    });
+    bounds[cat]={x1,y1,x2,y2};
+  });
+  kgRegisterClusterBounds(bounds);
+
   // Auto-fade hint after 6s if no interaction
   setTimeout(()=>{
     const hint=document.getElementById('kg-hint');
@@ -1645,6 +1794,81 @@ function kgZoomOut(){
 function kgResetView(){
   if(!_kgZoom)return;
   d3.select('#kg-canvas').transition().duration(360).call(_kgZoom.transform,d3.zoomIdentity);
+}
+
+let _kgClusterBounds={};
+function kgRegisterClusterBounds(bounds){_kgClusterBounds=bounds;}
+
+function kgFilter(cat){
+  // Toggle button states
+  document.querySelectorAll('.kg-filter-btn').forEach(b=>{
+    b.classList.toggle('active',b.getAttribute('data-cat')===cat);
+  });
+
+  if(!_kgZoom||!_kgZoomLayer)return;
+
+  // Fade out non-selected nodes/edges if specific cat, else fade all back in
+  const isAll=cat==='all';
+  KG_BLUEPRINT.nodes.forEach(n=>{
+    const g=document.getElementById('kgn-'+n.id);
+    if(!g)return;
+    g.style.transition='opacity .45s';
+    g.style.opacity=isAll||n.cat===cat?'1':'0.08';
+  });
+  document.querySelectorAll('.kg-edge').forEach(line=>{
+    const sId=line.getAttribute('data-source');
+    const tId=line.getAttribute('data-target');
+    const sCat=KG_BLUEPRINT.nodes.find(x=>x.id===sId)?.cat;
+    const tCat=KG_BLUEPRINT.nodes.find(x=>x.id===tId)?.cat;
+    line.style.transition='opacity .45s';
+    line.style.opacity=isAll||sCat===cat||tCat===cat?'':'0.05';
+  });
+  document.querySelectorAll('.kg-edge-label').forEach(lbl=>{
+    const sId=lbl.getAttribute('data-source');
+    const tId=lbl.getAttribute('data-target');
+    const sCat=KG_BLUEPRINT.nodes.find(x=>x.id===sId)?.cat;
+    const tCat=KG_BLUEPRINT.nodes.find(x=>x.id===tId)?.cat;
+    lbl.style.transition='opacity .45s';
+    if(!isAll&&sCat===cat&&tCat===cat){lbl.style.opacity='0.7';}
+    else if(isAll){lbl.style.opacity='';}
+    else{lbl.style.opacity='0';}
+  });
+  // Fade non-selected cluster labels too
+  document.querySelectorAll('.kg-cluster-label').forEach(t=>{
+    const c=t.getAttribute('data-cat');
+    t.style.transition='opacity .45s';
+    t.style.opacity=isAll||c===cat?'':'0.12';
+  });
+
+  // Camera transform: zoom to fit selected cluster (or reset for "all")
+  const svg=d3.select('#kg-canvas');
+  if(isAll){
+    svg.transition().duration(600).call(_kgZoom.transform,d3.zoomIdentity);
+  } else {
+    const b=_kgClusterBounds[cat];
+    if(b){
+      const W=1400,H=880;
+      const padX=80,padY=80;
+      const bw=b.x2-b.x1+padX*2,bh=b.y2-b.y1+padY*2;
+      const cx=(b.x1+b.x2)/2,cy=(b.y1+b.y2)/2;
+      const scale=Math.min(W/bw,H/bh,2.2);
+      const tx=W/2-cx*scale,ty=H/2-cy*scale;
+      svg.transition().duration(600).call(_kgZoom.transform,d3.zoomIdentity.translate(tx,ty).scale(scale));
+    }
+  }
+}
+
+let _kgIsExpanded=false;
+function kgToggleExpand(){
+  const wrap=document.getElementById('kg-wrap');
+  const backdrop=document.getElementById('kg-expand-backdrop');
+  const btn=document.getElementById('kg-expand-btn');
+  if(!wrap)return;
+  _kgIsExpanded=!_kgIsExpanded;
+  wrap.classList.toggle('kg-expanded',_kgIsExpanded);
+  backdrop.classList.toggle('active',_kgIsExpanded);
+  if(btn)btn.textContent=_kgIsExpanded?'⊟':'⛶';
+  if(btn)btn.title=_kgIsExpanded?'Collapse':'Expand';
 }
 
 function revealKgPath(){
@@ -1746,6 +1970,481 @@ function closeKgDrawer(){
   document.getElementById('kg-drawer-overlay').classList.remove('open');
   document.getElementById('kg-drawer').classList.remove('open');
 }
+
+// ── REFERENCE LIBRARY ─────────────────────────────────────────────────
+const LIB_GROUPS=[
+  {label:"Foundation",ids:["ci"]},
+  {label:"Data structure & outcome type",ids:["panel","ts","ldv"]},
+  {label:"Cross-cutting modifiers",ids:["fs","sp"]},
+  {label:"Alternative estimators",ids:["np","ml"]},
+  {label:"Diagnostic layer",ids:["inf"]}
+];
+
+const LIB={
+  ci:{
+    name:"Causal inference",
+    icon:"◎",
+    sub:"Natural experiments and identification",
+    rel:"This is where every research design begins. Your identification strategy determines what every other family can do — the estimator family you choose downstream, the diagnostics you must run, even how you write the equation. Most environmental and resource economics studies live here first.",
+    desc:"Strategies for isolating causal effects from observational data — the gold standard in modern applied environmental economics. What separates these methods is the identification strategy: the argument for why your estimate represents a causal effect rather than a correlation.",
+    methods:[
+      {name:"Difference-in-differences",abbr:"DiD",sub:"Compare before-and-after change in treated units against the same change in untreated units",
+       tags:["Panel data","Policy evaluation","Pre-trends"],
+       what:"DiD compares the change in outcomes among units that received a treatment to the change in outcomes among units that did not, over the same period. The two differences cancel out fixed unit-level factors and any common shock that affected everyone, leaving the treatment effect.",
+       assume:"<strong>Parallel trends.</strong> In the absence of treatment, the treated and control groups would have moved in the same direction. This is untestable directly, so applied researchers visualize and statistically test pre-treatment trajectories.",
+       est:"OLS with a treatment-by-post interaction and unit and time fixed effects. The coefficient on the interaction is the average treatment effect on the treated (ATT). Cluster standard errors at the unit level.",
+       watch:"Always plot the pre-period event-study coefficients. If they trend before treatment, parallel trends is unlikely to hold and your estimate is biased.",
+       env:"Regulation rollouts, contamination disclosure events, conservation program adoption, dam removals."},
+      {name:"Staggered difference-in-differences",abbr:"Staggered DiD",sub:"DiD when different units are treated at different times",
+       tags:["Heterogeneous timing","Callaway–Sant'Anna","Negative weights"],
+       what:"Extends DiD to settings where treatment is rolled out across units at different times. Standard two-way fixed effects (TWFE) on staggered designs is biased when treatment effects vary across cohorts, because already-treated units get used as controls for later-treated units.",
+       assume:"No anticipation of treatment, and parallel trends within each cohort relative to the never-treated.",
+       est:"Use Callaway–Sant'Anna (2021), Sun–Abraham (2021), or de Chaisemartin–D'Haultfoeuille estimators. Run a Goodman-Bacon decomposition to diagnose how much of a TWFE estimate comes from forbidden comparisons.",
+       watch:"Never use plain TWFE for staggered rollouts in a paper without checking for negative weights and reporting a robust alternative.",
+       env:"State-by-state environmental regulations, county-level water quality programs, phased infrastructure projects."},
+      {name:"Synthetic control",abbr:"SCM",sub:"Build a counterfactual from a weighted combination of similar untreated units",
+       tags:["Single treated unit","Permutation inference","Donor pool"],
+       what:"Constructs a 'synthetic' counterfactual for a single treated unit as a weighted average of donor units that closely matched the treated unit's pre-treatment outcomes. The treatment effect is the gap between the actual and synthetic post-treatment trajectories.",
+       assume:"The treated unit's pre-treatment outcomes lie within the convex hull of the donor units — meaning some weighted combination of donors can reproduce its history.",
+       est:"Solve for unit weights that minimize pre-treatment outcome distance. Inference is done via placebo-in-space: apply SCM to each donor unit and rank where the true treated effect falls in that distribution.",
+       watch:"The donor pool must be large and unaffected by the treatment. Avoid overfitting the pre-period — match on a few key predictors, not on every available variable.",
+       env:"Single-county PFAS contamination event, single dam removal, an isolated zoning change."},
+      {name:"Regression discontinuity",abbr:"RD",sub:"Compare outcomes just above and just below a rule-based threshold",
+       tags:["Threshold rule","Local LATE","Bandwidth"],
+       what:"Exploits a sharp threshold in some assignment rule — a flood-zone boundary, an air-quality concentration cutoff, an income-eligibility line. Units immediately above and below should be similar on everything except treatment, so the jump in outcomes at the cutoff identifies the local treatment effect.",
+       assume:"No manipulation of the running variable around the cutoff, and continuous potential outcomes — meaning everything except treatment status varies smoothly across the threshold.",
+       est:"Local linear regression on each side of the cutoff, using a CCT optimal bandwidth (Calonico–Cattaneo–Titiunik). Fuzzy RD treats the discontinuity in treatment probability as an instrument for actual treatment receipt.",
+       watch:"Do not use polynomial RD with degree above two — high-order polynomials produce spurious jumps. Bandwidth choice is the most important robustness check; report multiple bandwidths.",
+       env:"Flood-zone boundaries, EPA regulatory concentration thresholds, conservation program eligibility cutoffs."},
+      {name:"Instrumental variables",abbr:"IV / 2SLS",sub:"Isolate exogenous variation in an endogenous regressor using an instrument",
+       tags:["Endogeneity","Exclusion restriction","First-stage F"],
+       what:"When a regressor is correlated with the error term — often through omitted variables or simultaneity — OLS is biased. IV uses an instrument Z that affects the outcome only through its effect on the endogenous regressor, isolating just the variation that is plausibly exogenous.",
+       assume:"<strong>Relevance:</strong> the instrument strongly predicts the endogenous regressor, formally tested with a first-stage F-statistic above 10. <strong>Exclusion:</strong> the instrument affects the outcome only through the endogenous regressor — untestable, defended on economic grounds.",
+       est:"Two-stage least squares: in the first stage, regress the endogenous variable on the instrument plus controls. In the second stage, replace the endogenous regressor with its first-stage fitted values and run OLS.",
+       watch:"A weak instrument (first-stage F below 10) produces severely biased estimates that can be worse than simple OLS. A strong but invalid instrument is even worse — economic argument for exclusion is essential.",
+       env:"Wind direction as an instrument for pollution exposure, distance to coast as an instrument for development pressure, land area as an instrument for population density."},
+      {name:"Matching and inverse probability weighting",abbr:"PSM / IPW",sub:"Reweight observational data so treated and control groups balance on observed covariates",
+       tags:["Selection on observables","Propensity score","Doubly robust"],
+       what:"When randomization is impossible and no instrument is available, you can still approximate experimental conditions by reweighting your sample so that treated and control units have similar distributions of observed characteristics. Propensity score matching pairs units with similar predicted treatment probabilities; IPW reweights the sample by inverse probabilities.",
+       assume:"<strong>Conditional independence assumption (CIA):</strong> all confounders that determine both treatment and outcome are observed and included. Any unobserved confounder breaks identification.",
+       est:"Estimate a propensity score via logit or probit. For PSM, match treated to control units within a caliper. For IPW, weight observations by 1/p̂ for treated and 1/(1−p̂) for controls. Doubly robust estimators (AIPW) combine both an outcome model and a propensity score model — only one needs to be correctly specified.",
+       watch:"Best treated as pre-processing rather than a standalone identification strategy. The CIA is strong and unverifiable; pair with sensitivity analysis (Rosenbaum bounds, Oster (2019) coefficient stability).",
+       env:"Estimating willingness to pay for an environmental amenity when a randomized design is impossible, comparing program participants to non-participants on observables."}
+    ]
+  },
+  fs:{
+    name:"Model specification",
+    icon:"ƒ",
+    sub:"Functional form, transformations, and interactions",
+    rel:"Model specification sits inside whatever identification strategy you have chosen. It shapes the equation itself rather than the identification argument. It connects tightly to causal inference (the estimator) and to spatial econometrics (where spatial lags modify the equation), and robust standard errors are the bridge into the diagnostic layer.",
+    desc:"Decisions about the shape of the relationship between variables — distinct from identification strategy. These choices live inside the estimator and determine which economic relationships you can test with your data.",
+    methods:[
+      {name:"Log transformations",abbr:"Log-linear / Log-log",sub:"Change the shape and the interpretation in one step",
+       tags:["Elasticity","Skewed data","Semi-elasticity"],
+       what:"Taking the natural log of a variable changes both the shape of the modeled relationship and the interpretation of coefficients. In log-log specifications, the coefficient is an elasticity. In log-linear (log Y, level X), the coefficient is a semi-elasticity — a one-unit change in X produces a β×100 percent change in Y.",
+       assume:"Variables must be strictly positive. Choosing between log-log, log-level, level-log, and level-level should be guided by economic theory and residual diagnostics.",
+       est:"Standard OLS after the transformation. To convert log predictions back into levels for forecasting, use Duan's smearing estimator to correct for retransformation bias.",
+       watch:"A naive exp(predicted log Y) systematically underestimates the level of Y. Always apply the smearing correction or report results in log units.",
+       env:"Standard in housing hedonic models, where ln(price) regressions yield semi-elasticities that translate naturally into willingness-to-pay calculations."},
+      {name:"Polynomial specifications",abbr:"Quadratic, cubic",sub:"Allow the marginal effect of a variable to vary with its level",
+       tags:["Nonlinear","Turning point","Joint F-test"],
+       what:"Including X and X² in the same regression allows the marginal effect of X on Y to vary across the range of X. The most common application is a quadratic, which captures U-shaped or inverted-U relationships and produces a turning point at d* = −β₁/2β₂.",
+       assume:"No additional identification assumptions. Functional form is a theoretical choice — what shape does the underlying relationship plausibly take?",
+       est:"Include the linear and squared terms simultaneously. The decision about whether to keep the quadratic should rest on a joint F-test, not on individual t-statistics, because X and X² are highly collinear.",
+       watch:"A quadratic forces a symmetric parabola. If you suspect asymmetric curvature or a flat plateau, splines are more flexible.",
+       env:"Distance gradients in hedonic studies, the environmental Kuznets curve, dose-response relationships for pollutants."},
+      {name:"Interaction terms",abbr:"X₁ × X₂",sub:"Test whether the effect of one variable depends on another",
+       tags:["Effect modification","Heterogeneity","DiD"],
+       what:"Including the product X₁ × X₂ in addition to X₁ and X₂ allows the marginal effect of X₁ to depend on the level of X₂. The marginal effect of X₁ is no longer a single number but a function: β₁ + β₃ × X₂.",
+       assume:"Correct functional form. Centering both variables before constructing the interaction reduces multicollinearity and aids interpretation.",
+       est:"Standard OLS. To test heterogeneity, jointly test the main and interaction coefficients. The DiD specification is itself an interaction (Treatment × Post).",
+       watch:"In nonlinear models like logit or probit, the coefficient on the interaction term does not equal the interaction effect. Compute the cross-partial derivative numerically.",
+       env:"Pollution effects interacted with neighborhood income (environmental justice analysis), dam type interacted with distance, contamination interacted with property tier."},
+      {name:"Specification tests",abbr:"Box–Cox / RESET",sub:"Formally test whether your chosen functional form fits the data",
+       tags:["Misspecification","Functional form"],
+       what:"Box–Cox searches over a parametric family of transformations to find the one that best fits your data; RESET (regression equation specification error test) tests whether powers of the fitted values predict the residuals, indicating omitted nonlinearity.",
+       assume:"Box–Cox assumes normally distributed errors after transformation. RESET assumes the maintained model is otherwise correctly specified.",
+       est:"Box–Cox: maximize the log-likelihood over the transformation parameter λ. RESET: regress residuals on powers (typically squared and cubed) of the fitted values; jointly test for significance.",
+       watch:"A RESET rejection tells you the form is wrong but not what the right form is. Use as a flag, not a recipe.",
+       env:"Diagnostic step after an initial hedonic specification, before committing to a final published model."},
+      {name:"Fixed effects as a control device",abbr:"FE controls",sub:"Absorb time-invariant confounders by including unit-level dummies",
+       tags:["Within variation","Geographic confounders"],
+       what:"Adding indicator variables for each unit (or each time period) absorbs all time-invariant unit-specific confounders that might otherwise bias your estimate. The remaining variation that identifies your coefficient comes only from within-unit changes over time.",
+       assume:"Unobserved heterogeneity is additive and time-invariant.",
+       est:"Add dummy variables for each unit and time, or use the within transformation that demeans variables within each unit. Use software designed for high-dimensional fixed effects (fixest in R, reghdfe in Stata) for large panels.",
+       watch:"Fixed effects eliminate all between-unit variation, so any time-invariant variable of interest cannot be estimated.",
+       env:"County fixed effects absorb regional price levels and persistent neighborhood characteristics; year fixed effects absorb statewide economic shocks."},
+      {name:"Robust standard errors",abbr:"HC3 / Cluster SE",sub:"Correct standard errors when the homoskedasticity assumption fails",
+       tags:["Heteroskedasticity","Clustered errors","Inference"],
+       what:"OLS standard errors assume homoskedasticity (constant error variance) and independence across observations. Real economic data violate both. Heteroskedasticity-consistent (HC) standard errors and cluster-robust standard errors correct the variance estimate without changing the coefficient estimate.",
+       assume:"HC3 assumes errors are independent but heteroskedastic. Cluster-robust assumes correlation within clusters but independence across them.",
+       est:"HC3 is the preferred heteroskedasticity correction in small samples. Cluster at the level at which treatment is assigned — never below it. With fewer than 30 clusters, asymptotic cluster SEs over-reject; use a wild cluster bootstrap instead.",
+       watch:"Choosing the wrong clustering level is one of the most common mistakes in applied work. The rule of thumb: cluster at the level of treatment assignment.",
+       env:"Mandatory in any spatial dataset (cluster by ZCTA or county), in any panel (cluster by unit), and in any natural experiment (cluster by treated group)."}
+    ]
+  },
+  sp:{
+    name:"Spatial econometrics",
+    icon:"◈",
+    sub:"Geographic dependence, distance effects, and spillovers",
+    rel:"Spatial methods modify your base specification rather than replacing your identification strategy. They connect to model specification (spatially lagged regressors enter the equation) and to the diagnostic layer (Moran's I tells you whether you need them at all). Critical for parcel-level work.",
+    desc:"Methods that explicitly model spatial relationships between observations. Become essential when outcomes at one location are influenced by neighboring locations or when residuals exhibit spatial autocorrelation.",
+    methods:[
+      {name:"Hedonic price model",abbr:"Hedonic",sub:"Decompose property value into implicit prices of attributes",
+       tags:["Rosen 1974","Implicit prices","Willingness to pay"],
+       what:"The hedonic framework treats a heterogeneous good (most commonly housing) as a bundle of attributes — structural, locational, and environmental. The market price is then a function of those attributes, and the partial derivative with respect to any one attribute reveals its implicit price, interpretable as marginal willingness to pay in equilibrium.",
+       assume:"Competitive housing market with sorting, so households reveal their marginal valuations through choice. No segmentation that would prevent the implicit price function from being identified.",
+       est:"Semi-log specification: ln(price) = Xβ + ε. Coefficients on environmental amenities have semi-elasticity interpretations and translate into dollar marginal willingness to pay through the property's price level.",
+       watch:"Omitted variable bias is endemic in hedonic models because neighborhood quality is hard to observe. Causal claims require quasi-experimental variation in the amenity of interest, not just a well-fit hedonic regression.",
+       env:"Property-value impacts of contamination disclosure, dam amenity zones, flood-zone capitalization, distance-to-park gradients."},
+      {name:"Spatial autoregressive model",abbr:"SAR",sub:"Neighbors' outcomes affect your outcome",
+       tags:["Spillovers","W matrix","Wy on RHS"],
+       what:"The SAR model adds a spatially lagged dependent variable: y_i depends not only on its own X but on a weighted average of its neighbors' y. The weight matrix W encodes which units count as neighbors and how much.",
+       assume:"The spatial weight matrix W is correctly specified ex ante (typically row-standardized inverse distance, k-nearest neighbors, or contiguity).",
+       est:"OLS is inconsistent because Wy is endogenous. Estimate by maximum likelihood or by IV using lagged exogenous variables WX as instruments.",
+       watch:"The choice of W is itself a modeling decision and results can be sensitive to it. Report robustness across alternative W specifications.",
+       env:"Housing-price spillovers from a dam removal or contamination event, where prices in nearby parcels respond to changes in any one parcel."},
+      {name:"Spatial error model",abbr:"SEM",sub:"Unobserved factors are spatially correlated",
+       tags:["Residual autocorrelation","Conservative"],
+       what:"The SEM model leaves the mean equation as standard OLS but assumes the error term is spatially autocorrelated: u = λWu + ε. This corrects standard errors but does not change the structural interpretation of the coefficients.",
+       assume:"The mean equation is correctly specified — the spatial structure is in the unobservables, not the observables.",
+       est:"Maximum likelihood or generalized method of moments. Lagrange Multiplier tests on OLS residuals (robust LM-error vs. robust LM-lag) help distinguish whether SAR or SEM is more appropriate.",
+       watch:"If the true model is SAR but you estimate SEM, your coefficients are consistent but inefficient. If the true model is SEM but you estimate SAR, your coefficients are inconsistent.",
+       env:"When unobserved neighborhood amenities are spatially correlated but not part of the structural relationship of interest."},
+      {name:"Spatial Durbin model",abbr:"SDM",sub:"Both spatial lag of Y and spatial lag of X",
+       tags:["Most general","Direct & indirect effects"],
+       what:"The SDM nests both SAR and SEM as special cases by including spatial lags of both the dependent variable (Wy) and the regressors (WX). Coefficients can be decomposed into direct effects (on the unit itself) and indirect effects (on neighbors).",
+       assume:"The most general first-order spatial specification. Tests against SAR and SEM tell you which restrictions are warranted.",
+       est:"Maximum likelihood. Use the LeSage–Pace decomposition to interpret the spatial multiplier and report direct, indirect, and total effects.",
+       watch:"Do not interpret the raw coefficient vector directly — the decomposition matters. Reporting only β coefficients understates total spillover effects.",
+       env:"When both outcome and covariate spillovers are plausible, such as analyzing how a contamination shock propagates through both prices and observable correlates of nearby parcels."},
+      {name:"Geographically weighted regression",abbr:"GWR",sub:"Allow coefficients to vary across space",
+       tags:["Local effects","Spatial heterogeneity"],
+       what:"GWR fits a separate weighted least squares regression at each location, using a spatial kernel to weight nearby observations more heavily. The result is a map of locally varying coefficients rather than a single global coefficient.",
+       assume:"Local stationarity within the kernel bandwidth — coefficients vary smoothly across space.",
+       est:"Choose a kernel (Gaussian, bisquare) and a bandwidth (cross-validation or AIC selection). Fit locally weighted regressions at each focal point.",
+       watch:"GWR can confuse spatial heterogeneity with non-stationarity, and inference is non-standard. Best for exploratory mapping rather than confirmatory testing.",
+       env:"Investigating whether an amenity gradient (such as proximity to coast) varies between Piedmont and Tidewater regions, or whether contamination effects differ across regulatory regimes."},
+      {name:"Moran's I and spatial diagnostics",abbr:"Moran's I",sub:"Test for spatial autocorrelation in residuals",
+       tags:["Pre-testing","Diagnostic"],
+       what:"Moran's I measures the correlation between a unit's value and the weighted average of its neighbors' values. Applied to OLS residuals, it tests whether spatial dependence remains after controls — a precondition for using SAR or SEM.",
+       assume:"Residuals come from a correctly specified mean equation.",
+       est:"Compute Moran's I = (n/S₀)·(e'We)/(e'e). Significant robust LM-lag favors SAR; significant robust LM-error favors SEM. If both, prefer SDM.",
+       watch:"Sensitive to the choice of W. Report under at least two W specifications.",
+       env:"Mandatory diagnostic in any geographic regression with parcel, ZCTA, or county-level data."}
+    ]
+  },
+  panel:{
+    name:"Panel data",
+    icon:"▣",
+    sub:"Repeated observations of the same units over time",
+    rel:"Panel methods address the data-structure question — how repeated observations affect estimation. They connect upward to causal inference (TWFE is the workhorse DiD estimator) and downward to model specification (FE as a controls device). Time series picks up where panels leave off when the temporal dimension dominates.",
+    desc:"Methods for datasets where the same units are observed at multiple points in time. The structure allows you to control for unobserved time-invariant unit-level heterogeneity that would bias cross-sectional estimates.",
+    methods:[
+      {name:"Fixed effects (within estimator)",abbr:"FE",sub:"Eliminate time-invariant unit-level confounders",
+       tags:["Demeaning","Hausman test","Within variation"],
+       what:"The within estimator transforms the data by demeaning every variable within each unit, eliminating any unit-specific factor that does not change over time. The remaining variation that identifies coefficients is purely within-unit.",
+       assume:"Strict exogeneity: regressors are uncorrelated with the error in every period, conditional on the unit fixed effect.",
+       est:"Apply the within transformation, or include unit dummy variables. Decide between FE and random effects using a Hausman test, where rejection means random effects is inconsistent.",
+       watch:"Coefficients on time-invariant variables cannot be estimated — they are absorbed by the fixed effect. Important time-invariant heterogeneity must be addressed by interacting it with time.",
+       env:"Controlling for time-invariant county or parcel characteristics in multi-year contamination or pollution panels."},
+      {name:"Two-way fixed effects",abbr:"TWFE",sub:"Unit fixed effects and time fixed effects together",
+       tags:["DiD workhorse","Staggered caveat"],
+       what:"Adding both unit fixed effects (α_i) and time fixed effects (γ_t) controls simultaneously for time-invariant unit heterogeneity and for shocks that hit all units at the same time. This is the canonical DiD specification when treatment timing is uniform.",
+       assume:"Strict exogeneity, plus parallel trends if used to estimate a treatment effect.",
+       est:"Use software optimized for high-dimensional fixed effects: fixest in R, reghdfe in Stata.",
+       watch:"With staggered treatment timing, plain TWFE is biased and can yield negative weights on treatment effects. Use Callaway–Sant'Anna or related estimators instead.",
+       env:"Standard specification for panel regressions in environmental economics with uniform treatment timing."},
+      {name:"Random effects",abbr:"RE",sub:"Unit heterogeneity is modeled as a random draw uncorrelated with X",
+       tags:["GLS","Efficiency","Between variation"],
+       what:"RE treats the unit-specific component α_i as a random draw from a distribution, uncorrelated with the regressors. Combining within and between variation through GLS yields more efficient estimates than FE when the assumption holds.",
+       assume:"E[α_i | X_it] = 0 — the critical and frequently violated assumption that unit heterogeneity is uncorrelated with regressors.",
+       est:"Feasible GLS combining within and between variation. The Mundlak device (adding within-unit means as regressors) provides a way to relax the uncorrelated-effects assumption.",
+       watch:"If a Hausman test rejects, RE is inconsistent and FE should be used despite its loss of efficiency.",
+       env:"When unit heterogeneity is theoretically uncorrelated with regressors of interest, which is uncommon in environmental contexts."},
+      {name:"Dynamic panel GMM",abbr:"Arellano–Bond",sub:"Lagged outcomes as regressors in panels",
+       tags:["Lagged DV","Nickell bias","System GMM"],
+       what:"When the lagged dependent variable y_{i,t-1} appears as a regressor — as it does in any model of adjustment dynamics — fixed effects estimation is biased (Nickell bias). Dynamic panel GMM uses lagged levels and lagged differences as instruments to identify the dynamic coefficient.",
+       assume:"No serial correlation in the idiosyncratic errors. Validity of the instrument set, tested with the Hansen J-statistic.",
+       est:"Arellano–Bond uses differenced GMM. Blundell–Bond (system GMM) adds level moment conditions and is preferred when y is persistent.",
+       watch:"Instrument proliferation as the panel lengthens weakens the Hansen test and can lead to over-rejection of the null. Limit the lag depth used as instruments.",
+       env:"Modeling persistence in housing prices, accumulation of contamination effects, dynamic adjustment in pollution levels."},
+      {name:"Correlated random effects (Mundlak)",abbr:"CRE",sub:"Bridge between FE and RE",
+       tags:["Mundlak","Chamberlain","FE-equivalent"],
+       what:"CRE adds the within-unit means of time-varying regressors (x̄_i) to a random-effects specification. The resulting coefficients on the original X variables are FE-equivalent, but you also retain the ability to estimate coefficients on time-invariant variables through the RE machinery.",
+       assume:"Within-unit means are correctly specified as additional regressors.",
+       est:"Random effects with x̄_i added as covariates. A joint test of x̄_i = 0 is mathematically equivalent to the Hausman test.",
+       watch:"Useful precisely because you can recover effects of time-invariant variables that pure FE cannot estimate. Less common in environmental work but increasingly used.",
+       env:"When you need FE-consistent treatment estimates but also want coefficients on time-invariant parcel or county characteristics."}
+    ]
+  },
+  ts:{
+    name:"Time series",
+    icon:"◇",
+    sub:"Dynamic processes and temporal dependence",
+    rel:"Time series handles settings where the temporal dimension is the primary structure. Connects to panel data through dynamic panel models, and unit-root testing is a prerequisite before any long-run regression in environmental or climate economics work.",
+    desc:"Methods for data ordered in time, accounting for serial correlation, trends, seasonality, and dynamic adjustment processes.",
+    methods:[
+      {name:"ARIMA and SARIMA",abbr:"Box–Jenkins",sub:"Univariate forecasting of a single time series",
+       tags:["Forecasting","Stationarity","ACF/PACF"],
+       what:"ARIMA models a series as a function of its own past values (autoregressive), past forecast errors (moving average), and possibly differenced to achieve stationarity. SARIMA adds seasonal terms.",
+       assume:"Stationarity, achieved if necessary through differencing.",
+       est:"Identify orders (p, d, q) using autocorrelation and partial autocorrelation plots. Estimate by maximum likelihood. Validate with the Ljung–Box test on residuals.",
+       watch:"Primarily a forecasting tool — ARIMA is rarely used for causal identification.",
+       env:"Forecasting environmental monitoring series, energy prices, pollutant concentrations."},
+      {name:"VAR and cointegration",abbr:"VAR / VECM",sub:"Multiple interacting time series",
+       tags:["Multivariate","Impulse response","Johansen"],
+       what:"A vector autoregression treats multiple time series as a system, where each variable is regressed on lags of all variables. When the series share a common stochastic trend (cointegration), a vector error correction model captures both the long-run equilibrium relationship and short-run dynamics.",
+       assume:"Either stationarity of all series or cointegration. Granger causality tests the predictive content of one series for another, but predictive precedence is not structural causality.",
+       est:"VAR: equation-by-equation OLS on lags. Test cointegration rank via Johansen's procedure; if cointegrated, estimate as VECM.",
+       watch:"Granger causality is a statistical concept and does not establish economic causation. Treat impulse response functions descriptively unless paired with a credible identification strategy.",
+       env:"Long-run relationships between energy prices and economic output, climate-economy coupled systems."},
+      {name:"Unit-root and stationarity tests",abbr:"ADF / KPSS",sub:"Test whether a series is non-stationary",
+       tags:["Spurious regression","Pre-test"],
+       what:"Non-stationary variables can produce spurious correlations — apparent strong relationships that are statistical artifacts. Unit-root tests (Augmented Dickey–Fuller, Phillips–Perron) and the KPSS test for stationarity are the standard pre-tests.",
+       assume:"ADF tests the null of a unit root; KPSS tests the null of stationarity. Reading both results jointly reduces ambiguity.",
+       est:"ADF with appropriate lag selection; PP with kernel correction for serial correlation; KPSS for the complementary null.",
+       watch:"All unit-root tests have low power in small samples — failure to reject is not evidence of stationarity.",
+       env:"Mandatory pre-test before any long-run regression with multi-decade environmental time series."}
+    ]
+  },
+  ldv:{
+    name:"Limited dependent variables",
+    icon:"◑",
+    sub:"Discrete, censored, and count outcomes",
+    rel:"LDV methods address the outcome-type question — what distribution does your dependent variable follow? They sit parallel to panel data in the data-structure layer and connect to model specification for how to write the likelihood. Heckman selection connects back to causal inference through the selection problem.",
+    desc:"When the outcome variable is not continuously distributed — when it is binary, ordinal, count, or censored — OLS is no longer consistent. These methods provide appropriate alternatives.",
+    methods:[
+      {name:"Logit and probit",abbr:"Binary choice",sub:"Models for 0/1 outcomes",
+       tags:["MLE","Marginal effects","AMEs"],
+       what:"For a binary outcome, you model the probability that y = 1 as a function of regressors through a CDF. Logit uses the logistic CDF; probit uses the normal CDF.",
+       assume:"Correct distributional assumption (logistic vs normal). Independence of observations conditional on regressors.",
+       est:"Maximum likelihood. Always report Average Marginal Effects (AMEs), which are interpretable as percentage-point changes in the probability of y=1, rather than raw coefficients.",
+       watch:"Raw logit coefficients are log-odds ratios and should never be presented as if they were probability effects. Interaction effects in logit and probit are not equal to the coefficient on the interaction term.",
+       env:"Conservation program participation, household adoption of water filtration, willingness to vote for environmental ballot measures."},
+      {name:"Ordered logit and probit",abbr:"Ordinal",sub:"Models for ordered categorical outcomes",
+       tags:["Ordinal","Brant test","Proportional odds"],
+       what:"For outcomes with a natural ordering — such as Likert-scale responses or quality ratings — an underlying latent continuous variable is modeled as crossing a series of thresholds to produce the observed category.",
+       assume:"Proportional odds: the effect of each regressor is the same across all category boundaries. Test with the Brant test.",
+       est:"Maximum likelihood. Report marginal effects on each category probability, not just on the latent variable.",
+       watch:"Treating ordinal outcomes as continuous and running OLS imposes equal spacing between categories that is rarely correct.",
+       env:"Environmental quality ratings, willingness-to-pay survey responses, perceived risk categories."},
+      {name:"Tobit and two-part models",abbr:"Censored",sub:"Outcomes that pile up at a corner",
+       tags:["Censored","Corner solution","Two-part"],
+       what:"When the outcome is censored at a known value (often zero) — such as conservation expenditure where many households spend nothing — Tobit assumes a latent continuous variable censored at the corner. A two-part model separates the participation decision (probit) from the intensity decision (OLS on positive observations).",
+       assume:"Tobit assumes a normally distributed latent variable. Two-part models impose no distributional link between the two stages.",
+       est:"Tobit: maximum likelihood. Two-part: probit for participation, then OLS conditional on participation.",
+       watch:"Two-part models are preferred when the participation decision and the intensity decision are driven by different factors. Tobit's normality assumption is fragile.",
+       env:"Agricultural input decisions with zeros, conservation easement values, willingness-to-pay survey data with corner responses."},
+      {name:"Poisson and negative binomial regression",abbr:"Count data",sub:"Models for non-negative integer outcomes",
+       tags:["Count","PPML","Overdispersion"],
+       what:"For count outcomes, Poisson regression models E[y|X] = exp(Xβ). Pseudo-Poisson maximum likelihood (PPML) is consistent even when the underlying distribution is misspecified, as long as the conditional mean is correct.",
+       assume:"Poisson: equidispersion (mean equals variance). Negative binomial: a separate dispersion parameter accommodates overdispersion.",
+       est:"Maximum likelihood. Use the Cameron–Trivedi test for overdispersion; if present, switch to negative binomial or report PPML standard errors that are robust to misspecification.",
+       watch:"Never use OLS on count data — it gives nonsensical predictions and incorrect inference.",
+       env:"Pollution violation counts, dam-incident counts, species occurrence counts."},
+      {name:"Heckman selection",abbr:"Heckit",sub:"Correct for non-randomly observed outcomes",
+       tags:["Selection bias","Mills ratio","Exclusion"],
+       what:"When the outcome is observed only for a non-random subset of the sample — such as housing prices observed only for sold properties — naive OLS on the observed sample is biased. Heckman's two-step estimator first models selection, then includes the inverse Mills ratio as a regressor in the outcome equation.",
+       assume:"Bivariate normality of the selection and outcome errors. A valid exclusion restriction — a variable that affects selection but not the outcome — is needed for credible identification.",
+       est:"Stage 1: probit on selection. Stage 2: OLS on observed outcomes with the inverse Mills ratio added.",
+       watch:"Without a defensible exclusion restriction, the model is identified only through the nonlinearity of the Mills ratio, which is fragile and routinely criticized.",
+       env:"Hedonic studies that observe prices only for sold properties, willingness-to-pay surveys with non-response."}
+    ]
+  },
+  np:{
+    name:"Non-parametric and semi-parametric",
+    icon:"∿",
+    sub:"Flexible estimation without strong functional-form assumptions",
+    rel:"Non-parametric methods are alternative estimators for situations where parametric functional-form assumptions are untenable. They connect to model specification (splines are a flexible upgrade to polynomials) and to causal inference (kernel density estimation is the McCrary RD validity check).",
+    desc:"Methods that relax or eliminate parametric restrictions on functional form, letting the data determine the shape of the relationship.",
+    methods:[
+      {name:"Kernel regression",abbr:"NW / Local polynomial",sub:"Locally weighted smoothing of E[Y|X]",
+       tags:["Bandwidth","Curse of dimensionality"],
+       what:"Estimates the conditional mean E[Y|X = x] without assuming a global functional form by averaging Y values at points near x, weighted by a kernel function.",
+       assume:"The conditional expectation is smooth. No distributional assumption on errors.",
+       est:"Choose a kernel (Gaussian, Epanechnikov) and a bandwidth h, typically by cross-validation. Local polynomial regression is a higher-order extension that reduces bias at the boundaries.",
+       watch:"Suffers from the curse of dimensionality — practical for one to three continuous regressors at most.",
+       env:"Visualizing a non-linear distance gradient before committing to a parametric specification."},
+      {name:"Spline regression and GAMs",abbr:"Splines / GAM",sub:"Piecewise polynomials joined smoothly at knots",
+       tags:["Flexible curvature","mgcv","Knots"],
+       what:"Splines fit piecewise polynomial functions joined smoothly at chosen knot points. Generalized additive models (GAMs) extend this to multiple smooth covariates, each contributing additively to the predicted outcome.",
+       assume:"Continuity and smoothness at the knots; additivity if using a GAM.",
+       est:"Natural cubic splines, B-splines, or penalized smoothing splines. The R package mgcv is the standard implementation.",
+       watch:"GAMs risk overfitting without proper penalty tuning. Inference on the smooth terms requires care.",
+       env:"A direct upgrade to quadratic distance specifications: replace Distance² with a flexible smooth, letting the data determine the gradient shape."},
+      {name:"Quantile regression",abbr:"QR",sub:"Effects across the distribution of Y, not just its mean",
+       tags:["Distributional effects","Robust to outliers"],
+       what:"Quantile regression estimates the effect of X on the τ-th quantile of Y, where τ ranges from 0 to 1. Reporting estimates across multiple τ values reveals whether effects differ in the tails of the distribution.",
+       assume:"No distributional assumption on errors. Robust to outliers in Y.",
+       est:"Solved by linear programming. Use bootstrap inference; cluster-robust quantile inference is available but less standard than for OLS.",
+       watch:"QR coefficients have a different interpretation than OLS coefficients — they are not directly comparable.",
+       env:"Whether environmental disamenity discounts fall disproportionately on lower-value or higher-value properties — testable through the quantile-specific gradient."},
+      {name:"Density estimation and McCrary test",abbr:"KDE / McCrary",sub:"Estimate distributions and test for manipulation at thresholds",
+       tags:["RD validity","Manipulation"],
+       what:"Kernel density estimation produces a smooth estimate of a probability density. Applied to a running variable around an RD threshold, the McCrary (2008) test checks for a discontinuity in the density at the cutoff — evidence that units are manipulating their assignment.",
+       assume:"KDE: smooth underlying density. McCrary: under the null, no discontinuity at the threshold.",
+       est:"KDE: choose a kernel and bandwidth (Silverman's rule of thumb or cross-validation). McCrary: estimate density on each side of the cutoff and test for a jump.",
+       watch:"A significant McCrary test invalidates an RD design. Always run it before reporting RD estimates.",
+       env:"Mandatory diagnostic for any RD design at an environmental regulatory threshold or boundary."}
+    ]
+  },
+  ml:{
+    name:"Machine learning–adjacent methods",
+    icon:"◉",
+    sub:"Regularization, prediction, and causal ML",
+    rel:"ML-adjacent methods are alternative estimators that complement rather than replace causal identification. Double ML bridges back to causal inference; LASSO connects to model specification for high-dimensional control selection. Causal forests extend treatment-effect heterogeneity analysis after a valid DiD or RD has been established.",
+    desc:"Methods that bridge machine learning and causal econometrics. Increasingly common in top journals when the dataset has many potential controls or when treatment-effect heterogeneity is of interest.",
+    methods:[
+      {name:"LASSO, ridge, and elastic net",abbr:"Regularization",sub:"Penalized regression for high-dimensional X",
+       tags:["High-dimensional","Variable selection","Shrinkage"],
+       what:"Penalized regression methods add a penalty term to the OLS objective. LASSO (L1 penalty) shrinks some coefficients exactly to zero, performing variable selection. Ridge (L2 penalty) shrinks all coefficients toward zero but never to zero. Elastic net combines both.",
+       assume:"LASSO sparsity: most true coefficients are near zero. Ridge: no sparsity assumption — all variables contribute slightly.",
+       est:"Minimize residual sum of squares plus penalty. Tune the penalty parameter λ by k-fold cross-validation.",
+       watch:"Standard LASSO inference is invalid — confidence intervals on selected coefficients are not the usual ones. Never report LASSO coefficients as causal estimates.",
+       env:"Selecting controls from hundreds of parcel attributes before running a focused hedonic regression. Use post-selection inference correctly or use double ML."},
+      {name:"Double / debiased machine learning",abbr:"Double ML",sub:"ML for causal estimation with high-dimensional controls",
+       tags:["Chernozhukov 2018","Neyman orthogonal","Cross-fitting"],
+       what:"Double ML uses any flexible ML method to nonparametrically remove the effect of high-dimensional controls from both the outcome and the treatment, then regresses the residualized outcome on the residualized treatment. The Neyman orthogonality property keeps the resulting estimator robust to small errors in the ML predictions.",
+       assume:"A valid identification strategy is still required — Double ML helps with control flexibility, not with identification. Cross-fitting via sample splitting prevents overfitting bias.",
+       est:"Split the sample. On one part, estimate E[Y|X] and E[D|X] with any ML method. On the other part, regress residualized Y on residualized D for the causal coefficient. Average across folds.",
+       watch:"Double ML does not create causal identification. You still need a valid natural experiment, instrument, or selection-on-observables argument.",
+       env:"Estimating contamination effects on housing prices while flexibly controlling for hundreds of parcel and neighborhood characteristics."},
+      {name:"Causal forests",abbr:"GRF",sub:"Heterogeneous treatment effects across covariates",
+       tags:["Athey–Wager 2019","HTE","Honest forests"],
+       what:"Causal forests estimate τ(x) = E[Y(1) − Y(0) | X = x], allowing the treatment effect to vary as a flexible function of covariates. The 'honest' splitting rule yields valid asymptotic confidence intervals for individual-level treatment effect estimates.",
+       assume:"Overlap (every unit has a positive probability of treatment) and unconfoundedness conditional on X.",
+       est:"Honest causal forest implementation in the R package grf. Use cross-fitting and report variable importance to interpret which covariates drive heterogeneity.",
+       watch:"Most useful after causal identification is already established. Treats heterogeneity as an exploration tool, not a substitute for identification.",
+       env:"Investigating whether contamination effects vary by property value, neighborhood demographics, or proximity to other environmental amenities."},
+      {name:"Synthetic difference-in-differences",abbr:"SDiD",sub:"Combines synthetic control with difference-in-differences",
+       tags:["Arkhangelsky 2021","Doubly robust"],
+       what:"Synthetic DiD assigns both unit weights (as in SCM) and time weights (as in DiD), producing a doubly-robust estimator that is consistent if either approximate parallel trends holds or synthetic-control balance holds.",
+       assume:"Either parallel trends or pre-treatment balance achievable via reweighting — only one of the two needs to hold.",
+       est:"Joint optimization for unit and time weights. The R package sdid implements the estimator and inference.",
+       watch:"Best when the number of treated units is small (roughly 2–10). With many treated units, standard DiD is typically more efficient.",
+       env:"A handful of treated counties experiencing a contamination event or dam removal, where standard DiD's parallel-trends assumption is fragile."}
+    ]
+  },
+  inf:{
+    name:"Inference and hypothesis testing",
+    icon:"⊢",
+    sub:"Validity, testing, and model evaluation",
+    rel:"The diagnostic layer runs in parallel with every other family — it validates whatever you have built. Pre-trend testing validates causal inference; Moran's I validates spatial econometrics; instrument tests validate IV; robustness checks stress-test the entire research design. Nothing bypasses this layer in a peer-reviewed paper.",
+    desc:"The statistical toolkit for determining whether estimates are reliable, models are correctly specified, and causal claims are credible enough to publish.",
+    methods:[
+      {name:"Endogeneity testing",abbr:"Hausman / Wu–Hausman",sub:"Test whether OLS is biased by endogeneity",
+       tags:["IV validity","Control function"],
+       what:"The Hausman test compares an OLS coefficient to an IV coefficient: a significant difference indicates that OLS is biased by endogeneity. The control function approach is mathematically equivalent and arguably more transparent — include the first-stage residual in the second-stage equation, and test whether its coefficient is zero.",
+       assume:"A valid instrument is available for the IV estimator. Without one, neither the Hausman test nor any other endogeneity test is meaningful.",
+       est:"Hausman: compare β̂_OLS and β̂_IV using a chi-squared test on their difference. Control function: regress the endogenous variable on the instrument, save residuals, and include them as an extra regressor in the outcome equation.",
+       watch:"The Hausman test has low power in small samples — failing to reject is not evidence of exogeneity, just inability to detect endogeneity.",
+       env:"Testing for endogeneity of population density in hedonic models, of treatment uptake in conservation programs."},
+      {name:"Instrument validity tests",abbr:"First-stage F / Sargan–Hansen",sub:"Test instrument strength and exogeneity",
+       tags:["Weak IV","Overidentification"],
+       what:"Two mandatory IV diagnostics: relevance and exogeneity. Relevance is testable through the first-stage F-statistic. Exogeneity is testable only when the model is overidentified (more instruments than endogenous regressors), via the Sargan–Hansen J-test.",
+       assume:"Relevance is testable but exogeneity must still be argued economically — a passing J-test is necessary but not sufficient.",
+       est:"First-stage F-statistic: must exceed 10 (Stock–Yogo critical value) to avoid weak-instrument bias. Sargan–Hansen J-test of overidentifying restrictions: jointly test that all instruments are exogenous.",
+       watch:"A strong but invalid instrument is worse than no instrument at all. Make the economic case for exclusion explicitly in the paper.",
+       env:"For any IV strategy, report the first-stage F and a written defense of the exclusion restriction."},
+      {name:"Joint significance and Wald tests",abbr:"F-test / Wald",sub:"Test groups of coefficients together",
+       tags:["Joint significance","Quadratic terms"],
+       what:"When several coefficients should be evaluated together — quadratic terms, interaction effects, dummy variable groups — a joint F-test or Wald test is the correct procedure. Individual t-statistics on collinear regressors are unreliable; the joint test correctly accounts for the joint distribution.",
+       assume:"Correct model specification. Use the heteroskedasticity-robust Wald form when errors are not constant variance.",
+       est:"Wald statistic: W = (Rβ̂ − r)' [R V̂ R']⁻¹ (Rβ̂ − r), distributed χ²(q) under the null. The R function linearHypothesis() implements this directly.",
+       watch:"Always use the joint F-test when polynomial or interaction terms are included. Reporting only individual t-statistics is statistically inadequate.",
+       env:"Joint test of linear and squared distance terms in any quadratic gradient specification."},
+      {name:"Pre-trend testing",abbr:"Event study",sub:"Validate parallel trends in DiD",
+       tags:["Parallel trends","DiD validity"],
+       what:"An event study plots treatment effects in each pre-treatment period. Under parallel trends, all pre-period coefficients should be statistically indistinguishable from zero. The plot serves both as visual evidence and as the basis for a joint F-test of the pre-period coefficients.",
+       assume:"Without parallel trends, DiD identification fails. Pre-trends are the closest available evidence.",
+       est:"Interact the treatment dummy with each pre-period dummy (relative to a baseline period) and run TWFE. Plot the coefficients with confidence intervals. Jointly test that the pre-period coefficients are zero.",
+       watch:"Always report both the event-study plot and the joint F-test p-value. A trending pre-period invalidates the design.",
+       env:"Mandatory in any DiD application — for contamination events, regulation rollouts, or program evaluations."},
+      {name:"Sensitivity and robustness checks",abbr:"Placebo / Bounds",sub:"Stress-test causal claims",
+       tags:["Robustness","Falsification"],
+       what:"Robustness checks are tests that should produce null results if your identification strategy is sound. Placebo tests apply your estimator to outcomes or units that should not be affected. Bounding analyses (Oster 2019, Manski bounds) characterize how sensitive estimates are to plausible unobserved confounding.",
+       assume:"Under valid identification, placebo treatments should produce null effects and the main estimate should not vary wildly across reasonable specifications.",
+       est:"Placebo treatment timing, alternative bandwidths in RD, alternative W matrices in spatial models, exclusion of suspect observations. Report all robustness checks, not just the favorable ones.",
+       watch:"Robustness checks are not optional in environmental economics journals. Editors and referees expect them as standard.",
+       env:"Alternative distance measures in hedonic gradients, alternative cluster levels for SEs, exclusion of border counties to test for spillover contamination."}
+    ]
+  }
+};
+
+let _libCurrentFamily=null;
+
+function openLibrary(){
+  document.getElementById('lib-overlay').classList.add('open');
+  document.getElementById('lib').classList.add('open');
+  if(!document.getElementById('lib-side').dataset.built){
+    buildLibSide();
+    document.getElementById('lib-side').dataset.built='1';
+  }
+}
+
+function closeLibrary(){
+  const ov=document.getElementById('lib-overlay');
+  const lib=document.getElementById('lib');
+  if(ov)ov.classList.remove('open');
+  if(lib)lib.classList.remove('open');
+}
+
+function buildLibSide(){
+  const side=document.getElementById('lib-side');
+  if(!side)return;
+  let html='';
+  LIB_GROUPS.forEach(g=>{
+    html+=`<div class="lib-side-grp">
+      <span class="lib-side-grp-lbl">${esc(g.label)}</span>`;
+    g.ids.forEach(id=>{
+      const f=LIB[id];
+      if(!f)return;
+      html+=`<div class="lib-fam" id="lib-fam-${id}" onclick="selectLibFamily('${id}')">
+        <div class="lib-fam-name"><span class="lib-fam-icon">${f.icon}</span>${esc(f.name)}<span class="lib-fam-count">${f.methods.length}</span></div>
+        <div class="lib-fam-sub">${esc(f.sub)}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  side.innerHTML=html;
+}
+
+function selectLibFamily(id){
+  const f=LIB[id];
+  if(!f)return;
+  _libCurrentFamily=id;
+  document.querySelectorAll('.lib-fam').forEach(el=>el.classList.toggle('active',el.id==='lib-fam-'+id));
+  const main=document.getElementById('lib-main');
+  if(!main)return;
+  let html=`<div class="lib-fam-hdr">
+    <div class="lib-fam-hdr-name">${esc(f.name)}</div>
+    <div class="lib-fam-hdr-desc">${esc(f.desc)}</div>
+  </div>
+  <div class="lib-rel-banner">
+    <div class="lib-rel-banner-lbl">How this family relates to the rest</div>
+    <div class="lib-rel-banner-text">${esc(f.rel)}</div>
+  </div>`;
+  f.methods.forEach(m=>{
+    html+=`<div class="lib-method">
+      <div class="lib-method-hdr">
+        <div class="lib-method-name">${esc(m.name)}</div>
+        <div class="lib-method-abbr">${esc(m.abbr)}</div>
+      </div>
+      <div class="lib-method-sub">${esc(m.sub)}</div>
+      <div class="lib-tags">${m.tags.map(t=>`<span class="lib-tag">${esc(t)}</span>`).join('')}</div>
+      <div class="lib-fields">
+        <div class="lib-field what"><div class="lib-field-lbl">What it does</div><div class="lib-field-text">${m.what}</div></div>
+        <div class="lib-field assume"><div class="lib-field-lbl">Key assumption</div><div class="lib-field-text">${m.assume}</div></div>
+        <div class="lib-field est"><div class="lib-field-lbl">How to estimate</div><div class="lib-field-text">${m.est}</div></div>
+        <div class="lib-field watch"><div class="lib-field-lbl">Watch out for</div><div class="lib-field-text">${m.watch}</div></div>
+        <div class="lib-field env" style="grid-column:1 / -1"><div class="lib-field-lbl">Applied example</div><div class="lib-field-text">${m.env}</div></div>
+      </div>
+    </div>`;
+  });
+  main.innerHTML=html;
+  main.scrollTop=0;
+}
 </script>
 
 <!-- PAPER DRAWER -->
@@ -1775,6 +2474,29 @@ function closeKgDrawer(){
   </div>
   <div class="drawer-body" id="drawer-body">
     <div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper...</div>
+  </div>
+</div>
+
+<!-- REFERENCE LIBRARY -->
+<div class="lib-overlay" id="lib-overlay" onclick="closeLibrary()"></div>
+<div class="lib" id="lib">
+  <div class="lib-hdr">
+    <div class="lib-hdr-icon">⊞</div>
+    <div class="lib-hdr-title">
+      <div class="lib-hdr-title-main">Reference library</div>
+      <div class="lib-hdr-title-sub">Methods, assumptions, and applied notes for econometric research design</div>
+    </div>
+    <button class="lib-hdr-close" onclick="closeLibrary()">Close</button>
+  </div>
+  <div class="lib-body">
+    <div class="lib-side" id="lib-side"></div>
+    <div class="lib-main" id="lib-main">
+      <div class="lib-welcome">
+        <div class="lib-welcome-icon">◎</div>
+        <div class="lib-welcome-title">Browse method families</div>
+        <div class="lib-welcome-sub">Choose a family from the left to view its methods, key assumptions, estimation notes, and watch-outs. Each entry is written for graduate-level applied research in environmental and resource economics.</div>
+      </div>
+    </div>
   </div>
 </div>
 
