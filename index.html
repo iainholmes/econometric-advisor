@@ -488,7 +488,7 @@ function openDrawer(idx){
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('paper-drawer').classList.add('open');
   document.getElementById('drawer-title-text').textContent=p.title||'Untitled';
-  const authors=typeof p.authors==='string'?p.authors:(p.authors?.slice(0,4).map(au=>au.name||au).join(', ')||'Unknown authors');
+  const authors=typeof p.authors==='string'?p.authors:Array.isArray(p.authors)?p.authors.slice(0,4).map(au=>typeof au==='string'?au:au.name||'').join(', '):'Unknown authors';
   document.getElementById('drawer-meta-line').textContent=authors+(p.year?' · '+p.year:'')+(p.journal?' · '+p.journal:'')+(p.venue?' · '+p.venue:'');
   document.getElementById('drawer-body').innerHTML=`<div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper details...</div>`;
   loadDrawerContent(p,idx);
@@ -1002,7 +1002,7 @@ function renderResults(tk,ai){
   tk.sources.forEach(s=>{html+=`<a class="source-card" href="${esc(s.u)}" target="_blank" rel="noreferrer"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></a>`;});
   html+=`</div>`;
 
-  html+=`<div class="sec-divider">Current literature -- live from Semantic Scholar</div><div id="lit-container"><p class="lit-loading">Searching Semantic Scholar...</p></div>`;
+  html+=`<div class="sec-divider">AI-curated literature -- tailored to your research design</div><div id="lit-container"><p class="lit-loading">Searching Semantic Scholar...</p></div>`;
   html+=`</div>`; // close toolkit-inner
   html+=renderTree(tk.active);
   el.innerHTML=html;
