@@ -6,13 +6,16 @@
 <title>Econometric Advisor</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='512' height='512' rx='112' fill='%230a0f1e'/%3E%3Ccircle cx='256' cy='256' r='110' fill='none' stroke='%233b82f6' stroke-width='4'/%3E%3Ccircle cx='256' cy='256' r='90' fill='%23080e1c'/%3E%3Cline x1='256' y1='254' x2='256' y2='152' stroke='%233b82f6' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='256' cy='146' r='7' fill='%233b82f6'/%3E%3Cline x1='250' y1='262' x2='178' y2='334' stroke='%23a855f7' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='174' cy='339' r='7' fill='%23a855f7'/%3E%3Cline x1='262' y1='262' x2='334' y2='334' stroke='%2310b981' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='338' cy='339' r='7' fill='%2310b981'/%3E%3Ccircle cx='256' cy='256' r='10' fill='%2393c5fd'/%3E%3Ccircle cx='256' cy='256' r='5' fill='%23fff'/%3E%3C/svg%3E"/>
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#020e1f;--bg2:#0a1d33;--bg3:#15304d;
   --surface:#3d6b85;--light:#ffffff;
   --blue:#3d6b85;--purple:#7a9aaa;--green:#7eb8a0;--amber:#c9a96e;--red:#c47a7a;
-  --text:#ffffff;--muted:#a8c2d4;--hint:#5a7a92;--dim:#15304d;--border:#1f3d5c;
+  --text:#ffffff;--muted:#c8d8e6;--hint:#7a96ae;--dim:#15304d;--border:#1f3d5c;
+  --math:#ffffff;--math-accent:#7eb6ff;
   --kg-problem:#ef4444;--kg-logic:#3b82f6;--kg-tool:#10b981;--kg-diag:#f59e0b
 }
 body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#020e1f;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
@@ -154,9 +157,15 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .watch-box{background:var(--bg3);border-radius:8px;border:.5px solid var(--border);padding:11px 14px;margin-top:13px}
 .watch-label{font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:4px}
 .watch-text{color:var(--muted);font-size:13.5px;line-height:1.7}
-.eq-block{background:#020e1f;border-radius:9px;border:.5px solid var(--border);padding:14px 18px;margin-top:13px}
-.eq-label{font-size:10px;color:var(--surface);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:9px}
-.eq-line{color:var(--muted);font-size:13.5px;font-family:'Courier New',monospace;line-height:2;white-space:pre-wrap}
+.eq-block{background:#020e1f;border-radius:9px;border:.5px solid var(--border);padding:18px 22px;margin-top:13px;overflow-x:auto}
+.eq-label{font-size:10px;color:var(--math-accent);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:11px}
+.eq-line{color:var(--math);font-size:15px;line-height:2.1;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.eq-line+.eq-line{margin-top:6px;padding-top:8px;border-top:1px dashed rgba(126,182,255,.18)}
+.eq-line-label{font-size:11px;color:var(--math-accent);text-transform:uppercase;letter-spacing:.08em;font-weight:600;flex-shrink:0;min-width:90px;line-height:1.4;padding-top:3px}
+.eq-math{flex:1;min-width:0;color:var(--math)}
+.eq-math .katex{font-size:1.05em;color:var(--math)}
+.eq-math .katex .mord,.eq-math .katex .mrel,.eq-math .katex .mbin,.eq-math .katex .mop{color:var(--math)}
+.eq-fallback{font-family:'Courier New',monospace;font-size:13.5px;color:var(--muted);line-height:2;white-space:pre-wrap}
 /* CODE */
 .code-toggle{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--hint);font-size:12px;padding:5px 12px;cursor:pointer;margin-top:12px;font-family:inherit}
 .code-block{background:#020e1f;border-radius:9px;border:.5px solid var(--border);margin-top:9px;overflow:hidden;display:none}
@@ -270,12 +279,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-drawer-body::-webkit-scrollbar{width:4px}
 .kg-drawer-body::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:2px}
 .kg-drawer-section{margin-bottom:20px}
-.kg-drawer-lbl{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:8px}
+.kg-drawer-lbl{font-size:9.5px;color:var(--math-accent);text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:8px}
 .kg-drawer-def{color:var(--text);font-size:13.5px;line-height:1.75;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px 14px}
 .kg-drawer-rel{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.45;margin-bottom:6px;padding:8px 11px;background:#0a1d33;border:.5px solid var(--border);border-radius:7px}
 .kg-drawer-rel-from{color:var(--text);font-weight:500;flex-shrink:0}
 .kg-drawer-rel-to{color:var(--text);font-weight:500;flex-shrink:0}
-.kg-drawer-rel-arrow{color:var(--surface);font-style:italic;font-size:11.5px;flex:1;text-align:center;letter-spacing:.01em}
+.kg-drawer-rel-arrow{color:#9ab8d4;font-style:italic;font-size:11.5px;flex:1;text-align:center;letter-spacing:.01em}
 .kg-drawer-actions{display:flex;flex-direction:column;gap:7px;margin-top:10px}
 .kg-drawer-btn{background:var(--surface);color:#fff;border:none;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;text-align:center;transition:background .15s}
 .kg-drawer-btn:hover{background:#6d8d9a}
@@ -1202,7 +1211,7 @@ function buildToolkit(a){
       idC='high';idM='Synthetic Control / Synthetic DiD';idTags=['t_scm','d_placebo'];
       idD='With 1-10 treated units, SCM constructs a weighted combination of untreated donor units whose pre-treatment characteristics match the treated unit. Synthetic DiD (Arkhangelsky 2021) combines SCM unit weights with DiD time weights and is doubly robust. Inference via placebo-in-space permutation.';
       idW='Donor pool must be large (at least 10x donors than treated). Pre-treatment fit quality is the key diagnostic.';
-      idEq='SCM: Y-hat(0,1t) = sum_j w*_j Y_jt\nInference: p-val = rank(|tau-hat_treated|) / (N_donors + 1)';
+      idEq='SCM:\\hat{Y}_{1t}(0) = \\sum_j w_j^* \\, Y_{jt}\nInference:\\;p\\text{-val} = \\dfrac{\\operatorname{rank}(|\\hat{\\tau}_{\\text{treated}}|)}{N_{\\text{donors}} + 1}';
       idR=`library(synthdid)\nsetup <- panel.matrices(df, unit="county", time="year",\n                        outcome="log_price", treatment="treated")\ntau <- synthdid_estimate(setup$Y, setup$N0, setup$T0)\nse <- sqrt(vcov(tau, method="placebo"))\ncat("SynthDiD:", tau, "SE:", se)`;
       idSta=`* Stata -- Synthetic Control\n* ssc install synth\nsynth log_price log_income log_density, ///\n    trunit(treated_id) trperiod(2020) ///\n    xperiod(2015(1)2019) counit(1 2 3 4 5)`;
       idPy=`# Python -- Synthetic Control\n# pip install SyntheticControlMethods\nfrom SyntheticControlMethods import Synth\nsc = Synth(df, "log_price", "unit_id", "year",\n           treatment_period=2020, treated_unit="county_A")\nsc.fit()\nsc.plot()`;
@@ -1210,7 +1219,7 @@ function buildToolkit(a){
       idC='high';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
       idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-SantAnna (2021) rather than standard TWFE -- staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
       idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition.';
-      idEq='TWFE: Y_it = alpha_i + gamma_t + beta(Treated_i x Post_t) + X_it-delta + epsilon_it\nCS ATT(g,t): E[Y_t(g) - Y_t(inf) | G=g]';
+      idEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,(\\text{Treated}_i \\times \\text{Post}_t) + X_{it}\\,\\delta + \\varepsilon_{it}\nCS\\;ATT(g,t):\\;\\mathbb{E}[\\,Y_t(g) - Y_t(\\infty)\\mid G = g\\,]';
       idR=`library(did)\ncs <- att_gt(yname="outcome", tname="year",\n             idname="unit_id", gname="first_treat",\n             xformla=~X1+X2, data=df)\naggte(cs, type="simple") |> summary()\naggte(cs, type="dynamic") |> ggdid()`;
       idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
       idPy=`# Python -- DiD\nimport pyfixest as pf\n\n# TWFE\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
@@ -1218,7 +1227,7 @@ function buildToolkit(a){
       idC='high';idM='Instrumental Variables (2SLS) / Control Function';idTags=['t_iv','l_exclusion','d_firststage','d_sargan'];
       idD='Your cross-sectional spatial design calls for an IV strategy. Use a geographic or administrative feature (ZCTA land area, elevation, watershed boundaries) as an instrument for the endogenous variable. The control function approach includes first-stage residuals in the second stage to simultaneously correct for endogeneity and test its presence.';
       idW='First-stage F must exceed Stock-Yogo threshold (~10). Exclusion restriction is untestable -- defend on economic grounds.';
-      idEq='Stage 1: D_i = pi_0 + pi_1 Z_i + X_i-gamma + v_i\nStage 2: Y_i = beta_0 + beta_1 D-hat_i + beta_2 d_i + beta_3 d_i^2 + X_i-delta + epsilon_i\nEndogeneity test: t-stat on v-hat_i in Stage 2';
+      idEq='Stage\\;1:D_i = \\pi_0 + \\pi_1 Z_i + X_i\\,\\gamma + v_i\nStage\\;2:Y_i = \\beta_0 + \\beta_1 \\hat{D}_i + \\beta_2 d_i + \\beta_3 d_i^2 + X_i\\,\\delta + \\varepsilon_i\nEndogeneity\\;test:t\\text{-stat on } \\hat{v}_i \\text{ in Stage 2}';
       idR=`library(fixest)\niv <- feols(log_price ~ dist_mi + dist_sq + log_income + log_rooms |\n            log_pop_density ~ log_land_area,\n            data=df, vcov="HC3")\nsummary(iv, stage=1:2)\n\n# Control function\nfs <- lm(log_pop_density ~ log_land_area + dist_mi +\n         dist_sq + log_income + log_rooms, data=df)\ndf$vhat <- residuals(fs)\ncf <- lm(log_price ~ log_pop_density + vhat +\n         dist_mi + dist_sq + log_income + log_rooms, data=df)\ncoeftest(cf, vcov=vcovHC(cf,"HC3"))`;
       idSta=`* Stata -- IV / Control Function\n* ssc install ivreg2\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\nestat firststage\n\n* Control function\nreg log_pop_density log_land_area dist_mi dist_sq log_income log_rooms\npredict vhat, resid\nreg log_price log_pop_density vhat dist_mi dist_sq log_income log_rooms, robust`;
       idPy=`# Python -- IV / Control Function\nfrom linearmodels.iv import IV2SLS\nimport statsmodels.formula.api as smf\n\n# 2SLS\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df)\nres = mod.fit(cov_type='robust')\nprint(res.summary)\n\n# Turning point\nb1=res.params['dist_mi']; b2=res.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")`;
@@ -1226,7 +1235,7 @@ function buildToolkit(a){
       idC='high';idM='Instrumental Variables (2SLS)';idTags=['t_iv','l_exclusion','d_firststage'];
       idD='Build your IV around a variable strongly correlated with the endogenous regressor but plausibly exogenous to the outcome. Report first-stage F and Sargan-Hansen J-test if overidentified.';
       idW='A strong but invalid instrument is worse than OLS. The exclusion restriction must be argued on economic grounds.';
-      idEq='Stage 1: D_i = pi_0 + pi_1 Z_i + X_i-gamma + v_i\nStage 2: Y_i = beta_0 + beta_1 D-hat_i + X_i-delta + epsilon_i';
+      idEq='Stage\\;1:D_i = \\pi_0 + \\pi_1 Z_i + X_i\\,\\gamma + v_i\nStage\\;2:Y_i = \\beta_0 + \\beta_1 \\hat{D}_i + X_i\\,\\delta + \\varepsilon_i';
       idR=`library(fixest)\niv <- feols(outcome ~ controls | endog ~ instrument,\n            data=df, vcov=~cluster_var)\nsummary(iv, stage=1:2)`;
       idSta=`* Stata\nivreg2 outcome (endog = instrument) controls, robust\nestat firststage`;
       idPy=`# Python\nfrom linearmodels.iv import IV2SLS\nmod = IV2SLS.from_formula(\n    'outcome ~ 1 + controls + [endog ~ instrument]', data=df)\nprint(mod.fit(cov_type='robust').summary)`;
@@ -1235,7 +1244,7 @@ function buildToolkit(a){
     idC='high';idM='Regression Discontinuity Design (RD)';idTags=['t_rd','l_continuity'];
     idD='At a policy or geographic threshold, use local linear regression on each side with CCT optimal bandwidth. Fuzzy RD uses the jump in treatment probability as an IV for actual treatment.';
     idW='Never use polynomial degree > 2. Report bandwidth sensitivity. Significant McCrary test invalidates the design.';
-    idEq='Sharp RD: Y_i = alpha + tau * 1[X_i >= c] + f(X_i - c) + epsilon_i';
+    idEq='Sharp\\;RD:Y_i = \\alpha + \\tau \\cdot \\mathbf{1}[X_i \\geq c] + f(X_i - c) + \\varepsilon_i';
     idR=`library(rdrobust); library(rddensity)\nrd <- rdrobust(y=df$outcome, x=df$running, c=0)\nsummary(rd)\nrddensity(df$running, c=0) |> summary()`;
     idSta=`* ssc install rdrobust\nrdrobust outcome running, c(0)\nrddensity running, c(0)`;
     idPy=`# pip install rdrobust\nfrom rdrobust import rdrobust, rddensity\nout = rdrobust(y=df['outcome'], x=df['running'], c=0)\nprint(out)`;
@@ -1243,7 +1252,7 @@ function buildToolkit(a){
     idC='medium';idM='OLS Baseline + Endogeneity Diagnostics';idTags=['t_ols','d_hausman','p_endogeneity'];
     idD='Begin with OLS as a benchmark. Run the Wu-Hausman test to formally test endogeneity before committing to IV.';
     idW='Hausman has low power in small samples. Report both OLS and IV and discuss coefficient divergence.';
-    idEq='Control fn: t-stat on v-hat_i in Stage 2 tests H0 of exogeneity';
+    idEq='Control\\;fn:t\\text{-stat on } \\hat{v}_i \\text{ in Stage 2 tests } H_0 \\text{ of exogeneity}';
     idR=`fs <- lm(treatment ~ instrument + controls, data=df)\ndf$vhat <- residuals(fs)\ncf <- lm(outcome ~ treatment + vhat + controls, data=df)\ncoeftest(cf, vcov=vcovHC(cf,"HC3"))`;
     idSta=`reg treatment instrument controls\npredict vhat, resid\nreg outcome treatment vhat controls, robust`;
     idPy=`import statsmodels.formula.api as smf\nfs = smf.ols('treatment ~ instrument + controls', data=df).fit()\ndf['vhat'] = fs.resid\ncf = smf.ols('outcome ~ treatment + vhat + controls', data=df).fit(cov_type='HC3')\nprint(cf.summary())`;
@@ -1251,7 +1260,7 @@ function buildToolkit(a){
     idC='low';idM='Descriptive OLS / Hedonic Pricing Baseline';idTags=['t_ols'];
     idD='For a descriptive study, OLS with robust SEs is the appropriate baseline. Frame estimates as conditional correlations, not causal effects.';
     idW='Avoid causal language unless identification is formally established.';
-    idEq='ln(P_i) = beta_0 + beta_1 d_i + beta_2 d_i^2 + X_i-delta + epsilon_i';
+    idEq='\\ln(P_i) = \\beta_0 + \\beta_1 d_i + \\beta_2 d_i^2 + X_i\\,\\delta + \\varepsilon_i';
     idR=`library(fixest)\nmod <- feols(log_price ~ dist_mi + dist_sq + controls,\n             data=df, vcov="HC3")\nsummary(mod); etable(mod)`;
     idSta=`reg log_price dist_mi dist_sq controls, robust\nesttab using results.rtf, replace`;
     idPy=`import statsmodels.formula.api as smf\nmod = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n              data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
@@ -1263,7 +1272,7 @@ function buildToolkit(a){
     estC='high';estM='Logit / Probit -- Binary Choice Model';estTags=['t_logit'];
     estD='With a binary outcome, OLS is inconsistent. Use logit or probit. Always report Average Marginal Effects (AMEs) -- not raw coefficients.';
     estW='Interaction coefficients do not equal interaction effects in logit/probit.';
-    estEq='Pr(Y=1|X) = Lambda(X-beta) [logit] or Phi(X-beta) [probit]\nAME_j = (1/n) sum_i dPr(Y_i=1|X_i)/dX_ij';
+    estEq='\\Pr(Y=1\\mid X) = \\Lambda(X\\,\\beta)\\;[\\text{logit}]\\;\\;\\text{or}\\;\\;\\Phi(X\\,\\beta)\\;[\\text{probit}]\nAME_j = \\dfrac{1}{n}\\sum_i \\dfrac{\\partial\\Pr(Y_i=1\\mid X_i)}{\\partial X_{ij}}';
     estR=`library(fixest); library(marginaleffects)\nlogit <- feglm(outcome ~ X1+X2+X3,\n               family=binomial("logit"), data=df)\navg_slopes(logit)`;
     estSta=`logit outcome X1 X2 X3\nmargins, dydx(*)`;
     estPy=`from statsmodels.discrete.discrete_model import Logit\nimport numpy as np\nmod = Logit(df['outcome'], df[['const','X1','X2','X3']]).fit()\nprint(mod.get_margeff().summary())`;
@@ -1271,7 +1280,7 @@ function buildToolkit(a){
     estC='high';estM='Poisson / Negative Binomial -- Count Data';estTags=['t_poisson'];
     estD='PPML is consistent even under distributional misspecification as long as the conditional mean is correctly specified.';
     estW='Never use OLS on count data.';
-    estEq='E[Y_i|X_i] = exp(X_i-beta)';
+    estEq='\\mathbb{E}[\\,Y_i\\mid X_i\\,] = \\exp(X_i\\,\\beta)';
     estR=`library(fixest)\nppml <- fepois(count ~ X1+X2 | unit+year,\n               data=df, vcov=~cluster)\nsummary(ppml)`;
     estSta=`poisson count X1 X2 i.unit i.year, vce(cluster cluster_var)\nglm count X1 X2, family(poisson) link(log) robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.poisson('count ~ X1 + X2', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
@@ -1279,7 +1288,7 @@ function buildToolkit(a){
     estC='high';estM='Tobit / Two-Part Model -- Censored Outcome';estTags=['t_tobit'];
     estD='If participation and intensity have different determinants, a two-part model is preferred over Tobit.';
     estW='Tobit requires normally distributed errors. Two-part models are more robust.';
-    estEq='Tobit: Y*_i = X_i-beta + epsilon_i; Y_i = max(0, Y*_i)';
+    estEq='Tobit:Y_i^* = X_i\\,\\beta + \\varepsilon_i;\\;\\;Y_i = \\max(0,\\,Y_i^*)';
     estR=`library(AER); library(pscl)\ntobit <- tobit(outcome ~ X1+X2, left=0, data=df)\nhurdle <- hurdle(outcome ~ X1+X2, dist="poisson", data=df)`;
     estSta=`tobit outcome X1 X2, ll(0)\n* Two-part:\nprobit I_outcome X1 X2\nreg outcome X1 X2 if I_outcome==1, robust`;
     estPy=`from statsmodels.regression.linear_model import OLS\nfrom statsmodels.discrete.discrete_model import Probit\npart1 = Probit(df['I_outcome'], df[['const','X1','X2']]).fit()\npart2 = OLS(df.loc[df['outcome']>0,'outcome'],\n            df.loc[df['outcome']>0,['const','X1','X2']]).fit(cov_type='HC3')`;
@@ -1287,7 +1296,7 @@ function buildToolkit(a){
     estC='high';estM='Duration / Survival Analysis (Cox PH)';estTags=['t_cox'];
     estD='Cox PH estimates hazard ratios semi-parametrically without specifying the baseline hazard.';
     estW='PH assumption must be tested via Schoenfeld residuals.';
-    estEq='Cox PH: h(t|X) = h_0(t) * exp(X-beta)\nHR = exp(beta_j)';
+    estEq='Cox\\;PH:h(t\\mid X) = h_0(t) \\cdot \\exp(X\\,\\beta)\nHR = \\exp(\\beta_j)';
     estR=`library(survival); library(survminer)\ncox <- coxph(Surv(time,event) ~ X1+X2+X3, data=df)\ncox.zph(cox)\nggsurvplot(survfit(cox), data=df)`;
     estSta=`stset time, failure(event)\nstcox X1 X2 X3, schoenfeld(sch*) scaledsch(sca*)\nstphtest, detail`;
     estPy=`from lifelines import CoxPHFitter\ncph = CoxPHFitter()\ncph.fit(df, duration_col='time', event_col='event')\ncph.print_summary()\ncph.check_assumptions(df)`;
@@ -1295,7 +1304,7 @@ function buildToolkit(a){
     estC='high';estM='Two-Way Fixed Effects -- Panel Within Estimator';estTags=['t_fe','d_hausman'];
     estD='FE within estimator is the appropriate default for panel continuous outcomes -- not pooled OLS. Pooled OLS ignores unit heterogeneity alpha_i; when alpha_i correlates with regressors OLS is biased.';
     estW='FE eliminates between-unit variation -- time-invariant variables cannot be estimated. With staggered adoption, use Callaway-SantAnna.';
-    estEq='TWFE: Y_it = alpha_i + gamma_t + beta_1 X_it + X_it-delta + epsilon_it\nHausman test: compare FE vs RE estimates';
+    estEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta_1 X_{it} + X_{it}\\,\\delta + \\varepsilon_{it}\nHausman\\;test:compare\\;FE\\;vs\\;RE\\;estimates';
     estR=`library(fixest)\ntwfe <- feols(outcome ~ X_tv | unit_id + year,\n              data=df, vcov=~unit_id)\nsummary(twfe); etable(twfe)`;
     estSta=`* ssc install reghdfe\nreghdfe outcome X_tv, absorb(unit_id year) vce(cluster unit_id)\n\n* Hausman test\nxtreg outcome X_tv, fe\nestimates store fe\nxtreg outcome X_tv, re\nestimates store re\nhausman fe re`;
     estPy=`import pyfixest as pf\nfit = pf.feols("outcome ~ X_tv | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\nfit.summary()`;
@@ -1303,7 +1312,7 @@ function buildToolkit(a){
     estC='high';estM='Semi-Log Hedonic Pricing Model';estTags=['t_ols','p_ovb'];
     estD='Log-transform the dependent variable so coefficients are semi-elasticities. The implicit price of any attribute represents marginal WTP in competitive equilibrium.';
     estW='OVB is endemic in hedonic models. Quasi-experimental variation is needed for causal claims.';
-    estEq='ln(P_i) = beta_0 + beta_1 d_i + beta_2 d_i^2 + beta_3 ln(Inc_i) + beta_4 ln(Den_i) + beta_5 Rooms_i + epsilon_i\nMWTP_d = dP/dd = P*(beta_1 + 2*beta_2*d_i)';
+    estEq='\\ln(P_i) = \\beta_0 + \\beta_1 d_i + \\beta_2 d_i^2 + \\beta_3 \\ln(\\text{Inc}_i) + \\beta_4 \\ln(\\text{Den}_i) + \\beta_5\\,\\text{Rooms}_i + \\varepsilon_i\nMWTP_d = \\dfrac{\\partial P}{\\partial d} = P \\cdot (\\beta_1 + 2\\beta_2 d_i)';
     estR=`library(fixest)\nhed_iv <- feols(log_price ~ dist_mi + dist_sq +\n                log_income + log_rooms |\n                log_pop_density ~ log_land_area,\n                data=df, vcov="HC3")\nb1<-coef(hed_iv)["dist_mi"]; b2<-coef(hed_iv)["dist_sq"]\ncat("Turning point:", round(-b1/(2*b2),2), "miles")`;
     estSta=`* IV hedonic\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\ndi "d* = " -_b[dist_mi]/(2*_b[dist_sq]) " miles"`;
     estPy=`from linearmodels.iv import IV2SLS\nimport numpy as np\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df)\nres = mod.fit(cov_type='robust')\nb1=res.params['dist_mi']; b2=res.params['dist_sq']\nprint(f"Turning point: {-b1/(2*b2):.2f} miles")`;
@@ -1311,7 +1320,7 @@ function buildToolkit(a){
     estC='medium';estM='OLS with HC3 Robust Standard Errors';estTags=['t_ols','p_heterosked'];
     estD='For a cross-sectional continuous outcome, OLS with HC3 SEs is the appropriate baseline.';
     estW='Cluster at treatment assignment level. Fewer than 30 clusters: use wild cluster bootstrap.';
-    estEq='Y_i = beta_0 + beta_1 X_i + X_i-delta + epsilon_i';
+    estEq='Y_i = \\beta_0 + \\beta_1 X_i + X_i\\,\\delta + \\varepsilon_i';
     estR=`library(fixest)\nmod <- feols(outcome ~ X1+X2+X3, data=df, vcov="HC3")\nsummary(mod)`;
     estSta=`reg outcome X1 X2 X3, robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.ols('outcome ~ X1 + X2 + X3', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
@@ -1323,7 +1332,7 @@ function buildToolkit(a){
       method:'Quadratic Specification / Spline -- Non-Linear Gradient',
       detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test -- individual t-statistics are unreliable due to structural collinearity. Turning point d* = -beta1/(2*beta2).',
       watch:'Quadratic forces symmetry. Report spline as a robustness check.',
-      equation:'ln(P_i) = beta_0 + beta_1 d_i + beta_2 d_i^2 + X_i-delta + epsilon_i\nd* = -beta_1 / 2*beta_2',
+      equation:'\\ln(P_i) = \\beta_0 + \\beta_1 d_i + \\beta_2 d_i^2 + X_i\\,\\delta + \\varepsilon_i\nd^* = -\\dfrac{\\beta_1}{2\\beta_2}',
       codeR:`library(fixest); library(mgcv); library(car)\nmod_q <- feols(log_price ~ dist_mi + dist_sq + controls,\n               data=df, vcov="HC3")\nlinearHypothesis(mod_q, c("dist_mi=0","dist_sq=0"))\nb1<-coef(mod_q)["dist_mi"]; b2<-coef(mod_q)["dist_sq"]\ncat("d* =", round(-b1/(2*b2),2), "miles")\ngam_mod <- gam(log_price ~ s(dist_mi,k=6)+controls,\n               data=df, method="REML")`,
       codeStata:`reg log_price dist_mi dist_sq controls, robust\ntest dist_mi dist_sq\ndi "d* = " -_b[dist_mi]/(2*_b[dist_sq]) " miles"`,
       codePython:`import statsmodels.formula.api as smf\nmod_q = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n                data=df).fit(cov_type='HC3')\nb1=mod_q.params['dist_mi']; b2=mod_q.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")`});
@@ -1334,7 +1343,7 @@ function buildToolkit(a){
       method:"Two-Way Fixed Effects / Callaway-SantAnna / Mundlak CRE",
       detail:'TWFE absorbs time-invariant unit confounders and common time shocks. For staggered treatment, run Bacon decomposition to diagnose TWFE estimand composition.',
       watch:'With staggered adoption, TWFE includes forbidden already-treated comparisons.',
-      equation:'TWFE: Y_it = alpha_i + gamma_t + beta*Treat_it + X_it-delta + epsilon_it',
+      equation:'TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,\\text{Treat}_{it} + X_{it}\\,\\delta + \\varepsilon_{it}',
       codeR:`library(fixest); library(bacondecomp)\ntwfe <- feols(outcome ~ treat | unit_id + year,\n              data=df, vcov=~unit_id)\nbacon(outcome~treat, data=df, id_var="unit_id", time_var="year")`,
       codeStata:`reghdfe outcome treat, absorb(unit_id year) vce(cluster unit_id)\n* ssc install bacondecomp\nbacondecomp outcome treat, ddetail`,
       codePython:`import pyfixest as pf\nfit = pf.feols("outcome ~ treat | unit_id + year",\n               data=df, vcov={"CRV1":"unit_id"})\nfit.summary()`});
@@ -1345,7 +1354,7 @@ function buildToolkit(a){
       method:"Moran's I -- SAR / SEM / SDM",
       detail:"Test OLS residuals with Moran's I. Robust LM-lag favors SAR; robust LM-error favors SEM. Decompose into direct and indirect spillover effects via LeSage-Pace.",
       watch:"W specification is a modeling assumption -- report sensitivity to alternative W matrices.",
-      equation:'SAR: Y = rho*W*Y + X*beta + epsilon\nSEM: Y = X*beta + u, u = lambda*W*u + epsilon',
+      equation:'SAR:Y = \\rho W Y + X\\beta + \\varepsilon\nSEM:Y = X\\beta + u,\\;\\;u = \\lambda W u + \\varepsilon',
       codeR:`library(spdep); library(spatialreg)\ncoords <- cbind(df$lon, df$lat)\nW <- nb2listw(knn2nb(knearneigh(coords,k=5)),style="W")\nmoran.test(residuals(lm(outcome~X1+X2,data=df)),W)\nsar <- lagsarlm(outcome~X1+X2,data=df,listw=W)`,
       codeStata:`* ssc install spmat, ssc install spreg\nspmat idistance W lon lat, id(id) normalize(row)\nspreg outcome X1 X2, id(id) dlmat(W) errorlag`,
       codePython:`from libpysal.weights import KNN\nfrom esda.moran import Moran\nfrom spreg import ML_Lag\ncoords = list(zip(df['lon'], df['lat']))\nW = KNN.from_array(coords, k=5); W.transform='r'\nfrom spreg import OLS\nols = OLS(y, X, w=W)\nfrom esda.moran import Moran\nmi = Moran(ols.u, W)\nprint(f"Moran's I: {mi.I:.4f} p={mi.p_norm:.4f}")`});
@@ -1459,7 +1468,15 @@ function renderResults(tk,ai){
         </div>
         <p class="sec-detail">${esc(s.detail)}</p>
         ${s.watch?`<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">${esc(s.watch)}</div></div>`:''}
-        ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>`<div class="eq-line">${esc(ln)}</div>`).join('')}</div>`:''}
+        ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>{
+          const colonIdx=ln.indexOf(':');
+          if(colonIdx>0&&colonIdx<25){
+            const label=ln.slice(0,colonIdx).replace(/\\;/g,' ').replace(/\\,/g,' ');
+            const tex=ln.slice(colonIdx+1).trim();
+            return `<div class="eq-line"><span class="eq-line-label">${esc(label)}</span><span class="eq-math" data-tex="${esc(tex)}">${esc(tex)}</span></div>`;
+          }
+          return `<div class="eq-line"><span class="eq-math" data-tex="${esc(ln)}">${esc(ln)}</span></div>`;
+        }).join('')}</div>`:''}
         ${hasCode?`<button class="code-toggle" onclick="togCode(${i},this)">show code</button>
         <div id="code-wrap-${i}" style="display:none">
           ${s.codeR?`<div class="code-r code-block"><div class="code-header"><span class="code-lang-lbl">R</span><button class="code-copy" onclick="cpCode('cpre-${i}-r')">copy</button></div><pre class="code-pre" id="cpre-${i}-r">${esc(s.codeR)}</pre></div>`:''}
@@ -1481,6 +1498,28 @@ function renderResults(tk,ai){
   }
   // Init D3 graph after DOM is in place
   setTimeout(()=>initKnowledgeGraph(tk.active),50);
+  // Render KaTeX equations after DOM insertion
+  renderEquations();
+}
+
+// Render every .eq-math element using KaTeX. Falls back gracefully if KaTeX failed to load.
+function renderEquations(root){
+  const scope=root||document;
+  const els=scope.querySelectorAll('.eq-math');
+  if(typeof katex==='undefined'){
+    // KaTeX didn't load — degrade to monospace fallback
+    els.forEach(el=>{el.classList.add('eq-fallback');});
+    return;
+  }
+  els.forEach(el=>{
+    const tex=el.getAttribute('data-tex')||el.textContent;
+    try{
+      katex.render(tex,el,{throwOnError:false,displayMode:false,output:'html'});
+    }catch(e){
+      el.classList.add('eq-fallback');
+      el.textContent=tex;
+    }
+  });
 }
 
 // ── KNOWLEDGE GRAPH BLUEPRINT ────────────────────────────────────────────
