@@ -16,15 +16,18 @@
   --kg-problem:#ef4444;--kg-logic:#3b82f6;--kg-tool:#10b981;--kg-diag:#f59e0b
 }
 body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#011425;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
-.hdr{display:none;align-items:center;gap:12px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#011425;z-index:50}
-.hdr-logo svg{width:30px;height:30px}
+.hdr{display:none;align-items:center;gap:14px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#011425;z-index:50}
+.hdr-logo svg{width:48px;height:48px}
+.hdr-name{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.005em}
+.hdr-sep{color:var(--dim);font-size:14px;margin:0 4px}
+.hdr-sub{font-size:13px;color:var(--muted)}
 .prog-bar{height:2px;background:var(--bg2)}.prog-fill{height:100%;background:var(--surface);transition:width .35s}
 .btn-sm{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit}
 .btn-sm:hover{border-color:var(--surface);color:var(--text)}
 /* LANDING */
 .landing{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;position:relative;overflow:hidden;background:#011425}
 .wm{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden}
-.wm svg{width:320vmin;height:320vmin;opacity:.05}
+.wm svg{width:320vmin;height:320vmin;opacity:.10}
 .landing-inner{max-width:540px;width:100%;text-align:center;position:relative;z-index:1}
 .landing-logo{margin:0 auto 2rem;width:88px;height:88px}
 .landing h1{font-size:28px;font-weight:400;color:var(--text);margin-bottom:.85rem;line-height:1.3;letter-spacing:.02em}
@@ -60,9 +63,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .results-meta{color:var(--hint);font-size:13px;margin-bottom:1.25rem}
 /* NARRATIVE */
 .narrative{background:#0d2030;border:.5px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:1.5rem}
-.narrative-hdr{display:flex;align-items:center;gap:9px;margin-bottom:14px}
-.narrative-hdr .star{font-size:13px;color:var(--surface)}
-.narrative-hdr .lbl{font-size:10px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+.narrative-hdr{display:flex;align-items:center;gap:11px;margin-bottom:18px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+.narrative-hdr .star{font-size:18px;color:var(--surface);line-height:1}
+.narrative-hdr .lbl{font-size:20px;color:var(--text);text-transform:none;letter-spacing:.01em;font-weight:500}
 .narrative-body{display:grid;grid-template-columns:2fr 1.2fr 1.1fr;gap:22px;align-items:start}
 .narrative-left p{color:var(--text);font-size:13.5px;line-height:1.85;margin:0}
 .narrative-mid{display:flex;flex-direction:column;gap:5px}
@@ -81,6 +84,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .sources-stack{display:flex;flex-direction:column;gap:8px}
 @media(max-width:720px){.two-col-panel{grid-template-columns:1fr}}
 /* SEC DIVIDER */
+.section-title{font-size:21px;color:var(--text);font-weight:500;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
+.section-title-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none}
 .sec-divider{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
 /* SOURCES */
 .source-card{background:#0d2030;border:.5px solid var(--border);border-radius:10px;padding:12px 15px;text-decoration:none;display:block;transition:all .15s;margin-bottom:8px}
@@ -103,10 +108,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-open-hint{font-size:11px;color:var(--hint);margin-top:6px;font-style:italic}
 /* TOOLKIT WITH LEFT RAIL */
 .toolkit-section{margin-top:2rem}
-.toolkit-header{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
+.toolkit-header{font-size:21px;color:var(--text);font-weight:500;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
+.toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0}
 .toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
-.lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0d2030;border:.5px solid var(--border);border-radius:11px;padding:13px 12px}
-.lang-rail-lbl{font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.11em;font-weight:600;margin-bottom:4px;text-align:center}
+.lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0d2030;border:.5px solid var(--border);border-radius:11px;padding:14px 12px}
+.lang-rail-lbl{font-size:11.5px;color:var(--text);font-weight:600;letter-spacing:.02em;text-align:center;line-height:1.3}
+.lang-rail-sub{font-size:9.5px;color:var(--hint);text-align:center;font-weight:400;letter-spacing:.04em;margin-top:1px;margin-bottom:4px;line-height:1.3}
 .lang-btn-rail{border-radius:8px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;border:.5px solid var(--border);background:transparent;color:var(--muted);text-align:center;letter-spacing:.02em}
 .lang-btn-rail:hover{color:var(--text);border-color:var(--surface)}
 .lang-btn-rail.active{background:var(--bg3);color:var(--text);border-color:var(--surface);font-weight:600}
@@ -114,7 +121,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 @media(max-width:760px){
   .toolkit-layout{grid-template-columns:1fr}
   .lang-rail{position:fixed;bottom:14px;left:14px;right:14px;top:auto;flex-direction:row;justify-content:center;z-index:40;padding:9px;backdrop-filter:blur(12px);background:rgba(13,32,48,.94)}
-  .lang-rail-lbl{display:none}
+  .lang-rail-lbl,.lang-rail-sub{display:none}
   .lang-btn-rail{flex:1;padding:8px 10px;font-size:12.5px}
   .toolkit-stack{padding-bottom:70px}
 }
@@ -158,8 +165,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .conf-low{color:var(--hint);background:var(--bg2);border:.5px solid var(--border)}
 /* KNOWLEDGE GRAPH */
 .kg-section{margin-top:2.5rem;margin-bottom:2.5rem}
-.kg-header{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:1.25rem}
-.kg-header h3{font-size:16px;font-weight:400;color:var(--text);margin-bottom:5px;letter-spacing:.02em}
+.kg-header{margin-bottom:1.25rem}
+.kg-header h3{font-size:21px;font-weight:500;color:var(--text);margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:.005em;display:flex;align-items:baseline;gap:11px}
+.kg-header h3 .kg-sub{font-size:13px;color:var(--muted);font-weight:400}
 .kg-header p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px}
 .kg-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;padding-top:14px;border-top:.5px solid var(--border)}
 .kg-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
@@ -170,15 +178,35 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-reveal-btn{background:var(--surface);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.02em;white-space:nowrap;transition:background .15s}
 .kg-reveal-btn:hover{background:#6d8d9a}
 .kg-reveal-btn:disabled{background:var(--bg3);color:var(--muted);cursor:default}
-.kg-wrap{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:1.25rem;overflow:hidden}
-.kg-canvas{width:100%;height:780px;display:block}
+/* KG WRAP + CONTROLS */
+.kg-wrap{background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:0;overflow:hidden;position:relative}
+.kg-canvas{width:100%;height:780px;display:block;cursor:grab}
+.kg-canvas:active{cursor:grabbing}
+.kg-canvas.over-node{cursor:pointer}
 @media(max-width:760px){.kg-canvas{height:660px}}
+.kg-controls{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.kg-ctl-btn{width:34px;height:34px;background:rgba(13,32,48,.92);border:.5px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:inherit;font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:all .15s;backdrop-filter:blur(6px);padding:0}
+.kg-ctl-btn:hover{background:var(--bg3);color:var(--text);border-color:var(--surface)}
+.kg-ctl-btn.reset{font-size:11px;font-weight:600;letter-spacing:.04em}
+.kg-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(13,32,48,.92);backdrop-filter:blur(6px);border:.5px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--muted);font-size:12px;letter-spacing:.02em;pointer-events:none;z-index:5;transition:opacity .6s;display:flex;align-items:center;gap:14px}
+.kg-hint.fade{opacity:0}
+.kg-hint-key{display:inline-flex;align-items:center;gap:5px}
+.kg-hint-icon{font-size:11px;opacity:.7}
+/* KG NODES + EDGES */
 .kg-node-rect{transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .kg-node-text{font-family:-apple-system,'Helvetica Neue',sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
 .kg-edge{transition:all .4s cubic-bezier(.4,0,.2,1)}
-.kg-edge-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s}
+.kg-edge-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
 .kg-edge-label.active{fill:#cbd5e1}
-.kg-cluster-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10.5px;letter-spacing:.18em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+.kg-cluster-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:11.5px;letter-spacing:.18em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+/* HOVER DIM STATE */
+.kg-graph.has-hover .kg-node-g{opacity:.18;transition:opacity .25s}
+.kg-graph.has-hover .kg-node-g.is-focus,
+.kg-graph.has-hover .kg-node-g.is-neighbor{opacity:1}
+.kg-graph.has-hover .kg-edge{opacity:.08;transition:opacity .25s}
+.kg-graph.has-hover .kg-edge.is-connected{opacity:.95;stroke:#cbd5e1 !important}
+.kg-graph.has-hover .kg-edge-label{opacity:0}
+.kg-graph.has-hover .kg-edge-label.is-connected{opacity:1;fill:#e2e8f0 !important}
 @keyframes kgPulseRed{0%,100%{filter:drop-shadow(0 0 6px rgba(239,68,68,.85))}50%{filter:drop-shadow(0 0 18px rgba(239,68,68,1))}}
 @keyframes kgPulseBlue{0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.85))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,1))}}
 @keyframes kgPulseGreen{0%,100%{filter:drop-shadow(0 0 6px rgba(16,185,129,.85))}50%{filter:drop-shadow(0 0 18px rgba(16,185,129,1))}}
@@ -187,31 +215,43 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .glow-logic{animation:kgPulseBlue 2.6s ease-in-out infinite}
 .glow-tool{animation:kgPulseGreen 2.6s ease-in-out infinite}
 .glow-diag{animation:kgPulseAmber 2.6s ease-in-out infinite}
-/* KG POPUP */
-.kg-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;opacity:0;pointer-events:none;transition:opacity .2s;display:flex;align-items:center;justify-content:center;padding:1rem}
-.kg-popup-overlay.open{opacity:1;pointer-events:all}
-.kg-popup{background:#0d2030;border:.5px solid var(--surface);border-radius:13px;padding:24px 26px;max-width:480px;width:100%;transform:scale(.95);transition:transform .25s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
-.kg-popup-overlay.open .kg-popup{transform:scale(1)}
-.kg-popup-cat{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:8px}
-.kg-popup-title{font-size:18px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.35;letter-spacing:.02em}
-.kg-popup-def{color:var(--muted);font-size:13.5px;line-height:1.85;margin-bottom:16px}
-.kg-popup-rels{margin-top:14px}
-.kg-popup-rels-lbl{font-size:9.5px;color:var(--hint);text-transform:uppercase;letter-spacing:.11em;font-weight:600;margin-bottom:8px}
-.kg-popup-rel{display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:6px;padding:7px 10px;background:var(--bg3);border-radius:7px}
-.kg-popup-rel-arrow{color:var(--surface);font-style:italic;flex-shrink:0;font-size:11.5px}
-.kg-popup-rel-target{color:var(--text);font-weight:500}
-.kg-popup-actions{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
-.kg-popup-btn{background:var(--surface);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;flex:1;min-width:130px}
-.kg-popup-btn:hover{background:#6d8d9a}
-.kg-popup-btn.secondary{background:transparent;border:.5px solid var(--border);color:var(--muted)}
-.kg-popup-btn.secondary:hover{border-color:var(--surface);color:var(--text)}
+/* KG SIDE DRAWER (slim) */
+.kg-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:175;opacity:0;pointer-events:none;transition:opacity .25s}
+.kg-drawer-overlay.open{opacity:1;pointer-events:all}
+.kg-drawer{position:fixed;top:0;right:0;height:100vh;width:420px;max-width:90vw;background:#011425;border-left:.5px solid var(--surface);z-index:176;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.kg-drawer.open{transform:translateX(0)}
+.kg-drawer-hdr{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:.5px solid var(--border);flex-shrink:0}
+.kg-drawer-cat{font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:5px;display:inline-block;padding:3px 8px;border-radius:5px}
+.kg-drawer-cat.problem{background:rgba(239,68,68,.18);color:#f87171}
+.kg-drawer-cat.logic{background:rgba(59,130,246,.18);color:#60a5fa}
+.kg-drawer-cat.tool{background:rgba(16,185,129,.18);color:#34d399}
+.kg-drawer-cat.diag{background:rgba(245,158,11,.18);color:#fbbf24}
+.kg-drawer-title{font-size:18px;font-weight:500;color:var(--text);line-height:1.3;letter-spacing:.005em;margin-top:4px}
+.kg-drawer-title-wrap{flex:1;min-width:0}
+.kg-drawer-close{background:transparent;border:none;color:var(--hint);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;margin-top:6px}
+.kg-drawer-close:hover{color:var(--text)}
+.kg-drawer-body{flex:1;overflow-y:auto;padding:20px}
+.kg-drawer-body::-webkit-scrollbar{width:4px}
+.kg-drawer-body::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:2px}
+.kg-drawer-section{margin-bottom:20px}
+.kg-drawer-lbl{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.13em;font-weight:700;margin-bottom:8px}
+.kg-drawer-def{color:var(--text);font-size:13.5px;line-height:1.75;background:#0d2030;border:.5px solid var(--border);border-radius:8px;padding:12px 14px}
+.kg-drawer-rel{display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.45;margin-bottom:6px;padding:8px 11px;background:#0d2030;border:.5px solid var(--border);border-radius:7px}
+.kg-drawer-rel-from{color:var(--text);font-weight:500;flex-shrink:0}
+.kg-drawer-rel-to{color:var(--text);font-weight:500;flex-shrink:0}
+.kg-drawer-rel-arrow{color:var(--surface);font-style:italic;font-size:11.5px;flex:1;text-align:center;letter-spacing:.01em}
+.kg-drawer-actions{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.kg-drawer-btn{background:var(--surface);color:#fff;border:none;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;text-align:center;transition:background .15s}
+.kg-drawer-btn:hover{background:#6d8d9a}
+.kg-drawer-btn.secondary{background:transparent;border:.5px solid var(--border);color:var(--muted)}
+.kg-drawer-btn.secondary:hover{border-color:var(--surface);color:var(--text)}
 /* DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:#00000077;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer-overlay.open{opacity:1;pointer-events:all}
 .drawer{position:fixed;top:0;right:0;height:100vh;width:75vw;max-width:75vw;background:#011425;border-left:.5px solid #1F4959;z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 .drawer.open{transform:translateX(0)}
-.drawer-header{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:.5px solid var(--border);flex-shrink:0;background:#011425}
-.drawer-logo{width:34px;height:34px;opacity:1;flex-shrink:0}
+.drawer-header{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:.5px solid var(--border);flex-shrink:0;background:#011425}
+.drawer-logo{width:48px;height:48px;opacity:1;flex-shrink:0}
 .drawer-title{flex:1;min-width:0}
 .drawer-title-text{color:var(--text);font-size:15px;font-weight:400;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:.01em}
 .drawer-meta-line{font-size:12px;color:var(--surface);margin-top:4px;font-weight:500}
@@ -270,9 +310,9 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
       <circle cx="256" cy="256" r="5" fill="#fff"/>
     </svg>
   </div>
-  <span style="font-size:14px;font-weight:500;color:var(--muted)">Econometric Advisor</span>
-  <span style="color:var(--dim);font-size:13px">/</span>
-  <span id="hdr-sub" style="font-size:13px;color:var(--dim)">assessment</span>
+  <span class="hdr-name">Econometric Advisor</span>
+  <span class="hdr-sep">/</span>
+  <span id="hdr-sub" class="hdr-sub">assessment</span>
   <div style="margin-left:auto">
     <button class="btn-sm" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
@@ -282,20 +322,92 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 <div id="screen-landing">
   <div class="landing">
     <div class="wm">
-      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <!-- Static rings -->
         <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
         <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1"/>
-        <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="5"/>
+        <circle cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="5"/>
         <circle cx="256" cy="256" r="90" fill="#0a0f1e"/>
-        <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="256" cy="146" r="10" fill="#1d4ed8"/><circle cx="256" cy="146" r="6" fill="#3b82f6"/>
-        <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c084fc"/>
-        <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#34d399"/>
+        <!-- Static spokes -->
+        <line x1="256" y1="254" x2="256" y2="152" stroke="#4f9aff" stroke-width="5" stroke-linecap="round"/>
+        <line x1="250" y1="262" x2="178" y2="334" stroke="#c47cff" stroke-width="5" stroke-linecap="round"/>
+        <line x1="262" y1="262" x2="334" y2="334" stroke="#1fd298" stroke-width="5" stroke-linecap="round"/>
+        <!-- Spoke endpoint dots -->
+        <circle cx="256" cy="146" r="10" fill="#1d4ed8"/><circle cx="256" cy="146" r="6" fill="#4f9aff"/>
+        <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c47cff"/>
+        <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#1fd298"/>
+
+        <!-- ANIMATED PULSES per spoke -->
+        <!-- Blue spoke: north (256,146) -->
+        <g class="pulse-blue">
+          <!-- Traveling pulse bullet -->
+          <circle r="9" fill="#4f9aff" opacity="0">
+            <animate attributeName="cx" values="256;256;256" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;146;146" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Smoke ring expanding from endpoint -->
+          <circle cx="256" cy="146" r="10" fill="none" stroke="#4f9aff" stroke-width="3" opacity="0">
+            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Second slower smoke ring trailing -->
+          <circle cx="256" cy="146" r="10" fill="none" stroke="#4f9aff" stroke-width="2" opacity="0">
+            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Purple spoke: SW (174,339) -->
+        <g class="pulse-purple">
+          <circle r="9" fill="#c47cff" opacity="0">
+            <animate attributeName="cx" values="256;256;174" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;256;339" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="174" cy="339" r="10" fill="none" stroke="#c47cff" stroke-width="3" opacity="0">
+            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="174" cy="339" r="10" fill="none" stroke="#c47cff" stroke-width="2" opacity="0">
+            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Green spoke: SE (338,339) -->
+        <g class="pulse-green">
+          <circle r="9" fill="#1fd298" opacity="0">
+            <animate attributeName="cx" values="256;256;338" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="256;256;339" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="r" values="3;14;3" keyTimes="0;0.55;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.95;1;0" keyTimes="0;0.05;0.55;0.6" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="338" cy="339" r="10" fill="none" stroke="#1fd298" stroke-width="3" opacity="0">
+            <animate attributeName="r" values="10;10;60;90;110" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.7;0.3;0" keyTimes="0;0.55;0.7;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="stroke-width" values="3;3;2;1;0.5" keyTimes="0;0.55;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="338" cy="339" r="10" fill="none" stroke="#1fd298" stroke-width="2" opacity="0">
+            <animate attributeName="r" values="10;10;30;70;110" keyTimes="0;0.6;0.78;0.92;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0;0.4;0.18;0" keyTimes="0;0.6;0.75;0.9;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Center dot (top layer) -->
         <circle cx="256" cy="256" r="14" fill="#1e40af"/>
         <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
         <circle cx="256" cy="256" r="5" fill="#fff"/>
+
+        <!-- Subtle center glow that pulses with each spoke firing -->
+        <circle cx="256" cy="256" r="20" fill="none" stroke="#fff" stroke-width="1.5" opacity="0">
+          <animate attributeName="r" values="14;28;14" keyTimes="0;0.05;0.5" dur="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.5;0" keyTimes="0;0.05;0.5" dur="1.5s" repeatCount="indefinite"/>
+        </circle>
       </svg>
     </div>
     <div class="landing-inner">
@@ -303,14 +415,14 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
           <rect width="512" height="512" rx="112" fill="#0a0f1e"/>
           <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1" opacity=".4"/>
-          <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="4" opacity=".9"/>
+          <circle cx="256" cy="256" r="110" fill="none" stroke="#4f9aff" stroke-width="4" opacity=".95"/>
           <circle cx="256" cy="256" r="90" fill="#080e1c" opacity=".98"/>
-          <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="256" cy="146" r="9" fill="#1d4ed8"/><circle cx="256" cy="146" r="5" fill="#3b82f6"/>
-          <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="174" cy="339" r="9" fill="#9333ea"/><circle cx="174" cy="339" r="5" fill="#c084fc"/>
-          <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="338" cy="339" r="9" fill="#059669"/><circle cx="338" cy="339" r="5" fill="#34d399"/>
+          <line x1="256" y1="254" x2="256" y2="152" stroke="#4f9aff" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="256" cy="146" r="9" fill="#1d4ed8"/><circle cx="256" cy="146" r="5" fill="#4f9aff"/>
+          <line x1="250" y1="262" x2="178" y2="334" stroke="#c47cff" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="174" cy="339" r="9" fill="#9333ea"/><circle cx="174" cy="339" r="5" fill="#c47cff"/>
+          <line x1="262" y1="262" x2="334" y2="334" stroke="#1fd298" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="338" cy="339" r="9" fill="#059669"/><circle cx="338" cy="339" r="5" fill="#1fd298"/>
           <circle cx="256" cy="256" r="14" fill="#1e40af"/>
           <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
           <circle cx="256" cy="256" r="5" fill="#fff"/>
@@ -357,9 +469,17 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   </div>
 </div>
 
-<!-- KG POPUP -->
-<div class="kg-popup-overlay" id="kg-popup-overlay" onclick="if(event.target===this)closeKgPopup()">
-  <div class="kg-popup" id="kg-popup"></div>
+<!-- KG SIDE DRAWER -->
+<div class="kg-drawer-overlay" id="kg-drawer-overlay" onclick="closeKgDrawer()"></div>
+<div class="kg-drawer" id="kg-drawer">
+  <div class="kg-drawer-hdr">
+    <div class="kg-drawer-title-wrap">
+      <div class="kg-drawer-cat" id="kg-drawer-cat"></div>
+      <div class="kg-drawer-title" id="kg-drawer-title"></div>
+    </div>
+    <button class="kg-drawer-close" onclick="closeKgDrawer()">&#x2715;</button>
+  </div>
+  <div class="kg-drawer-body" id="kg-drawer-body"></div>
 </div>
 
 <script>
@@ -610,7 +730,7 @@ function closeDrawer(){
   document.querySelectorAll('.lit-card').forEach(c=>c.classList.remove('active'));
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgPopup();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgDrawer();}});
 
 async function loadDrawerContent(p,idx){
   const href=p.doi_or_url||p.externalIds?.DOI&&`https://doi.org/${p.externalIds.DOI}`||`https://scholar.google.com/scholar?q=${encodeURIComponent(p.title||'')}`;
@@ -1050,7 +1170,7 @@ function buildToolkit(a){
 
 function renderResults(tk,ai){
   const el=document.getElementById('results-inner');
-  let html=`<p class="results-meta">${tk.sections.length} components identified -- click any section to expand</p>`;
+  let html=``;
 
   if(ai&&ai.narrative){
     html+=`<div class="narrative">
@@ -1074,22 +1194,23 @@ function renderResults(tk,ai){
 
   html+=`<div class="two-col-panel">
     <div class="two-col-left">
-      <div class="sec-divider">Open-access data sources</div>
+      <div class="section-title">Open-access data sources<span class="section-title-sub">Curated for your research design</span></div>
       <div class="sources-stack">`;
   tk.sources.forEach(s=>{html+=`<a class="source-card" href="${esc(s.u)}" target="_blank" rel="noreferrer"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></a>`;});
   html+=`</div></div>
     <div class="two-col-right">
-      <div class="sec-divider">AI-curated literature -- tailored to your research design</div>
+      <div class="section-title">AI-curated literature<span class="section-title-sub">Click any paper to open analysis</span></div>
       <div id="lit-container"><p class="lit-loading">Generating literature recommendations...</p></div>
     </div>
   </div>`;
 
   // METHODOLOGICAL SPECIFICATIONS WITH LEFT RAIL
   html+=`<div class="toolkit-section">
-    <div class="toolkit-header">Methodological specifications</div>
+    <div class="toolkit-header">Methodological specifications<span class="toolkit-header-sub">Click any section to expand · code language toggle on the left</span></div>
     <div class="toolkit-layout">
       <div class="lang-rail">
-        <div class="lang-rail-lbl">Code</div>
+        <div class="lang-rail-lbl">Toggle code</div>
+        <div class="lang-rail-sub">Switch all snippets</div>
         <button id="lang-btn-r" class="lang-btn-rail active" onclick="setLang('r')">R</button>
         <button id="lang-btn-stata" class="lang-btn-rail" onclick="setLang('stata')">Stata</button>
         <button id="lang-btn-python" class="lang-btn-rail" onclick="setLang('python')">Python</button>
@@ -1269,22 +1390,38 @@ let _kgActive=new Set();
 function renderKnowledgeGraph(tk){
   return `<div class="kg-section">
     <div class="kg-header">
-      <h3>The econometric architecture</h3>
-      <p>This is the conceptual map of applied econometrics: <strong>Problems</strong> create the need for <strong>Strategic Logic</strong>, which justifies the <strong>Tools</strong> used to estimate causal effects, which are validated by <strong>Diagnostics</strong>. Click any node to see its definition and how it connects. Click <strong>Trace my study</strong> to highlight the path your research design follows.</p>
-      <div class="kg-legend">
-        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-problem)"></span>Problems</div>
-        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-logic)"></span>Strategic Logic</div>
-        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-tool)"></span>Tools / Estimators</div>
-        <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-diag)"></span>Diagnostics</div>
+      <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node</span></h3>
+      <div style="background:#0d2030;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
+        <p>This is the conceptual map of applied econometrics: <strong style="color:var(--text)">Problems</strong> create the need for <strong style="color:var(--text)">Strategic Logic</strong>, which justifies the <strong style="color:var(--text)">Tools</strong> used to estimate causal effects, which are validated by <strong style="color:var(--text)">Diagnostics</strong>. Hover any node to focus on it and its connections; click to read its definition and jump to the relevant toolkit section.</p>
+        <div class="kg-legend">
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-problem)"></span>Problems</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-logic)"></span>Strategic Logic</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-tool)"></span>Tools / Estimators</div>
+          <div class="kg-legend-item"><span class="kg-legend-dot" style="background:var(--kg-diag)"></span>Diagnostics</div>
+        </div>
       </div>
     </div>
     <div class="kg-reveal-bar">
       <div class="kg-reveal-text">The graph below shows all four pillars of applied econometrics. <strong>Click the button</strong> to light up the path your research design takes through this architecture.</div>
       <button id="kg-reveal-btn" class="kg-reveal-btn" onclick="revealKgPath()">Trace my study through the architecture</button>
     </div>
-    <div class="kg-wrap"><svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1200 780" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="kg-wrap">
+      <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 880" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="kg-controls">
+        <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
+        <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
+        <button class="kg-ctl-btn reset" onclick="kgResetView()" title="Fit to view">FIT</button>
+      </div>
+      <div class="kg-hint" id="kg-hint">
+        <span class="kg-hint-key"><span class="kg-hint-icon">↔</span> drag to pan</span>
+        <span class="kg-hint-key"><span class="kg-hint-icon">⇅</span> scroll to zoom</span>
+      </div>
+    </div>
   </div>`;
 }
+
+// KG state
+let _kgZoom=null,_kgZoomLayer=null,_kgNeighbors={},_kgEdgesByEndpoint={};
 
 function initKnowledgeGraph(activeSet){
   _kgActive=activeSet||new Set();
@@ -1292,69 +1429,84 @@ function initKnowledgeGraph(activeSet){
   const svg=d3.select('#kg-canvas');
   if(svg.empty())return;
   svg.selectAll('*').remove();
+  svg.classed('kg-graph',true);
 
-  const W=1200,H=780;
-  // Cluster centers (4 quadrants)
+  const W=1400,H=880;
+  // Cluster centers (4 quadrants) — wider spacing for clarity
   const clusters={
-    problem:{cx:300,cy:170,label:'PROBLEMS',color:'#ef4444'},
-    logic:{cx:900,cy:170,label:'STRATEGIC LOGIC',color:'#3b82f6'},
-    tool:{cx:600,cy:480,label:'TOOLS / ESTIMATORS',color:'#10b981'},
-    diag:{cx:600,cy:700,label:'DIAGNOSTICS',color:'#f59e0b'}
+    problem:{cx:340,cy:200,label:'PROBLEMS',color:'#ef4444'},
+    logic:{cx:1060,cy:200,label:'STRATEGIC LOGIC',color:'#3b82f6'},
+    tool:{cx:700,cy:520,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    diag:{cx:700,cy:790,label:'DIAGNOSTICS',color:'#f59e0b'}
   };
 
   // Distribute nodes within each cluster
   const byCat={problem:[],logic:[],tool:[],diag:[]};
   KG_BLUEPRINT.nodes.forEach(n=>byCat[n.cat].push(n));
 
-  // Layout: cluster nodes in radial pattern around their cluster center
+  // Layout positions — increased spacing from v1
   const positions={};
   Object.keys(byCat).forEach(cat=>{
     const c=clusters[cat];
     const list=byCat[cat];
-    const n=list.length;
     if(cat==='problem'||cat==='logic'){
-      // 6 nodes each — 2 columns × 3 rows
-      const cols=2,rowGap=70,colGap=180;
+      const cols=2,rowGap=80,colGap=200;
       list.forEach((node,i)=>{
         const r=Math.floor(i/cols),col=i%cols;
         positions[node.id]={x:c.cx-colGap/2+col*colGap,y:c.cy-rowGap+r*rowGap};
       });
     } else if(cat==='tool'){
-      // 11 nodes — arranged in 2 rows
-      const cols=6;
+      const cols=6,rowGap=72,colGap=180;
       list.forEach((node,i)=>{
         const r=Math.floor(i/cols),col=i%cols;
-        const xOff=(cols-1)*150/2;
-        positions[node.id]={x:c.cx-xOff+col*150,y:c.cy-30+r*60};
+        const xOff=(cols-1)*colGap/2;
+        positions[node.id]={x:c.cx-xOff+col*colGap,y:c.cy-rowGap/2+r*rowGap};
       });
     } else { // diag
-      // 9 nodes — 1 row
       const cols=Math.min(list.length,9);
-      const xStart=c.cx-(cols-1)*125/2;
+      const colGap=140;
+      const xStart=c.cx-(cols-1)*colGap/2;
       list.forEach((node,i)=>{
-        positions[node.id]={x:xStart+i*125,y:c.cy};
+        positions[node.id]={x:xStart+i*colGap,y:c.cy};
       });
     }
   });
 
-  // Draw cluster labels
+  // Build neighbor lookup for hover-dim
+  _kgNeighbors={};
+  _kgEdgesByEndpoint={};
+  KG_BLUEPRINT.nodes.forEach(n=>{_kgNeighbors[n.id]=new Set();_kgEdgesByEndpoint[n.id]=[];});
+  KG_BLUEPRINT.edges.forEach((e,idx)=>{
+    if(_kgNeighbors[e.s]&&_kgNeighbors[e.t]){
+      _kgNeighbors[e.s].add(e.t);
+      _kgNeighbors[e.t].add(e.s);
+      _kgEdgesByEndpoint[e.s].push(idx);
+      _kgEdgesByEndpoint[e.t].push(idx);
+    }
+  });
+
+  // Zoom-able root layer
+  _kgZoomLayer=svg.append('g').attr('class','kg-zoom-layer');
+
+  // Cluster labels (in zoom layer so they scale)
   Object.entries(clusters).forEach(([cat,c])=>{
     let labelY=c.cy;
-    if(cat==='problem'||cat==='logic')labelY=c.cy-115;
-    else if(cat==='tool')labelY=c.cy-75;
-    else labelY=c.cy-40;
-    svg.append('text')
+    if(cat==='problem'||cat==='logic')labelY=c.cy-130;
+    else if(cat==='tool')labelY=c.cy-95;
+    else labelY=c.cy-50;
+    _kgZoomLayer.append('text')
       .attr('class','kg-cluster-label')
       .attr('x',c.cx).attr('y',labelY)
-      .attr('fill',c.color).attr('opacity',.45)
+      .attr('fill',c.color).attr('opacity',.5)
       .text(c.label);
   });
 
-  // Arrowhead marker
+  // Arrowhead markers
   const defs=svg.append('defs');
-  ['#475569','#cbd5e1'].forEach((color,i)=>{
+  ['dim','lit','focus'].forEach((tag,i)=>{
+    const color=tag==='dim'?'#334155':tag==='lit'?'#cbd5e1':'#e2e8f0';
     defs.append('marker')
-      .attr('id','arrow-'+(i===0?'dim':'lit'))
+      .attr('id','arrow-'+tag)
       .attr('viewBox','0 -5 10 10')
       .attr('refX',9).attr('refY',0)
       .attr('markerWidth',5).attr('markerHeight',5)
@@ -1362,52 +1514,54 @@ function initKnowledgeGraph(activeSet){
       .append('path').attr('d','M0,-5L10,0L0,5').attr('fill',color);
   });
 
-  // Draw edges
-  const edgeG=svg.append('g').attr('class','kg-edges');
+  // Edges layer
+  const edgeG=_kgZoomLayer.append('g').attr('class','kg-edges');
   KG_BLUEPRINT.edges.forEach((e,idx)=>{
     const s=positions[e.s],t=positions[e.t];
     if(!s||!t)return;
-    // Compute endpoints offset to node edge
     const dx=t.x-s.x,dy=t.y-s.y;
     const len=Math.sqrt(dx*dx+dy*dy);
     const ux=dx/len,uy=dy/len;
-    // Approximate node radius (rect half-width)
-    const nodeOffS=58,nodeOffT=58;
+    const nodeOffS=64,nodeOffT=64;
     const sx=s.x+ux*nodeOffS,sy=s.y+uy*nodeOffS;
     const tx=t.x-ux*nodeOffT,ty=t.y-uy*nodeOffT;
 
     edgeG.append('line')
       .attr('class','kg-edge')
       .attr('id','kge-'+idx)
+      .attr('data-source',e.s)
+      .attr('data-target',e.t)
       .attr('x1',sx).attr('y1',sy).attr('x2',tx).attr('y2',ty)
       .attr('stroke','#334155').attr('stroke-width',.7)
       .attr('opacity',.35).attr('marker-end','url(#arrow-dim)');
 
-    // Edge label at midpoint, only show on active edges (default hidden)
     const mx=(sx+tx)/2,my=(sy+ty)/2;
     edgeG.append('text')
       .attr('class','kg-edge-label')
       .attr('id','kgel-'+idx)
+      .attr('data-source',e.s)
+      .attr('data-target',e.t)
       .attr('x',mx).attr('y',my-3)
       .attr('opacity',0)
       .text(e.label);
   });
 
-  // Draw nodes
-  const nodeG=svg.append('g').attr('class','kg-nodes');
+  // Nodes layer
+  const nodeG=_kgZoomLayer.append('g').attr('class','kg-nodes');
   const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   KG_BLUEPRINT.nodes.forEach(n=>{
     const p=positions[n.id];
     if(!p)return;
-    const color=colorMap[n.cat];
-    const w=n.label.length>14?140:n.label.length>9?120:108;
-    const h=44;
+    const w=n.label.length>14?148:n.label.length>9?124:112;
+    const h=46;
     const g=nodeG.append('g')
       .attr('class','kg-node-g')
       .attr('id','kgn-'+n.id)
+      .attr('data-cat',n.cat)
       .attr('transform',`translate(${p.x},${p.y})`)
-      .style('cursor','pointer')
-      .on('click',()=>onKgNodeClick(n.id));
+      .on('click',(ev)=>{ev.stopPropagation();onKgNodeClick(n.id)})
+      .on('mouseenter',()=>onKgNodeHover(n.id))
+      .on('mouseleave',()=>onKgNodeUnhover());
 
     g.append('rect')
       .attr('class','kg-node-rect')
@@ -1424,6 +1578,73 @@ function initKnowledgeGraph(activeSet){
       .attr('font-weight',500)
       .text(n.label);
   });
+
+  // D3 zoom behavior
+  _kgZoom=d3.zoom()
+    .scaleExtent([0.5,3])
+    .on('zoom',(ev)=>{
+      _kgZoomLayer.attr('transform',ev.transform);
+      // Hide hint after first interaction
+      const hint=document.getElementById('kg-hint');
+      if(hint&&!hint.classList.contains('fade')){
+        hint.classList.add('fade');
+        setTimeout(()=>{if(hint)hint.style.display='none';},700);
+      }
+    });
+  svg.call(_kgZoom);
+
+  // Auto-fade hint after 6s if no interaction
+  setTimeout(()=>{
+    const hint=document.getElementById('kg-hint');
+    if(hint&&!hint.classList.contains('fade')){
+      hint.classList.add('fade');
+      setTimeout(()=>{if(hint)hint.style.display='none';},700);
+    }
+  },6000);
+}
+
+function onKgNodeHover(nodeId){
+  const svg=d3.select('#kg-canvas');
+  svg.classed('has-hover',true);
+  d3.select('#kg-canvas').node().classList.add('over-node');
+  // Mark focus + neighbors
+  const neighbors=_kgNeighbors[nodeId]||new Set();
+  KG_BLUEPRINT.nodes.forEach(n=>{
+    const g=document.getElementById('kgn-'+n.id);
+    if(!g)return;
+    g.classList.remove('is-focus','is-neighbor');
+    if(n.id===nodeId)g.classList.add('is-focus');
+    else if(neighbors.has(n.id))g.classList.add('is-neighbor');
+  });
+  // Mark connected edges
+  const edgeIdxs=new Set(_kgEdgesByEndpoint[nodeId]||[]);
+  KG_BLUEPRINT.edges.forEach((e,idx)=>{
+    const line=document.getElementById('kge-'+idx);
+    const lbl=document.getElementById('kgel-'+idx);
+    if(line)line.classList.toggle('is-connected',edgeIdxs.has(idx));
+    if(lbl)lbl.classList.toggle('is-connected',edgeIdxs.has(idx));
+  });
+}
+
+function onKgNodeUnhover(){
+  const svg=d3.select('#kg-canvas');
+  svg.classed('has-hover',false);
+  d3.select('#kg-canvas').node().classList.remove('over-node');
+  document.querySelectorAll('.kg-node-g').forEach(g=>g.classList.remove('is-focus','is-neighbor'));
+  document.querySelectorAll('.kg-edge,.kg-edge-label').forEach(e=>e.classList.remove('is-connected'));
+}
+
+function kgZoomIn(){
+  if(!_kgZoom)return;
+  d3.select('#kg-canvas').transition().duration(280).call(_kgZoom.scaleBy,1.4);
+}
+function kgZoomOut(){
+  if(!_kgZoom)return;
+  d3.select('#kg-canvas').transition().duration(280).call(_kgZoom.scaleBy,0.7);
+}
+function kgResetView(){
+  if(!_kgZoom)return;
+  d3.select('#kg-canvas').transition().duration(360).call(_kgZoom.transform,d3.zoomIdentity);
 }
 
 function revealKgPath(){
@@ -1479,43 +1700,51 @@ function onKgNodeClick(nodeId){
   const n=KG_BLUEPRINT.nodes.find(x=>x.id===nodeId);
   if(!n||!_toolkit)return;
   const secIdx=kgFindSectionForNode(nodeId,_toolkit.sections);
-  // Build relations list
   const outgoing=KG_BLUEPRINT.edges.filter(e=>e.s===nodeId);
   const incoming=KG_BLUEPRINT.edges.filter(e=>e.t===nodeId);
   const labelById=Object.fromEntries(KG_BLUEPRINT.nodes.map(x=>[x.id,x.label]));
-  const catColors={problem:'var(--kg-problem)',logic:'var(--kg-logic)',tool:'var(--kg-tool)',diag:'var(--kg-diag)'};
   const catLabels={problem:'Problem',logic:'Strategic Logic',tool:'Tool / Estimator',diag:'Diagnostic'};
 
-  let relsHtml='';
-  if(outgoing.length||incoming.length){
-    relsHtml+=`<div class="kg-popup-rels"><div class="kg-popup-rels-lbl">Connections</div>`;
+  // Header
+  document.getElementById('kg-drawer-cat').className='kg-drawer-cat '+n.cat;
+  document.getElementById('kg-drawer-cat').textContent=catLabels[n.cat];
+  document.getElementById('kg-drawer-title').textContent=n.label;
+
+  // Body
+  let html=`<div class="kg-drawer-section">
+    <div class="kg-drawer-lbl">Definition</div>
+    <div class="kg-drawer-def">${esc(n.def)}</div>
+  </div>`;
+
+  if(outgoing.length){
+    html+=`<div class="kg-drawer-section"><div class="kg-drawer-lbl">${esc(n.label)} connects to</div>`;
     outgoing.forEach(e=>{
-      relsHtml+=`<div class="kg-popup-rel"><span>${esc(n.label)}</span><span class="kg-popup-rel-arrow">${esc(e.label)} →</span><span class="kg-popup-rel-target">${esc(labelById[e.t]||e.t)}</span></div>`;
+      html+=`<div class="kg-drawer-rel"><span class="kg-drawer-rel-arrow">${esc(e.label)} →</span><span class="kg-drawer-rel-to">${esc(labelById[e.t]||e.t)}</span></div>`;
     });
+    html+=`</div>`;
+  }
+  if(incoming.length){
+    html+=`<div class="kg-drawer-section"><div class="kg-drawer-lbl">Connects from</div>`;
     incoming.forEach(e=>{
-      relsHtml+=`<div class="kg-popup-rel"><span class="kg-popup-rel-target">${esc(labelById[e.s]||e.s)}</span><span class="kg-popup-rel-arrow">${esc(e.label)} →</span><span>${esc(n.label)}</span></div>`;
+      html+=`<div class="kg-drawer-rel"><span class="kg-drawer-rel-from">${esc(labelById[e.s]||e.s)}</span><span class="kg-drawer-rel-arrow">${esc(e.label)} →</span></div>`;
     });
-    relsHtml+=`</div>`;
+    html+=`</div>`;
   }
 
-  let actionHtml=`<div class="kg-popup-actions">`;
+  html+=`<div class="kg-drawer-section"><div class="kg-drawer-actions">`;
   if(secIdx>=0){
-    actionHtml+=`<button class="kg-popup-btn" onclick="closeKgPopup();scrollAndFlash(${secIdx})">Jump to section in toolkit →</button>`;
+    html+=`<button class="kg-drawer-btn" onclick="closeKgDrawer();scrollAndFlash(${secIdx})">Jump to section in toolkit →</button>`;
   }
-  actionHtml+=`<button class="kg-popup-btn secondary" onclick="closeKgPopup()">Close</button>`;
-  actionHtml+=`</div>`;
+  html+=`<button class="kg-drawer-btn secondary" onclick="closeKgDrawer()">Close</button></div></div>`;
 
-  const html=`<div class="kg-popup-cat" style="color:${catColors[n.cat]}">${catLabels[n.cat]}</div>
-    <div class="kg-popup-title">${esc(n.label)}</div>
-    <div class="kg-popup-def">${esc(n.def)}</div>
-    ${relsHtml}
-    ${actionHtml}`;
-  document.getElementById('kg-popup').innerHTML=html;
-  document.getElementById('kg-popup-overlay').classList.add('open');
+  document.getElementById('kg-drawer-body').innerHTML=html;
+  document.getElementById('kg-drawer-overlay').classList.add('open');
+  document.getElementById('kg-drawer').classList.add('open');
 }
 
-function closeKgPopup(){
-  document.getElementById('kg-popup-overlay').classList.remove('open');
+function closeKgDrawer(){
+  document.getElementById('kg-drawer-overlay').classList.remove('open');
+  document.getElementById('kg-drawer').classList.remove('open');
 }
 </script>
 
