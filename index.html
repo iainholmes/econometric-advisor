@@ -51,6 +51,9 @@ body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#020e1f;co
 .q-label{font-size:10px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:8px}
 .q-text{font-size:22px;font-weight:400;color:var(--text);margin-bottom:7px;line-height:1.4}
 .q-sub{font-size:14px;color:var(--muted);margin-bottom:1.75rem}
+.q-back{background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;padding:6px 0;margin-bottom:18px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;letter-spacing:.04em;transition:color .15s}
+.q-back:hover{color:var(--text)}
+.q-back-arrow{font-size:14px;line-height:1}
 .chips{display:flex;flex-direction:column;gap:7px}
 .chip{background:var(--bg2);border:.5px solid var(--border);border-radius:10px;padding:13px 17px;color:var(--muted);font-size:14px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
 .chip:hover{border-color:var(--surface);color:var(--text);background:var(--bg3)}
@@ -115,6 +118,46 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-loading{color:var(--muted);font-size:13.5px;padding:1rem 0;text-align:center}
 .lit-error{color:var(--muted);font-size:13px;padding:1rem;background:var(--bg2);border-radius:8px;border:.5px solid var(--border)}
 .lit-open-hint{font-size:11px;color:var(--hint);font-style:italic;margin-top:2px}
+.lit-journal{color:var(--hint);font-size:10.5px;font-style:italic}
+
+/* TWO-SECTION LITERATURE PANEL */
+.lit-foundation-block{margin-bottom:24px}
+.lit-foundation-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:8px;margin-bottom:10px;border-bottom:.5px solid rgba(126,182,255,.2)}
+.lit-foundation-lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);font-weight:600}
+.lit-foundation-count{font-size:10.5px;color:var(--hint);font-weight:500;letter-spacing:.04em}
+.lit-card-foundational{background:#081729;border-left:2.5px solid #7eb6ff80}
+.lit-card-foundational:hover{border-left-color:#7eb6ff}
+
+.lit-ai-block{margin-top:6px}
+.lit-ai-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:8px;margin-bottom:8px;border-bottom:.5px solid rgba(126,182,255,.2);position:relative}
+.lit-ai-lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);font-weight:600}
+.lit-ai-sub{font-size:10.5px;color:var(--hint);font-weight:500;letter-spacing:.04em}
+
+/* LENS CHIPS + REFRESH */
+.lit-ai-controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.lit-lens-chips{display:flex;gap:5px;flex:1;flex-wrap:wrap;min-width:0}
+.lit-lens-chip{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:11px;padding:5px 10px;border-radius:14px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;white-space:nowrap}
+.lit-lens-chip:hover{border-color:var(--surface);color:var(--text)}
+.lit-lens-chip.active{background:rgba(126,182,255,.12);border-color:#7eb6ff;color:#7eb6ff;font-weight:500}
+.lit-refresh-btn{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:11px;padding:5px 12px;border-radius:14px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0}
+.lit-refresh-btn:hover{border-color:var(--surface);color:var(--text)}
+.lit-refresh-icon{font-size:13px;display:inline-block;line-height:1}
+.lit-refresh-icon.lit-refresh-spin{animation:spin .9s linear infinite}
+.lit-refresh-lbl{letter-spacing:.02em}
+
+/* UPDATED PILL */
+.lit-updated-pill{display:inline-block;margin-left:10px;padding:2px 8px;background:rgba(126,182,255,.18);color:#7eb6ff;font-size:9.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border-radius:10px;border:.5px solid rgba(126,182,255,.3);transition:opacity .6s ease, transform .6s ease;animation:lit-updated-in .25s ease}
+.lit-updated-pill.lit-updated-fade{opacity:0;transform:translateY(-3px)}
+@keyframes lit-updated-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* STICKY SECTION NAV (toolkit-page jump bar) */
+.tk-jump-nav{position:sticky;top:54px;z-index:50;background:rgba(2,14,31,.92);backdrop-filter:blur(8px);border-bottom:.5px solid var(--border);padding:10px 4vw;margin:0 -4vw 18px -4vw;display:none;gap:8px;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tk-jump-nav.show{display:flex}
+.tk-jump-nav::-webkit-scrollbar{height:0}
+.tk-jump-lbl{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:600;flex-shrink:0;margin-right:6px}
+.tk-jump-chip{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:11px;padding:5px 11px;border-radius:14px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.tk-jump-chip:hover{border-color:var(--surface);color:var(--text)}
+.tk-jump-chip.active{background:rgba(126,182,255,.12);border-color:#7eb6ff;color:#7eb6ff;font-weight:500}
 /* TOOLKIT WITH LEFT RAIL */
 .toolkit-section{margin-top:2rem}
 .toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
@@ -318,6 +361,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .src-fit-block{background:linear-gradient(135deg,rgba(126,182,255,.08),rgba(126,182,255,.02));border:.5px solid rgba(126,182,255,.25);border-left:3px solid #7eb6ff;border-radius:6px;padding:14px 16px;margin-bottom:22px}
 .src-fit-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .src-fit-lbl::before{content:'';width:5px;height:5px;border-radius:50%;background:#7eb6ff}
+.src-fit-enhance{margin-left:auto;font-size:9.5px;color:rgba(126,182,255,.65);text-transform:none;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;font-style:italic}
+.src-fit-enhance .src-fit-spinner{width:9px;height:9px;border-width:1.2px}
 .src-fit-text{color:var(--text);font-size:13.5px;line-height:1.65}
 .src-fit-loading{display:flex;align-items:center;gap:10px;color:var(--hint);font-size:12.5px;font-style:italic}
 .src-fit-spinner{width:13px;height:13px;border:1.5px solid rgba(126,182,255,.2);border-top-color:#7eb6ff;border-radius:50%;animation:spin .9s linear infinite}
@@ -638,17 +683,24 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <div class="loading"><div class="spinner"></div><p id="loading-msg">Building your toolkit...</p></div>
 </div>
 <div id="screen-results" style="display:none">
+  <nav class="tk-jump-nav" id="tk-jump-nav" aria-label="Toolkit sections">
+    <span class="tk-jump-lbl">Jump to</span>
+    <button class="tk-jump-chip" data-target="tk-narrative" onclick="jumpToSection('tk-narrative')">Overview</button>
+    <button class="tk-jump-chip" data-target="tk-twocol" onclick="jumpToSection('tk-twocol')">Sources &amp; literature</button>
+    <button class="tk-jump-chip" data-target="tk-spec" onclick="jumpToSection('tk-spec')">Methodological specs</button>
+    <button class="tk-jump-chip" data-target="tk-graph" onclick="jumpToSection('tk-graph')">Knowledge graph</button>
+  </nav>
   <div class="results" id="results-inner"></div>
 </div>
 
 <div class="modal-bg" id="api-modal" style="display:none">
   <div class="modal">
-    <h2>Anthropic API key</h2>
-    <p>Enter your API key to enable AI-powered narrative tailoring. Stored only in this browser session, sent only to Anthropic.</p>
+    <h2>Anthropic API key &mdash; optional</h2>
+    <p>The toolkit, knowledge graph, and reference library work without a key. Add an Anthropic API key to unlock AI-curated literature recommendations and AI-tailored narrative language. Stored only in this browser session, sent only to Anthropic.</p>
     <input type="password" id="api-key-input" placeholder="sk-ant-..."/>
     <div class="modal-actions">
       <button class="btn-primary" onclick="saveKey()">Save key</button>
-      <button class="btn-skip" onclick="skipKey()" style="background:transparent;border:.5px solid var(--border);border-radius:9px;color:var(--hint);padding:12px 16px;font-size:13px;cursor:pointer;font-family:inherit">Skip</button>
+      <button class="btn-skip" onclick="skipKey()" style="background:transparent;border:.5px solid var(--border);border-radius:9px;color:var(--hint);padding:12px 16px;font-size:13px;cursor:pointer;font-family:inherit">Skip &mdash; continue without AI features</button>
     </div>
     <p class="modal-note">Get your key at console.anthropic.com under API Keys.</p>
   </div>
@@ -781,7 +833,7 @@ function saveKey(){const k=document.getElementById('api-key-input').value.trim()
 function skipKey(){document.getElementById('api-modal').style.display='none';beginQuiz();}
 function resetKey(){localStorage.removeItem('ea_ak');apiKey='';document.getElementById('api-key-input').value='';document.getElementById('api-modal').style.display='flex';}
 function beginQuiz(){step=0;ans={};renderQ();}
-function resetApp(){step=-1;ans={};show('landing');document.getElementById('hdr').style.display='none';setProgress(0);}
+function resetApp(){step=-1;ans={};_sourceFitCache={};_sourceFitAIDone={};_drawerSources=[];_drawerToolkit=null;_drawerPapers=[];_drawerAnswers={};_litLens='recent';_litShownTitles=new Set();_litAIPapers=[];_litFoundational=[];_litLastAnswers=null;_litLastToolkit=null;show('landing');document.getElementById('hdr').style.display='none';setProgress(0);const nav=document.getElementById('tk-jump-nav');if(nav)nav.classList.remove('show');}
 
 function openClaudeHandoff(){
   // Build a summary prompt the user can carry into claude.ai for deeper analysis with file uploads
@@ -819,14 +871,19 @@ function renderQ(){
   setHdr('question '+(step+1)+' of '+QS.length,false);
   setProgress((step/QS.length)*100);
   const el=document.getElementById('quiz-inner');
+  // Back button — only when there's a prior question to go back to.
+  // Sits as an unobtrusive link above the question label.
+  const backBtn = step > 0
+    ? `<button class="q-back" onclick="prevStep()" aria-label="Previous question"><span class="q-back-arrow">&larr;</span> Back</button>`
+    : '';
   if(q.type==='chips'){
-    el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
+    el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
     <div class="chips">${q.opts.map(o=>`<button class="chip${ans[q.id]===o.v?' sel':''}${o.v==='unsure'?' na':''}" onclick="selChip('${o.v}')">${o.l}</button>`).join('')}</div>`;
   } else if(q.type==='multi'){
     const sel=Array.isArray(ans[q.id])?ans[q.id]:[];
-    el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
+    el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
     <div class="chips">${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
@@ -836,7 +893,7 @@ function renderQ(){
     const primaryLbl=isLast?'Generate toolkit':'Continue';
     const skipLbl=isLast?'Skip':'Skip this question';
     const action=isLast?'generate':'nextStep';
-    el.innerHTML=`<div class="q-label">Question ${step+1} of ${QS.length}</div>
+    el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
     <textarea class="ctx" placeholder="${q.placeholder||''}" oninput="ans['${q.id}']=this.value">${ans[q.id]||''}</textarea>
@@ -855,6 +912,18 @@ function nextStep(){
   }
   if(next<QS.length){step=next;renderQ();}else generate();
 }
+// Walk backward through the question list, skipping questions that were
+// hidden by skipIf in the forward direction. Clears the '_skipped' marker
+// on questions we pass over so they can be re-evaluated if the user changes
+// an upstream answer that affects the skip predicate.
+function prevStep(){
+  let prev=step-1;
+  while(prev>=0&&ans[QS[prev].id]==='_skipped'){
+    delete ans[QS[prev].id];
+    prev--;
+  }
+  if(prev>=0){step=prev;renderQ();}
+}
 
 let _toolkit=null,_aiPayload=null;
 
@@ -863,18 +932,404 @@ async function generate(){
   document.getElementById('loading-msg').textContent='Building your toolkit...';
   const tk=buildToolkit(ans);
   _toolkit=tk;
-  let ai=null;
+  // Always build the local (deterministic) payload first.
+  // This means a user with no API key still gets a full narrative,
+  // adjustments, watchout, and per-section rationales.
+  let payload=buildLocalPayload(tk);
   if(apiKey&&apiKey.length>20){
-    document.getElementById('loading-msg').textContent='Writing your research narrative...';
-    ai=await enrichWithAI(ans,tk);
+    document.getElementById('loading-msg').textContent='Enhancing with AI-tailored language...';
+    const aiPayload=await enrichWithAI(ans,tk);
+    if(aiPayload){
+      // Merge: AI fields override local where present
+      payload={
+        narrative: aiPayload.narrative || payload.narrative,
+        section_reasons: {...payload.section_reasons, ...(aiPayload.section_reasons||{})},
+        key_adjustments: aiPayload.key_adjustments?.length ? aiPayload.key_adjustments : payload.key_adjustments,
+        watchout: aiPayload.watchout || payload.watchout,
+        _local: false
+      };
+    }
   }
-  _aiPayload=ai;
-  renderResults(tk,ai);
+  _aiPayload=payload;
+  renderResults(tk,payload);
+  // Literature is the only piece that REQUIRES AI — render placeholder otherwise
   fetchLiterature(ans,tk);
+  // fetchSectionRationales overwrites with richer AI text when key is present
   if(apiKey&&apiKey.length>20)fetchSectionRationales(ans,tk);
   show('results');
   setHdr('your toolkit',true);
   document.getElementById('btn-reset').style.display='inline-flex';
+}
+
+// ============================================================
+// LOCAL CONTENT BUILDERS (deterministic, no AI required)
+// These produce the same {narrative, section_reasons, key_adjustments, watchout}
+// shape as enrichWithAI so the renderer is shape-agnostic.
+// AI enhancement, when an API key is present, simply overwrites these defaults.
+// ============================================================
+
+// Phrasing tables — keyed on the questionnaire's option values.
+const _STAGE_PHRASE = {
+  'proposal':       'are in the proposal stage of',
+  'data_prep':      'are preparing data for',
+  'estimating':     'are running models for',
+  'refining':       'are refining the specification of',
+  'revising':       'are revising',
+  'unsure':         'are working on'
+};
+const _FIELD_PHRASE = {
+  'env':            'an environmental and resource economics study',
+  'urban':          'an urban and regional economics study',
+  'health':         'a health economics study',
+  'labor':          'a labor economics study',
+  'public':         'a public economics study',
+  'dev':            'a development economics study',
+  'macro':          'a macro / international study',
+  'io':             'an industrial-organization study',
+  'ag':             'an agricultural economics study',
+  'finance':        'a finance study',
+  'edu':            'an education economics study'
+};
+const _Q_TYPE_PHRASE = {
+  'causal':         'aimed at recovering a causal effect',
+  'descriptive':    'aimed at characterizing a relationship descriptively',
+  'predictive':     'aimed at building a predictive model',
+  'welfare':        'aimed at quantifying welfare or a policy parameter',
+  'policy':         'aimed at evaluating a policy intervention'
+};
+const _TREATMENT_PHRASE = {
+  'env_reg':        'a regulatory or contamination event',
+  'infra':          'an infrastructure intervention',
+  'policy':         'a policy or program rollout',
+  'price':          'a price or market shock',
+  'natural':        'a natural or environmental shock',
+  'none':           'no explicit treatment',
+  'unsure':         'a treatment whose form is still being defined'
+};
+const _OUTCOME_PHRASE = {
+  'continuous':     'a continuous outcome',
+  'binary':         'a binary outcome',
+  'count':          'a count outcome',
+  'duration':       'a duration outcome',
+  'censored':       'a censored or limited outcome',
+  'multinomial':    'a multinomial outcome',
+  'ordinal':        'an ordinal outcome'
+};
+const _ENDOG_PHRASE = {
+  'natexp':         'a natural-experiment design that exploits exogenous timing or assignment',
+  'iv':             'an instrumental-variables strategy',
+  'rdd':            'a regression-discontinuity design',
+  'soo':            'selection on observables — controlling for confounders directly',
+  'panel':          'panel-fixed-effects identification absorbing unit-invariant unobservables',
+  'none':           'no explicit identification strategy yet',
+  'unsure':         'an identification strategy still being chosen'
+};
+const _GEO_PHRASE = {
+  'central':        'with geography as a central feature of the design',
+  'controls':       'with geography entering as controls',
+  'no':             'without spatial structure as a primary concern',
+  'unsure':         'with the role of geography still being assessed'
+};
+const _FF_PHRASE = {
+  'linear':         'a linear functional form is appropriate for your purposes',
+  'nonlinear':      'nonlinear effects are central to the question',
+  'unsure':         'the appropriate functional form is still being explored'
+};
+const _DATASTRUCT_PHRASE = {
+  'panel':          'panel',
+  'cross':          'cross-sectional',
+  'repcross':       'repeated cross-section',
+  'ts':             'time-series',
+  'unsure':         'as-yet-undefined'
+};
+
+// Helper: pick first non-null phrase for a value, fall back to passthrough.
+function _phrase(table, value, fallback) {
+  if (value == null || value === '_skipped') return fallback || '';
+  return table[value] || fallback || value;
+}
+function _v(key) {
+  const x = ans[key];
+  if (!x || x === '_skipped') return null;
+  return x;
+}
+
+// ----- Narrative paragraph -----
+function buildLocalNarrative(tk) {
+  const stage = _phrase(_STAGE_PHRASE, _v('stage'), 'are working on');
+  const field = _phrase(_FIELD_PHRASE, _v('field'), 'an applied economics study');
+  const qtype = _phrase(_Q_TYPE_PHRASE, _v('question_type'), '');
+  const treatment = _v('treatment');
+  const treatmentClause = treatment && treatment !== 'none'
+    ? `centered on ${_phrase(_TREATMENT_PHRASE, treatment)}`
+    : '';
+  const outcome = _v('outcome');
+  const outcomeClause = outcome
+    ? `${_phrase(_OUTCOME_PHRASE, outcome)}`
+    : '';
+  const endog = _v('endogeneity');
+  const identClause = endog
+    ? `Identification rests on ${_phrase(_ENDOG_PHRASE, endog)}`
+    : '';
+  const dataStruct = _v('data_structure');
+  const dataClause = dataStruct
+    ? `using ${_phrase(_DATASTRUCT_PHRASE, dataStruct)} data`
+    : '';
+  const geoClause = _phrase(_GEO_PHRASE, _v('geo'), '');
+  const ffClause = _phrase(_FF_PHRASE, _v('functional_form'), '');
+
+  // Compose three sentences. Keep them readable when some clauses are empty.
+  const sentences = [];
+
+  // Sentence 1: what they're studying
+  let s1 = `You ${stage} ${field}`;
+  if (qtype) s1 += `, ${qtype}`;
+  if (treatmentClause) s1 += `, ${treatmentClause}`;
+  s1 += '.';
+  sentences.push(s1);
+
+  // Sentence 2: the data and identification frame
+  let s2parts = [];
+  if (dataClause) s2parts.push(dataClause.charAt(0).toUpperCase() + dataClause.slice(1));
+  if (outcomeClause) s2parts.push(`with ${outcomeClause}`);
+  if (geoClause) s2parts.push(geoClause);
+  if (s2parts.length) sentences.push(s2parts.join(', ') + '.');
+
+  // Sentence 3: what the toolkit is doing
+  if (identClause) sentences.push(identClause + '.');
+  if (ffClause) sentences.push(ffClause.charAt(0).toUpperCase() + ffClause.slice(1) + '.');
+
+  // Sentence 4: how the toolkit responds
+  const sectionLabels = (tk.sections || []).map(s => s.label.toLowerCase()).join(', ');
+  if (sectionLabels) {
+    sentences.push(`The toolkit below is structured around ${sectionLabels}, in that order.`);
+  }
+
+  return sentences.join(' ');
+}
+
+// ----- Per-section rationales -----
+// Keyed on section.label; returns text given the user's answers.
+function buildLocalSectionReasons(tk) {
+  const reasons = {};
+  const treatment = _v('treatment');
+  const endog = _v('endogeneity');
+  const dataStruct = _v('data_structure');
+  const geo = _v('geo');
+  const ff = _v('functional_form');
+  const outcome = _v('outcome');
+  const inference = _v('inference_concerns');
+
+  (tk.sections || []).forEach(sec => {
+    const label = sec.label;
+    if (label === 'Identification strategy') {
+      const identReason = endog === 'natexp'
+        ? 'A natural-experiment design lets you argue that treatment timing or assignment is uncorrelated with the error term — the cleanest case for a causal interpretation. The estimator family below operationalizes that argument.'
+        : endog === 'iv'
+        ? 'An IV strategy needs an instrument that affects treatment but not the outcome directly. The toolkit assumes you have a candidate; the diagnostic checklist below tests it.'
+        : endog === 'rdd'
+        ? 'Regression discontinuity exploits a sharp cutoff in treatment assignment. The bandwidth choice and continuity tests below are the validity backbone.'
+        : endog === 'soo'
+        ? 'Selection on observables is a strong claim — every confounder must be in the controls. Use this when treatment assignment is plausibly random conditional on observables.'
+        : endog === 'panel'
+        ? 'Panel fixed effects absorb unit-invariant unobservables. Identification then rests on within-unit variation over time.'
+        : 'The identification strategy frames everything else in the toolkit. Pin this down before estimating anything.';
+      reasons[label] = identReason;
+    }
+    else if (label === 'Estimator & model specification') {
+      const parts = [];
+      if (outcome === 'continuous') parts.push('Your continuous outcome makes OLS-family estimators the natural starting point.');
+      else if (outcome === 'binary') parts.push('Your binary outcome calls for logit, probit, or the linear probability model with appropriate caveats.');
+      else if (outcome === 'count') parts.push('Your count outcome is best modeled with Poisson, negative binomial, or PPML — not OLS in levels.');
+      else if (outcome === 'duration') parts.push('Your duration outcome calls for a hazard model — Cox proportional hazards or accelerated failure time.');
+      else if (outcome === 'censored') parts.push('Your censored or limited outcome calls for Tobit, Heckman selection, or related estimators.');
+      else parts.push('The estimator family is selected based on your outcome variable type.');
+      if (treatment === 'env_reg' || treatment === 'infra' || treatment === 'policy') {
+        parts.push('Given your treatment-event design, expect to layer fixed effects and clustered SEs on top of the base estimator.');
+      }
+      reasons[label] = parts.join(' ');
+    }
+    else if (label === 'Functional form') {
+      reasons[label] = ff === 'nonlinear'
+        ? 'You flagged that nonlinear effects are central to the question — quadratic terms, splines, or kernel regression are all on the table. The joint F-test below is mandatory whenever polynomial terms are included.'
+        : 'Even when linear effects are appropriate for your purposes, document the choice. Reviewers will ask why you did not test a quadratic specification.';
+    }
+    else if (label === 'Panel data structure') {
+      reasons[label] = dataStruct === 'panel' && (treatment === 'env_reg' || treatment === 'infra' || treatment === 'policy')
+        ? 'Your panel + treatment-event combination is the canonical setup for difference-in-differences. The Callaway-Sant\'Anna or Sun-Abraham estimators handle staggered treatment timing without the bias of two-way fixed effects.'
+        : dataStruct === 'panel'
+        ? 'Panel data lets you absorb time-invariant unit characteristics through fixed effects. The Hausman test below decides between fixed and random effects.'
+        : 'Panel methods are surfaced here because the data structure pattern in your design supports them. Pre-trend testing is required before any DiD claim.';
+    }
+    else if (label === 'Spatial econometrics') {
+      reasons[label] = geo === 'central'
+        ? 'You flagged geography as a central feature of the design — Moran\'s I should be your first diagnostic. If positive, the SAR or SEM specifications below address the dependence in the standard errors and the coefficients.'
+        : 'Spatial methods are recommended when units have geographic relationships that violate independence. Even with geography as controls only, run Moran\'s I on residuals as a robustness check.';
+    }
+    else if (label === 'Inference & diagnostic checklist') {
+      const concerns = Array.isArray(inference) ? inference : (inference ? [inference] : []);
+      const items = [];
+      if (concerns.includes('clustering')) items.push('cluster-robust standard errors at the appropriate level');
+      if (concerns.includes('multiple_test')) items.push('multiple-testing corrections');
+      if (concerns.includes('weak_id')) items.push('weak-identification diagnostics');
+      if (concerns.includes('hetero')) items.push('heteroskedasticity-robust SEs');
+      reasons[label] = items.length
+        ? `Based on your flagged inference concerns, the checklist emphasizes ${items.join(', ')}. Each item below is a concrete diagnostic, not a vague reminder.`
+        : 'The diagnostic checklist is field-standard regardless of design — robust SEs, multiple-testing corrections where applicable, and the joint F-test for any polynomial specification.';
+    }
+    else {
+      reasons[label] = `Selected based on your design (${tk.sections.find(s=>s.label===label)?.method||'method'}).`;
+    }
+  });
+  return reasons;
+}
+
+// ----- Key adjustments (the "Design-specific adjustments" list) -----
+function buildLocalKeyAdjustments(tk) {
+  const adjustments = [];
+  const treatment = _v('treatment');
+  const endog = _v('endogeneity');
+  const dataStruct = _v('data_structure');
+  const geo = _v('geo');
+  const ff = _v('functional_form');
+  const outcome = _v('outcome');
+  const nTreated = _v('n_treated');
+
+  if (treatment === 'env_reg' && dataStruct === 'panel') {
+    adjustments.push('Use staggered DiD estimators (Callaway-Sant\'Anna, Sun-Abraham) — never two-way fixed effects directly when treatment timing varies.');
+  }
+  if (endog === 'iv') {
+    adjustments.push('Report the first-stage F-statistic and the Anderson-Rubin or Stock-Yogo weak-IV diagnostics. Without them, the IV estimate is uninterpretable.');
+  }
+  if (endog === 'rdd') {
+    adjustments.push('Report bandwidth sensitivity (CCT and IK optimal bandwidths) and the McCrary density test for manipulation around the cutoff.');
+  }
+  if (geo === 'central') {
+    adjustments.push('Construct the spatial weights matrix W explicitly and document the choice — k-nearest-neighbors, queen contiguity, or distance-based all give different inference.');
+  }
+  if (ff === 'nonlinear') {
+    adjustments.push('When polynomial or interaction terms are included, individual t-statistics are not the primary inference — report the joint F-test.');
+  }
+  if (outcome === 'count') {
+    adjustments.push('Prefer PPML over log-linearized OLS for count outcomes — it handles zeros and is consistent under heteroskedasticity.');
+  }
+  if (nTreated === '1' || nTreated === 'few') {
+    adjustments.push('With one or few treated units, synthetic control or permutation inference outperforms standard cluster-robust SEs.');
+  }
+  if (dataStruct === 'panel' && !endog) {
+    adjustments.push('Cluster standard errors at the unit level when using panel data; clustering at higher levels (state, region) is more conservative if treatment is at that level.');
+  }
+  // Always include at least one adjustment so the section never reads empty
+  if (!adjustments.length) {
+    adjustments.push('Document every modeling choice with a brief justification — even ones that feel obvious. Reviewers and committee members will ask why you did not consider alternatives.');
+  }
+  return adjustments.slice(0, 4);
+}
+
+// ----- Watchout (single most-relevant caution) -----
+function buildLocalWatchout(_tk) {
+  const treatment = _v('treatment');
+  const endog = _v('endogeneity');
+  const dataStruct = _v('data_structure');
+  const geo = _v('geo');
+  const nTreated = _v('n_treated');
+
+  if (endog === 'soo') {
+    return 'Selection on observables is the most consequential identification claim you can make — it implies you have measured every confounder. Be ready to defend this assumption explicitly. Reviewers treat unaddressed selection on observables as a fatal flaw.';
+  }
+  if (endog === 'natexp' && dataStruct === 'panel') {
+    return 'A natural-experiment design with panel data is only as credible as the parallel trends assumption. The pre-trend event study is not optional — a trending pre-period invalidates the causal interpretation regardless of how the post-period looks.';
+  }
+  if (endog === 'iv') {
+    return 'IV is only as good as the exclusion restriction, which cannot be tested directly. If your instrument plausibly affects the outcome through any channel other than treatment, the estimate is biased — possibly worse than OLS.';
+  }
+  if (endog === 'rdd') {
+    return 'Manipulation around the cutoff invalidates RD. Run the McCrary density test and inspect the running variable\'s distribution by eye. If sorting is plausible, the design is dead.';
+  }
+  if (geo === 'central') {
+    return 'Geographic units are almost never independent. Report Moran\'s I on residuals as a baseline check. If positive, your standard errors are wrong without spatial corrections.';
+  }
+  if (nTreated === '1' || nTreated === 'few') {
+    return 'Inference with one or few treated units is fragile. Cluster-robust SEs are unreliable below ~30 clusters. Consider synthetic control with permutation inference, or wild-cluster bootstrap.';
+  }
+  return 'The single biggest cause of rejected applied-econometrics papers is unaddressed alternative explanations for the result. Pre-register or document robustness checks that would falsify your story, not just confirm it.';
+}
+
+// ----- Per-source fit notes (for the data-sources drawer) -----
+// Tag-driven: each source has tags, and we pick the most-relevant template
+// based on the user's design. Returns the same {fit_text} content the AI used to.
+function buildLocalSourceFit(source) {
+  if (!source) return '';
+  const tags = source.tags || [];
+  const treatment = _v('treatment');
+  const endog = _v('endogeneity');
+  const geo = _v('geo');
+  const dataStruct = _v('data_structure');
+  const field = _v('field');
+  const isHedonic = (field === 'env' || field === 'urban') && (treatment === 'env_reg' || treatment === 'infra');
+
+  // Source-name-specific templates first — these read most naturally
+  const NAME_TEMPLATES = {
+    'American Community Survey (ACS)':
+      isHedonic
+        ? 'For a hedonic study, ACS supplies the demographic and housing-stock controls you need at tract or ZCTA level — median home value as a baseline outcome, plus income, density, race composition, and tenure as covariates. Pin to a single vintage (e.g., 5-year 2018-2022) for the entire panel and document boundary changes if you cross vintages. Margins of error widen for small geographies, so be cautious before pushing to block-group level.'
+        : 'ACS gives you the standard set of demographic and housing controls at any Census geography. Choose the geographic level that matches your unit of analysis, and use 5-year estimates for stable small-area data. Watch the moving-average nature of multi-year estimates when interpreting them around treatment events.',
+    'FHFA House Price Index':
+      isHedonic
+        ? 'FHFA HPI is the gold standard for tracking housing prices over time at the metro and ZIP level. For your hedonic study it gives you a comparison series — does your treatment-area trajectory diverge from the broader market? Repeat-sales methodology means it excludes new construction, so check sample composition before drawing strong conclusions in fast-developing areas.'
+        : 'The FHFA HPI provides a clean repeat-sales index at quarterly frequency for metros and zip codes. Best used to deflate price series or as a control for broader market movements when local prices are the outcome.',
+    'Zillow Research Data':
+      'Zillow ZHVI is a smoothed estimate based on Zillow\'s proprietary methodology — useful for ZIP-level monthly series back to early 2000s. For research, treat it as complementary to FHFA HPI rather than a substitute: ZHVI captures more of the market (including unsold homes) but the smoothing methodology is opaque and not peer-reviewed.',
+    'National Inventory of Dams (NID)':
+      treatment === 'infra'
+        ? 'NID is the canonical dataset for dam-proximity studies — geocoded coordinates for every dam in the country plus year completed, hazard class, and purpose. Your distance-to-dam variable likely comes directly from this. Coordinate precision varies by state-reporting agency, so spot-check against satellite imagery in your study area before committing to a buffer-radius specification.'
+        : 'NID provides geolocated dam coordinates with rich attribute data. If your design touches infrastructure, this is the merge target for any spatial join. The variable "year completed" is missing for ~5% of records; fill in carefully or restrict your sample.',
+    'EPA ECHO / Toxic Release Inventory':
+      treatment === 'env_reg'
+        ? 'For a contamination or regulatory-event study, ECHO gives you facility-level compliance and emissions data — exactly what you need to define treatment intensity beyond a binary indicator. Self-reported TRI emissions have known under-reporting in some sectors, so use multiple sources where possible.'
+        : 'ECHO is the EPA\'s public-facing compliance database. Useful for defining treatment areas (proximity to non-compliant facilities) or as covariates capturing local environmental burden.',
+    'FEMA National Flood Hazard Layer':
+      'FEMA\'s NFHL gives you 100-year floodplain polygons that vary by community. For any hedonic or capitalization study, the date-of-sale-appropriate map matters — flood zone designations change as Letters of Map Revision are issued. Many areas are still on outdated maps; verify the effective date for your sample period.',
+    'EPA PFAS Analytics Tool':
+      treatment === 'env_reg' || field === 'env'
+        ? 'PFAS Analytics Tool provides site-level monitoring data — sampling location, date, and concentration by compound. For a regulatory study, the non-random nature of monitoring is the central caveat: areas without monitoring programs appear "clean" because they\'re not being tested. Detection limits have shifted over time, so document the threshold you\'re using.'
+        : 'PFAS Analytics Tool is a site-level dataset that\'s most useful when contamination data directly enters your design. Coverage is densest where state monitoring programs are active.',
+    'Census TIGER/Line Shapefiles':
+      geo
+        ? 'TIGER/Line is the canonical source of Census boundary files — ZCTA, tract, county, and centroid geometries you\'ll use for any spatial merge. Pin to a single vintage for the entire study panel; boundary definitions change between annual vintages and ZCTAs are approximations of postal ZIPs that occasionally diverge.'
+        : 'TIGER/Line gives you the geometric backbone for Census geographies. If your study has any spatial component, this is where the polygons and centroids come from.',
+    'Census Gazetteer Files':
+      'The Gazetteer files give you land area, water area, and internal point coordinates for Census geographies. For density variables or as components of an IV (Bartik-style instruments often use Gazetteer-derived areas), it\'s the cleanest source. As an instrument, rule out direct effects on your outcome before relying on it.',
+    'FRED — St. Louis Fed':
+      'FRED is the standard source for macro and financial controls — interest rates, mortgage rates, deflators, employment. For your study, use it for time-series controls or to deflate any nominal price series. Always check vintage: FRED series are revised, and replication requires noting which vintage you used.',
+    'Harvard Dataverse':
+      'Dataverse is where many published papers archive their replication packages. Useful for cross-checking sample restrictions in papers you cite, or for finding cleaned datasets that match your design. Quality varies by deposit — always cross-reference the original paper before using a Dataverse file as your primary source.'
+  };
+
+  if (NAME_TEMPLATES[source.n]) return NAME_TEMPLATES[source.n];
+
+  // Fallback for sources without a specific template — generic by tag
+  if (tags.includes('hedonic') && isHedonic) {
+    return `${source.n} fits a hedonic design directly. Merge it with your housing or property data on the appropriate geographic key (ZCTA, tract, or county) and document boundary alignment between vintages.`;
+  }
+  if (tags.includes('treatment') && treatment) {
+    return `${source.n} is relevant when your treatment definition involves ${_phrase(_TREATMENT_PHRASE, treatment)}. Use it to construct treatment intensity measures rather than a binary indicator where possible.`;
+  }
+  if (tags.includes('spatial') && geo) {
+    return `${source.n} provides the geographic backbone for your spatial design. Pin to a single vintage and verify boundary alignment with your other data sources.`;
+  }
+  return `${source.n} is recommended given the structural features of your design. ${source.d}.`;
+}
+
+// ----- Wrapper that builds the full local payload, same shape as enrichWithAI -----
+function buildLocalPayload(tk) {
+  return {
+    narrative: buildLocalNarrative(tk),
+    section_reasons: buildLocalSectionReasons(tk),
+    key_adjustments: buildLocalKeyAdjustments(tk),
+    watchout: buildLocalWatchout(tk),
+    _local: true   // marker for debugging
+  };
 }
 
 async function enrichWithAI(_a,tk){
@@ -966,6 +1421,347 @@ function buildLitQuery(a){
   return terms.slice(0,3).join(' ');
 }
 
+// ============================================================
+// FOUNDATIONAL PAPER CORPUS
+// Static reference papers shown in the literature panel regardless of API
+// key. Tag-driven so a single paper can serve multiple design archetypes
+// (e.g., Bertrand-Duflo-Mullainathan tags both 'did' and 'inference').
+// Tags map to:
+//   hedonic   — hedonic / non-market valuation studies
+//   did       — difference-in-differences and staggered treatment
+//   iv        — instrumental variables
+//   rd        — regression discontinuity
+//   spatial   — spatial econometrics
+//   panel     — panel data and clustering
+//   inference — inference, SEs, robustness
+//   causal    — broad causal-inference foundations
+// ============================================================
+const FOUNDATIONAL_PAPERS = [
+  // ----- Causal inference foundations (broad) -----
+  {
+    title: "The Credibility Revolution in Empirical Economics: How Better Research Design Is Taking the Con out of Econometrics",
+    authors: "Angrist, Joshua; Pischke, Jorn-Steffen",
+    year: 2010,
+    journal: "Journal of Economic Perspectives",
+    abstract: "Argues that empirical economics has been transformed by a focus on research design — natural experiments, IV, RD, and DiD — that lets researchers credibly identify causal effects. Frames the methodological shift that defines modern applied work.",
+    estimator: "Methodological overview",
+    relevance: "The canonical statement of the design-based approach that underlies most modern applied econometrics.",
+    citations: "5400",
+    doi_or_url: "https://doi.org/10.1257/jep.24.2.3",
+    tags: ['causal','iv','did','rd']
+  },
+  {
+    title: "Mostly Harmless Econometrics: An Empiricist's Companion",
+    authors: "Angrist, Joshua; Pischke, Jorn-Steffen",
+    year: 2009,
+    journal: "Princeton University Press",
+    abstract: "The standard graduate textbook for design-based applied econometrics. Covers OLS, matching, IV, DiD, RD, and quantile regression with emphasis on identification rather than estimation mechanics.",
+    estimator: "Multiple",
+    relevance: "Required reading for any modern applied empirical work — establishes the conceptual framework most journals expect.",
+    citations: "21000",
+    doi_or_url: "https://www.mostlyharmlesseconometrics.com/",
+    tags: ['causal','iv','did','rd','panel']
+  },
+
+  // ----- Hedonic / non-market valuation -----
+  {
+    title: "Hedonic Prices and Implicit Markets: Product Differentiation in Pure Competition",
+    authors: "Rosen, Sherwin",
+    year: 1974,
+    journal: "Journal of Political Economy",
+    abstract: "The theoretical foundation for hedonic pricing analysis. Shows that the price of a heterogeneous good can be decomposed into implicit prices of its constituent characteristics, interpretable as marginal willingness to pay in equilibrium.",
+    estimator: "Hedonic regression",
+    relevance: "The original derivation of marginal-WTP interpretation in hedonic models — every hedonic study cites this.",
+    citations: "12500",
+    doi_or_url: "https://doi.org/10.1086/260169",
+    tags: ['hedonic']
+  },
+  {
+    title: "On the Use of Hedonic Price Functions to Measure Welfare",
+    authors: "Bartik, Timothy J.",
+    year: 1988,
+    journal: "Journal of Environmental Economics and Management",
+    abstract: "Clarifies how hedonic price gradients translate (and do not translate) into welfare measures. Identifies the conditions under which the hedonic gradient equals marginal willingness to pay.",
+    estimator: "Hedonic regression — welfare interpretation",
+    relevance: "Essential for any hedonic study making welfare claims — clarifies what your coefficients mean economically.",
+    citations: "850",
+    doi_or_url: "https://doi.org/10.1016/0095-0696(88)90030-2",
+    tags: ['hedonic']
+  },
+  {
+    title: "Valuing Disamenities Using a Locally Weighted Regression: A Hedonic Analysis of Air Quality in Los Angeles",
+    authors: "Anselin, Luc; Lozano-Gracia, Nancy",
+    year: 2008,
+    journal: "Empirical Economics",
+    abstract: "Applies spatially-weighted hedonic regression to value air-quality disamenities in Los Angeles housing markets. Demonstrates the consequences of ignoring spatial dependence in hedonic studies.",
+    estimator: "Spatial hedonic (GWR / SAR)",
+    relevance: "Canonical example of how spatial dependence biases hedonic gradient estimates if ignored.",
+    citations: "320",
+    doi_or_url: "https://doi.org/10.1007/s00181-007-0148-z",
+    tags: ['hedonic','spatial']
+  },
+  {
+    title: "Superfund Cleanups and Infant Health",
+    authors: "Currie, Janet; Greenstone, Michael; Moretti, Enrico",
+    year: 2011,
+    journal: "American Economic Review: Papers and Proceedings",
+    abstract: "Uses Superfund site cleanups as natural experiments to estimate the effect of contamination remediation on infant health outcomes. Combines spatial proximity to sites with timing of cleanups in a DiD framework.",
+    estimator: "DiD with spatial proximity",
+    relevance: "Template for combining contamination treatment events with hedonic-style spatial analysis — directly relevant for any environmental quality study.",
+    citations: "750",
+    doi_or_url: "https://doi.org/10.1257/aer.101.3.435",
+    tags: ['hedonic','did','spatial']
+  },
+
+  // ----- Difference-in-differences -----
+  {
+    title: "How Much Should We Trust Differences-in-Differences Estimates?",
+    authors: "Bertrand, Marianne; Duflo, Esther; Mullainathan, Sendhil",
+    year: 2004,
+    journal: "Quarterly Journal of Economics",
+    abstract: "Documents that conventional DiD inference dramatically understates standard errors when the outcome is serially correlated. Establishes cluster-robust SEs as the minimum standard for any DiD study with panel data.",
+    estimator: "DiD with cluster-robust SEs",
+    relevance: "The foundational paper on DiD inference — failing to address its critique is a fatal flaw in most journals.",
+    citations: "9800",
+    doi_or_url: "https://doi.org/10.1162/003355304772839588",
+    tags: ['did','panel','inference']
+  },
+  {
+    title: "Difference-in-Differences with Multiple Time Periods",
+    authors: "Callaway, Brantly; Sant'Anna, Pedro H.C.",
+    year: 2021,
+    journal: "Journal of Econometrics",
+    abstract: "Develops the DiD estimator for staggered treatment timing that avoids the bias documented in two-way fixed effects designs. Provides an aggregation framework for group-time average treatment effects.",
+    estimator: "Staggered DiD (CS estimator)",
+    relevance: "The current methodological frontier for staggered treatment timing — supersedes naive TWFE.",
+    citations: "2100",
+    doi_or_url: "https://doi.org/10.1016/j.jeconom.2020.12.001",
+    tags: ['did','panel']
+  },
+  {
+    title: "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects",
+    authors: "Sun, Liyang; Abraham, Sarah",
+    year: 2021,
+    journal: "Journal of Econometrics",
+    abstract: "Shows that conventional event-study estimates are contaminated by treatment-effect heterogeneity across cohorts. Proposes an interaction-weighted estimator that recovers cohort-specific effects without contamination.",
+    estimator: "Interaction-weighted event study",
+    relevance: "Required if your event-study has treatment timing variation — the conventional TWFE event study is biased.",
+    citations: "1700",
+    doi_or_url: "https://doi.org/10.1016/j.jeconom.2020.09.006",
+    tags: ['did','panel']
+  },
+  {
+    title: "Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects",
+    authors: "de Chaisemartin, Clement; D'Haultfoeuille, Xavier",
+    year: 2020,
+    journal: "American Economic Review",
+    abstract: "Decomposes the TWFE estimand and shows that it can be a weighted average of treatment effects with negative weights, yielding misleading conclusions. Provides diagnostic tools and a robust alternative estimator.",
+    estimator: "Robust DiD (dCDH)",
+    relevance: "The companion critique of TWFE that motivated the staggered-DiD literature — diagnostic tools are widely used.",
+    citations: "1900",
+    doi_or_url: "https://doi.org/10.1257/aer.20181169",
+    tags: ['did','panel']
+  },
+
+  // ----- Instrumental variables -----
+  {
+    title: "Identification of Causal Effects Using Instrumental Variables",
+    authors: "Angrist, Joshua D.; Imbens, Guido W.; Rubin, Donald B.",
+    year: 1996,
+    journal: "Journal of the American Statistical Association",
+    abstract: "Establishes the LATE (Local Average Treatment Effect) interpretation of IV under heterogeneous treatment effects. Clarifies what IV identifies and what assumptions justify the causal interpretation.",
+    estimator: "IV with LATE",
+    relevance: "The foundational paper for understanding what IV actually estimates under realistic heterogeneity.",
+    citations: "9400",
+    doi_or_url: "https://doi.org/10.1080/01621459.1996.10476902",
+    tags: ['iv','causal']
+  },
+  {
+    title: "Instrumental Variables Regression with Weak Instruments",
+    authors: "Staiger, Douglas; Stock, James H.",
+    year: 1997,
+    journal: "Econometrica",
+    abstract: "Establishes that conventional IV inference fails when instruments are weak and provides the framework for weak-instrument diagnostics. The first-stage F-statistic threshold of 10 originates here.",
+    estimator: "IV / 2SLS — weak-instrument diagnostics",
+    relevance: "If you are using IV, you are using this paper's diagnostic tests — directly or indirectly.",
+    citations: "8200",
+    doi_or_url: "https://doi.org/10.2307/2171753",
+    tags: ['iv','inference']
+  },
+  {
+    title: "Bartik Instruments: What, When, Why, and How",
+    authors: "Goldsmith-Pinkham, Paul; Sorkin, Isaac; Swift, Henry",
+    year: 2020,
+    journal: "American Economic Review",
+    abstract: "Clarifies the identifying assumptions behind Bartik (shift-share) instruments and provides diagnostic tools for assessing their validity. Distinguishes when shares vs. shifts drive identification.",
+    estimator: "Shift-share IV (Bartik)",
+    relevance: "Required reading for any shift-share design — including labor, trade, and density-based instruments.",
+    citations: "1500",
+    doi_or_url: "https://doi.org/10.1257/aer.20181047",
+    tags: ['iv']
+  },
+
+  // ----- Regression discontinuity -----
+  {
+    title: "Identification and Estimation of Treatment Effects with a Regression-Discontinuity Design",
+    authors: "Hahn, Jinyong; Todd, Petra; van der Klaauw, Wilbert",
+    year: 2001,
+    journal: "Econometrica",
+    abstract: "Establishes the formal identification result for RD designs and the local-linear regression approach to estimation. Distinguishes sharp vs. fuzzy RD and characterizes the assumptions each requires.",
+    estimator: "Sharp / fuzzy RD",
+    relevance: "Foundational identification result for RD — every modern RD paper cites this.",
+    citations: "5800",
+    doi_or_url: "https://doi.org/10.1111/1468-0262.00183",
+    tags: ['rd','causal']
+  },
+  {
+    title: "Robust Nonparametric Confidence Intervals for Regression-Discontinuity Designs",
+    authors: "Calonico, Sebastian; Cattaneo, Matias D.; Titiunik, Rocio",
+    year: 2014,
+    journal: "Econometrica",
+    abstract: "Develops a bias-corrected approach to RD inference that accounts for the bias-variance tradeoff in bandwidth choice. Provides the modern standard for confidence intervals in RD studies.",
+    estimator: "RD with bias-corrected CIs (CCT)",
+    relevance: "The current methodological standard for RD inference — the rdrobust package implements this.",
+    citations: "3200",
+    doi_or_url: "https://doi.org/10.3982/ECTA11757",
+    tags: ['rd','inference']
+  },
+  {
+    title: "Manipulation of the Running Variable in the Regression Discontinuity Design: A Density Test",
+    authors: "McCrary, Justin",
+    year: 2008,
+    journal: "Journal of Econometrics",
+    abstract: "Develops the standard density-discontinuity test for manipulation around the RD cutoff. If the test rejects, the RD design is invalidated.",
+    estimator: "McCrary density test",
+    relevance: "Required diagnostic for any RD application — published RD papers are expected to report this test.",
+    citations: "3000",
+    doi_or_url: "https://doi.org/10.1016/j.jeconom.2007.05.005",
+    tags: ['rd','inference']
+  },
+
+  // ----- Spatial econometrics -----
+  {
+    title: "Spatial Econometrics: Methods and Models",
+    authors: "Anselin, Luc",
+    year: 1988,
+    journal: "Springer",
+    abstract: "The foundational textbook on spatial econometrics. Establishes the SAR, SEM, and SARMA model families and their estimation by maximum likelihood, IV, and method of moments.",
+    estimator: "Spatial regression family",
+    relevance: "The reference text for spatial econometric methods — every spatial econometrics paper cites Anselin.",
+    citations: "13000",
+    doi_or_url: "https://doi.org/10.1007/978-94-015-7799-1",
+    tags: ['spatial','hedonic']
+  },
+  {
+    title: "Local Indicators of Spatial Association — LISA",
+    authors: "Anselin, Luc",
+    year: 1995,
+    journal: "Geographical Analysis",
+    abstract: "Introduces local Moran's I and related local indicators that decompose global spatial autocorrelation into location-specific contributions. Essential for diagnosing where spatial dependence is strongest.",
+    estimator: "LISA / local Moran's I",
+    relevance: "Standard diagnostic for spatial dependence — used to identify clusters and outliers in residuals.",
+    citations: "11000",
+    doi_or_url: "https://doi.org/10.1111/j.1538-4632.1995.tb00338.x",
+    tags: ['spatial']
+  },
+  {
+    title: "Interpreting Spatial Econometric Models",
+    authors: "LeSage, James P.; Pace, R. Kelley",
+    year: 2009,
+    journal: "Chapman and Hall/CRC",
+    abstract: "Demonstrates that direct interpretation of spatial regression coefficients is misleading because of feedback effects through W. Develops the direct/indirect/total impact decomposition that is now standard.",
+    estimator: "SAR/SDM impact decomposition",
+    relevance: "If you are running a SAR or SDM model, you must report direct/indirect/total impacts rather than raw coefficients.",
+    citations: "9500",
+    doi_or_url: "https://doi.org/10.1201/9781420064254",
+    tags: ['spatial']
+  },
+
+  // ----- Panel data and clustering -----
+  {
+    title: "Robust Inference With Multiway Clustering",
+    authors: "Cameron, A. Colin; Gelbach, Jonah B.; Miller, Douglas L.",
+    year: 2011,
+    journal: "Journal of Business and Economic Statistics",
+    abstract: "Develops cluster-robust standard errors for settings with multiple non-nested clustering dimensions. Establishes the variance estimator now standard for panel-with-spatial or unit-by-time-cluster contexts.",
+    estimator: "Multiway clustering",
+    relevance: "Required when your design has more than one clustering dimension (e.g., firm and year).",
+    citations: "3400",
+    doi_or_url: "https://doi.org/10.1198/jbes.2010.07136",
+    tags: ['panel','inference']
+  },
+  {
+    title: "A Practitioner's Guide to Cluster-Robust Inference",
+    authors: "Cameron, A. Colin; Miller, Douglas L.",
+    year: 2015,
+    journal: "Journal of Human Resources",
+    abstract: "Comprehensive guide to cluster-robust inference covering the standard cases plus small-cluster corrections (wild-cluster bootstrap, BRL adjustments). Essential when fewer than ~30 clusters are present.",
+    estimator: "Cluster-robust SE practitioner guide",
+    relevance: "The go-to reference when implementing cluster-robust SEs and dealing with small-cluster problems.",
+    citations: "2900",
+    doi_or_url: "https://doi.org/10.3368/jhr.50.2.317",
+    tags: ['panel','inference']
+  },
+
+  // ----- Synthetic control / few treated units -----
+  {
+    title: "Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California's Tobacco Control Program",
+    authors: "Abadie, Alberto; Diamond, Alexis; Hainmueller, Jens",
+    year: 2010,
+    journal: "Journal of the American Statistical Association",
+    abstract: "Develops the synthetic control method for comparative case studies with one treated unit. Constructs a weighted combination of donor units that reproduces pre-treatment outcomes, then uses the post-treatment gap as the treatment effect.",
+    estimator: "Synthetic control",
+    relevance: "The canonical method when you have one (or few) treated units — superior to standard DiD in that setting.",
+    citations: "5400",
+    doi_or_url: "https://doi.org/10.1198/jasa.2009.ap08746",
+    tags: ['did','panel']
+  }
+];
+
+// Pick foundational papers matching the user's design archetype.
+// Returns a curated subset (4-6 papers) prioritizing exact-match tags
+// over partial-match. Always returns at least the broad causal-inference
+// foundations so the panel never feels empty.
+function pickFoundationalPapers(a, _tk) {
+  if(!a) a = ans;
+  const v = k => { const x=a[k]; if(!x||x==='_skipped') return null; return x; };
+
+  // Determine which archetype tags apply
+  const wantTags = new Set(['causal']); // Always include the broad foundations
+  const field = v('field');
+  const treatment = v('treatment');
+  const endog = v('endogeneity');
+  const dataStruct = v('data_structure');
+  const geo = v('geo');
+  const isHedonic = (field==='env'||field==='urban') && (treatment==='env_reg'||treatment==='infra'||treatment==='natural');
+
+  if (isHedonic) wantTags.add('hedonic');
+  if (endog==='natexp' && (dataStruct==='panel' || treatment==='env_reg' || treatment==='infra' || treatment==='policy')) wantTags.add('did');
+  if (endog==='iv') wantTags.add('iv');
+  if (endog==='rdd') wantTags.add('rd');
+  if (geo==='central' || isHedonic) wantTags.add('spatial');
+  if (dataStruct==='panel') {
+    wantTags.add('panel');
+    wantTags.add('inference'); // panel users almost always need clustering refs
+  }
+
+  // Score each foundational paper by how many of its tags overlap with wanted tags
+  const scored = FOUNDATIONAL_PAPERS.map(p => {
+    const overlap = (p.tags||[]).filter(t => wantTags.has(t)).length;
+    return { paper: p, score: overlap };
+  }).filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score);
+
+  // Take up to 6, but ensure we have at least 3 to show
+  let chosen = scored.slice(0, 6).map(x => x.paper);
+  if (chosen.length < 3) {
+    // Fall back to top-cited broad foundations
+    const fallbacks = FOUNDATIONAL_PAPERS.filter(p => p.tags.includes('causal'));
+    fallbacks.forEach(p => { if(chosen.length < 3 && !chosen.includes(p)) chosen.push(p); });
+  }
+  return chosen;
+}
+
 let _drawerPapers=[];
 let _drawerAnswers={};
 let _drawerSources=[];
@@ -993,7 +1789,8 @@ function closeDrawer(){
 // ============================================================
 // SOURCE DRAWER — left-side drawer mirroring the paper drawer
 // ============================================================
-let _sourceFitCache={}; // index -> AI fit text, so we don't re-fetch
+let _sourceFitCache={}; // index -> fit text (local default or AI-enhanced)
+let _sourceFitAIDone={}; // index -> true once AI has replaced the local default
 
 function openSourceDrawer(idx){
   const s=_drawerSources[idx];
@@ -1006,13 +1803,16 @@ function openSourceDrawer(idx){
   document.getElementById('src-drawer-title').textContent=s.n;
   document.getElementById('src-drawer-meta').textContent='Open-access data source';
 
-  // Render the static metadata immediately, then async-load the AI fit paragraph
-  const fitInitial=_sourceFitCache[idx];
+  // Show the local (deterministic) fit text immediately. Cache it so we
+  // don't rebuild it on re-open. AI overwrites the cache when it returns.
+  if(_sourceFitCache[idx]==null){
+    _sourceFitCache[idx]=buildLocalSourceFit(s);
+  }
   const body=document.getElementById('src-drawer-body');
-  body.innerHTML=renderSourceBody(s,fitInitial);
+  body.innerHTML=renderSourceBody(s,_sourceFitCache[idx],_sourceFitAIDone[idx]===true);
 
-  // If we don't have AI fit cached and we have an API key, fetch it
-  if(!fitInitial&&apiKey&&apiKey.length>=20){
+  // If we have an API key and haven't yet enhanced this source's fit text, fetch
+  if(apiKey&&apiKey.length>=20&&!_sourceFitAIDone[idx]){
     fetchSourceFit(s,idx);
   }
 }
@@ -1026,21 +1826,14 @@ function closeSourceDrawer(){
   document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
 }
 
-function renderSourceBody(s,fitText){
-  const fitBlock=fitText
-    ? `<div class="src-fit-block">
-         <div class="src-fit-lbl">Why this fits your research design</div>
-         <div class="src-fit-text">${esc(fitText)}</div>
-       </div>`
-    : (apiKey&&apiKey.length>=20
-       ? `<div class="src-fit-block">
-            <div class="src-fit-lbl">Why this fits your research design</div>
-            <div class="src-fit-loading"><div class="src-fit-spinner"></div>Generating tailored fit notes&hellip;</div>
-          </div>`
-       : `<div class="src-fit-block">
-            <div class="src-fit-lbl">Why this fits your research design</div>
-            <div class="src-fit-text" style="color:var(--hint);font-style:italic">Add an Anthropic API key on the landing page to see how this dataset connects to your specific research design.</div>
-          </div>`);
+function renderSourceBody(s,fitText,aiEnhanced){
+  // Three states: AI-enhanced (full color text), local default (full color text),
+  // local + AI-loading (local text with subtle spinner indicating enhancement on the way)
+  const showSpinner = !aiEnhanced && apiKey && apiKey.length>=20;
+  const fitBlock = `<div class="src-fit-block">
+    <div class="src-fit-lbl">Why this fits your research design${showSpinner?' <span class="src-fit-enhance"><span class="src-fit-spinner"></span>enhancing&hellip;</span>':''}</div>
+    <div class="src-fit-text">${esc(fitText)}</div>
+  </div>`;
 
   const varsList=(s.vars||[]).map(v=>`<span class="src-var-pill">${esc(v)}</span>`).join('');
   const varsBlock=varsList?`<div class="src-section">
@@ -1103,11 +1896,12 @@ Be concrete and specific to their study. Write in plain English at a graduate-re
     const text=(d.content?.find(b=>b.type==='text')?.text||'').trim();
     if(text){
       _sourceFitCache[idx]=text;
+      _sourceFitAIDone[idx]=true;
       // Only re-render if this drawer is still open and showing this source
       if(document.getElementById('source-drawer').classList.contains('open')){
         const titleEl=document.getElementById('src-drawer-title');
         if(titleEl&&titleEl.textContent===s.n){
-          document.getElementById('src-drawer-body').innerHTML=renderSourceBody(s,text);
+          document.getElementById('src-drawer-body').innerHTML=renderSourceBody(s,text,true);
         }
       }
     }
@@ -1205,60 +1999,318 @@ STUDENT RESEARCH CONTEXT: ${context}`;
   }
 }
 
-async function fetchLiterature(a,tk){
-  // Filter '_skipped' values so the prompt doesn't reference fake answers
-  const cleaned={};
-  Object.keys(a).forEach(k=>{const x=a[k];if(x&&x!=='_skipped')cleaned[k]=x;});
-  _drawerAnswers=cleaned;
-  const el=document.getElementById('lit-container');
-  if(!el)return;
-  if(!apiKey||apiKey.length<20){
-    const q=buildLitQuery(cleaned);
-    el.innerHTML=`<p class="lit-error">Add an API key on the landing page to load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar instead ↗</a></p>`;
-    return;
+// ============================================================
+// LITERATURE PANEL — two sections: foundational (always) + AI (with key)
+// State for AI section: current lens, list of titles already shown, refresh in flight
+// ============================================================
+let _litLens='recent';        // 'recent' | 'foundational' | 'methodological' | 'applied' | 'adjacent'
+let _litShownTitles=new Set(); // Cumulative — papers already shown in AI section
+let _litAIPapers=[];           // Last AI batch
+let _litRefreshInFlight=false;
+let _litFoundational=[];       // Foundational papers picked for this assessment
+let _litLastAnswers=null;
+let _litLastToolkit=null;
+
+const _LENS_LABELS = {
+  recent:         'Recent',
+  foundational:   'Foundational',
+  methodological: 'Methodological',
+  applied:        'Applied',
+  adjacent:       'Adjacent fields'
+};
+const _LENS_PROMPT_HINT = {
+  recent:
+    'Prioritize papers from the last 5 years showing the current frontier of work in this design space. New estimators, recent applications, and emerging concerns.',
+  foundational:
+    'Prioritize highly-cited foundational papers — the canonical references that anyone working in this area should know, regardless of year.',
+  methodological:
+    'Prioritize papers focused on the estimator or identification method itself — methodological developments, new diagnostics, comparisons between estimators — rather than papers applying the method to a substantive question.',
+  applied:
+    'Prioritize papers that apply the methods in this toolkit to a substantive question similar to the user\'s — same design pattern, comparable empirical setting.',
+  adjacent:
+    'Prioritize papers from neighboring disciplines or contexts that might offer transferable insights — different field, different country/setting, or different policy domain but similar methodological challenges.'
+};
+
+// Render the literature panel — combined foundational + AI, with chip controls.
+// Called once on page render (initial), then again on refresh or lens change.
+function renderLitPanel() {
+  const el = document.getElementById('lit-container');
+  if (!el) return;
+  const hasKey = apiKey && apiKey.length >= 20;
+
+  // Foundational header always renders
+  const foundationalHTML = _litFoundational.length
+    ? `<div class="lit-foundation-block">
+         <div class="lit-foundation-hdr">
+           <span class="lit-foundation-lbl">Canonical references for your design</span>
+           <span class="lit-foundation-count">${_litFoundational.length} papers</span>
+         </div>
+         ${_litFoundational.map((p, i) => _renderLitCard(p, 'f' + i, false)).join('')}
+       </div>`
+    : '';
+
+  // Lens chips — only show when key is present (lenses only affect AI section)
+  const chipsHTML = hasKey
+    ? `<div class="lit-ai-controls">
+         <div class="lit-lens-chips" role="group" aria-label="Literature focus">
+           ${Object.entries(_LENS_LABELS).map(([k,v]) =>
+             `<button class="lit-lens-chip${_litLens===k?' active':''}" onclick="setLitLens('${k}')">${v}</button>`
+           ).join('')}
+         </div>
+         <button class="lit-refresh-btn" onclick="refreshLiterature()" title="Refresh — get new papers">
+           <span class="lit-refresh-icon" id="lit-refresh-icon">&#x21bb;</span><span class="lit-refresh-lbl">Refresh</span>
+         </button>
+       </div>`
+    : '';
+
+  // AI section content
+  let aiContent;
+  if (!hasKey) {
+    const q = buildLitQuery(_drawerAnswers || {});
+    aiContent = `<p class="lit-error">AI-curated literature requires an Anthropic API key — add one on the landing page to unlock current frontier work tailored to your design. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar ↗</a></p>`;
+  } else if (_litRefreshInFlight && _litAIPapers.length === 0) {
+    aiContent = `<p class="lit-loading">Generating literature recommendations...</p>`;
+  } else if (_litAIPapers.length === 0) {
+    aiContent = `<p class="lit-loading">Loading...</p>`;
+  } else {
+    aiContent = _litAIPapers.map((p, i) =>
+      _renderLitCard(p, i, true)
+    ).join('');
   }
-  el.innerHTML=`<p class="lit-loading">Generating literature recommendations...</p>`;
-  const context=[
-    cleaned.stage&&`Stage: ${cleaned.stage}`,
-    cleaned.field&&`Field: ${cleaned.field}`,
-    cleaned.question_type&&`Research type: ${cleaned.question_type}`,
-    cleaned.treatment&&`Treatment: ${cleaned.treatment}`,
-    cleaned.endogeneity&&`Identification: ${cleaned.endogeneity}`,
-    cleaned.geo&&`Geography: ${cleaned.geo}`,
-    cleaned.functional_form&&`Functional form: ${cleaned.functional_form}`,
-    cleaned.context&&`Study: "${cleaned.context}"`
-  ].filter(Boolean).join('; ');
-  const prompt=`You are an expert applied econometrician. Based on this student's research design, recommend 6-8 highly relevant academic papers. Return ONLY valid JSON, no markdown:
-{"papers":[{"title":"exact paper title","authors":"Last1, Last2, Last3","year":2021,"journal":"journal or working paper series","doi_or_url":"https://... full URL to paper if known, else empty string","abstract":"2-3 sentence description of what the paper does and finds","estimator":"the main econometric method used","relevance":"one sentence on why this paper is relevant to their specific design","citations":"approximate citation count as string e.g. 2400"}]}
-Include foundational papers AND recent applied work. Prioritize papers directly relevant to their identification strategy, data structure, and field.
-RESEARCH CONTEXT: ${context}
-TOOLKIT: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+
+  const aiHTML = `<div class="lit-ai-block">
+    <div class="lit-ai-hdr">
+      <span class="lit-ai-lbl">AI-curated literature</span>
+      <span class="lit-ai-sub">${hasKey ? `Lens: ${_LENS_LABELS[_litLens]}` : 'Requires API key'}</span>
+    </div>
+    ${chipsHTML}
+    <div class="lit-ai-list" id="lit-ai-list">${aiContent}</div>
+  </div>`;
+
+  el.innerHTML = foundationalHTML + aiHTML;
+}
+
+// Render a single literature card. `idx` is the index used by the click handler.
+// `isAI` distinguishes AI-curated cards (clickable, opens drawer) from foundational
+// cards (also clickable but resolves through a separate drawer source list).
+function _renderLitCard(p, idx, isAI) {
+  const preview = p.abstract ? p.abstract.slice(0, 180) + (p.abstract.length > 180 ? '...' : '') : '';
+  const onclick = isAI ? `openDrawer(${idx})` : `openFoundationalDrawer(${idx.replace(/^f/, '')})`;
+  return `<div class="lit-card${isAI?'':' lit-card-foundational'}" onclick="${onclick}">
+    <div class="lit-meta-row">
+      <span class="lit-authors">${esc(p.authors||'Unknown authors')}</span>
+      <span class="lit-year">&middot; ${p.year||'--'}</span>
+      ${p.citations?`<span class="lit-cite">&middot; ${p.citations} cit.</span>`:''}
+      ${p.journal?`<span class="lit-journal">&middot; ${esc(p.journal)}</span>`:''}
+    </div>
+    <div class="lit-title">${esc(p.title||'Untitled')}</div>
+    ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
+    <div class="lit-open-hint">Click to open analysis &rarr;</div>
+  </div>`;
+}
+
+// Foundational papers use the same drawer machinery as AI papers, but
+// from a separate list. We expose them through openFoundationalDrawer.
+function openFoundationalDrawer(idx) {
+  const p = _litFoundational[idx];
+  if (!p) return;
+  // Temporarily swap the active drawer source so loadDrawerContent works
+  const savedDrawerPapers = _drawerPapers;
+  _drawerPapers = _litFoundational;
+  document.querySelectorAll('.lit-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('paper-drawer').classList.add('open');
+  document.getElementById('drawer-title-text').textContent = p.title || 'Untitled';
+  const meta = (p.authors||'')+(p.year?' \u00b7 '+p.year:'')+(p.journal?' \u00b7 '+p.journal:'');
+  document.getElementById('drawer-meta-line').textContent = meta;
+  document.getElementById('drawer-body').innerHTML = `<div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper details...</div>`;
+  loadDrawerContent(p, idx);
+  // Restore the AI papers list reference for normal openDrawer use
+  setTimeout(() => { _drawerPapers = savedDrawerPapers.length ? savedDrawerPapers : _litFoundational; }, 100);
+}
+
+// ============================================================
+// STICKY SECTION NAVIGATOR (toolkit page)
+// Shows after user scrolls past the top; tracks which section is in view.
+// ============================================================
+function jumpToSection(targetId){
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  // Account for sticky header (~54px) + jump nav (~50px) so the target's
+  // own heading is visible after the scroll.
+  const offset = 110;
+  const rect = el.getBoundingClientRect();
+  const top = rect.top + window.pageYOffset - offset;
+  window.scrollTo({top, behavior:'smooth'});
+  // Manually mark active immediately for snappier UX
+  document.querySelectorAll('.tk-jump-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.target === targetId)
+  );
+}
+
+function _setupJumpNavObserver(){
+  const nav = document.getElementById('tk-jump-nav');
+  if(!nav) return;
+  const targetIds = ['tk-narrative','tk-twocol','tk-spec','tk-graph'];
+  const targets = targetIds.map(id => document.getElementById(id)).filter(Boolean);
+  if(!targets.length){ nav.classList.remove('show'); return; }
+
+  // Show the nav once user scrolls past 200px
+  const onScroll = () => {
+    const past = window.pageYOffset > 200;
+    nav.classList.toggle('show', past);
+
+    // Determine which section is currently "in view" — the one whose top
+    // is closest to the top of the viewport (without going past the offset)
+    const offset = 130; // a bit past the sticky nav so we register slightly later
+    let activeId = null;
+    let bestDist = Infinity;
+    targets.forEach(t => {
+      const rect = t.getBoundingClientRect();
+      const dist = Math.abs(rect.top - offset);
+      // Prefer sections that have crossed above the offset; tie-break by closeness
+      if(rect.top < offset + 60 && dist < bestDist){
+        bestDist = dist;
+        activeId = t.id;
+      }
     });
-    const d=await r.json();
-    const t=d.content?.find(b=>b.type==='text')?.text||'';
-    const result=JSON.parse(t.replace(/```json|```/g,'').trim());
-    _drawerPapers=result.papers;
-    el.innerHTML=result.papers.map((p,i)=>{
-      const preview=p.abstract?p.abstract.slice(0,180)+'...':'';
-      return `<div class="lit-card" onclick="openDrawer(${i})">
-        <div class="lit-meta-row">
-          <span class="lit-authors">${esc(p.authors||'Unknown authors')}</span>
-          <span class="lit-year">· ${p.year||'--'}</span>
-          ${p.citations?`<span class="lit-cite">· ${p.citations} cit.</span>`:''}
-        </div>
-        <div class="lit-title">${esc(p.title||'Untitled')}</div>
-        ${preview?`<div class="lit-abstract-preview">${esc(preview)}</div>`:''}
-        <div class="lit-open-hint">Click to open analysis →</div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    const q=buildLitQuery(a);
-    el.innerHTML=`<p class="lit-error">Could not load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar ↗</a></p>`;
+    if(activeId){
+      document.querySelectorAll('.tk-jump-chip').forEach(c =>
+        c.classList.toggle('active', c.dataset.target === activeId)
+      );
+    }
+  };
+  // Throttle via rAF
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if(!ticking){
+      requestAnimationFrame(() => { onScroll(); ticking = false; });
+      ticking = true;
+    }
+  });
+  onScroll();
+}
+
+// Lens chip handler — switching lens auto-refreshes the AI list.
+function setLitLens(lens) {
+  if (lens === _litLens) return;
+  _litLens = lens;
+  // Clear AI list and exclusion set on lens change so the new lens
+  // can return the most relevant papers without exclusions narrowing the result
+  _litAIPapers = [];
+  _litShownTitles = new Set();
+  renderLitPanel();
+  if (apiKey && apiKey.length >= 20 && _litLastAnswers && _litLastToolkit) {
+    fetchAIliterature(_litLastAnswers, _litLastToolkit, false);
+  }
+}
+
+// Refresh button handler — same lens, but exclude papers already shown.
+function refreshLiterature() {
+  if (_litRefreshInFlight) return;
+  if (!_litLastAnswers || !_litLastToolkit) return;
+  fetchAIliterature(_litLastAnswers, _litLastToolkit, true);
+}
+
+// Show a transient "Updated" pill on the AI block header after a successful refresh.
+function _flashUpdatedIndicator() {
+  const hdr = document.querySelector('.lit-ai-hdr');
+  if (!hdr) return;
+  // Remove any existing indicator
+  const existing = hdr.querySelector('.lit-updated-pill');
+  if (existing) existing.remove();
+  const pill = document.createElement('span');
+  pill.className = 'lit-updated-pill';
+  pill.textContent = 'Updated';
+  hdr.appendChild(pill);
+  setTimeout(() => pill.classList.add('lit-updated-fade'), 1500);
+  setTimeout(() => pill.remove(), 2400);
+}
+
+async function fetchLiterature(a, tk) {
+  // Entry point — clear previous state and build everything from scratch
+  const cleaned = {};
+  Object.keys(a).forEach(k => { const x = a[k]; if(x && x !== '_skipped') cleaned[k] = x; });
+  _drawerAnswers = cleaned;
+  _litLastAnswers = cleaned;
+  _litLastToolkit = tk;
+  _litFoundational = pickFoundationalPapers(cleaned, tk);
+  _litAIPapers = [];
+  _litShownTitles = new Set();
+  // Add foundational titles to the exclusion set so AI doesn't double up
+  _litFoundational.forEach(p => p.title && _litShownTitles.add(p.title.toLowerCase()));
+  renderLitPanel();
+  // Trigger AI fetch if we have a key
+  if (apiKey && apiKey.length >= 20) {
+    fetchAIliterature(cleaned, tk, false);
+  }
+}
+
+async function fetchAIliterature(cleaned, tk, isRefresh) {
+  if (_litRefreshInFlight) return;
+  _litRefreshInFlight = true;
+  // Show spinner on refresh icon
+  const icon = document.getElementById('lit-refresh-icon');
+  if (icon) icon.classList.add('lit-refresh-spin');
+  if (!isRefresh) {
+    renderLitPanel(); // First-load loading state
+  }
+
+  const context = [
+    cleaned.stage && `Stage: ${cleaned.stage}`,
+    cleaned.field && `Field: ${cleaned.field}`,
+    cleaned.question_type && `Research type: ${cleaned.question_type}`,
+    cleaned.treatment && `Treatment: ${cleaned.treatment}`,
+    cleaned.endogeneity && `Identification: ${cleaned.endogeneity}`,
+    cleaned.geo && `Geography: ${cleaned.geo}`,
+    cleaned.functional_form && `Functional form: ${cleaned.functional_form}`,
+    cleaned.context && `Study: "${cleaned.context}"`
+  ].filter(Boolean).join('; ');
+
+  const lensHint = _LENS_PROMPT_HINT[_litLens] || _LENS_PROMPT_HINT.recent;
+  const exclusionList = _litShownTitles.size > 0
+    ? `\nDO NOT recommend any of these already-shown papers (case-insensitive title match):\n${Array.from(_litShownTitles).slice(0, 60).map(t => '- ' + t).join('\n')}`
+    : '';
+
+  const prompt = `You are an expert applied econometrician. Based on this student's research design, recommend 6-8 highly relevant academic papers.
+
+LENS FOCUS: ${lensHint}
+
+Return ONLY valid JSON, no markdown:
+{"papers":[{"title":"exact paper title","authors":"Last1, Last2, Last3","year":2021,"journal":"journal or working paper series","doi_or_url":"https://... full URL to paper if known, else empty string","abstract":"2-3 sentence description of what the paper does and finds","estimator":"the main econometric method used","relevance":"one sentence on why this paper is relevant to their specific design","citations":"approximate citation count as string e.g. 2400"}]}
+
+Prioritize papers directly relevant to their identification strategy, data structure, and field.${exclusionList}
+RESEARCH CONTEXT: ${context}
+TOOLKIT: ${tk.sections.map(s => s.label+': '+s.method).join(', ')}`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-opus-4-5', max_tokens:2000, messages:[{role:'user', content:prompt}]})
+    });
+    const d = await r.json();
+    const t = d.content?.find(b => b.type === 'text')?.text || '';
+    const result = JSON.parse(t.replace(/```json|```/g, '').trim());
+    _litAIPapers = result.papers || [];
+    // Update _drawerPapers so openDrawer() can find them
+    _drawerPapers = _litAIPapers;
+    // Add new titles to the exclusion set for next refresh
+    _litAIPapers.forEach(p => p.title && _litShownTitles.add(p.title.toLowerCase()));
+    renderLitPanel();
+    if (isRefresh) _flashUpdatedIndicator();
+  } catch (e) {
+    console.warn('AI literature fetch failed', e);
+    if (_litAIPapers.length === 0) {
+      const el = document.getElementById('lit-ai-list');
+      if (el) {
+        const q = buildLitQuery(cleaned);
+        el.innerHTML = `<p class="lit-error">Could not load literature. <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(q)}" target="_blank" style="color:var(--blue)">Search Google Scholar ↗</a></p>`;
+      }
+    }
+  } finally {
+    _litRefreshInFlight = false;
+    if (icon) icon.classList.remove('lit-refresh-spin');
   }
 }
 
@@ -1534,7 +2586,7 @@ function buildToolkit(a){
   if(hasSensitivity)items.push('Oster (2019) coefficient stability; E-values for sensitivity to unobservables');
   items.push('HC3 robust SEs (cross-section) or clustered SEs at treatment-assignment level');
   items.push('Robustness checks -- alternative distance measures, bandwidth sensitivity, placebo dates');
-  sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in environmental or urban economics journals.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
+  sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in serious applied work — reviewers across applied economics journals expect them as standard.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
 
   const sources=[];
   // Each source has:
@@ -1684,7 +2736,7 @@ function renderResults(tk,ai){
   let html=``;
 
   if(ai&&ai.narrative){
-    html+=`<div class="narrative">
+    html+=`<div class="narrative" id="tk-narrative">
       <div class="narrative-hdr"><span class="star">*</span><span class="lbl">Your research design -- plain English</span></div>
       <div class="narrative-body">
         <div class="narrative-left">
@@ -1703,7 +2755,7 @@ function renderResults(tk,ai){
     </div>`;
   }
 
-  html+=`<div class="two-col-panel">
+  html+=`<div class="two-col-panel" id="tk-twocol">
     <div class="two-col-left">
       <div class="section-title">Open-access data sources<span class="section-title-sub">Curated for your research design</span></div>
       <div class="sources-stack">`;
@@ -1711,12 +2763,12 @@ function renderResults(tk,ai){
   html+=`</div></div>
     <div class="two-col-right">
       <div class="section-title">AI-curated literature<span class="section-title-sub">Click any paper to open analysis</span></div>
-      <div id="lit-container"><p class="lit-loading">Generating literature recommendations...</p></div>
+      <div id="lit-container"></div>
     </div>
   </div>`;
 
   // METHODOLOGICAL SPECIFICATIONS WITH LEFT RAIL
-  html+=`<div class="toolkit-section">
+  html+=`<div class="toolkit-section" id="tk-spec">
     <div class="toolkit-header">Methodological specifications<span class="toolkit-header-sub">Click any section to expand · code language toggle on the left</span></div>
     <div class="toolkit-layout">
       <div class="lang-rail">
@@ -1744,9 +2796,9 @@ function renderResults(tk,ai){
       </div>
       <div class="sec-body">
         ${whyThis?`<div class="why-this" style="color:${s.color};border-left-color:${s.color}">${esc(whyThis)}</div>`:''}
-        <div class="why-fit" id="why-fit-${i}">
+        ${(apiKey&&apiKey.length>20)?`<div class="why-fit" id="why-fit-${i}">
           <div class="why-fit-loading"><div class="why-fit-spin"></div>Generating personalized rationale for your research...</div>
-        </div>
+        </div>`:''}
         <p class="sec-detail">${esc(s.detail)}</p>
         ${s.watch?`<div class="watch-box"><div class="watch-label">Watch out for</div><div class="watch-text">${esc(s.watch)}</div></div>`:''}
         ${s.equation?`<div class="eq-block"><div class="eq-label">Estimating equation</div>${s.equation.split('\n').map(ln=>{
@@ -1772,15 +2824,13 @@ function renderResults(tk,ai){
   // KNOWLEDGE GRAPH (replaces tree)
   html+=renderKnowledgeGraph(tk);
 
-  // Fallback hide of why-fit if no API key
-  el.innerHTML=html;
-  if(!apiKey||apiKey.length<20){
-    document.querySelectorAll('[id^="why-fit-"]').forEach(b=>b.style.display='none');
-  }
   // Init D3 graph after DOM is in place
+  el.innerHTML=html;
   setTimeout(()=>initKnowledgeGraph(tk.active),50);
   // Render KaTeX equations after DOM insertion
   renderEquations();
+  // Set up sticky jump nav observer (toggles visibility + active chip on scroll)
+  setTimeout(_setupJumpNavObserver, 100);
 }
 
 // Render every .eq-math element using KaTeX. Falls back gracefully if KaTeX failed to load.
@@ -1929,7 +2979,7 @@ let _kgRevealed=false;
 let _kgActive=new Set();
 
 function renderKnowledgeGraph(tk){
-  return `<div class="kg-section">
+  return `<div class="kg-section" id="tk-graph">
     <div class="kg-header">
       <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node to learn more</span></h3>
       <div style="background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
@@ -2405,8 +3455,8 @@ const LIB={
     name:"Causal inference",
     icon:"◎",
     sub:"Natural experiments and identification",
-    rel:"This is where every research design begins. Your identification strategy determines what every other family can do — the estimator family you choose downstream, the diagnostics you must run, even how you write the equation. Most environmental and resource economics studies live here first.",
-    desc:"Strategies for isolating causal effects from observational data — the gold standard in modern applied environmental economics. What separates these methods is the identification strategy: the argument for why your estimate represents a causal effect rather than a correlation.",
+    rel:"This is where every research design begins. Your identification strategy determines what every other family can do — the estimator family you choose downstream, the diagnostics you must run, even how you write the equation. Most applied empirical studies live here first.",
+    desc:"Strategies for isolating causal effects from observational data — the gold standard in modern applied econometrics. What separates these methods is the identification strategy: the argument for why your estimate represents a causal effect rather than a correlation.",
     methods:[
       {name:"Difference-in-differences",abbr:"DiD",sub:"Compare before-and-after change in treated units against the same change in untreated units",
        tags:["Panel data","Policy evaluation","Pre-trends"],
@@ -2594,7 +3644,7 @@ const LIB={
        what:"CRE adds the within-unit means of time-varying regressors (x̄_i) to a random-effects specification. The resulting coefficients on the original X variables are FE-equivalent, but you also retain the ability to estimate coefficients on time-invariant variables through the RE machinery.",
        assume:"Within-unit means are correctly specified as additional regressors.",
        est:"Random effects with x̄_i added as covariates. A joint test of x̄_i = 0 is mathematically equivalent to the Hausman test.",
-       watch:"Useful precisely because you can recover effects of time-invariant variables that pure FE cannot estimate. Less common in environmental work but increasingly used.",
+       watch:"Useful precisely because you can recover effects of time-invariant variables that pure FE cannot estimate. Less common in causal-inference work but standard in many descriptive panel applications.",
        env:"When you need FE-consistent treatment estimates but also want coefficients on time-invariant parcel or county characteristics."}
     ]
   },
@@ -2602,7 +3652,7 @@ const LIB={
     name:"Time series",
     icon:"◇",
     sub:"Dynamic processes and temporal dependence",
-    rel:"Time series handles settings where the temporal dimension is the primary structure. Connects to panel data through dynamic panel models, and unit-root testing is a prerequisite before any long-run regression in environmental or climate economics work.",
+    rel:"Time series handles settings where the temporal dimension is the primary structure. Connects to panel data through dynamic panel models, and unit-root testing is a prerequisite before any long-run regression in macroeconomic or climate-related work.",
     desc:"Methods for data ordered in time, accounting for serial correlation, trends, seasonality, and dynamic adjustment processes.",
     methods:[
       {name:"ARIMA and SARIMA",abbr:"Box–Jenkins",sub:"Univariate forecasting of a single time series",
@@ -2786,7 +3836,7 @@ const LIB={
        what:"Robustness checks are tests that should produce null results if your identification strategy is sound. Placebo tests apply your estimator to outcomes or units that should not be affected. Bounding analyses (Oster 2019, Manski bounds) characterize how sensitive estimates are to plausible unobserved confounding.",
        assume:"Under valid identification, placebo treatments should produce null effects and the main estimate should not vary wildly across reasonable specifications.",
        est:"Placebo treatment timing, alternative bandwidths in RD, alternative W matrices in spatial models, exclusion of suspect observations. Report all robustness checks, not just the favorable ones.",
-       watch:"Robustness checks are not optional in environmental economics journals. Editors and referees expect them as standard.",
+       watch:"Robustness checks are not optional in serious applied work. Editors and referees expect them as standard practice across applied economics journals.",
        env:"Alternative distance measures in hedonic gradients, alternative cluster levels for SEs, exclusion of border counties to test for spillover contamination."}
     ]
   }
@@ -2933,7 +3983,7 @@ function selectLibFamily(id){
       <div class="lib-welcome">
         <div class="lib-welcome-icon">◎</div>
         <div class="lib-welcome-title">Browse method families</div>
-        <div class="lib-welcome-sub">Choose a family from the left to view its methods, key assumptions, estimation notes, and watch-outs. Each entry is written for graduate-level applied research in environmental and resource economics.</div>
+        <div class="lib-welcome-sub">Choose a family from the left to view its methods, key assumptions, estimation notes, and watch-outs. Each entry is written from an applied research perspective &mdash; what to assume, how to estimate, what to watch out for.</div>
       </div>
     </div>
   </div>
