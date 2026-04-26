@@ -176,6 +176,25 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-updated-pill.lit-updated-fade{opacity:0;transform:translateY(-3px)}
 @keyframes lit-updated-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
+/* Refresh streaks — three colored lines (matching logo spoke colors) emerge
+   from the right edge of the AI literature header, sweep leftward across the
+   row, and dissolve from crisp solid lines into diffused color blobs by the
+   time they reach the left edge near the "AI-curated literature" label.
+   Triggered by the JS after the "Updated" pill begins fading. Reinforces
+   to the user that fresh recommendations have been delivered. */
+.lit-ai-section .lit-section-hdr{position:relative;overflow:hidden}
+.lit-streak{position:absolute;top:50%;right:0;width:80px;height:1.5px;border-radius:1px;transform:translateY(-50%) translateX(0);opacity:0;pointer-events:none}
+.lit-streak.lit-streak-blue{background:#60a5fa;box-shadow:0 0 6px rgba(96,165,250,.7)}
+.lit-streak.lit-streak-purple{background:#a855f7;box-shadow:0 0 6px rgba(168,85,247,.7)}
+.lit-streak.lit-streak-green{background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.7)}
+.lit-streak.lit-streak-go{animation:litStreakSweep 1.4s cubic-bezier(.33,.66,.4,1) forwards}
+@keyframes litStreakSweep{
+  0%{transform:translateY(-50%) translateX(0);opacity:0;filter:blur(0);width:80px}
+  10%{opacity:1}
+  60%{filter:blur(.5px);width:120px}
+  100%{transform:translateY(-50%) translateX(-1200px);opacity:0;filter:blur(4px);width:160px}
+}
+
 /* STICKY SECTION NAV (toolkit-page jump bar)
    Spans full viewport width; inner content centered within results max-width
    so the chips align with the rest of the page content. */
@@ -368,7 +387,6 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .drawer{position:fixed;top:0;right:0;height:100vh;width:75vw;max-width:75vw;background:#020e1f;border-left:.5px solid #15304d;z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
 .drawer.open{transform:translateX(0)}
 .drawer-header{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:.5px solid var(--border);flex-shrink:0;background:#020e1f}
-.drawer-logo{width:48px;height:48px;opacity:1;flex-shrink:0}
 .drawer-title{flex:1;min-width:0}
 .drawer-title-text{color:var(--text);font-size:15px;font-weight:400;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;letter-spacing:.01em}
 .drawer-meta-line{font-size:12px;color:var(--surface);margin-top:4px;font-weight:500}
@@ -416,8 +434,10 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .source-card.active{border-color:var(--surface);background:var(--bg3)}
 /* DRAWER CONTENT */
 .dp-section{margin-bottom:26px}
-.dp-authors-block{margin-bottom:16px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
-.dp-authors{color:var(--text);font-size:13.5px;font-weight:500;line-height:1.5;letter-spacing:.005em}
+/* Authors stat box — sits alongside Year and Journal in the dp-stats flex row.
+   Slightly lighter background to read as "metadata box that may have more text" */
+.dp-stat-authors{background:rgba(126,182,255,.06);border-color:rgba(126,182,255,.18);max-width:280px}
+.dp-stat-authors .dp-stat-val{white-space:normal;line-height:1.4;text-align:left;font-weight:500}
 
 /* App logo badge — small compass positioned in bottom-right of dynamic elements
    so it doesn't collide with the close button/X in the top-right corner.
@@ -1989,17 +2009,20 @@ async function loadDrawerContent(p,idx){
   try{tldr=p.abstract||'';}catch(e){}
   const abstract=p.abstract||'Abstract not available for this paper.';
   let html=``;
-  // Authors line — moved from the header so the header can show just the title
+  // Authors are now rendered as a third stat box alongside Year and Journal,
+  // matching their visual treatment (outlined card, value-on-top, label-below).
   const authors=typeof p.authors==='string'?p.authors:Array.isArray(p.authors)?p.authors.slice(0,6).map(au=>typeof au==='string'?au:au.name||'').join(', '):'';
-  if(authors){
-    html+=`<div class="dp-section dp-authors-block">
-      <div class="dp-authors">${esc(authors)}</div>
-    </div>`;
-  }
+  // Determine label: "Author" for one author, "Authors" for two or more.
+  // We count by splitting on commas — works for both string and array inputs since
+  // the array case was already joined into a comma-separated string above.
+  const authorCount = authors ? authors.split(',').filter(x => x.trim()).length : 0;
+  const authorLbl = authorCount === 1 ? 'Author' : 'Authors';
+
   html+=`<div class="dp-section"><div class="dp-stats">`;
   if(p.year)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.year}</div><div class="dp-stat-lbl">Year</div></div>`;
   if(p.citationCount!=null)html+=`<div class="dp-stat"><div class="dp-stat-val">${p.citationCount.toLocaleString()}</div><div class="dp-stat-lbl">Citations</div></div>`;
   const venue=p.journal||p.venue||'';if(venue)html+=`<div class="dp-stat"><div class="dp-stat-val" style="font-size:11px">${esc(venue.slice(0,24))}</div><div class="dp-stat-lbl">Journal</div></div>`;
+  if(authors)html+=`<div class="dp-stat dp-stat-authors"><div class="dp-stat-val" style="font-size:11px">${esc(authors)}</div><div class="dp-stat-lbl">${authorLbl}</div></div>`;
   html+=`</div></div>`;
   const tldrText=tldr||p.estimator?`Method: ${p.estimator||tldr}`:'';
   if(tldrText){
@@ -2312,18 +2335,49 @@ function refreshLiterature() {
 }
 
 // Show a transient "Updated" pill on the AI block header after a successful refresh.
+// As the pill begins fading, three colored streaks emerge from the same position
+// and sweep leftward across the header, dissolving into diffused color as they
+// travel. This reinforces (visually + with brand colors) that fresh
+// recommendations have been delivered.
 function _flashUpdatedIndicator() {
   const hdr = document.querySelector('.lit-ai-section .lit-section-hdr');
   if (!hdr) return;
-  // Remove any existing indicator
+  // Remove any existing indicator and any leftover streaks from a prior refresh
   const existing = hdr.querySelector('.lit-updated-pill');
   if (existing) existing.remove();
+  hdr.querySelectorAll('.lit-streak').forEach(el => el.remove());
+
   const pill = document.createElement('span');
   pill.className = 'lit-updated-pill';
   pill.textContent = 'Updated';
   hdr.appendChild(pill);
-  setTimeout(() => pill.classList.add('lit-updated-fade'), 1500);
+
+  // After the pill has been visible for 1.5s, begin its fade and simultaneously
+  // launch the three streaks. Spoke colors match the app logo (blue, purple, green).
+  setTimeout(() => {
+    pill.classList.add('lit-updated-fade');
+    _launchRefreshStreaks(hdr);
+  }, 1500);
   setTimeout(() => pill.remove(), 2400);
+}
+
+// Inject three streak elements into the header and trigger their sweep animation.
+// Streaks are staggered ~80ms apart so they read as a sequence, not a single band.
+// Colors match the app logo's spokes: blue, purple, green.
+function _launchRefreshStreaks(hdr) {
+  const colors = ['lit-streak-blue', 'lit-streak-purple', 'lit-streak-green'];
+  const delays = [0, 80, 160]; // ms between each streak's launch
+  colors.forEach((cls, i) => {
+    const streak = document.createElement('span');
+    streak.className = 'lit-streak ' + cls;
+    hdr.appendChild(streak);
+    // Force a reflow before adding the animation class so the transition
+    // properly starts from the initial state rather than skipping to end
+    void streak.offsetWidth;
+    setTimeout(() => streak.classList.add('lit-streak-go'), delays[i]);
+    // Clean up DOM after animation completes (1.4s + delay + buffer)
+    setTimeout(() => streak.remove(), 1400 + delays[i] + 100);
+  });
 }
 
 async function fetchLiterature(a, tk) {
@@ -4064,22 +4118,17 @@ function selectLibFamily(id){
 <!-- PAPER DRAWER -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer();closeSourceDrawer();"></div>
 <div class="drawer" id="paper-drawer">
+  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
+    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
+    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
+    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="343" cy="343" r="18" fill="#10b981"/>
+    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
+  </svg>
   <div class="drawer-header">
-    <svg class="drawer-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="256" cy="256" r="192" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
-      <circle cx="256" cy="256" r="152" fill="none" stroke="#1e3a8a" stroke-width="1"/>
-      <circle cx="256" cy="256" r="110" fill="none" stroke="#3b82f6" stroke-width="5"/>
-      <circle cx="256" cy="256" r="90" fill="#0a0f1e"/>
-      <line x1="256" y1="254" x2="256" y2="152" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="256" cy="146" r="10" fill="#1d4ed8"/><circle cx="256" cy="146" r="6" fill="#3b82f6"/>
-      <line x1="250" y1="262" x2="178" y2="334" stroke="#a855f7" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="174" cy="339" r="10" fill="#9333ea"/><circle cx="174" cy="339" r="6" fill="#c084fc"/>
-      <line x1="262" y1="262" x2="334" y2="334" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="338" cy="339" r="10" fill="#059669"/><circle cx="338" cy="339" r="6" fill="#34d399"/>
-      <circle cx="256" cy="256" r="14" fill="#1e40af"/>
-      <circle cx="256" cy="256" r="10" fill="#93c5fd"/>
-      <circle cx="256" cy="256" r="5" fill="#fff"/>
-    </svg>
     <div class="drawer-title">
       <div class="drawer-title-text" id="drawer-title-text">Loading...</div>
       <div class="drawer-meta-line" id="drawer-meta-line"></div>
