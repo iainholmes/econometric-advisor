@@ -93,7 +93,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .sources-stack{display:flex;flex-direction:column;gap:8px}
 @media(max-width:720px){.two-col-panel{grid-template-columns:1fr}}
 /* SEC DIVIDER */
-.section-title{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.section-title{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .section-title-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.4}
 .sec-divider{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
 /* SOURCES */
@@ -117,7 +117,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-open-hint{font-size:11px;color:var(--hint);font-style:italic;margin-top:2px}
 /* TOOLKIT WITH LEFT RAIL */
 .toolkit-section{margin-top:2rem}
-.toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;line-height:1.4}
 .toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
 .lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0a1d33;border:.5px solid var(--border);border-radius:11px;padding:14px 12px}
@@ -181,7 +181,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* KNOWLEDGE GRAPH */
 .kg-section{margin-top:2.5rem;margin-bottom:2.5rem}
 .kg-header{margin-bottom:1.25rem}
-.kg-header h3{font-size:22px;font-weight:600;color:var(--text);margin:0 0 1rem;padding-bottom:11px;border-bottom:.5px solid var(--border);letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.kg-header h3{font-size:22px;font-weight:600;color:var(--text);margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .kg-header h3 .kg-sub{font-size:13px;color:var(--muted);font-weight:400;line-height:1.4}
 .kg-header p{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px}
 .kg-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;padding-top:14px;border-top:.5px solid var(--border)}
@@ -306,6 +306,40 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .drawer-body::-webkit-scrollbar{width:4px}
 .drawer-body::-webkit-scrollbar-track{background:transparent}
 .drawer-body::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:2px}
+
+/* SOURCE DRAWER — left-side mirror of paper drawer.
+   Same width/height/transitions as paper drawer; reuses .drawer-body, .dp-* content classes. */
+.source-drawer{position:fixed;top:0;left:0;height:100vh;width:75vw;max-width:75vw;background:#020e1f;border-right:.5px solid #15304d;z-index:201;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.source-drawer.open{transform:translateX(0)}
+.source-drawer .drawer-header{padding:20px 26px;border-bottom:.5px solid var(--border)}
+.source-drawer .drawer-logo-wrap{width:48px;height:48px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a1d33,#15304d)}
+.source-drawer .drawer-logo-wrap svg{width:26px;height:26px;color:#7eb6ff}
+/* Source-specific content sections — distinct visual hierarchy from paper drawer */
+.src-fit-block{background:linear-gradient(135deg,rgba(126,182,255,.08),rgba(126,182,255,.02));border:.5px solid rgba(126,182,255,.25);border-left:3px solid #7eb6ff;border-radius:6px;padding:14px 16px;margin-bottom:22px}
+.src-fit-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.src-fit-lbl::before{content:'';width:5px;height:5px;border-radius:50%;background:#7eb6ff}
+.src-fit-text{color:var(--text);font-size:13.5px;line-height:1.65}
+.src-fit-loading{display:flex;align-items:center;gap:10px;color:var(--hint);font-size:12.5px;font-style:italic}
+.src-fit-spinner{width:13px;height:13px;border:1.5px solid rgba(126,182,255,.2);border-top-color:#7eb6ff;border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.src-section{margin-bottom:22px}
+.src-section-lbl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--surface);font-weight:500;margin-bottom:9px;padding-bottom:6px;border-bottom:.5px solid var(--border)}
+.src-vars-list{display:flex;flex-wrap:wrap;gap:6px}
+.src-var-pill{font-size:12px;padding:4px 10px;background:#0a1d33;border:.5px solid var(--border);border-radius:3px;color:var(--text)}
+.src-meta-row{display:grid;grid-template-columns:130px 1fr;gap:12px;padding:7px 0;font-size:13px;border-bottom:.5px solid rgba(21,48,77,.4)}
+.src-meta-row:last-child{border-bottom:none}
+.src-meta-key{color:var(--hint);font-size:12px;letter-spacing:.04em;text-transform:uppercase;font-weight:500;padding-top:1px}
+.src-meta-val{color:var(--text);line-height:1.55}
+.src-pitfall{background:rgba(245,166,35,.05);border-left:3px solid #f5a623;padding:11px 14px;border-radius:4px;color:var(--text);font-size:13px;line-height:1.6}
+.src-actions{display:flex;gap:10px;margin-top:24px;padding-top:18px;border-top:.5px solid var(--border)}
+.src-action-btn{flex:1;padding:11px 14px;background:transparent;border:.5px solid var(--border);border-radius:5px;color:var(--text);font-size:12.5px;cursor:pointer;text-decoration:none;text-align:center;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.src-action-btn:hover{border-color:var(--surface);background:#0a1d33;color:#fff}
+.src-action-btn.primary{background:#1d4ed8;border-color:#1d4ed8;color:#fff}
+.src-action-btn.primary:hover{background:#1e40af;border-color:#1e40af}
+
+/* Source-card — make it look clickable now that it opens a drawer */
+.source-card{cursor:pointer;transition:all .15s}
+.source-card.active{border-color:var(--surface);background:var(--bg3)}
 /* DRAWER CONTENT */
 .dp-section{margin-bottom:26px}
 .dp-label{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
@@ -421,7 +455,6 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <span id="hdr-sub" class="hdr-sub">assessment</span>
   <div class="hdr-actions">
     <button class="hdr-btn" id="btn-library" onclick="openLibrary()" style="display:none"><span class="hdr-btn-icon">⊞</span>Reference library</button>
-    <button class="hdr-btn" id="btn-handoff" onclick="openClaudeHandoff()" style="display:none"><span class="hdr-btn-icon">↗</span>Continue in Claude</button>
     <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
 </div>
@@ -739,7 +772,6 @@ function setHdr(sub,showResults){
   document.getElementById('hdr-sub').textContent=sub;
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
   document.getElementById('btn-library').style.display='inline-flex';
-  document.getElementById('btn-handoff').style.display=showResults?'inline-flex':'none';
 }
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -936,6 +968,8 @@ function buildLitQuery(a){
 
 let _drawerPapers=[];
 let _drawerAnswers={};
+let _drawerSources=[];
+let _drawerToolkit=null;
 
 function openDrawer(idx){
   const p=_drawerPapers[idx];
@@ -956,7 +990,133 @@ function closeDrawer(){
   document.querySelectorAll('.lit-card').forEach(c=>c.classList.remove('active'));
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeKgDrawer();closeLibrary();if(_kgIsExpanded)kgToggleExpand();}});
+// ============================================================
+// SOURCE DRAWER — left-side drawer mirroring the paper drawer
+// ============================================================
+let _sourceFitCache={}; // index -> AI fit text, so we don't re-fetch
+
+function openSourceDrawer(idx){
+  const s=_drawerSources[idx];
+  if(!s)return;
+  // Mark active card
+  document.querySelectorAll('.source-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  // Re-use the same overlay as the paper drawer (one shared backdrop)
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('source-drawer').classList.add('open');
+  document.getElementById('src-drawer-title').textContent=s.n;
+  document.getElementById('src-drawer-meta').textContent='Open-access data source';
+
+  // Render the static metadata immediately, then async-load the AI fit paragraph
+  const fitInitial=_sourceFitCache[idx];
+  const body=document.getElementById('src-drawer-body');
+  body.innerHTML=renderSourceBody(s,fitInitial);
+
+  // If we don't have AI fit cached and we have an API key, fetch it
+  if(!fitInitial&&apiKey&&apiKey.length>=20){
+    fetchSourceFit(s,idx);
+  }
+}
+
+function closeSourceDrawer(){
+  document.getElementById('source-drawer').classList.remove('open');
+  // Only close the overlay if the paper drawer isn't also open
+  if(!document.getElementById('paper-drawer').classList.contains('open')){
+    document.getElementById('drawer-overlay').classList.remove('open');
+  }
+  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('active'));
+}
+
+function renderSourceBody(s,fitText){
+  const fitBlock=fitText
+    ? `<div class="src-fit-block">
+         <div class="src-fit-lbl">Why this fits your research design</div>
+         <div class="src-fit-text">${esc(fitText)}</div>
+       </div>`
+    : (apiKey&&apiKey.length>=20
+       ? `<div class="src-fit-block">
+            <div class="src-fit-lbl">Why this fits your research design</div>
+            <div class="src-fit-loading"><div class="src-fit-spinner"></div>Generating tailored fit notes&hellip;</div>
+          </div>`
+       : `<div class="src-fit-block">
+            <div class="src-fit-lbl">Why this fits your research design</div>
+            <div class="src-fit-text" style="color:var(--hint);font-style:italic">Add an Anthropic API key on the landing page to see how this dataset connects to your specific research design.</div>
+          </div>`);
+
+  const varsList=(s.vars||[]).map(v=>`<span class="src-var-pill">${esc(v)}</span>`).join('');
+  const varsBlock=varsList?`<div class="src-section">
+    <div class="src-section-lbl">Key variables &amp; fields</div>
+    <div class="src-vars-list">${varsList}</div>
+  </div>`:'';
+
+  const metaBlock=`<div class="src-section">
+    <div class="src-section-lbl">Coverage &amp; access</div>
+    ${s.geo?`<div class="src-meta-row"><div class="src-meta-key">Geography</div><div class="src-meta-val">${esc(s.geo)}</div></div>`:''}
+    ${s.temporal?`<div class="src-meta-row"><div class="src-meta-key">Time coverage</div><div class="src-meta-val">${esc(s.temporal)}</div></div>`:''}
+    ${s.access?`<div class="src-meta-row"><div class="src-meta-key">Access</div><div class="src-meta-val">${esc(s.access)}</div></div>`:''}
+    <div class="src-meta-row"><div class="src-meta-key">Source URL</div><div class="src-meta-val"><a href="${esc(s.u)}" target="_blank" rel="noreferrer" style="color:#7eb6ff">${esc(s.u)}</a></div></div>
+  </div>`;
+
+  const pitfallBlock=s.pitfalls?`<div class="src-section">
+    <div class="src-section-lbl">Common pitfalls</div>
+    <div class="src-pitfall">${esc(s.pitfalls)}</div>
+  </div>`:'';
+
+  const actions=`<div class="src-actions">
+    <a class="src-action-btn primary" href="${esc(s.u)}" target="_blank" rel="noreferrer">Open data source ↗</a>
+    <button class="src-action-btn" onclick="closeSourceDrawer()">Close</button>
+  </div>`;
+
+  return fitBlock+varsBlock+metaBlock+pitfallBlock+actions;
+}
+
+async function fetchSourceFit(s,idx){
+  const a=_drawerAnswers||{};
+  const tk=_drawerToolkit;
+  const context=[
+    a.field&&`Field: ${a.field}`,
+    a.question_type&&`Research type: ${a.question_type}`,
+    a.treatment&&`Treatment: ${a.treatment}`,
+    a.endogeneity&&`Identification: ${a.endogeneity}`,
+    a.geo&&`Geography: ${a.geo}`,
+    a.data_structure&&`Data structure: ${a.data_structure}`,
+    a.context&&`Study: "${a.context}"`
+  ].filter(Boolean).join('; ');
+  const sectionsLine=tk?.sections?.map(x=>x.label+': '+x.method).join(', ')||'';
+  const prompt=`You are an expert applied econometrician advising a graduate student on data sources for their research.
+The student has selected the following dataset from a curated list: "${s.n}" (${s.d}).
+RESEARCH DESIGN: ${context}
+RECOMMENDED ESTIMATORS: ${sectionsLine}
+
+Write 3-4 sentences explaining how THIS specific dataset connects to THEIR specific research design. Cover:
+1) Which of their study's needs this dataset directly meets (variables, geography, or time coverage).
+2) How it would be merged or linked with other data they likely have.
+3) One concrete consideration about using this dataset for their specific identification strategy.
+
+Be concrete and specific to their study. Write in plain English at a graduate-research level. Do NOT use bullet points or headers — just flowing prose. Return ONLY the prose text, no JSON, no preamble.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:500,messages:[{role:'user',content:prompt}]})
+    });
+    const d=await r.json();
+    const text=(d.content?.find(b=>b.type==='text')?.text||'').trim();
+    if(text){
+      _sourceFitCache[idx]=text;
+      // Only re-render if this drawer is still open and showing this source
+      if(document.getElementById('source-drawer').classList.contains('open')){
+        const titleEl=document.getElementById('src-drawer-title');
+        if(titleEl&&titleEl.textContent===s.n){
+          document.getElementById('src-drawer-body').innerHTML=renderSourceBody(s,text);
+        }
+      }
+    }
+  }catch(e){
+    console.warn('fetchSourceFit failed',e);
+  }
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeSourceDrawer();closeKgDrawer();closeLibrary();if(_kgIsExpanded)kgToggleExpand();}});
 
 async function loadDrawerContent(p,idx){
   const href=p.doi_or_url||p.externalIds?.DOI&&`https://doi.org/${p.externalIds.DOI}`||`https://scholar.google.com/scholar?q=${encodeURIComponent(p.title||'')}`;
@@ -1377,28 +1537,149 @@ function buildToolkit(a){
   sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in environmental or urban economics journals.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
 
   const sources=[];
+  // Each source has:
+  //   n: name, u: url, d: short tagline (used on the card)
+  //   vars: key variables/fields offered (array of short strings)
+  //   geo: geographic scope/granularity
+  //   temporal: time coverage and update cadence
+  //   access: how to obtain it (free, registration, agreement, etc.)
+  //   pitfalls: common gotchas applied researchers run into
+  //   tags: which study designs this fits (used by AI fit prompt)
   if(['urban','env','ag'].includes(field)||isHedonic){
-    sources.push({n:'American Community Survey (ACS)',u:'https://data.census.gov',d:'Median home values, income, rooms, density'});
-    sources.push({n:'FHFA House Price Index',u:'https://www.fhfa.gov/data/hpi',d:'Repeat-sales HPI by metro and zip code'});
-    sources.push({n:'Zillow Research Data',u:'https://www.zillow.com/research/data/',d:'ZHVI, rental index, historical prices by zip'});
+    sources.push({
+      n:'American Community Survey (ACS)',
+      u:'https://data.census.gov',
+      d:'Median home values, income, rooms, density',
+      vars:['Median home value','Household income','Rooms','Year built','Tenure','Population density','Race/ethnicity composition'],
+      geo:'Block group, tract, ZCTA, county, state',
+      temporal:'1-year (2005-) and 5-year (2009-) rolling estimates; updated annually',
+      access:'Free public download via data.census.gov, FTP, or API key',
+      pitfalls:'5-year estimates are moving averages — do not treat as point-in-time. ZCTA boundaries change between vintages. Margins of error widen substantially for small geographies.',
+      tags:['hedonic','housing','demographic','urban']
+    });
+    sources.push({
+      n:'FHFA House Price Index',
+      u:'https://www.fhfa.gov/data/hpi',
+      d:'Repeat-sales HPI by metro and zip code',
+      vars:['Quarterly HPI','Annual HPI','Metro index','State index','Five-digit ZIP index'],
+      geo:'National, division, state, MSA, county, 5-digit ZIP',
+      temporal:'Quarterly since 1975; ZIP-level annual since 1995',
+      access:'Free public download as CSV',
+      pitfalls:'Repeat-sales methodology excludes new construction and unsold homes — biased toward established neighborhoods. ZIP-level series can be noisy in low-volume areas.',
+      tags:['hedonic','housing','price-index','time-series']
+    });
+    sources.push({
+      n:'Zillow Research Data',
+      u:'https://www.zillow.com/research/data/',
+      d:'ZHVI, rental index, historical prices by zip',
+      vars:['Zillow Home Value Index (ZHVI)','Zillow Observed Rent Index (ZORI)','Inventory','Days on market','Listings vs. sales'],
+      geo:'ZIP code, neighborhood, city, metro, county, state',
+      temporal:'Monthly back to early 2000s for most series',
+      access:'Free public download as CSV; permissive use terms',
+      pitfalls:'ZHVI is a smoothed estimate, not a transaction-based index — proprietary methodology. Coverage thinner outside major metros.',
+      tags:['hedonic','housing','price-index','rental']
+    });
   }
   if(['infra','env_reg'].includes(treatment)){
-    sources.push({n:'National Inventory of Dams (NID)',u:'https://nid.sec.usace.army.mil/',d:'Geolocated dam coordinates, type, purpose'});
-    sources.push({n:'EPA ECHO / Toxic Release Inventory',u:'https://echo.epa.gov',d:'Facility-level compliance, TRI emissions'});
-    sources.push({n:'FEMA National Flood Hazard Layer',u:'https://msc.fema.gov/portal/home',d:'100-year floodplain boundaries'});
-    sources.push({n:'EPA PFAS Analytics Tool',u:'https://www.epa.gov/pfas/pfas-analytics-tool',d:'PFAS contamination monitoring data by site'});
+    sources.push({
+      n:'National Inventory of Dams (NID)',
+      u:'https://nid.sec.usace.army.mil/',
+      d:'Geolocated dam coordinates, type, purpose',
+      vars:['Latitude/longitude','Year completed','Hazard potential class','Primary purpose','Storage capacity','Dam height','Owner type','EAP status'],
+      geo:'Point coordinates nationwide; ~91,000 dams',
+      temporal:'Periodically refreshed; coverage extends back through 19th-century dams',
+      access:'Free public download (CSV/Shapefile); API available',
+      pitfalls:'Coordinate precision varies by state-reporting agency. "Year completed" missing for ~5% of records. Hazard class reflects downstream consequence, not condition.',
+      tags:['infrastructure','spatial','treatment','env']
+    });
+    sources.push({
+      n:'EPA ECHO / Toxic Release Inventory',
+      u:'https://echo.epa.gov',
+      d:'Facility-level compliance, TRI emissions',
+      vars:['Permit holder','Facility lat/lon','Inspection history','Violations','Penalties','TRI release amounts by chemical','SIC/NAICS code'],
+      geo:'Facility-level point data nationwide',
+      temporal:'Compliance history typically 3–5 years; TRI releases since 1987',
+      access:'Free public access via web tool, CSV bulk download, or API',
+      pitfalls:'Self-reported emissions data has known under-reporting in some sectors. ECHO compliance ratings change methodology occasionally — review the data dictionary for the year you use.',
+      tags:['env','treatment','spatial','enforcement']
+    });
+    sources.push({
+      n:'FEMA National Flood Hazard Layer',
+      u:'https://msc.fema.gov/portal/home',
+      d:'100-year floodplain boundaries',
+      vars:['Flood zone designation (A, AE, X, etc.)','Base flood elevation','Zone effective date','Letter of Map Revision history'],
+      geo:'Polygon coverage nationwide where Flood Insurance Rate Maps exist',
+      temporal:'Maps updated on rolling community-by-community basis',
+      access:'Free download per community; bulk via NFHL viewer',
+      pitfalls:'Map effective dates vary widely by community — hedonic studies must use date-of-sale-appropriate maps. Many areas still on outdated maps.',
+      tags:['env','spatial','risk','infrastructure']
+    });
+    sources.push({
+      n:'EPA PFAS Analytics Tool',
+      u:'https://www.epa.gov/pfas/pfas-analytics-tool',
+      d:'PFAS contamination monitoring data by site',
+      vars:['Sample location','Sampling date','PFOA, PFOS, GenX, and related compound concentrations','Detection method','Source category'],
+      geo:'Site-level points; coverage densest where state monitoring programs are active',
+      temporal:'Mostly 2013 onward; varies sharply by state',
+      access:'Free public download',
+      pitfalls:'Coverage is non-random — areas without monitoring programs appear "clean" because they are not being tested. Detection limits have changed over time.',
+      tags:['env','contamination','spatial','treatment']
+    });
   }
   if(isGeo||isSpatial){
-    sources.push({n:'Census TIGER/Line Shapefiles',u:'https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html',d:'ZCTA, county, tract boundaries and centroids'});
-    sources.push({n:'Census Gazetteer Files',u:'https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html',d:'ZCTA land area for density and IV construction'});
+    sources.push({
+      n:'Census TIGER/Line Shapefiles',
+      u:'https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html',
+      d:'ZCTA, county, tract boundaries and centroids',
+      vars:['Polygon boundaries','Centroids','GEOIDs','Land/water classification'],
+      geo:'All Census geographies nationwide',
+      temporal:'Annual vintages back to 2007; older years available',
+      access:'Free public download (Shapefile, GeoPackage, KML)',
+      pitfalls:'Boundary definitions change between vintages — pin to one vintage for the entire study panel. ZCTAs are approximations of postal ZIPs and may diverge.',
+      tags:['spatial','geographic','panel']
+    });
+    sources.push({
+      n:'Census Gazetteer Files',
+      u:'https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html',
+      d:'ZCTA land area for density and IV construction',
+      vars:['Land area (sq mi)','Water area','Internal point lat/lon','Population density'],
+      geo:'All Census geographies',
+      temporal:'Annual vintages',
+      access:'Free public download (CSV)',
+      pitfalls:'Land area is constant within a vintage but not across vintages if boundaries shift. Use as IV with caution — rule out direct effects on the outcome.',
+      tags:['spatial','iv','density']
+    });
   }
-  sources.push({n:'FRED -- St. Louis Fed',u:'https://fred.stlouisfed.org',d:'Economic indicators, mortgage rates, deflators'});
-  sources.push({n:'Harvard Dataverse',u:'https://dataverse.harvard.edu',d:'Replication datasets for published papers'});
+  sources.push({
+    n:'FRED — St. Louis Fed',
+    u:'https://fred.stlouisfed.org',
+    d:'Economic indicators, mortgage rates, deflators',
+    vars:['Interest rates','Mortgage rates','CPI/PPI deflators','Unemployment','GDP','Yield curves'],
+    geo:'National, state, MSA depending on series',
+    temporal:'Series-dependent; many extend back to 1950s or earlier',
+    access:'Free public access; FRED API for programmatic pulls',
+    pitfalls:'Series can be revised — vintage matters for replication. Some series are seasonally adjusted, some are not — check the metadata.',
+    tags:['macro','time-series','deflators']
+  });
+  sources.push({
+    n:'Harvard Dataverse',
+    u:'https://dataverse.harvard.edu',
+    d:'Replication datasets for published papers',
+    vars:['Replication packages','Cleaned datasets','Code'],
+    geo:'Varies by deposit',
+    temporal:'Varies by deposit',
+    access:'Free public access; some datasets have terms-of-use agreements',
+    pitfalls:'Quality varies — some deposits are well-documented, others are not. Always cross-check sample restrictions against the original paper.',
+    tags:['replication','meta']
+  });
 
   return{sections,sources,active};
 }
 
 function renderResults(tk,ai){
+  // Stash for the source drawer to access
+  _drawerSources=tk.sources||[];
+  _drawerToolkit=tk;
   const el=document.getElementById('results-inner');
   let html=``;
 
@@ -1426,7 +1707,7 @@ function renderResults(tk,ai){
     <div class="two-col-left">
       <div class="section-title">Open-access data sources<span class="section-title-sub">Curated for your research design</span></div>
       <div class="sources-stack">`;
-  tk.sources.forEach(s=>{html+=`<a class="source-card" href="${esc(s.u)}" target="_blank" rel="noreferrer"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></a>`;});
+  tk.sources.forEach((s,i)=>{html+=`<div class="source-card" onclick="openSourceDrawer(${i})"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></div>`;});
   html+=`</div></div>
     <div class="two-col-right">
       <div class="section-title">AI-curated literature<span class="section-title-sub">Click any paper to open analysis</span></div>
@@ -2587,7 +2868,7 @@ function selectLibFamily(id){
 </script>
 
 <!-- PAPER DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer();closeSourceDrawer();"></div>
 <div class="drawer" id="paper-drawer">
   <div class="drawer-header">
     <svg class="drawer-logo" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -2614,6 +2895,25 @@ function selectLibFamily(id){
   <div class="drawer-body" id="drawer-body">
     <div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper...</div>
   </div>
+</div>
+
+<!-- SOURCE DRAWER (left-side) — mirrors paper drawer architecture -->
+<div class="source-drawer" id="source-drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
+        <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
+        <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
+      </svg>
+    </div>
+    <div class="drawer-title">
+      <div class="drawer-title-text" id="src-drawer-title">Loading...</div>
+      <div class="drawer-meta-line" id="src-drawer-meta">Open-access data source</div>
+    </div>
+    <button class="drawer-close" onclick="closeSourceDrawer()">&#x2715;</button>
+  </div>
+  <div class="drawer-body" id="src-drawer-body"></div>
 </div>
 
 <!-- REFERENCE LIBRARY -->
