@@ -54,6 +54,22 @@ body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#020e1f;co
 .q-back{background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;padding:6px 0;margin-bottom:18px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;letter-spacing:.04em;transition:color .15s}
 .q-back:hover{color:var(--text)}
 .q-back-arrow{font-size:14px;line-height:1}
+
+/* "Why this matters" expandable guidance panel.
+   Sits between q-sub and the input controls. Default collapsed; clicking the
+   toggle expands the three-section panel. State is per-question. */
+.q-why-wrap{margin-top:-12px;margin-bottom:1.75rem}
+.q-why-toggle{background:transparent;border:none;color:var(--surface);font-size:12px;cursor:pointer;padding:4px 0;font-family:inherit;display:inline-flex;align-items:center;gap:7px;letter-spacing:.02em;transition:color .15s}
+.q-why-toggle:hover{color:#7eb6ff}
+.q-why-toggle.open{color:#7eb6ff}
+.q-why-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:.5px solid currentColor;border-radius:3px;font-size:13px;line-height:1;font-weight:300}
+.q-why-lbl{letter-spacing:.04em;font-weight:500}
+.q-why-panel{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease, margin-top .25s ease;margin-top:0;background:rgba(8,23,41,.5);border:.5px solid rgba(126,182,255,.18);border-radius:8px}
+.q-why-panel.open{max-height:600px;opacity:1;margin-top:12px;padding:18px 20px}
+.q-why-section{margin-bottom:14px}
+.q-why-section:last-child{margin-bottom:0}
+.q-why-section-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:5px}
+.q-why-section-text{font-size:13px;color:var(--text);line-height:1.6;letter-spacing:.005em}
 .chips{display:flex;flex-direction:column;gap:7px}
 .chip{background:var(--bg2);border:.5px solid var(--border);border-radius:10px;padding:13px 17px;color:var(--muted);font-size:14px;cursor:pointer;text-align:left;transition:all .15s;font-family:inherit}
 .chip:hover{border-color:var(--surface);color:var(--text);background:var(--bg3)}
@@ -924,7 +940,7 @@ function saveKey(){const k=document.getElementById('api-key-input').value.trim()
 function skipKey(){document.getElementById('api-modal').style.display='none';beginQuiz();}
 function resetKey(){localStorage.removeItem('ea_ak');apiKey='';document.getElementById('api-key-input').value='';document.getElementById('api-modal').style.display='flex';}
 function beginQuiz(){step=0;ans={};renderQ();}
-function resetApp(){step=-1;ans={};_sourceFitCache={};_sourceFitAIDone={};_drawerSources=[];_drawerToolkit=null;_drawerPapers=[];_drawerAnswers={};_litLens='recent';_litShownTitles=new Set();_litAIPapers=[];_litFoundational=[];_litLastAnswers=null;_litLastToolkit=null;show('landing');document.getElementById('hdr').style.display='none';setProgress(0);const nav=document.getElementById('tk-jump-nav');if(nav)nav.classList.remove('show');}
+function resetApp(){step=-1;ans={};_sourceFitCache={};_sourceFitAIDone={};_drawerSources=[];_drawerToolkit=null;_drawerPapers=[];_drawerAnswers={};_litLens='recent';_litShownTitles=new Set();_litAIPapers=[];_litFoundational=[];_litLastAnswers=null;_litLastToolkit=null;_qPanelOpen.clear();show('landing');document.getElementById('hdr').style.display='none';setProgress(0);const nav=document.getElementById('tk-jump-nav');if(nav)nav.classList.remove('show');}
 
 function openClaudeHandoff(){
   // Build a summary prompt the user can carry into claude.ai for deeper analysis with file uploads
@@ -956,6 +972,121 @@ function openClaudeHandoff(){
   window.open(url,'_blank','noopener');
 }
 
+// ============================================================
+// SCREENING-QUESTION GUIDANCE
+// Each question gets an expandable "Why this matters" panel with three pieces:
+//   asking — what the question is actually asking (vocabulary clarification)
+//   shapes — how the user's answer concretely changes the toolkit downstream
+//   architecture — where this question sits in the broader research-design framework
+// Default state: collapsed. Per-question open state stored in _qPanelOpen.
+// ============================================================
+const Q_GUIDANCE = {
+  context: {
+    asking: "A free-text description of your research project — the question you're trying to answer, the setting, and any specifics about treatment, data, or context that come to mind. Even three sentences help substantially.",
+    shapes: "Every other section of the toolkit is improved by this answer. The AI-tailored narrative, the literature recommendations, the methodological-spec reasoning, and the source-fit analysis all draw on this description to be specific to YOUR study rather than generic.",
+    architecture: "This is the foundation. Every applied econometric design starts with a research question framed in substantive terms — and the gap between the substantive question and the formal estimating equation is where most identification problems live or die."
+  },
+  stage: {
+    asking: "Where you are in the research process — proposing the study, collecting data, running estimations, refining a specification, or revising for submission. The advice you need is dramatically different at each stage.",
+    shapes: "At the proposal stage, the toolkit emphasizes design choices and identification strategy. At the estimation stage, it surfaces diagnostics and robustness. At revision, it focuses on referee-anticipated weaknesses and the specific tests editors expect to see.",
+    architecture: "Stage determines whether you're operating in the design space (choosing what to do) or the diagnostic space (defending what you've done). Most failed papers fail because the wrong space received attention at the wrong time."
+  },
+  field: {
+    asking: "Your primary research field — the disciplinary context that shapes which estimators are conventional, which data sources are familiar, and which kinds of identification arguments your peers and reviewers will recognize.",
+    shapes: "Field selection drives the literature recommendations (each field has its own canon), the data sources surfaced (USDA for ag economics, FRED for macro, EPA for environmental), and the way recommended methods are framed in your terms.",
+    architecture: "Methods don't exist in a vacuum — they're embedded in field traditions. Hedonic pricing is environmental and urban; shift-share is labor and trade; event studies are everywhere but with different conventions in each field."
+  },
+  question_type: {
+    asking: "The TYPE of empirical answer you're trying to produce — a causal effect estimate, a descriptive pattern, a forecast, a structural parameter, or a policy-counterfactual prediction. These require fundamentally different methodological apparatus.",
+    shapes: "Causal questions surface IV, DiD, RD, and identification diagnostics. Descriptive questions emphasize careful measurement and visualization. Structural questions activate parameter-recovery and model-validation tools. Forecasting questions surface time-series and ML methods.",
+    architecture: "This is the most important design-level decision after choosing the research question itself. Confusing description for causal inference (or vice versa) is the most common conceptual error in applied work and the easiest one for reviewers to flag."
+  },
+  treatment: {
+    asking: "Whether your study has an explicit treatment variable, policy change, intervention, or natural shock that creates variation you're trying to exploit — and if so, what kind. Some studies have no discrete treatment at all.",
+    shapes: "Presence and type of treatment determine which identification strategies the toolkit surfaces. A policy change suggests DiD or event-study; a natural disaster suggests synthetic control; no explicit treatment suggests descriptive analysis or structural modeling instead.",
+    architecture: "Treatment is the central object of causal-inference research design. Without a clear treatment definition, identification arguments cannot be constructed; many supposedly-causal papers fail at this first step."
+  },
+  n_treated: {
+    asking: "How many distinct units (people, firms, counties, countries) actually receive your treatment. This is about cardinality, not sample size — a study can have a million observations but only one treated unit.",
+    shapes: "Few treated units (1-3) makes synthetic control or interrupted-time-series the natural fit; many treated units enables conventional DiD. The toolkit's inference recommendations (clustering, wild bootstrap) also depend critically on this count.",
+    architecture: "Number of treated units determines whether asymptotic inference is even valid. Cameron-Miller-Gelbach establishes that conventional cluster-robust standard errors over-reject with fewer than ~30 clusters — a problem with no purely statistical fix."
+  },
+  data_structure: {
+    asking: "The structural shape of your data — cross-section (one observation per unit), panel (units observed over time), pure time series, repeated cross-sections, or hierarchical/nested data. Multiple structures can apply.",
+    shapes: "Panel data unlocks fixed-effects and DiD; cross-section limits you to between-unit comparisons. Time series enables co-integration and unit-root tests. Hierarchical structures suggest multilevel models. Each opens or closes specific methodological avenues.",
+    architecture: "Data structure is the constraint — it determines what variation you have available to exploit for identification. The most elegant identification strategy is useless if your data doesn't support it."
+  },
+  outcome: {
+    asking: "The TYPE of dependent variable — continuous, binary, count, censored, ordered, time-to-event, or limited dependent. The OLS-vs-GLM distinction sits here, and it matters more than newcomers usually realize.",
+    shapes: "Binary outcomes surface logit/probit and AME reporting; count outcomes surface Poisson/PPML; censored outcomes surface Tobit alternatives. The toolkit's recommended estimator changes substantively based on this answer.",
+    architecture: "Outcome type determines the appropriate likelihood and conditional-mean specification. Running OLS on a binary outcome isn't fatal but loses efficiency; running OLS on a heavily-censored outcome can produce seriously misleading inference."
+  },
+  endogeneity: {
+    asking: "Whether the relationship you're trying to estimate is plausibly causal under your design — or whether confounders, reverse causality, or selection threaten the interpretation. This is the hardest honest answer in the screener.",
+    shapes: "This single answer reshapes the toolkit more than any other. \"Selection on observables\" produces a different toolkit than IV; \"natural experiment\" produces a different toolkit than RD. The diagnostics, robustness checks, and literature all pivot on this.",
+    architecture: "Endogeneity concerns ARE research design. The strategy you choose to confront endogeneity defines your study's identification — and identification is what separates causal inference from sophisticated correlation."
+  },
+  geo: {
+    asking: "Whether geographic location, distance, or spatial proximity is part of your treatment, outcome, or identification strategy — or whether it's incidental. Many studies have geographic data but no spatial dimension to the analysis.",
+    shapes: "Central spatial role activates Moran's I diagnostics, SAR/SEM models, spatial weight matrices, and geographically-clustered standard errors. Incidental geography does none of this. The data sources also pivot — Census TIGER lines and Gazetteer files become essential.",
+    architecture: "Spatial dependence violates the independence assumptions underlying conventional inference. Tobler's First Law (\"everything is related to everything else, but near things more than far\") is a feature, not a nuisance, when properly modeled."
+  },
+  functional_form: {
+    asking: "Whether your theoretical reasoning suggests a non-linear, threshold-based, or heterogeneous effect — or whether you expect roughly linear effects throughout the support of your treatment variable.",
+    shapes: "Non-linear specifications surface polynomial regression, splines, and quantile methods. Heterogeneous effects surface interaction terms, marginal-effects plots, and Causal Forests. Threshold designs activate RD and structural-break tests as natural fits.",
+    architecture: "Functional form is where economic theory directly meets the estimating equation. A theoretically-motivated functional form is a structural assumption; an arbitrary one is a researcher degree of freedom that referees will flag."
+  },
+  inference_concerns: {
+    asking: "Specific concerns about whether your standard errors, p-values, or confidence intervals will be valid — including small-sample issues, multiple comparisons, weak instruments, or dependence structures that violate independence.",
+    shapes: "Each concern surfaces specific diagnostics: cluster-robust standard errors, wild-cluster bootstrap, Romano-Wolf p-value corrections, weak-IV-robust inference, or HAC (heteroskedasticity- and autocorrelation-consistent) standard errors as appropriate.",
+    architecture: "Inference is the layer between estimation and substantive claims. The most elegant point estimate is useless without valid uncertainty quantification, and editors increasingly require this layer to be defended on its own terms."
+  },
+  ml_interest: {
+    asking: "Whether you want to incorporate machine-learning methods alongside traditional econometrics — typically for high-dimensional control selection, heterogeneous treatment effects, or out-of-sample prediction.",
+    shapes: "Interest in ML surfaces double/debiased machine learning (DML) for causal inference with many controls, Causal Forests for treatment-effect heterogeneity, and lasso variants for variable selection. None of these REPLACE causal identification — they enhance it.",
+    architecture: "ML in econometrics is most valuable where causal inference and high-dimensional data meet. Outside that intersection it's often a more flexible regression — useful for prediction, but not a substitute for an identification strategy."
+  }
+};
+
+// Tracks which question panels are open. Per-question state, not global.
+const _qPanelOpen = new Set();
+
+// Build the "Why this matters" panel HTML for a given question id.
+// Returns empty string if no guidance exists for this question.
+function _renderWhyPanel(qid) {
+  const g = Q_GUIDANCE[qid];
+  if (!g) return '';
+  const isOpen = _qPanelOpen.has(qid);
+  return `<div class="q-why-wrap">
+    <button type="button" class="q-why-toggle${isOpen ? ' open' : ''}" onclick="toggleWhyPanel('${qid}')" aria-expanded="${isOpen}">
+      <span class="q-why-icon" aria-hidden="true">${isOpen ? '\u2212' : '+'}</span>
+      <span class="q-why-lbl">Why this matters</span>
+    </button>
+    <div class="q-why-panel${isOpen ? ' open' : ''}">
+      <div class="q-why-section">
+        <div class="q-why-section-lbl">What this question is asking</div>
+        <div class="q-why-section-text">${esc(g.asking)}</div>
+      </div>
+      <div class="q-why-section">
+        <div class="q-why-section-lbl">How your answer shapes the toolkit</div>
+        <div class="q-why-section-text">${esc(g.shapes)}</div>
+      </div>
+      <div class="q-why-section">
+        <div class="q-why-section-lbl">Where this fits in research design</div>
+        <div class="q-why-section-text">${esc(g.architecture)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Toggle a question's "Why this matters" panel open/closed and re-render.
+// Re-rendering preserves all other question state (answers, current step).
+function toggleWhyPanel(qid) {
+  if (_qPanelOpen.has(qid)) _qPanelOpen.delete(qid);
+  else _qPanelOpen.add(qid);
+  renderQ();
+}
+
 function renderQ(){
   show('quiz');
   const q=QS[step];
@@ -967,16 +1098,22 @@ function renderQ(){
   const backBtn = step > 0
     ? `<button class="q-back" onclick="prevStep()" aria-label="Previous question"><span class="q-back-arrow">&larr;</span> Back</button>`
     : '';
+  // The "Why this matters" expandable panel is the same across all three
+  // question types. It sits below the q-sub line and above the input controls.
+  const whyPanel = _renderWhyPanel(q.id);
+
   if(q.type==='chips'){
     el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
+    ${whyPanel}
     <div class="chips">${q.opts.map(o=>`<button class="chip${ans[q.id]===o.v?' sel':''}${o.v==='unsure'?' na':''}" onclick="selChip('${o.v}')">${o.l}</button>`).join('')}</div>`;
   } else if(q.type==='multi'){
     const sel=Array.isArray(ans[q.id])?ans[q.id]:[];
     el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
+    ${whyPanel}
     <div class="chips">${q.opts.map(o=>`<button class="chip${sel.includes(o.v)?' sel':''}${o.v==='unsure'?' na':''}" onclick="togMulti('${o.v}')"><span class="check-box">${sel.includes(o.v)?'&#10003;':''}</span>${o.l}</button>`).join('')}</div>
     <div class="multi-actions"><button class="btn-cont" onclick="nextStep()">Continue</button><button class="btn-skip" onclick="nextStep()">Skip</button></div>`;
   } else {
@@ -987,6 +1124,7 @@ function renderQ(){
     el.innerHTML=`${backBtn}<div class="q-label">Question ${step+1} of ${QS.length}</div>
     <div class="q-text">${q.text}</div>
     <div class="q-sub">${q.sub||''}</div>
+    ${whyPanel}
     <textarea class="ctx" placeholder="${q.placeholder||''}" oninput="ans['${q.id}']=this.value">${ans[q.id]||''}</textarea>
     <div class="multi-actions"><button class="btn-cont" onclick="${action}()">${primaryLbl}</button><button class="btn-skip" onclick="${action}()">${skipLbl}</button></div>`;
   }
