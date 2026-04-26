@@ -157,8 +157,19 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .lit-refresh-btn{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:13px;padding:7px 16px;border-radius:18px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:all .15s;flex-shrink:0;font-weight:500;margin-left:auto}
 .lit-refresh-btn:hover{border-color:var(--surface);color:var(--text)}
 .lit-refresh-icon{font-size:15px;display:inline-block;line-height:1}
-.lit-refresh-icon.lit-refresh-spin{animation:spin .9s linear infinite}
 .lit-refresh-lbl{letter-spacing:.01em}
+
+/* Pulsing-logo activity indicator — sits directly right of the refresh button.
+   Hidden when idle. When refresh is in flight, fades in and pulses (opacity +
+   slight scale) to confirm the click registered and the request is working.
+   Pulse cadence is intentionally slightly faster than the landing-page watermark
+   so the user notices it without ambiguity. */
+.lit-refresh-pulse{display:inline-block;width:28px;height:28px;margin-left:10px;opacity:0;transform:scale(.85);transition:opacity .25s ease, transform .25s ease;flex-shrink:0;pointer-events:none}
+.lit-refresh-pulse.active{opacity:1;transform:scale(1);animation:litPulse 1.15s ease-in-out infinite}
+@keyframes litPulse{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(126,182,255,.45));opacity:.7}
+  50%{filter:drop-shadow(0 0 12px rgba(126,182,255,.95));opacity:1}
+}
 
 /* UPDATED PILL */
 .lit-updated-pill{display:inline-block;margin-left:10px;padding:2px 8px;background:rgba(126,182,255,.18);color:#7eb6ff;font-size:9.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border-radius:10px;border:.5px solid rgba(126,182,255,.3);transition:opacity .6s ease, transform .6s ease;animation:lit-updated-in .25s ease}
@@ -408,11 +419,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .dp-authors-block{margin-bottom:16px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
 .dp-authors{color:var(--text);font-size:13.5px;font-weight:500;line-height:1.5;letter-spacing:.005em}
 
-/* App logo badge — small compass positioned in top-right of dynamic elements
-   that don't already have a logo (KG drawer, API modal, reference library, source drawer).
+/* App logo badge — small compass positioned in bottom-right of dynamic elements
+   so it doesn't collide with the close button/X in the top-right corner.
    Provides consistent app identity across all pop-ups and drawers. */
-.app-logo-badge{position:absolute;top:14px;right:14px;width:28px;height:28px;opacity:.55;pointer-events:none;z-index:5;transition:opacity .2s}
-.app-logo-badge:hover{opacity:.85}
+.app-logo-badge{position:absolute;bottom:18px;right:18px;width:30px;height:30px;opacity:.32;pointer-events:none;z-index:5;transition:opacity .2s}
+.app-logo-badge:hover{opacity:.55}
 .dp-label{font-size:9.5px;color:var(--surface);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .dp-label::after{content:'';flex:1;height:.5px;background:var(--border)}
 .dp-tldr{background:#0a1d33;border:.5px solid var(--border);border-radius:9px;padding:14px 16px;color:var(--text);font-size:14px;line-height:1.85;font-style:italic}
@@ -2128,8 +2139,18 @@ function renderLitPanel() {
            ).join('')}
          </div>
          <button class="lit-refresh-btn" onclick="refreshLiterature()" title="Refresh — get new papers">
-           <span class="lit-refresh-icon" id="lit-refresh-icon">&#x21bb;</span><span class="lit-refresh-lbl">Refresh</span>
+           <span class="lit-refresh-icon">&#x21bb;</span><span class="lit-refresh-lbl">Refresh</span>
          </button>
+         <svg class="lit-refresh-pulse" id="lit-refresh-pulse" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+           <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
+           <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
+           <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
+           <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
+           <circle cx="169" cy="343" r="18" fill="#a855f7"/>
+           <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
+           <circle cx="343" cy="343" r="18" fill="#10b981"/>
+           <circle cx="256" cy="256" r="22" fill="#1e40af"/>
+         </svg>
        </div>`
     : '';
 
@@ -2327,9 +2348,10 @@ async function fetchLiterature(a, tk) {
 async function fetchAIliterature(cleaned, tk, isRefresh) {
   if (_litRefreshInFlight) return;
   _litRefreshInFlight = true;
-  // Show spinner on refresh icon
-  const icon = document.getElementById('lit-refresh-icon');
-  if (icon) icon.classList.add('lit-refresh-spin');
+  // Activate the pulsing-logo activity indicator. Stays visible+pulsing
+  // for the duration of the request so the user sees their click registered.
+  const pulse = document.getElementById('lit-refresh-pulse');
+  if (pulse) pulse.classList.add('active');
   if (!isRefresh) {
     renderLitPanel(); // First-load loading state
   }
@@ -2388,7 +2410,10 @@ TOOLKIT: ${tk.sections.map(s => s.label+': '+s.method).join(', ')}`;
     }
   } finally {
     _litRefreshInFlight = false;
-    if (icon) icon.classList.remove('lit-refresh-spin');
+    // Deactivate the pulsing-logo indicator. The CSS transition will fade
+    // the logo out smoothly rather than vanishing abruptly.
+    const pulseEl = document.getElementById('lit-refresh-pulse');
+    if (pulseEl) pulseEl.classList.remove('active');
   }
 }
 
