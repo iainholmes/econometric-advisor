@@ -931,7 +931,7 @@ const QS=[
     {l:"Not sure",v:"unsure"}]}
 ];
 
-let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||'',codeLang='r';
+let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||localStorage.getItem('qst_api_key_v1')||'',codeLang='r';
 
 function show(id){['landing','quiz','loading','results'].forEach(s=>{document.getElementById('screen-'+s).style.display=s===id?'block':'none';});}
 function setHdr(sub,showResults){
