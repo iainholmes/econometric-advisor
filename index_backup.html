@@ -665,7 +665,6 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <span id="hdr-sub" class="hdr-sub">assessment</span>
   <div class="hdr-actions">
     <button class="hdr-btn" id="btn-library" onclick="openLibrary()" style="display:none"><span class="hdr-btn-icon">⊞</span>Reference library</button>
-    <button class="hdr-btn" id="btn-audit" onclick="openAuditTool()" style="display:none"><span class="hdr-btn-icon">⌂</span>Audit code</button>
     <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
 </div>
@@ -835,7 +834,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
       <button class="btn-primary" onclick="startApp()">Begin assessment</button>
       <div style="margin-top:1rem;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap">
         <button onclick="openLibrary()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⊞&nbsp;Browse reference library</button>
-        
+        <span style="color:var(--dim);font-size:10px">·</span>
+        <button onclick="openAuditTool()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⌂&nbsp;Audit my code</button>
         <span style="color:var(--dim);font-size:10px">·</span>
         <button onclick="resetKey()" style="background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">Reset API key</button>
       </div>
@@ -1014,8 +1014,6 @@ function setHdr(sub,showResults){
   document.getElementById('hdr-sub').textContent=sub;
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
   document.getElementById('btn-library').style.display='inline-flex';
-  const btnAudit = document.getElementById('btn-audit');
-  if(btnAudit) btnAudit.style.display = showResults ? 'inline-flex' : 'none';
 }
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -3145,9 +3143,6 @@ function renderResults(tk,ai){
       <div class="qst-section-desc">The Quant Skills Trainer gives you structured, hands-on practice implementing the exact methods recommended above — in R, Stata, or Python. Each module combines a lesson, worked code, and AI-reviewed exercises tailored to applied econometrics.</div>
       <div class="qst-section-desc" style="margin-top:8px;">Completing the relevant modules will take you from understanding the method conceptually to being able to implement, interpret, and defend it in your own research.</div>
       <div id="qst-trainer-btn-wrap"></div>
-      <div style="margin-top:20px; padding-top:18px; border-top:.5px solid rgba(126,182,255,.15)">
-        <button class="btn-primary" onclick="openAuditTool()" style="padding:10px 18px; font-size:13.5px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;"><span style="font-size:15px">⌂</span>Run AI Code Audit</button>
-      </div>
     </div>`;
   }
 
@@ -3866,7 +3861,7 @@ function onKgNodeClick(nodeId){
   }
 
   // Build trainer URL for this node
-  const _kgMap = {"t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}};
+  const _kgMap = {"t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_poisson": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_tobit": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}};
   const _trainerMods = _kgMap[nodeId];
   const _trainerLang = codeLang || 'r';
   const _trainerMod = _trainerMods ? (_trainerMods[_trainerLang] || _trainerMods['r']) : null;
@@ -4401,8 +4396,8 @@ var AUDIT_PATTERNS = {
     {methods:['PanelOLS','FirstDifferenceOLS'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'python',mod:'py_panel'}},
     {methods:['lagsarlm','ML_Lag','Moran'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'python',mod:'py_panel'}},
     {methods:['DoubleML','CausalForest'],node:'t_iv',label:'Double ML / Causal Forest',trainer:{lang:'python',mod:'py_ml'}},
-    {methods:['Logit','Probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'python',mod:'glm_bridge'}},
-    {methods:['Poisson','NegativeBinomial'],node:'t_poisson',label:'Count Data',trainer:{lang:'python',mod:'glm_bridge'}},
+    {methods:['Logit','Probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'python',mod:'py_ols'}},
+    {methods:['Poisson','NegativeBinomial'],node:'t_poisson',label:'Count Data',trainer:{lang:'python',mod:'py_ols'}},
     {methods:['ARIMA','SARIMAX','VAR'],node:'d_robust',label:'Time Series',trainer:{lang:'python',mod:'py_ts'}},
     {methods:['smf.ols','sm.OLS'],node:'t_ols',label:'OLS (statsmodels)',trainer:{lang:'python',mod:'py_ols'}},
   ],
@@ -4414,8 +4409,8 @@ var AUDIT_PATTERNS = {
     {methods:['plm','lme4'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'r',mod:'r_panel'}},
     {methods:['lagsarlm','moran.test'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'r',mod:'r_panel'}},
     {methods:['DoubleML','grf'],node:'t_iv',label:'Double ML / Causal Forest',trainer:{lang:'r',mod:'r_ml'}},
-    {methods:['logit','probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'r',mod:'glm_bridge'}},
-    {methods:['fepois'],node:'t_poisson',label:'Count Data',trainer:{lang:'r',mod:'glm_bridge'}},
+    {methods:['logit','probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'r',mod:'r_ols'}},
+    {methods:['fepois'],node:'t_poisson',label:'Count Data',trainer:{lang:'r',mod:'r_ols'}},
     {methods:['auto.arima','VAR'],node:'d_robust',label:'Time Series',trainer:{lang:'r',mod:'r_ts'}},
     {methods:['coxph','Surv'],node:'t_cox',label:'Survival Analysis',trainer:{lang:'r',mod:'r_ts'}},
     {methods:['lm(','aov('],node:'t_ols',label:'OLS (base R)',trainer:{lang:'r',mod:'r_ols'}},
@@ -4428,7 +4423,7 @@ var AUDIT_PATTERNS = {
     {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'stata',mod:'st_rd'}},
     {methods:['spreg','spmat'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'stata',mod:'st_panel'}},
     {methods:['regress ','reg '],node:'t_ols',label:'OLS (regress)',trainer:{lang:'stata',mod:'st_ols'}},
-    {methods:['logit ','probit '],node:'t_logit',label:'Logit / Probit',trainer:{lang:'stata',mod:'glm_bridge'}},
+    {methods:['logit ','probit '],node:'t_logit',label:'Logit / Probit',trainer:{lang:'stata',mod:'st_ols'}},
     {methods:['poisson ','ppmlhdfe'],node:'t_poisson',label:'Count Data',trainer:{lang:'stata',mod:'st_ols'}},
     {methods:['arima ','var '],node:'d_robust',label:'Time Series',trainer:{lang:'stata',mod:'st_ts'}},
     {methods:['stcox','stset'],node:'t_cox',label:'Survival Analysis',trainer:{lang:'stata',mod:'st_ts'}},
@@ -4473,21 +4468,14 @@ function runAudit(filename,code){
 
 
 function runAuditAI(lang, code, detected, gaps) {
+  if (!apiKey || apiKey.length < 20) return;
+  if (typeof _toolkit === 'undefined' || !_toolkit) return;
+
   var section = document.getElementById('audit-ai-section');
   var content = document.getElementById('audit-ai-content');
   if (!section || !content) return;
 
   section.style.display = 'block';
-
-  if (!apiKey || apiKey.length < 20) {
-    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>AI Analysis locked.</strong> Add an Anthropic API key on the landing page to enable automated code review.</div></div>';
-    return;
-  }
-  if (typeof _toolkit === 'undefined' || !_toolkit) {
-    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>No active research design.</strong> Close this modal and run the "Begin assessment" questionnaire first so the AI has your study context to analyze this code against.</div></div>';
-    return;
-  }
-
   content.innerHTML = '<div class="audit-ai-loading"><div class="audit-ai-spin"></div>Analyzing your code against your research design...</div>';
 
   var detectedList = detected.map(function(d){return d.label;}).join(', ') || 'none detected';
@@ -4502,41 +4490,44 @@ function runAuditAI(lang, code, detected, gaps) {
     }
   } catch(e) {}
 
-  var prompt = `You are a senior econometrician reviewing a student's ${lang} script against their research design from the Econometric Advisor.
+  var prompt = 'You are a senior econometrician reviewing a student's ' + lang + ' script against their research design from the Econometric Advisor.
 
-RESEARCH DESIGN: ${advisorStudy || 'Not provided'}
-ADVISOR RECOMMENDED METHODS: ${advisorMethods}
-METHODS DETECTED IN UPLOADED CODE: ${detectedList}
-GAPS (recommended but not detected): ${gapList}
+' +
+    'RESEARCH DESIGN: ' + (advisorStudy || 'Not provided') + '
+' +
+    'ADVISOR RECOMMENDED METHODS: ' + advisorMethods + '
+' +
+    'METHODS DETECTED IN UPLOADED CODE: ' + detectedList + '
+' +
+    'GAPS (recommended but not detected): ' + gapList + '
 
-CODE SNIPPET (first 3000 chars):
-${code.slice(0, 3000)}
+' +
+    'CODE SNIPPET (first 3000 chars):
+' + code.slice(0, 3000) + '
 
-Provide a brief structured analysis in exactly this JSON format:
-{"correct":"1-2 sentences on what looks well-implemented relative to the research design","missing":"1-2 sentences on the most important gap or missing step","watchout":"1 sentence on the single biggest risk or misspecification to watch for"}
-
-Return only the JSON object, no other text.`;
+' +
+    'Provide a brief structured analysis in exactly this JSON format:
+' +
+    '{"correct":"1-2 sentences on what looks well-implemented relative to the research design","missing":"1-2 sentences on the most important gap or missing step","watchout":"1 sentence on the single biggest risk or misspecification to watch for"}
+' +
+    'Return only the JSON object, no other text.';
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-opus-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
+    body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
   }).then(function(res){return res.json();}).then(function(data){
-    if (data.error) throw new Error(data.error.message || 'API Error');
     var text = (data.content&&data.content[0]&&data.content[0].text)||'{}';
     var clean = text.replace(/```json|```/g,'').trim();
     var parsed = JSON.parse(clean);
-    
-    if (!parsed.correct && !parsed.missing) throw new Error("AI returned an empty or invalid response.");
-    
     content.innerHTML =
       '<div class="audit-ai-result">' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'N/A') + '</div></div>' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'N/A') + '</div></div>' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'N/A') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'') + '</div></div>' +
       '</div>';
   }).catch(function(e){
-    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>AI analysis failed:</strong> ' + e.message + '</div></div>';
+    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)">AI analysis unavailable — check your API key.</div></div>';
   });
 }
 
@@ -4693,17 +4684,16 @@ window.addEventListener('load',function(){
   </div>
 </div>
 
-<script src="advisor-patch.js"></script>
-<script>
+<script src="advisor-patch.js">
 function qstOpenSection(e, kgTag, secIdx) {
   e.preventDefault();
   var map = {
     't_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd',
     't_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did',
-    't_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts'
+    't_logit':'r_ols','t_poisson':'r_ols','t_tobit':'r_ols','t_cox':'r_ts'
   };
   var mod = map[kgTag] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor&focus='+kgTag;
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor';
   window.open(url, '_blank');
 }
 function qstOpenLang(e, lang) {
@@ -4733,7 +4723,7 @@ function qstOpenLang(e, lang) {
   }
   var langMap = map[firstTag] || map['t_ols'];
   var mod = langMap[lang] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+firstTag;
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
   // Update active chip styling
   document.querySelectorAll('.qst-lang-chip').forEach(function(el){el.classList.remove('active');});
   if (e.target) e.target.classList.add('active');
@@ -4749,7 +4739,6 @@ function qstOpenLang(e, lang) {
 
 
 
-</script>
 <div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
   <div class="audit-modal" onclick="event.stopPropagation()">
     <div class="audit-modal-hdr">
