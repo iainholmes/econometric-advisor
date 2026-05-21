@@ -580,6 +580,53 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .qst-lang-chip:hover{background:rgba(126,182,255,.12);border-color:#7eb6ff}
 
 .qst-lang-chip.active{background:rgba(126,182,255,.2);border-color:#7eb6ff;font-weight:600;}
+
+/* ── Code Audit Tool ─────────────────────────────────────────────────────── */
+.audit-modal-bg{position:fixed;inset:0;background:rgba(2,14,31,.88);display:flex;align-items:center;justify-content:center;z-index:300;padding:1.5rem;backdrop-filter:blur(4px)}
+.audit-modal{background:#0a1d33;border:.5px solid var(--border);border-radius:14px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.audit-modal-hdr{display:flex;align-items:center;gap:14px;padding:20px 24px;border-bottom:.5px solid var(--border);flex-shrink:0}
+.audit-modal-title{flex:1;font-size:16px;font-weight:500;color:var(--text)}
+.audit-modal-close{background:transparent;border:none;color:var(--hint);font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
+.audit-modal-close:hover{color:var(--text)}
+.audit-modal-body{flex:1;overflow-y:auto;padding:24px}
+.audit-modal-body::-webkit-scrollbar{width:4px}
+.audit-modal-body::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:2px}
+
+/* Drop zone */
+.audit-dropzone{border:1.5px dashed var(--border);border-radius:10px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
+.audit-dropzone:hover,.audit-dropzone.drag-over{border-color:var(--surface);background:rgba(61,107,133,.08)}
+.audit-dropzone-icon{font-size:2rem;margin-bottom:.75rem;color:var(--hint)}
+.audit-dropzone-label{font-size:14px;color:var(--text);margin-bottom:.4rem}
+.audit-dropzone-sub{font-size:12px;color:var(--hint)}
+.audit-file-input{display:none}
+.audit-lang-tabs{display:flex;gap:8px;margin-bottom:1.25rem}
+.audit-lang-tab{padding:6px 16px;border:.5px solid var(--border);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);font-family:inherit;transition:all .15s}
+.audit-lang-tab:hover{border-color:var(--surface);color:var(--text)}
+.audit-lang-tab.active{background:var(--bg3);color:var(--text);border-color:var(--surface)}
+
+/* Results */
+.audit-results{display:none}
+.audit-results.show{display:block}
+.audit-result-section{margin-bottom:1.5rem}
+.audit-result-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--border)}
+.audit-method-list{display:flex;flex-direction:column;gap:6px}
+.audit-method-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border-radius:7px;border:.5px solid var(--border)}
+.audit-method-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.audit-method-name{font-size:13px;color:var(--text);font-weight:500;flex:1}
+.audit-method-tag{font-size:10px;color:var(--hint);letter-spacing:.04em}
+.audit-method-link{font-size:11px;color:#7eb6ff;text-decoration:none;white-space:nowrap;border-bottom:1px solid rgba(126,182,255,.3)}
+.audit-method-link:hover{border-bottom-color:#7eb6ff}
+.audit-gap-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(245,158,11,.06);border:.5px solid rgba(245,158,11,.2);border-radius:7px}
+.audit-gap-dot{width:9px;height:9px;border-radius:50%;background:#f59e0b;flex-shrink:0}
+.audit-gap-name{font-size:13px;color:var(--amber);flex:1}
+.audit-gap-hint{font-size:11px;color:var(--hint)}
+.audit-empty{font-size:13px;color:var(--hint);font-style:italic;padding:.5rem 0}
+.audit-summary-bar{display:flex;gap:16px;margin-bottom:1.25rem;flex-wrap:wrap}
+.audit-summary-stat{background:var(--bg2);border:.5px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px}
+.audit-summary-stat-val{font-size:20px;font-weight:500;color:var(--text)}
+.audit-summary-stat-lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.audit-reset-btn{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit;margin-top:1rem;transition:all .15s}
+.audit-reset-btn:hover{border-color:var(--surface);color:var(--text)}
 </style>
 </head>
 <body>
@@ -771,8 +818,10 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <span class="tag">Live literature</span><span class="tag">Knowledge graph</span>
       </div>
       <button class="btn-primary" onclick="startApp()">Begin assessment</button>
-      <div style="margin-top:1rem;display:flex;gap:18px;justify-content:center;align-items:center">
+      <div style="margin-top:1rem;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap">
         <button onclick="openLibrary()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⊞&nbsp;Browse reference library</button>
+        <span style="color:var(--dim);font-size:10px">·</span>
+        <button onclick="openAuditTool()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⌂&nbsp;Audit my code</button>
         <span style="color:var(--dim);font-size:10px">·</span>
         <button onclick="resetKey()" style="background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">Reset API key</button>
       </div>
@@ -4451,5 +4500,52 @@ function qstOpenLang(e, lang) {
   window.open(url, '_blank');
 }
 </script>
+
+<!-- ── Code Audit Tool Modal ─────────────────────────────────────────────── -->
+<div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
+  <div class="audit-modal" onclick="event.stopPropagation()">
+    <div class="audit-modal-hdr">
+      <div style="font-size:18px">⌂</div>
+      <div class="audit-modal-title">Code Audit — What methods does your script use?</div>
+      <button class="audit-modal-close" onclick="closeAuditTool()">&#x2715;</button>
+    </div>
+    <div class="audit-modal-body">
+
+      <!-- Upload area -->
+      <div id="audit-upload-area">
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">
+          Upload a <strong style="color:var(--text)">.py</strong>, <strong style="color:var(--text)">.R</strong>, or <strong style="color:var(--text)">.do</strong> file and the Advisor will scan it for econometric methods — mapping what you've implemented to the knowledge graph and flagging any gaps relative to your research design.
+        </p>
+        <div class="audit-lang-tabs">
+          <button class="audit-lang-tab active" data-lang="auto" onclick="setAuditLang('auto',this)">Auto-detect</button>
+          <button class="audit-lang-tab" data-lang="python" onclick="setAuditLang('python',this)">Python</button>
+          <button class="audit-lang-tab" data-lang="r" onclick="setAuditLang('r',this)">R</button>
+          <button class="audit-lang-tab" data-lang="stata" onclick="setAuditLang('stata',this)">Stata</button>
+        </div>
+        <div class="audit-dropzone" id="audit-dropzone" onclick="document.getElementById('audit-file-input').click()">
+          <div class="audit-dropzone-icon">&#8679;</div>
+          <div class="audit-dropzone-label">Click to upload or drag & drop your script</div>
+          <div class="audit-dropzone-sub">.py · .R · .r · .do · .txt — max 500KB</div>
+        </div>
+        <input type="file" id="audit-file-input" class="audit-file-input" accept=".py,.R,.r,.do,.txt" onchange="handleAuditFile(this.files[0])">
+      </div>
+
+      <!-- Results area -->
+      <div class="audit-results" id="audit-results">
+        <div class="audit-summary-bar" id="audit-summary-bar"></div>
+        <div class="audit-result-section">
+          <div class="audit-result-label">Methods detected in your code</div>
+          <div class="audit-method-list" id="audit-detected-list"></div>
+        </div>
+        <div class="audit-result-section" id="audit-gaps-section">
+          <div class="audit-result-label">Not yet implemented — from your Advisor toolkit</div>
+          <div class="audit-method-list" id="audit-gaps-list"></div>
+        </div>
+        <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 </body>
 </html>
