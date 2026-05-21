@@ -684,11 +684,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
           <div class="audit-method-list" id="audit-gaps-list"></div>
         </div>
         <div class="audit-ai-section" id="audit-ai-section" style="display:none">
-        <div class="audit-result-label">AI analysis — calibrated to your research design</div>
-        <div id="audit-ai-content"></div>
+          <div class="audit-result-label">AI analysis — calibrated to your research design</div>
+          <div id="audit-ai-content"></div>
+        </div>
       </div>
       <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
-      </div>
 
     </div>
   </div>
@@ -4516,7 +4516,7 @@ function runAudit(filename,code){
 }
 
 
-async function runAuditAI(lang, code, detected, gaps) {
+function runAuditAI(lang, code, detected, gaps) {
   if (!apiKey || apiKey.length < 20) return;
   if (typeof _toolkit === 'undefined' || !_toolkit) return;
 
@@ -4561,26 +4561,23 @@ async function runAuditAI(lang, code, detected, gaps) {
 ' +
     'Return only the JSON object, no other text.';
 
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
-    });
-    var data = await res.json();
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
+  }).then(function(res){return res.json();}).then(function(data){
     var text = (data.content&&data.content[0]&&data.content[0].text)||'{}';
     var clean = text.replace(/```json|```/g,'').trim();
     var parsed = JSON.parse(clean);
-
     content.innerHTML =
       '<div class="audit-ai-result">' +
       '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'') + '</div></div>' +
       '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'') + '</div></div>' +
       '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'') + '</div></div>' +
       '</div>';
-  } catch(e) {
+  }).catch(function(e){
     content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)">AI analysis unavailable — check your API key.</div></div>';
-  }
+  });
 }
 
 function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code){
