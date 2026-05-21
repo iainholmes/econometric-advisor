@@ -630,6 +630,54 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 </style>
 </head>
 <body>
+
+
+<!-- ── Code Audit Tool Modal ─────────────────────────────────────────────── -->
+<div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
+  <div class="audit-modal" onclick="event.stopPropagation()">
+    <div class="audit-modal-hdr">
+      <div style="font-size:18px">⌂</div>
+      <div class="audit-modal-title">Code Audit — What methods does your script use?</div>
+      <button class="audit-modal-close" onclick="closeAuditTool()">&#x2715;</button>
+    </div>
+    <div class="audit-modal-body">
+
+      <!-- Upload area -->
+      <div id="audit-upload-area">
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">
+          Upload a <strong style="color:var(--text)">.py</strong>, <strong style="color:var(--text)">.R</strong>, or <strong style="color:var(--text)">.do</strong> file and the Advisor will scan it for econometric methods — mapping what you've implemented to the knowledge graph and flagging any gaps relative to your research design.
+        </p>
+        <div class="audit-lang-tabs">
+          <button class="audit-lang-tab active" data-lang="auto" onclick="setAuditLang('auto',this)">Auto-detect</button>
+          <button class="audit-lang-tab" data-lang="python" onclick="setAuditLang('python',this)">Python</button>
+          <button class="audit-lang-tab" data-lang="r" onclick="setAuditLang('r',this)">R</button>
+          <button class="audit-lang-tab" data-lang="stata" onclick="setAuditLang('stata',this)">Stata</button>
+        </div>
+        <div class="audit-dropzone" id="audit-dropzone" onclick="document.getElementById('audit-file-input').click()">
+          <div class="audit-dropzone-icon">&#8679;</div>
+          <div class="audit-dropzone-label">Click to upload or drag & drop your script</div>
+          <div class="audit-dropzone-sub">.py · .R · .r · .do · .txt — max 500KB</div>
+        </div>
+        <input type="file" id="audit-file-input" class="audit-file-input" accept=".py,.R,.r,.do,.txt" onchange="handleAuditFile(this.files[0])">
+      </div>
+
+      <!-- Results area -->
+      <div class="audit-results" id="audit-results">
+        <div class="audit-summary-bar" id="audit-summary-bar"></div>
+        <div class="audit-result-section">
+          <div class="audit-result-label">Methods detected in your code</div>
+          <div class="audit-method-list" id="audit-detected-list"></div>
+        </div>
+        <div class="audit-result-section" id="audit-gaps-section">
+          <div class="audit-result-label">Not yet implemented — from your Advisor toolkit</div>
+          <div class="audit-method-list" id="audit-gaps-list"></div>
+        </div>
+        <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 <div class="hdr" id="hdr">
   <div class="hdr-logo">
     <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -4658,52 +4706,5 @@ function qstOpenLang(e, lang) {
 }
 
 
-
-<!-- ── Code Audit Tool Modal ─────────────────────────────────────────────── -->
-<div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
-  <div class="audit-modal" onclick="event.stopPropagation()">
-    <div class="audit-modal-hdr">
-      <div style="font-size:18px">⌂</div>
-      <div class="audit-modal-title">Code Audit — What methods does your script use?</div>
-      <button class="audit-modal-close" onclick="closeAuditTool()">&#x2715;</button>
-    </div>
-    <div class="audit-modal-body">
-
-      <!-- Upload area -->
-      <div id="audit-upload-area">
-        <p style="font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">
-          Upload a <strong style="color:var(--text)">.py</strong>, <strong style="color:var(--text)">.R</strong>, or <strong style="color:var(--text)">.do</strong> file and the Advisor will scan it for econometric methods — mapping what you've implemented to the knowledge graph and flagging any gaps relative to your research design.
-        </p>
-        <div class="audit-lang-tabs">
-          <button class="audit-lang-tab active" data-lang="auto" onclick="setAuditLang('auto',this)">Auto-detect</button>
-          <button class="audit-lang-tab" data-lang="python" onclick="setAuditLang('python',this)">Python</button>
-          <button class="audit-lang-tab" data-lang="r" onclick="setAuditLang('r',this)">R</button>
-          <button class="audit-lang-tab" data-lang="stata" onclick="setAuditLang('stata',this)">Stata</button>
-        </div>
-        <div class="audit-dropzone" id="audit-dropzone" onclick="document.getElementById('audit-file-input').click()">
-          <div class="audit-dropzone-icon">&#8679;</div>
-          <div class="audit-dropzone-label">Click to upload or drag & drop your script</div>
-          <div class="audit-dropzone-sub">.py · .R · .r · .do · .txt — max 500KB</div>
-        </div>
-        <input type="file" id="audit-file-input" class="audit-file-input" accept=".py,.R,.r,.do,.txt" onchange="handleAuditFile(this.files[0])">
-      </div>
-
-      <!-- Results area -->
-      <div class="audit-results" id="audit-results">
-        <div class="audit-summary-bar" id="audit-summary-bar"></div>
-        <div class="audit-result-section">
-          <div class="audit-result-label">Methods detected in your code</div>
-          <div class="audit-method-list" id="audit-detected-list"></div>
-        </div>
-        <div class="audit-result-section" id="audit-gaps-section">
-          <div class="audit-result-label">Not yet implemented — from your Advisor toolkit</div>
-          <div class="audit-method-list" id="audit-gaps-list"></div>
-        </div>
-        <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
-      </div>
-
-    </div>
-  </div>
-</div>
 </body>
 </html>
