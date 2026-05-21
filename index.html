@@ -568,6 +568,16 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .qst-section{background:rgba(126,182,255,.06);border:.5px solid rgba(126,182,255,.2);border-radius:12px;padding:20px 24px;margin-top:1.5rem}
 .qst-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:8px}
 .qst-section-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+
+.sec-practice-row{margin-top:14px;padding-top:12px;border-top:.5px solid var(--border)}
+.sec-practice-link{font-size:12px;color:#7eb6ff;text-decoration:none;letter-spacing:.02em;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
+.sec-practice-link:hover{color:#fff}
+.qst-section-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:10px;letter-spacing:-.005em}
+.qst-lang-chips{margin-top:18px;padding-top:16px;border-top:.5px solid rgba(126,182,255,.15)}
+.qst-lang-chip-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);font-weight:500;margin-bottom:10px}
+.qst-lang-chips-row{display:flex;gap:10px}
+.qst-lang-chip{padding:9px 22px;border:.5px solid rgba(126,182,255,.3);border-radius:8px;color:#7eb6ff;font-size:13px;font-weight:500;text-decoration:none;transition:all .15s;font-family:inherit}
+.qst-lang-chip:hover{background:rgba(126,182,255,.12);border-color:#7eb6ff}
 </style>
 </head>
 <body>
@@ -3064,8 +3074,18 @@ function renderResults(tk,ai){
     </div>
     <div class="qst-section">
       <div class="qst-section-label">Continue your learning</div>
-      <div class="qst-section-desc">The Quant Skills Trainer teaches you to implement this method in R, Stata, or Python through structured lessons and AI-reviewed exercises.</div>
+      <div class="qst-section-title">Build the skills to execute your research design</div>
+      <div class="qst-section-desc">The Quant Skills Trainer gives you structured, hands-on practice implementing the exact methods recommended above — in R, Stata, or Python. Each module combines a lesson, worked code, and AI-reviewed exercises tailored to applied econometrics.</div>
+      <div class="qst-section-desc" style="margin-top:8px;">Completing the relevant modules will take you from understanding the method conceptually to being able to implement, interpret, and defend it in your own research.</div>
       <div id="qst-trainer-btn-wrap"></div>
+      <div class="qst-lang-chips">
+        <div class="qst-lang-chip-label">Choose your language</div>
+        <div class="qst-lang-chips-row">
+          <a class="qst-lang-chip" href="#" onclick="qstOpenLang(event,'r')">R</a>
+          <a class="qst-lang-chip" href="#" onclick="qstOpenLang(event,'python')">Python</a>
+          <a class="qst-lang-chip" href="#" onclick="qstOpenLang(event,'stata')">Stata</a>
+        </div>
+      </div>
     </div>`;
   }
 
@@ -3131,6 +3151,9 @@ function renderResults(tk,ai){
           ${s.codeStata?`<div class="code-stata code-block" style="display:none"><div class="code-header"><span class="code-lang-lbl">Stata</span><button class="code-copy" onclick="cpCode('cpre-${i}-stata')">copy</button></div><pre class="code-pre" id="cpre-${i}-stata">${esc(s.codeStata)}</pre></div>`:''}
           ${s.codePython?`<div class="code-python code-block" style="display:none"><div class="code-header"><span class="code-lang-lbl">Python</span><button class="code-copy" onclick="cpCode('cpre-${i}-python')">copy</button></div><pre class="code-pre" id="cpre-${i}-python">${esc(s.codePython)}</pre></div>`:''}
         </div>`:''}
+      <div class="sec-practice-row">
+          <a href="#" onclick="qstOpenSection(event,'${s.kgTags?.[0]||''}','${i}')" class="sec-practice-link">Practice this in the Trainer →</a>
+        </div>
       </div>
     </div>`;
   });
@@ -4369,6 +4392,33 @@ function selectLibFamily(id){
   </div>
 </div>
 
-<script src="advisor-patch.js"></script>
+<script src="advisor-patch.js">
+function qstOpenSection(e, kgTag, secIdx) {
+  e.preventDefault();
+  var map = {
+    't_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd',
+    't_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did',
+    't_logit':'r_ols','t_poisson':'r_ols','t_tobit':'r_ols','t_cox':'r_ts'
+  };
+  var mod = map[kgTag] || 'r_ols';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor';
+  window.open(url, '_blank');
+}
+function qstOpenLang(e, lang) {
+  e.preventDefault();
+  var map = {
+    't_ols':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_iv':{'r':'r_iv','python':'py_iv','stata':'st_iv'},
+    't_did':{'r':'r_did','python':'py_did','stata':'st_did'},
+    't_rd':{'r':'r_rd','python':'py_rd','stata':'st_rd'},
+    't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'}
+  };
+  var firstTag = (_toolkit&&_toolkit.sections[0]&&_toolkit.sections[0].kgTags&&_toolkit.sections[0].kgTags[0])||'t_ols';
+  var langMap = map[firstTag] || map['t_ols'];
+  var mod = langMap[lang] || 'r_ols';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
+  window.open(url, '_blank');
+}
+</script>
 </body>
 </html>
