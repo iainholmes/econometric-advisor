@@ -4720,15 +4720,27 @@ function qstOpenLang(e, lang) {
     't_poisson':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
     't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
   };
-  // Find first tool/estimator tag across all sections
+  // Find best tag — prioritize GLM tags since they need special routing
   var firstTag = 't_ols';
+  var glmTags = ['t_logit','t_poisson','t_tobit'];
   if (_toolkit && _toolkit.sections) {
+    // First pass: look for GLM tags
     for (var i=0; i<_toolkit.sections.length; i++) {
       var tags = _toolkit.sections[i].kgTags || [];
       for (var j=0; j<tags.length; j++) {
-        if (map[tags[j]]) { firstTag = tags[j]; break; }
+        if (glmTags.indexOf(tags[j]) >= 0) { firstTag = tags[j]; break; }
       }
       if (firstTag !== 't_ols') break;
+    }
+    // Second pass: if no GLM tag found, take first matching tag
+    if (firstTag === 't_ols') {
+      for (var i=0; i<_toolkit.sections.length; i++) {
+        var tags = _toolkit.sections[i].kgTags || [];
+        for (var j=0; j<tags.length; j++) {
+          if (map[tags[j]]) { firstTag = tags[j]; break; }
+        }
+        if (firstTag !== 't_ols') break;
+      }
     }
   }
   var langMap = map[firstTag] || map['t_ols'];
