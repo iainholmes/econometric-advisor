@@ -4348,159 +4348,6 @@ function selectLibFamily(id){
   main.innerHTML=html;
   main.scrollTop=0;
 }
-</script>
-
-<!-- PAPER DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer();closeSourceDrawer();"></div>
-<div class="drawer" id="paper-drawer">
-  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
-    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
-    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
-    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="343" cy="343" r="18" fill="#10b981"/>
-    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
-  </svg>
-  <div class="drawer-header">
-    <div class="drawer-title">
-      <div class="drawer-title-text" id="drawer-title-text">Loading...</div>
-      <div class="drawer-meta-line" id="drawer-meta-line"></div>
-    </div>
-    <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
-  </div>
-  <div class="drawer-body" id="drawer-body">
-    <div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper...</div>
-  </div>
-</div>
-
-<!-- SOURCE DRAWER (left-side) — mirrors paper drawer architecture -->
-<div class="source-drawer" id="source-drawer">
-  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
-    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
-    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
-    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="343" cy="343" r="18" fill="#10b981"/>
-    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
-  </svg>
-  <div class="drawer-header">
-    <div class="drawer-logo-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
-        <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
-        <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
-      </svg>
-    </div>
-    <div class="drawer-title">
-      <div class="drawer-title-text" id="src-drawer-title">Loading...</div>
-      <div class="drawer-meta-line" id="src-drawer-meta">Open-access data source</div>
-    </div>
-    <button class="drawer-close" onclick="closeSourceDrawer()">&#x2715;</button>
-  </div>
-  <div class="drawer-body" id="src-drawer-body"></div>
-</div>
-
-<!-- REFERENCE LIBRARY -->
-<div class="lib-overlay" id="lib-overlay" onclick="closeLibrary()"></div>
-<div class="lib" id="lib">
-  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
-    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
-    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
-    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="343" cy="343" r="18" fill="#10b981"/>
-    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
-  </svg>
-  <div class="lib-hdr">
-    <div class="lib-hdr-icon">⊞</div>
-    <div class="lib-hdr-title">
-      <div class="lib-hdr-title-main">Reference library</div>
-      <div class="lib-hdr-title-sub">Methods, assumptions, and applied notes for econometric research design</div>
-    </div>
-    <button class="lib-hdr-close" onclick="closeLibrary()">Close</button>
-  </div>
-  <div class="lib-body">
-    <div class="lib-side" id="lib-side"></div>
-    <div class="lib-main" id="lib-main">
-      <div class="lib-welcome">
-        <div class="lib-welcome-icon">&#9678;</div>
-        <div class="lib-welcome-title">Browse method families</div>
-        <div class="lib-welcome-sub">Choose a family from the left to view its methods, key assumptions, estimation notes, and watch-outs. Each entry is written from an applied research perspective &mdash; what to assume, how to estimate, what to watch out for.</div>
-        <div class="lib-color-key">
-          <div class="lib-color-key-title">Color coding within each method</div>
-          <div class="lib-color-key-grid">
-            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#3b82f6"></span><span class="lib-color-key-lbl">What it does</span><span class="lib-color-key-desc">Plain-English description of the method</span></div>
-            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#10b981"></span><span class="lib-color-key-lbl">Key assumption</span><span class="lib-color-key-desc">Identifying assumption that has to hold</span></div>
-            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#3d6b85"></span><span class="lib-color-key-lbl">How to estimate</span><span class="lib-color-key-desc">Practical implementation notes</span></div>
-            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#f59e0b"></span><span class="lib-color-key-lbl">Watch out for</span><span class="lib-color-key-desc">Common pitfalls and reviewer concerns</span></div>
-            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#ef4444"></span><span class="lib-color-key-lbl">Applied example</span><span class="lib-color-key-desc">Concrete example from applied research</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="advisor-patch.js">
-function qstOpenSection(e, kgTag, secIdx) {
-  e.preventDefault();
-  var map = {
-    't_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd',
-    't_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did',
-    't_logit':'r_ols','t_poisson':'r_ols','t_tobit':'r_ols','t_cox':'r_ts'
-  };
-  var mod = map[kgTag] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor';
-  window.open(url, '_blank');
-}
-function qstOpenLang(e, lang) {
-  e.preventDefault();
-  var map = {
-    't_ols':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
-    't_iv':{'r':'r_iv','python':'py_iv','stata':'st_iv'},
-    't_did':{'r':'r_did','python':'py_did','stata':'st_did'},
-    't_rd':{'r':'r_rd','python':'py_rd','stata':'st_rd'},
-    't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
-    't_sar':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
-    't_scm':{'r':'r_did','python':'py_did','stata':'st_did'},
-    't_logit':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
-    't_poisson':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
-    't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
-  };
-  // Find first tool/estimator tag across all sections
-  var firstTag = 't_ols';
-  if (_toolkit && _toolkit.sections) {
-    for (var i=0; i<_toolkit.sections.length; i++) {
-      var tags = _toolkit.sections[i].kgTags || [];
-      for (var j=0; j<tags.length; j++) {
-        if (map[tags[j]]) { firstTag = tags[j]; break; }
-      }
-      if (firstTag !== 't_ols') break;
-    }
-  }
-  var langMap = map[firstTag] || map['t_ols'];
-  var mod = langMap[lang] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
-  // Update active chip styling
-  document.querySelectorAll('.qst-lang-chip').forEach(function(el){el.classList.remove('active');});
-  if (e.target) e.target.classList.add('active');
-  // Update main button
-  var btn = document.querySelector('.qst-btn');
-  if (btn) {
-    btn.href = url;
-    var meta = btn.querySelector('.qst-btn-meta');
-    if (meta) meta.textContent = lang.charAt(0).toUpperCase()+lang.slice(1)+' - '+mod.replace(/_/g,' ');
-  }
-  window.open(url, '_blank');
-}
-
-<script>
 function openAuditTool() {
   var el = document.getElementById('audit-modal-bg');
   if (el) el.style.display = 'flex';
@@ -4657,7 +4504,159 @@ window.addEventListener('load',function(){
   dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)handleAuditFile(f);});
 });
 
+
 </script>
+
+<!-- PAPER DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer();closeSourceDrawer();"></div>
+<div class="drawer" id="paper-drawer">
+  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
+    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
+    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
+    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="343" cy="343" r="18" fill="#10b981"/>
+    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
+  </svg>
+  <div class="drawer-header">
+    <div class="drawer-title">
+      <div class="drawer-title-text" id="drawer-title-text">Loading...</div>
+      <div class="drawer-meta-line" id="drawer-meta-line"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <div class="dp-ai-loading"><div class="dp-ai-spinner"></div>Loading paper...</div>
+  </div>
+</div>
+
+<!-- SOURCE DRAWER (left-side) — mirrors paper drawer architecture -->
+<div class="source-drawer" id="source-drawer">
+  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
+    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
+    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
+    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="343" cy="343" r="18" fill="#10b981"/>
+    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
+  </svg>
+  <div class="drawer-header">
+    <div class="drawer-logo-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="12" cy="5" rx="8" ry="2.5"/>
+        <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/>
+        <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6"/>
+      </svg>
+    </div>
+    <div class="drawer-title">
+      <div class="drawer-title-text" id="src-drawer-title">Loading...</div>
+      <div class="drawer-meta-line" id="src-drawer-meta">Open-access data source</div>
+    </div>
+    <button class="drawer-close" onclick="closeSourceDrawer()">&#x2715;</button>
+  </div>
+  <div class="drawer-body" id="src-drawer-body"></div>
+</div>
+
+<!-- REFERENCE LIBRARY -->
+<div class="lib-overlay" id="lib-overlay" onclick="closeLibrary()"></div>
+<div class="lib" id="lib">
+  <svg class="app-logo-badge" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="256" cy="256" r="192" fill="none" stroke="#3b82f6" stroke-width="14"/>
+    <line x1="256" y1="252" x2="256" y2="148" stroke="#60a5fa" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="256" cy="140" r="18" fill="#3b82f6"/>
+    <line x1="249" y1="262" x2="174" y2="338" stroke="#a855f7" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="169" cy="343" r="18" fill="#a855f7"/>
+    <line x1="263" y1="262" x2="338" y2="338" stroke="#10b981" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="343" cy="343" r="18" fill="#10b981"/>
+    <circle cx="256" cy="256" r="22" fill="#1e40af"/>
+  </svg>
+  <div class="lib-hdr">
+    <div class="lib-hdr-icon">⊞</div>
+    <div class="lib-hdr-title">
+      <div class="lib-hdr-title-main">Reference library</div>
+      <div class="lib-hdr-title-sub">Methods, assumptions, and applied notes for econometric research design</div>
+    </div>
+    <button class="lib-hdr-close" onclick="closeLibrary()">Close</button>
+  </div>
+  <div class="lib-body">
+    <div class="lib-side" id="lib-side"></div>
+    <div class="lib-main" id="lib-main">
+      <div class="lib-welcome">
+        <div class="lib-welcome-icon">&#9678;</div>
+        <div class="lib-welcome-title">Browse method families</div>
+        <div class="lib-welcome-sub">Choose a family from the left to view its methods, key assumptions, estimation notes, and watch-outs. Each entry is written from an applied research perspective &mdash; what to assume, how to estimate, what to watch out for.</div>
+        <div class="lib-color-key">
+          <div class="lib-color-key-title">Color coding within each method</div>
+          <div class="lib-color-key-grid">
+            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#3b82f6"></span><span class="lib-color-key-lbl">What it does</span><span class="lib-color-key-desc">Plain-English description of the method</span></div>
+            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#10b981"></span><span class="lib-color-key-lbl">Key assumption</span><span class="lib-color-key-desc">Identifying assumption that has to hold</span></div>
+            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#3d6b85"></span><span class="lib-color-key-lbl">How to estimate</span><span class="lib-color-key-desc">Practical implementation notes</span></div>
+            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#f59e0b"></span><span class="lib-color-key-lbl">Watch out for</span><span class="lib-color-key-desc">Common pitfalls and reviewer concerns</span></div>
+            <div class="lib-color-key-row"><span class="lib-color-swatch" style="background:#ef4444"></span><span class="lib-color-key-lbl">Applied example</span><span class="lib-color-key-desc">Concrete example from applied research</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="advisor-patch.js">
+function qstOpenSection(e, kgTag, secIdx) {
+  e.preventDefault();
+  var map = {
+    't_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd',
+    't_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did',
+    't_logit':'r_ols','t_poisson':'r_ols','t_tobit':'r_ols','t_cox':'r_ts'
+  };
+  var mod = map[kgTag] || 'r_ols';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor';
+  window.open(url, '_blank');
+}
+function qstOpenLang(e, lang) {
+  e.preventDefault();
+  var map = {
+    't_ols':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_iv':{'r':'r_iv','python':'py_iv','stata':'st_iv'},
+    't_did':{'r':'r_did','python':'py_did','stata':'st_did'},
+    't_rd':{'r':'r_rd','python':'py_rd','stata':'st_rd'},
+    't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
+    't_sar':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
+    't_scm':{'r':'r_did','python':'py_did','stata':'st_did'},
+    't_logit':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_poisson':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
+  };
+  // Find first tool/estimator tag across all sections
+  var firstTag = 't_ols';
+  if (_toolkit && _toolkit.sections) {
+    for (var i=0; i<_toolkit.sections.length; i++) {
+      var tags = _toolkit.sections[i].kgTags || [];
+      for (var j=0; j<tags.length; j++) {
+        if (map[tags[j]]) { firstTag = tags[j]; break; }
+      }
+      if (firstTag !== 't_ols') break;
+    }
+  }
+  var langMap = map[firstTag] || map['t_ols'];
+  var mod = langMap[lang] || 'r_ols';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
+  // Update active chip styling
+  document.querySelectorAll('.qst-lang-chip').forEach(function(el){el.classList.remove('active');});
+  if (e.target) e.target.classList.add('active');
+  // Update main button
+  var btn = document.querySelector('.qst-btn');
+  if (btn) {
+    btn.href = url;
+    var meta = btn.querySelector('.qst-btn-meta');
+    if (meta) meta.textContent = lang.charAt(0).toUpperCase()+lang.slice(1)+' - '+mod.replace(/_/g,' ');
+  }
+  window.open(url, '_blank');
+}
+
 
 <!-- ── Code Audit Tool Modal ─────────────────────────────────────────────── -->
 <div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
