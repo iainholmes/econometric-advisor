@@ -3278,6 +3278,7 @@ function renderResults(tk,ai){
   html+=`</div></div></div>`;
 
   // KNOWLEDGE GRAPH (replaces tree)
+  html+=`</div>`; // close methods tab panel
   html+=renderKnowledgeGraph(tk);
 
   // Init D3 graph after DOM is in place
