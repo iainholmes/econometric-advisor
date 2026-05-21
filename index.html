@@ -4468,14 +4468,21 @@ function runAudit(filename,code){
 
 
 function runAuditAI(lang, code, detected, gaps) {
-  if (!apiKey || apiKey.length < 20) return;
-  if (typeof _toolkit === 'undefined' || !_toolkit) return;
-
   var section = document.getElementById('audit-ai-section');
   var content = document.getElementById('audit-ai-content');
   if (!section || !content) return;
 
   section.style.display = 'block';
+
+  if (!apiKey || apiKey.length < 20) {
+    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>AI Analysis locked.</strong> Add an Anthropic API key on the landing page to enable automated code review.</div></div>';
+    return;
+  }
+  if (typeof _toolkit === 'undefined' || !_toolkit) {
+    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>No active research design.</strong> Close this modal and run the "Begin assessment" questionnaire first so the AI has your study context to analyze this code against.</div></div>';
+    return;
+  }
+
   content.innerHTML = '<div class="audit-ai-loading"><div class="audit-ai-spin"></div>Analyzing your code against your research design...</div>';
 
   var detectedList = detected.map(function(d){return d.label;}).join(', ') || 'none detected';
