@@ -4423,7 +4423,7 @@ function handleAuditFile(file) {
 }
 var AUDIT_PATTERNS = {
   python:[
-    {methods:['IV2SLS','IVLIML'],node:'t_iv',label:'Instrumental Variables (2SLS)',trainer:{lang:'python',mod:'py_iv'}},
+    {methods:['IV2SLS','IVLIML','linearmodels','AbsorbingLS','IVGMM'],node:'t_iv',label:'Instrumental Variables (2SLS)',trainer:{lang:'python',mod:'py_iv'}},
     {methods:['feols','feglm'],node:'t_ols',label:'OLS / Fixed Effects (fixest)',trainer:{lang:'python',mod:'py_ols'}},
     {methods:['att_gt','csdid'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'python',mod:'py_did'}},
     {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'python',mod:'py_rd'}},
@@ -4437,8 +4437,8 @@ var AUDIT_PATTERNS = {
   ],
   r:[
     {methods:['feols','feglm'],node:'t_ols',label:'OLS / Fixed Effects (fixest)',trainer:{lang:'r',mod:'r_ols'}},
-    {methods:['ivreg','iv_robust'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'r',mod:'r_iv'}},
-    {methods:['att_gt','csdid','staggered'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'r',mod:'r_did'}},
+    {methods:['ivreg','iv_robust','AER','felm','| endog','~ instrument'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'r',mod:'r_iv'}},
+    {methods:['att_gt','csdid','staggered','did_imputation','feols.*i(','twfe'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'r',mod:'r_did'}},
     {methods:['rdrobust','rdplot'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'r',mod:'r_rd'}},
     {methods:['plm','lme4'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'r',mod:'r_panel'}},
     {methods:['lagsarlm','moran.test'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'r',mod:'r_panel'}},
@@ -4451,7 +4451,7 @@ var AUDIT_PATTERNS = {
     {methods:['synth'],node:'t_scm',label:'Synthetic Control',trainer:{lang:'r',mod:'r_did'}},
   ],
   stata:[
-    {methods:['ivreg2','ivregress','xtivreg'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'stata',mod:'st_iv'}},
+    {methods:['ivreg2','ivregress','xtivreg','ivprobit','ivtobit'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'stata',mod:'st_iv'}},
     {methods:['reghdfe','xtreg','areg'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'stata',mod:'st_panel'}},
     {methods:['csdid','eventstudyinteract'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'stata',mod:'st_did'}},
     {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'stata',mod:'st_rd'}},
