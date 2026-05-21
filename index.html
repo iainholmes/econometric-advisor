@@ -578,6 +578,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .qst-lang-chips-row{display:flex;gap:10px}
 .qst-lang-chip{padding:9px 22px;border:.5px solid rgba(126,182,255,.3);border-radius:8px;color:#7eb6ff;font-size:13px;font-weight:500;text-decoration:none;transition:all .15s;font-family:inherit}
 .qst-lang-chip:hover{background:rgba(126,182,255,.12);border-color:#7eb6ff}
+
+.qst-lang-chip.active{background:rgba(126,182,255,.2);border-color:#7eb6ff;font-weight:600;}
 </style>
 </head>
 <body>
@@ -4423,12 +4425,37 @@ function qstOpenLang(e, lang) {
     't_iv':{'r':'r_iv','python':'py_iv','stata':'st_iv'},
     't_did':{'r':'r_did','python':'py_did','stata':'st_did'},
     't_rd':{'r':'r_rd','python':'py_rd','stata':'st_rd'},
-    't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'}
+    't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
+    't_sar':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
+    't_scm':{'r':'r_did','python':'py_did','stata':'st_did'},
+    't_logit':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_poisson':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
   };
-  var firstTag = (_toolkit&&_toolkit.sections[0]&&_toolkit.sections[0].kgTags&&_toolkit.sections[0].kgTags[0])||'t_ols';
+  // Find first tool/estimator tag across all sections
+  var firstTag = 't_ols';
+  if (_toolkit && _toolkit.sections) {
+    for (var i=0; i<_toolkit.sections.length; i++) {
+      var tags = _toolkit.sections[i].kgTags || [];
+      for (var j=0; j<tags.length; j++) {
+        if (map[tags[j]]) { firstTag = tags[j]; break; }
+      }
+      if (firstTag !== 't_ols') break;
+    }
+  }
   var langMap = map[firstTag] || map['t_ols'];
   var mod = langMap[lang] || 'r_ols';
   var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
+  // Update active chip styling
+  document.querySelectorAll('.qst-lang-chip').forEach(function(el){el.classList.remove('active');});
+  if (e.target) e.target.classList.add('active');
+  // Update main button
+  var btn = document.querySelector('.qst-btn');
+  if (btn) {
+    btn.href = url;
+    var meta = btn.querySelector('.qst-btn-meta');
+    if (meta) meta.textContent = lang.charAt(0).toUpperCase()+lang.slice(1)+' · '+mod.replace(/_/g,' ');
+  }
   window.open(url, '_blank');
 }
 </script>
