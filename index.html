@@ -4518,19 +4518,23 @@ Return only the JSON object, no other text.`;
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
+    body: JSON.stringify({model:'claude-opus-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
   }).then(function(res){return res.json();}).then(function(data){
+    if (data.error) throw new Error(data.error.message || 'API Error');
     var text = (data.content&&data.content[0]&&data.content[0].text)||'{}';
     var clean = text.replace(/```json|```/g,'').trim();
     var parsed = JSON.parse(clean);
+    
+    if (!parsed.correct && !parsed.missing) throw new Error("AI returned an empty or invalid response.");
+    
     content.innerHTML =
       '<div class="audit-ai-result">' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'') + '</div></div>' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'') + '</div></div>' +
-      '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'N/A') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'N/A') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'N/A') + '</div></div>' +
       '</div>';
   }).catch(function(e){
-    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)">AI analysis unavailable — check your API key.</div></div>';
+    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)"><strong>AI analysis failed:</strong> ' + e.message + '</div></div>';
   });
 }
 
