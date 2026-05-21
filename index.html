@@ -4703,7 +4703,7 @@ function qstOpenSection(e, kgTag, secIdx) {
     't_logit':'r_ols','t_poisson':'r_ols','t_tobit':'r_ols','t_cox':'r_ts'
   };
   var mod = map[kgTag] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor&focus='+kgTag;
   window.open(url, '_blank');
 }
 function qstOpenLang(e, lang) {
@@ -4733,7 +4733,7 @@ function qstOpenLang(e, lang) {
   }
   var langMap = map[firstTag] || map['t_ols'];
   var mod = langMap[lang] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+firstTag;
   // Update active chip styling
   document.querySelectorAll('.qst-lang-chip').forEach(function(el){el.classList.remove('active');});
   if (e.target) e.target.classList.add('active');
