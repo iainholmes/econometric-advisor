@@ -4716,8 +4716,9 @@ function qstOpenLang(e, lang) {
     't_fe':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
     't_sar':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
     't_scm':{'r':'r_did','python':'py_did','stata':'st_did'},
-    't_logit':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
-    't_poisson':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    't_logit':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
+    't_poisson':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
+    't_tobit':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
     't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
   };
   // Find best tag — prioritize GLM tags since they need special routing
