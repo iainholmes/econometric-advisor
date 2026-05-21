@@ -214,11 +214,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* STICKY SECTION NAV (toolkit-page jump bar)
    Spans full viewport width; inner content centered within results max-width
    so the chips align with the rest of the page content. */
-.tk-jump-nav{position:sticky;top:54px;z-index:50;background:rgba(2,14,31,.92);backdrop-filter:blur(8px);border-bottom:.5px solid var(--border);width:100%;display:none}
+.tk-jump-nav{position:sticky;top:54px;z-index:50;background:rgba(2,14,31,.97);backdrop-filter:blur(8px);border-bottom:.5px solid var(--border);width:100%;display:none}
 .tk-jump-nav.show{display:block}
-.tk-jump-inner{max-width:1200px;margin:0 auto;padding:14px 2.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tk-jump-inner{max-width:1200px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:stretch;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tk-jump-inner::-webkit-scrollbar{height:0}
-.tk-jump-lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:600;flex-shrink:0;margin-right:8px}
+.tk-jump-lbl{display:none}
 .tk-jump-chip{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:13px;padding:7px 14px;border-radius:18px;cursor:pointer;font-family:inherit;letter-spacing:.01em;transition:all .15s;white-space:nowrap;flex-shrink:0;font-weight:500}
 .tk-jump-chip:hover{border-color:var(--surface);color:var(--text)}
 .tk-jump-chip.active{background:rgba(126,182,255,.14);border-color:#7eb6ff;color:#7eb6ff}
@@ -649,9 +649,12 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .method-pill-conf{font-size:10px;opacity:.6;margin-left:2px}
 
 /* Improved jump nav tabs */
-.tk-jump-chip{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:12px;padding:6px 16px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;white-space:nowrap;flex-shrink:0;font-weight:500}
-.tk-jump-chip:hover{border-color:var(--surface);color:var(--text);background:rgba(255,255,255,.04)}
-.tk-jump-chip.active{background:rgba(126,182,255,.14);border-color:#7eb6ff;color:#7eb6ff;font-weight:600}
+.tk-jump-chip{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:13px;padding:14px 20px;border-radius:0;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;white-space:nowrap;flex-shrink:0;font-weight:500}
+.tk-jump-chip:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.tk-jump-chip.active{color:#7eb6ff;border-bottom-color:#7eb6ff;font-weight:600;background:rgba(126,182,255,.06)}
+
+.tk-tab-panel{display:none}
+.tk-tab-panel.active{display:block}
 </style>
 </head>
 <body>
@@ -867,11 +870,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <nav class="tk-jump-nav" id="tk-jump-nav" aria-label="Toolkit sections">
     <div class="tk-jump-inner">
       <span class="tk-jump-lbl">Jump to</span>
-      <button class="tk-jump-chip" data-target="tk-narrative" onclick="jumpToSection('tk-narrative')">Overview</button>
-      <button class="tk-jump-chip" data-target="tk-data" onclick="jumpToSection('tk-data')">Data sources</button>
-      <button class="tk-jump-chip" data-target="tk-twocol" onclick="jumpToSection('tk-twocol')">Literature</button>
-      <button class="tk-jump-chip" data-target="tk-spec" onclick="jumpToSection('tk-spec')">Methodological specs</button>
-      <button class="tk-jump-chip" data-target="tk-graph" onclick="jumpToSection('tk-graph')">Knowledge graph</button>
+      <button class="tk-jump-chip active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+      <button class="tk-jump-chip" data-tab="data" onclick="switchTab('data')">Data sources</button>
+      <button class="tk-jump-chip" data-tab="literature" onclick="switchTab('literature')">Literature</button>
+      <button class="tk-jump-chip" data-tab="methods" onclick="switchTab('methods')">Methods</button>
+      <button class="tk-jump-chip" data-tab="graph" onclick="switchTab('graph')">Knowledge graph</button>
     </div>
   </nav>
   <div class="results" id="results-inner"></div>
@@ -2498,7 +2501,21 @@ function openFoundationalDrawer(idx) {
 // STICKY SECTION NAVIGATOR (toolkit page)
 // Shows after user scrolls past the top; tracks which section is in view.
 // ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tk-jump-chip').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  document.querySelectorAll('.tk-tab-panel').forEach(function(panel){
+    panel.classList.toggle('active', panel.dataset.tab === tab);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
 function jumpToSection(targetId){
+  const tabMap = {'tk-narrative':'overview','tk-data':'data','tk-twocol':'literature','tk-spec':'methods','tk-graph':'graph'};
+  const tab = tabMap[targetId] || 'overview';
+  switchTab(tab);
+  return;
   const el = document.getElementById(targetId);
   if(!el) return;
   // Account for sticky header (~54px) + jump nav (~50px) so the target's
@@ -2514,11 +2531,16 @@ function jumpToSection(targetId){
 }
 
 function _setupJumpNavObserver(){
+  // Show nav immediately on results page
   const nav = document.getElementById('tk-jump-nav');
-  if(!nav) return;
+  if (nav) nav.classList.add('show');
+  return; // Skip scroll observer — tabs handle navigation now
+  // Original scroll observer code below (disabled):
+  const navObs = document.getElementById('tk-jump-nav');
+  if(!navObs) return;
   const targetIds = ['tk-narrative','tk-data','tk-twocol','tk-spec','tk-graph'];
   const targets = targetIds.map(id => document.getElementById(id)).filter(Boolean);
-  if(!targets.length){ nav.classList.remove('show'); return; }
+  if(!targets.length){ navObs.classList.remove('show'); return; }
 
   // Show the nav once user scrolls past 200px
   const onScroll = () => {
@@ -3146,7 +3168,7 @@ function renderResults(tk,ai){
   let html=``;
 
   if(ai&&ai.narrative){
-    html+=`<div class="narrative" id="tk-narrative">
+    html+=`<div class="tk-tab-panel active" data-tab="overview"><div class="narrative" id="tk-narrative">
       <div class="narrative-hdr"><span class="star">*</span><span class="lbl">Your research design -- plain English</span></div>
       <div class="narrative-body">
         <div class="narrative-left">
@@ -3176,20 +3198,20 @@ function renderResults(tk,ai){
   }
 
   // FULL-WIDTH DATA SOURCES BAND
-  html+=`<div class="data-band" id="tk-data">
+  html+=`</div><div class="tk-tab-panel" data-tab="data"><div class="data-band" id="tk-data">
     <div class="section-title">Open-access data sources<span class="section-title-sub">Curated for your research design</span></div>
     <div class="sources-grid">`;
   tk.sources.forEach((s,i)=>{html+=`<div class="source-card" onclick="openSourceDrawer(${i})"><div class="source-name">${esc(s.n)}</div><div class="source-desc">${esc(s.d)}</div><div class="source-url">- ${esc(s.u.replace('https://','').split('/')[0])}</div></div>`;});
   html+=`</div></div>`;
 
   // FULL-WIDTH LITERATURE BAND
-  html+=`<div class="lit-band" id="tk-twocol">
+  html+=`</div><div class="tk-tab-panel" data-tab="literature"><div class="lit-band" id="tk-twocol">
     <div class="section-title">AI-curated literature<span class="section-title-sub">Click any paper to open analysis</span></div>
     <div id="lit-container"></div>
   </div>`;
 
   // METHODOLOGICAL SPECIFICATIONS WITH LEFT RAIL
-  html+=`<div class="toolkit-section" id="tk-spec">
+  html+=`</div><div class="tk-tab-panel" data-tab="methods"><div class="toolkit-section" id="tk-spec">
     <div class="toolkit-header">Methodological specifications<span class="toolkit-header-sub">Click any section to expand · code language toggle on the left</span></div>
     <div class="toolkit-layout">
       <div class="lang-rail">
@@ -3446,7 +3468,7 @@ let _kgRevealed=false;
 let _kgActive=new Set();
 
 function renderKnowledgeGraph(tk){
-  return `<div class="kg-section" id="tk-graph">
+  return `<div class="tk-tab-panel" data-tab="graph"><div class="kg-section" id="tk-graph">
     <div class="kg-header">
       <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node to learn more</span></h3>
       <div style="background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
