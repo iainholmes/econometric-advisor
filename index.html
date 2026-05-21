@@ -638,6 +638,20 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .audit-ai-block-label.gap{color:#f59e0b}
 .audit-ai-block-label.warn{color:#ef4444}
 .audit-ai-block-text{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* Method summary card */
+.method-summary{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;padding:16px 20px;background:rgba(255,255,255,.03);border:.5px solid var(--border);border-radius:10px}
+.method-summary-label{width:100%;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px}
+.method-pill{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:20px;border:.5px solid;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;background:transparent}
+.method-pill:hover{opacity:.8}
+.method-pill-icon{font-size:14px}
+.method-pill-text{color:var(--text)}
+.method-pill-conf{font-size:10px;opacity:.6;margin-left:2px}
+
+/* Improved jump nav tabs */
+.tk-jump-chip{background:transparent;border:.5px solid var(--border);color:var(--muted);font-size:12px;padding:6px 16px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:all .15s;white-space:nowrap;flex-shrink:0;font-weight:500}
+.tk-jump-chip:hover{border-color:var(--surface);color:var(--text);background:rgba(255,255,255,.04)}
+.tk-jump-chip.active{background:rgba(126,182,255,.14);border-color:#7eb6ff;color:#7eb6ff;font-weight:600}
 </style>
 </head>
 <body>
@@ -3186,6 +3200,16 @@ function renderResults(tk,ai){
         <button id="lang-btn-python" class="lang-btn-rail" onclick="setLang('python')">Python</button>
       </div>
       <div class="toolkit-stack">`;
+
+  // Method summary card
+  html+=`<div class="method-summary">
+    <div class="method-summary-label">Your recommended methods at a glance</div>
+    ${tk.sections.map((s,i)=>`<div class="method-pill" onclick="togSec(${i});document.getElementById('sec-${i}').scrollIntoView({behavior:'smooth',block:'start'})" style="border-color:${s.color}40">
+      <span class="method-pill-icon" style="color:${s.color}">${s.icon}</span>
+      <span class="method-pill-text">${esc(s.method)}</span>
+      <span class="method-pill-conf">${s.conf==='high'?'●':s.conf==='medium'?'◐':'○'}</span>
+    </div>`).join('')}
+  </div>`;
 
   tk.sections.forEach((s,i)=>{
     const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
