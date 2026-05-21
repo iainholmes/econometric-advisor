@@ -4499,6 +4499,163 @@ function qstOpenLang(e, lang) {
   }
   window.open(url, '_blank');
 }
+
+function openAuditTool() {
+  var el = document.getElementById('audit-modal-bg');
+  if (el) el.style.display = 'flex';
+}
+function closeAuditTool() {
+  var el = document.getElementById('audit-modal-bg');
+  if (el) el.style.display = 'none';
+}
+function resetAuditTool() {
+  document.getElementById('audit-results').classList.remove('show');
+  document.getElementById('audit-upload-area').style.display = 'block';
+  document.getElementById('audit-file-input').value = '';
+}
+function setAuditLang(lang, btn) {
+  window._auditLang = lang;
+  document.querySelectorAll('.audit-lang-tab').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+function handleAuditFile(file) {
+  if (!file) return;
+  if (file.size > 500000) { alert('File too large — please keep under 500KB.'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) { runAudit(file.name, e.target.result); };
+  reader.readAsText(file);
+}
+var AUDIT_PATTERNS = {
+  python:[
+    {methods:['IV2SLS','IVLIML'],node:'t_iv',label:'Instrumental Variables (2SLS)',trainer:{lang:'python',mod:'py_iv'}},
+    {methods:['feols','feglm'],node:'t_ols',label:'OLS / Fixed Effects (fixest)',trainer:{lang:'python',mod:'py_ols'}},
+    {methods:['att_gt','csdid'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'python',mod:'py_did'}},
+    {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'python',mod:'py_rd'}},
+    {methods:['PanelOLS','FirstDifferenceOLS'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'python',mod:'py_panel'}},
+    {methods:['lagsarlm','ML_Lag','Moran'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'python',mod:'py_panel'}},
+    {methods:['DoubleML','CausalForest'],node:'t_iv',label:'Double ML / Causal Forest',trainer:{lang:'python',mod:'py_ml'}},
+    {methods:['Logit','Probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'python',mod:'py_ols'}},
+    {methods:['Poisson','NegativeBinomial'],node:'t_poisson',label:'Count Data',trainer:{lang:'python',mod:'py_ols'}},
+    {methods:['ARIMA','SARIMAX','VAR'],node:'d_robust',label:'Time Series',trainer:{lang:'python',mod:'py_ts'}},
+    {methods:['smf.ols','sm.OLS'],node:'t_ols',label:'OLS (statsmodels)',trainer:{lang:'python',mod:'py_ols'}},
+  ],
+  r:[
+    {methods:['feols','feglm'],node:'t_ols',label:'OLS / Fixed Effects (fixest)',trainer:{lang:'r',mod:'r_ols'}},
+    {methods:['ivreg','iv_robust'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'r',mod:'r_iv'}},
+    {methods:['att_gt','csdid','staggered'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'r',mod:'r_did'}},
+    {methods:['rdrobust','rdplot'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'r',mod:'r_rd'}},
+    {methods:['plm','lme4'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'r',mod:'r_panel'}},
+    {methods:['lagsarlm','moran.test'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'r',mod:'r_panel'}},
+    {methods:['DoubleML','grf'],node:'t_iv',label:'Double ML / Causal Forest',trainer:{lang:'r',mod:'r_ml'}},
+    {methods:['logit','probit'],node:'t_logit',label:'Logit / Probit',trainer:{lang:'r',mod:'r_ols'}},
+    {methods:['fepois'],node:'t_poisson',label:'Count Data',trainer:{lang:'r',mod:'r_ols'}},
+    {methods:['auto.arima','VAR'],node:'d_robust',label:'Time Series',trainer:{lang:'r',mod:'r_ts'}},
+    {methods:['coxph','Surv'],node:'t_cox',label:'Survival Analysis',trainer:{lang:'r',mod:'r_ts'}},
+    {methods:['lm(','aov('],node:'t_ols',label:'OLS (base R)',trainer:{lang:'r',mod:'r_ols'}},
+    {methods:['synth'],node:'t_scm',label:'Synthetic Control',trainer:{lang:'r',mod:'r_did'}},
+  ],
+  stata:[
+    {methods:['ivreg2','ivregress','xtivreg'],node:'t_iv',label:'Instrumental Variables',trainer:{lang:'stata',mod:'st_iv'}},
+    {methods:['reghdfe','xtreg','areg'],node:'t_fe',label:'Panel / Fixed Effects',trainer:{lang:'stata',mod:'st_panel'}},
+    {methods:['csdid','eventstudyinteract'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'stata',mod:'st_did'}},
+    {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'stata',mod:'st_rd'}},
+    {methods:['spreg','spmat'],node:'t_sar',label:'Spatial Econometrics',trainer:{lang:'stata',mod:'st_panel'}},
+    {methods:['regress ','reg '],node:'t_ols',label:'OLS (regress)',trainer:{lang:'stata',mod:'st_ols'}},
+    {methods:['logit ','probit '],node:'t_logit',label:'Logit / Probit',trainer:{lang:'stata',mod:'st_ols'}},
+    {methods:['poisson ','ppmlhdfe'],node:'t_poisson',label:'Count Data',trainer:{lang:'stata',mod:'st_ols'}},
+    {methods:['arima ','var '],node:'d_robust',label:'Time Series',trainer:{lang:'stata',mod:'st_ts'}},
+    {methods:['stcox','stset'],node:'t_cox',label:'Survival Analysis',trainer:{lang:'stata',mod:'st_ts'}},
+    {methods:['synth '],node:'t_scm',label:'Synthetic Control',trainer:{lang:'stata',mod:'st_did'}},
+  ]
+};
+var KG_COLORS={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+
+function detectLang(filename,code){
+  var lang=window._auditLang||'auto';
+  if(lang!=='auto')return lang;
+  var ext=filename.split('.').pop().toLowerCase();
+  if(ext==='py')return 'python';
+  if(ext==='r')return 'r';
+  if(ext==='do')return 'stata';
+  if(/import\s+(pandas|numpy|statsmodels)/.test(code))return 'python';
+  if(/library\s*\(/.test(code))return 'r';
+  return 'stata';
+}
+
+function runAudit(filename,code){
+  var lang=detectLang(filename,code);
+  var patterns=AUDIT_PATTERNS[lang]||AUDIT_PATTERNS.r;
+  var detected=[]; var detectedNodes={};
+  patterns.forEach(function(p){
+    var hit=p.methods.some(function(m){return code.indexOf(m)>=0;});
+    if(hit&&!detectedNodes[p.node]){detected.push(p);detectedNodes[p.node]=true;}
+  });
+  var gaps=[];
+  if(typeof _toolkit!=='undefined'&&_toolkit&&_toolkit.sections){
+    _toolkit.sections.forEach(function(sec){
+      (sec.kgTags||[]).forEach(function(tag){
+        var mp=patterns.find(function(p){return p.node===tag;});
+        if(mp&&!detectedNodes[tag]){gaps.push({label:sec.method,node:tag});}
+      });
+    });
+  }
+  renderAuditResults(lang,filename,detected,gaps,detectedNodes);
+  highlightAuditNodes(detectedNodes);
+}
+
+function renderAuditResults(lang,filename,detected,gaps,detectedNodes){
+  document.getElementById('audit-upload-area').style.display='none';
+  document.getElementById('audit-results').classList.add('show');
+  var langLabel={python:'Python',r:'R',stata:'Stata'}[lang]||lang;
+  document.getElementById('audit-summary-bar').innerHTML=
+    '<div class="audit-summary-stat"><div class="audit-summary-stat-val">'+langLabel+'</div><div class="audit-summary-stat-lbl">Language</div></div>'+
+    '<div class="audit-summary-stat"><div class="audit-summary-stat-val">'+detected.length+'</div><div class="audit-summary-stat-lbl">Methods found</div></div>'+
+    '<div class="audit-summary-stat"><div class="audit-summary-stat-val">'+gaps.length+'</div><div class="audit-summary-stat-lbl">Gaps</div></div>'+
+    '<div class="audit-summary-stat" style="flex:1;text-align:left;padding-left:14px"><div class="audit-summary-stat-val" style="font-size:13px;font-weight:400;color:var(--muted)">'+filename+'</div><div class="audit-summary-stat-lbl">File</div></div>';
+  var detEl=document.getElementById('audit-detected-list');
+  if(detected.length===0){
+    detEl.innerHTML='<div class="audit-empty">No recognized econometric methods detected. Try selecting the language manually.</div>';
+  } else {
+    detEl.innerHTML=detected.map(function(p){
+      var nd=typeof KG_BLUEPRINT!=='undefined'?KG_BLUEPRINT.nodes.find(function(n){return n.id===p.node;}):null;
+      var color=KG_COLORS[nd?nd.cat:'tool'];
+      var trUrl=p.trainer?'https://iainholmes.github.io/quant-skills-trainer/?lang='+p.trainer.lang+'&module='+p.trainer.mod+'&from=advisor':'';
+      return '<div class="audit-method-item"><div class="audit-method-dot" style="background:'+color+'"></div><div class="audit-method-name">'+p.label+'</div>'+(trUrl?'<a class="audit-method-link" href="'+trUrl+'" target="_blank">Practice &rarr;</a>':'')+'</div>';
+    }).join('');
+  }
+  var gapSec=document.getElementById('audit-gaps-section');
+  var gapEl=document.getElementById('audit-gaps-list');
+  if(typeof _toolkit==='undefined'||!_toolkit){
+    gapSec.style.display='none';
+  } else if(gaps.length===0){
+    gapEl.innerHTML='<div class="audit-empty">All Advisor-recommended methods appear implemented ✓</div>';
+  } else {
+    gapEl.innerHTML=gaps.map(function(g){
+      return '<div class="audit-gap-item"><div class="audit-gap-dot"></div><div class="audit-gap-name">'+g.label+'</div><div class="audit-gap-hint">Recommended · not detected in code</div></div>';
+    }).join('');
+  }
+}
+
+function highlightAuditNodes(detectedNodes){
+  Object.keys(detectedNodes).forEach(function(nodeId){
+    var g=document.getElementById('kgn-'+nodeId);
+    if(!g)return;
+    var rect=g.querySelector('rect');
+    if(rect){rect.style.fill='rgba(245,158,11,.2)';rect.style.stroke='#f59e0b';rect.style.strokeWidth='2';}
+    var txt=g.querySelector('text');
+    if(txt){txt.style.fill='#f59e0b';txt.style.fontWeight='600';}
+  });
+}
+
+// Drag and drop
+window.addEventListener('load',function(){
+  var dz=document.getElementById('audit-dropzone');
+  if(!dz)return;
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
+  dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)handleAuditFile(f);});
+});
+
 </script>
 
 <!-- ── Code Audit Tool Modal ─────────────────────────────────────────────── -->
