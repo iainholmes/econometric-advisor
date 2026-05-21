@@ -560,6 +560,14 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .modal input:focus{border-color:var(--surface)}
 .modal-actions{display:flex;gap:9px}
 .modal-note{font-size:12px;color:var(--hint);margin-top:12px;line-height:1.65}
+
+.qst-section{background:rgba(126,182,255,.06);border:.5px solid rgba(126,182,255,.2);border-radius:12px;padding:20px 24px;margin-top:1.5rem}
+.qst-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:8px}
+.qst-section-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+
+.qst-section{background:rgba(126,182,255,.06);border:.5px solid rgba(126,182,255,.2);border-radius:12px;padding:20px 24px;margin-top:1.5rem}
+.qst-section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:8px}
+.qst-section-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -3053,8 +3061,12 @@ function renderResults(tk,ai){
           </div>`:''}
         </div>
       </div>
+    </div>
+    <div class="qst-section">
+      <div class="qst-section-label">Continue your learning</div>
+      <div class="qst-section-desc">The Quant Skills Trainer teaches you to implement this method in R, Stata, or Python through structured lessons and AI-reviewed exercises.</div>
+      <div id="qst-trainer-btn-wrap"></div>
     </div>`;
-    <div id="qst-trainer-btn-wrap"></div>
   }
 
   // FULL-WIDTH DATA SOURCES BAND
