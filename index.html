@@ -4495,7 +4495,7 @@ function qstOpenLang(e, lang) {
   if (btn) {
     btn.href = url;
     var meta = btn.querySelector('.qst-btn-meta');
-    if (meta) meta.textContent = lang.charAt(0).toUpperCase()+lang.slice(1)+' · '+mod.replace(/_/g,' ');
+    if (meta) meta.textContent = lang.charAt(0).toUpperCase()+lang.slice(1)+' - '+mod.replace(/_/g,' ');
   }
   window.open(url, '_blank');
 }
