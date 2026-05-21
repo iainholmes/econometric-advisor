@@ -835,8 +835,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
       <button class="btn-primary" onclick="startApp()">Begin assessment</button>
       <div style="margin-top:1rem;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap">
         <button onclick="openLibrary()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⊞&nbsp;Browse reference library</button>
-        <span style="color:var(--dim);font-size:10px">·</span>
-        <button onclick="openAuditTool()" style="background:transparent;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">⌂&nbsp;Audit my code</button>
+        
         <span style="color:var(--dim);font-size:10px">·</span>
         <button onclick="resetKey()" style="background:transparent;border:none;color:var(--hint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">Reset API key</button>
       </div>
@@ -3146,6 +3145,9 @@ function renderResults(tk,ai){
       <div class="qst-section-desc">The Quant Skills Trainer gives you structured, hands-on practice implementing the exact methods recommended above — in R, Stata, or Python. Each module combines a lesson, worked code, and AI-reviewed exercises tailored to applied econometrics.</div>
       <div class="qst-section-desc" style="margin-top:8px;">Completing the relevant modules will take you from understanding the method conceptually to being able to implement, interpret, and defend it in your own research.</div>
       <div id="qst-trainer-btn-wrap"></div>
+      <div style="margin-top:20px; padding-top:18px; border-top:.5px solid rgba(126,182,255,.15)">
+        <button class="btn-primary" onclick="openAuditTool()" style="padding:10px 18px; font-size:13.5px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;"><span style="font-size:15px">⌂</span>Run AI Code Audit</button>
+      </div>
     </div>`;
   }
 
