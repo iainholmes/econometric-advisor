@@ -1271,12 +1271,22 @@ async function generate(){
   // fetchSectionRationales overwrites with richer AI text when key is present
   if(apiKey&&apiKey.length>20)fetchSectionRationales(ans,tk);
   show('results');
+  // Find best method — prioritize GLM methods if present
+  var _glmTags = ['t_logit','t_poisson','t_tobit'];
+  var _bestSection = _toolkit.sections[0] || {};
+  for (var _si=0; _si<_toolkit.sections.length; _si++) {
+    var _stags = _toolkit.sections[_si].kgTags || [];
+    if (_stags.some(function(t){return _glmTags.indexOf(t)>=0;})) {
+      _bestSection = _toolkit.sections[_si];
+      break;
+    }
+  }
   qstSaveSession({
-  method:  (_toolkit.sections[0]||{}).method || '',
-  study:   ans.context || ans.field || 'your research design',
-  summary: buildAdvisorSummary(),
-  lang:    codeLang || 'r',
-});
+    method:  _bestSection.method || '',
+    study:   ans.context || ans.field || 'your research design',
+    summary: buildAdvisorSummary(),
+    lang:    codeLang || 'r',
+  });
   setHdr('your toolkit',true);
   document.getElementById('btn-reset').style.display='inline-flex';
 }

@@ -3,6 +3,11 @@ const QST_TRAINER_URL = 'https://iainholmes.github.io/quant-skills-trainer/';
 const QST_ADVISOR_KEY = 'qst_advisor_session_v1';
 
 const QST_METHOD_MAP = {
+  'logit': {lang:'r', mod:'glm_bridge'}, 'probit': {lang:'r', mod:'glm_bridge'},
+  'binary choice': {lang:'r', mod:'glm_bridge'}, 'logit / probit': {lang:'r', mod:'glm_bridge'},
+  'poisson': {lang:'r', mod:'glm_bridge'}, 'negative binomial': {lang:'r', mod:'glm_bridge'},
+  'tobit': {lang:'r', mod:'glm_bridge'}, 'censored': {lang:'r', mod:'glm_bridge'},
+  'glm': {lang:'r', mod:'glm_bridge'},
   'ols': {lang:'r', mod:'r_ols'}, 'ordinary least squares': {lang:'r', mod:'r_ols'},
   'semi-log hedonic': {lang:'r', mod:'r_ols'}, 'hedonic': {lang:'r', mod:'r_ols'},
   'descriptive ols': {lang:'r', mod:'r_ols'},
