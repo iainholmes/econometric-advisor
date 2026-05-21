@@ -665,6 +665,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <span id="hdr-sub" class="hdr-sub">assessment</span>
   <div class="hdr-actions">
     <button class="hdr-btn" id="btn-library" onclick="openLibrary()" style="display:none"><span class="hdr-btn-icon">⊞</span>Reference library</button>
+    <button class="hdr-btn" id="btn-audit" onclick="openAuditTool()" style="display:none"><span class="hdr-btn-icon">⌂</span>Audit code</button>
     <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
 </div>
@@ -1014,6 +1015,8 @@ function setHdr(sub,showResults){
   document.getElementById('hdr-sub').textContent=sub;
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
   document.getElementById('btn-library').style.display='inline-flex';
+  const btnAudit = document.getElementById('btn-audit');
+  if(btnAudit) btnAudit.style.display = showResults ? 'inline-flex' : 'none';
 }
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
