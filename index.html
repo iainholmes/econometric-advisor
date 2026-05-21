@@ -627,6 +627,17 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .audit-summary-stat-lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
 .audit-reset-btn{background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);font-size:12px;padding:7px 14px;cursor:pointer;font-family:inherit;margin-top:1rem;transition:all .15s}
 .audit-reset-btn:hover{border-color:var(--surface);color:var(--text)}
+
+.audit-ai-section{margin-top:1.5rem;border-top:.5px solid var(--border);padding-top:1.25rem}
+.audit-ai-loading{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:.75rem 0}
+.audit-ai-spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--surface);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.audit-ai-result{display:flex;flex-direction:column;gap:10px}
+.audit-ai-block{padding:12px 14px;border-radius:8px;border:.5px solid var(--border);background:var(--bg2)}
+.audit-ai-block-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.audit-ai-block-label.good{color:#10b981}
+.audit-ai-block-label.gap{color:#f59e0b}
+.audit-ai-block-label.warn{color:#ef4444}
+.audit-ai-block-text{font-size:13px;color:var(--muted);line-height:1.65}
 </style>
 </head>
 <body>
@@ -672,7 +683,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
           <div class="audit-result-label">Not yet implemented — from your Advisor toolkit</div>
           <div class="audit-method-list" id="audit-gaps-list"></div>
         </div>
-        <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
+        <div class="audit-ai-section" id="audit-ai-section" style="display:none">
+        <div class="audit-result-label">AI analysis — calibrated to your research design</div>
+        <div id="audit-ai-content"></div>
+      </div>
+      <button class="audit-reset-btn" onclick="resetAuditTool()">&#8617; Upload another file</button>
       </div>
 
     </div>
@@ -4495,11 +4510,80 @@ function runAudit(filename,code){
       });
     });
   }
-  renderAuditResults(lang,filename,detected,gaps,detectedNodes);
+  renderAuditResults(lang,filename,detected,gaps,detectedNodes,code);
   highlightAuditNodes(detectedNodes);
+  if (typeof code !== 'undefined') runAuditAI(lang, code, detected, gaps);
 }
 
-function renderAuditResults(lang,filename,detected,gaps,detectedNodes){
+
+async function runAuditAI(lang, code, detected, gaps) {
+  if (!apiKey || apiKey.length < 20) return;
+  if (typeof _toolkit === 'undefined' || !_toolkit) return;
+
+  var section = document.getElementById('audit-ai-section');
+  var content = document.getElementById('audit-ai-content');
+  if (!section || !content) return;
+
+  section.style.display = 'block';
+  content.innerHTML = '<div class="audit-ai-loading"><div class="audit-ai-spin"></div>Analyzing your code against your research design...</div>';
+
+  var detectedList = detected.map(function(d){return d.label;}).join(', ') || 'none detected';
+  var gapList = gaps.map(function(g){return g.label;}).join(', ') || 'none';
+  var advisorMethods = (_toolkit.sections||[]).map(function(s){return s.method;}).join(', ');
+  var advisorStudy = '';
+  try {
+    var sess = localStorage.getItem('qst_advisor_session_v1');
+    if (sess) {
+      var sd = JSON.parse(sess);
+      advisorStudy = sd.study || '';
+    }
+  } catch(e) {}
+
+  var prompt = 'You are a senior econometrician reviewing a student's ' + lang + ' script against their research design from the Econometric Advisor.
+
+' +
+    'RESEARCH DESIGN: ' + (advisorStudy || 'Not provided') + '
+' +
+    'ADVISOR RECOMMENDED METHODS: ' + advisorMethods + '
+' +
+    'METHODS DETECTED IN UPLOADED CODE: ' + detectedList + '
+' +
+    'GAPS (recommended but not detected): ' + gapList + '
+
+' +
+    'CODE SNIPPET (first 3000 chars):
+' + code.slice(0, 3000) + '
+
+' +
+    'Provide a brief structured analysis in exactly this JSON format:
+' +
+    '{"correct":"1-2 sentences on what looks well-implemented relative to the research design","missing":"1-2 sentences on the most important gap or missing step","watchout":"1 sentence on the single biggest risk or misspecification to watch for"}
+' +
+    'Return only the JSON object, no other text.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})
+    });
+    var data = await res.json();
+    var text = (data.content&&data.content[0]&&data.content[0].text)||'{}';
+    var clean = text.replace(/```json|```/g,'').trim();
+    var parsed = JSON.parse(clean);
+
+    content.innerHTML =
+      '<div class="audit-ai-result">' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label good">What looks right</div><div class="audit-ai-block-text">' + (parsed.correct||'') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label gap">Key gap</div><div class="audit-ai-block-text">' + (parsed.missing||'') + '</div></div>' +
+      '<div class="audit-ai-block"><div class="audit-ai-block-label warn">Watch out for</div><div class="audit-ai-block-text">' + (parsed.watchout||'') + '</div></div>' +
+      '</div>';
+  } catch(e) {
+    content.innerHTML = '<div class="audit-ai-block"><div class="audit-ai-block-text" style="color:var(--hint)">AI analysis unavailable — check your API key.</div></div>';
+  }
+}
+
+function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code){
   document.getElementById('audit-upload-area').style.display='none';
   document.getElementById('audit-results').classList.add('show');
   var langLabel={python:'Python',r:'R',stata:'Stata'}[lang]||lang;
