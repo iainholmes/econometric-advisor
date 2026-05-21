@@ -4490,27 +4490,20 @@ function runAuditAI(lang, code, detected, gaps) {
     }
   } catch(e) {}
 
-  var prompt = 'You are a senior econometrician reviewing a student's ' + lang + ' script against their research design from the Econometric Advisor.
+  var prompt = `You are a senior econometrician reviewing a student's ${lang} script against their research design from the Econometric Advisor.
 
-' +
-    'RESEARCH DESIGN: ' + (advisorStudy || 'Not provided') + '
-' +
-    'ADVISOR RECOMMENDED METHODS: ' + advisorMethods + '
-' +
-    'METHODS DETECTED IN UPLOADED CODE: ' + detectedList + '
-' +
-    'GAPS (recommended but not detected): ' + gapList + '
+RESEARCH DESIGN: ${advisorStudy || 'Not provided'}
+ADVISOR RECOMMENDED METHODS: ${advisorMethods}
+METHODS DETECTED IN UPLOADED CODE: ${detectedList}
+GAPS (recommended but not detected): ${gapList}
 
-' +
-    'CODE SNIPPET (first 3000 chars):
-' + code.slice(0, 3000) + '
+CODE SNIPPET (first 3000 chars):
+${code.slice(0, 3000)}
 
-' +
-    'Provide a brief structured analysis in exactly this JSON format:
-' +
-    '{"correct":"1-2 sentences on what looks well-implemented relative to the research design","missing":"1-2 sentences on the most important gap or missing step","watchout":"1 sentence on the single biggest risk or misspecification to watch for"}
-' +
-    'Return only the JSON object, no other text.';
+Provide a brief structured analysis in exactly this JSON format:
+{"correct":"1-2 sentences on what looks well-implemented relative to the research design","missing":"1-2 sentences on the most important gap or missing step","watchout":"1 sentence on the single biggest risk or misspecification to watch for"}
+
+Return only the JSON object, no other text.`;
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -4684,7 +4677,8 @@ window.addEventListener('load',function(){
   </div>
 </div>
 
-<script src="advisor-patch.js">
+<script src="advisor-patch.js"></script>
+<script>
 function qstOpenSection(e, kgTag, secIdx) {
   e.preventDefault();
   var map = {
