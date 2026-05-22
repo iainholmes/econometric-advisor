@@ -3817,40 +3817,38 @@ function initKnowledgeGraph(activeSet){
   }
 
   // Problems cluster — top left (6 nodes)
-  clusterNodes(byCat['problem'], clusters.problem.cx, clusters.problem.cy, 130);
+  clusterNodes(byCat['problem'], clusters.problem.cx, clusters.problem.cy, 145);
 
   // Logic cluster — top right (6 nodes)
-  clusterNodes(byCat['logic'], clusters.logic.cx, clusters.logic.cy, 130);
+  clusterNodes(byCat['logic'], clusters.logic.cx, clusters.logic.cy, 145);
 
   // Tools cluster — manual positions to avoid overlaps
   const TCX = clusters.tool.cx;
   const TCY = clusters.tool.cy;
-  // Core causal inference tools — top ring
-  const toolManual = {
-    "t_dml":      {x: TCX - 130, y: TCY - 30},
-    "t_cf":       {x: TCX + 130, y: TCY - 30},
-    't_ols':      {x: TCX - 170, y: TCY - 120},
-    't_fe':       {x: TCX - 60,  y: TCY - 175},
-    't_iv':       {x: TCX + 70,  y: TCY - 175},
-    't_did':      {x: TCX + 170, y: TCY - 120},
-    't_rd':       {x: TCX + 175, y: TCY - 10},
-    't_scm':      {x: TCX - 175, y: TCY - 10},
-    // Other methods — bottom ring
-    't_matching': {x: TCX - 160, y: TCY + 100},
-    't_sar':      {x: TCX - 60,  y: TCY + 160},
-    't_logit':    {x: TCX + 60,  y: TCY + 160},
-    't_poisson':  {x: TCX + 160, y: TCY + 100},
-    't_tobit':    {x: TCX + 80,  y: TCY + 60},
-    't_cox':      {x: TCX - 80,  y: TCY + 60},
-  };
-  byCat['tool'].forEach(n => {
-    if (toolManual[n.id]) positions[n.id] = toolManual[n.id];
+  // Tools: 3 concentric rings — inner 2, middle 6, outer 6
+  const toolOrder = [
+    // inner ring (2) — ML/modern methods
+    "t_dml", "t_cf",
+    // middle ring (6) — core causal inference
+    "t_ols", "t_fe", "t_iv", "t_did", "t_rd", "t_scm",
+    // outer ring (6) — applied/specialist methods
+    "t_matching", "t_sar", "t_logit", "t_poisson", "t_tobit", "t_cox",
+  ];
+  const toolRings = [
+    {ids: ["t_dml","t_cf"], r: 80},
+    {ids: ["t_ols","t_fe","t_iv","t_did","t_rd","t_scm"], r: 175},
+    {ids: ["t_matching","t_sar","t_logit","t_poisson","t_tobit","t_cox"], r: 285},
+  ];
+  toolRings.forEach(ring => {
+    const n = ring.ids.length;
+    ring.ids.forEach((id, i) => {
+      const angle = -Math.PI/2 + (2 * Math.PI / n) * i;
+      positions[id] = {x: TCX + ring.r * Math.cos(angle), y: TCY + ring.r * Math.sin(angle)};
+    });
   });
-
   // Diagnostics cluster — bottom right (9 nodes)
-  clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 170);
+  clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 185);
 
-  // Store positions globally for focus system
   _kgPositions = JSON.parse(JSON.stringify(positions));
 
   // Build neighbor lookup for hover-dim
