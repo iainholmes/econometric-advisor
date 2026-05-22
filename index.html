@@ -4191,10 +4191,14 @@ function revealKgPath(){
         .attr('fill',color+'22')
         .attr('stroke',color)
         .attr('stroke-width',2);
-      g.select('text')
+      g.selectAll('text').filter(function(){ return !this.getAttribute('class'); })
         .transition().duration(700)
-        .attr('fill',color)
-        .attr('font-weight',600);
+        .attr('fill','rgba(0,0,0,0.9)')
+        .attr('stroke','rgba(0,0,0,0.9)');
+      g.select('.kg-node-text')
+        .transition().duration(700)
+        .attr('fill','#ffffff')
+        .attr('font-weight',700);
       // Add glow class to the rect for animation
       g.select('rect').classed(glowMap[n.cat],true);
     }
