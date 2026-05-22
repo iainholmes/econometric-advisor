@@ -4754,13 +4754,15 @@ window.addEventListener('load',function(){
 <script>
 function qstOpenSection(e, kgTag, secIdx) {
   e.preventDefault();
+  var lang = codeLang || 'r';
   var map = {
-    't_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd',
-    't_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did',
-    't_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts'
+    'r':      {'t_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd','t_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts'},
+    'python': {'t_ols':'py_ols','t_iv':'py_iv','t_did':'py_did','t_rd':'py_rd','t_fe':'py_panel','t_sar':'py_panel','t_scm':'py_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'py_ts'},
+    'stata':  {'t_ols':'st_ols','t_iv':'st_iv','t_did':'st_did','t_rd':'st_rd','t_fe':'st_panel','t_sar':'st_panel','t_scm':'st_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'st_ts'}
   };
-  var mod = map[kgTag] || 'r_ols';
-  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang=r&module='+mod+'&from=advisor&focus='+kgTag;
+  var langMap = map[lang] || map['r'];
+  var mod = langMap[kgTag] || 'r_ols';
+  var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+kgTag;
   window.open(url, '_blank');
 }
 function qstOpenLang(e, lang) {
