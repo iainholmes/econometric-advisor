@@ -405,6 +405,8 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.focus-mode .kg-node-g.in-focus-cat.is-active .kg-node-label-shadow { font-size: 20px; font-weight: 600; }
 .kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label,
 .kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label-shadow { font-size: 0px; opacity: 0; pointer-events: none; }
+.kg-graph.focus-mode .kg-edge-label { opacity: 0 !important; }
+.kg-graph.focus-mode.has-hover .kg-edge-label.is-connected { opacity: 1 !important; }
 /* end PATCH 2 */
 /* HOVER DIM STATE */
 .kg-graph.has-hover .kg-node-g{opacity:.22}
@@ -4313,7 +4315,21 @@ function kgSetFocus(cat) {
     .attr('opacity', function(){
       const lcat = d3.select(this).attr('data-cat');
       if(cat==='all') return 0.55;
-      return lcat===cat ? 0.95 : 0.06;
+      return lcat===cat ? 0.95 : 0.0;
+    })
+    .attr('x', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return ({problem:220,logic:900,tool:460,diag:1200})[lcat];
+      if(lcat===cat) return CX;
+      return ({problem:{logic:130,tool:130,diag:130},logic:{problem:1270,tool:1270,diag:1270},tool:{problem:200,logic:200,diag:1200},diag:{problem:1270,logic:1270,tool:1270}})[lcat][cat] || CX;
+    })
+    .attr('y', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      const haloRMap = {problem:175,logic:175,tool:310,diag:240};
+      const baseR = haloRMap[lcat] || 175;
+      if(cat==='all') return ({problem:240,logic:200,tool:790,diag:720})[lcat] - baseR - 18;
+      if(lcat===cat) return CY - (baseR * 0.42) - 18;
+      return 80;
     });
 
   _kgZoomLayer.selectAll('circle[data-cat]').transition().duration(500)
@@ -5218,7 +5234,7 @@ function runSeDiagnostics(lang, code) {
 
   // ── FLAG: no SE specification at all (WARNING, only if a model was detected) ──
   const hasAnyModel = /\b(lm\s*\(|glm\s*\(|feols|reg\s+\w|OLS\s*\(|Logit\s*\(|Probit\s*\(|ols\s*\()/i.test(c);
-  if (hasAnyModel && !hasClusterSE && !hasRobustSE && !hasPanelHint && !hasSpatialHint) {
+  if (hasAnyModel && !hasClusterSE && !hasRobustSE) {
     flags.push({
       tier: 'suggestion',
       title: 'No robust standard errors specified',
