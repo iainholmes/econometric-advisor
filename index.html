@@ -786,6 +786,21 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-node-g[data-cat="tool"] rect { filter: url(#glow-tool); }
 .kg-node-g[data-cat="diag"] rect { filter: url(#glow-diag); }
 .kg-node-g text { text-shadow: 0 0 8px rgba(0,0,0,0.8); }
+
+/* PATCH 14: KG label legibility — fix stripe-through artifact on active node labels */
+.kg-node-label-shadow {
+  paint-order: stroke fill !important;
+  stroke: rgba(2, 14, 31, 0.95) !important;
+  stroke-width: 4px !important;
+  stroke-linejoin: round !important;
+  fill: rgba(2, 14, 31, 0.95) !important;
+}
+.kg-node-g.is-active .kg-node-label-shadow,
+.kg-graph.has-hover .kg-node-g.is-focus .kg-node-label-shadow,
+.kg-graph.has-hover .kg-node-g.is-neighbor .kg-node-label-shadow {
+  opacity: 1 !important;
+}
+/* end PATCH 14 */
 </style>
 </head>
 <body>
