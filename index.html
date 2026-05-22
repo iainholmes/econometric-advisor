@@ -4274,31 +4274,52 @@ function revealKgPath(){
   const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   const glowMap={problem:'glow-problem',logic:'glow-logic',tool:'glow-tool',diag:'glow-diag'};
 
-  // PATCH 9: sequenced light-up — Problem → Logic → Tool → Diagnostic.
-  // Reads as a narrative: here's your problem, your strategy, your tool, your validation.
+  // PATCH 10: theatrical sequenced reveal.
+  // Problem → Logic → Tool → Diagnostic, with anticipation pulse and category label flash.
   const layerOrder = ['problem','logic','tool','diag'];
-  const stagger = 320; // ms between layers
+  const layerLabels = {problem:'PROBLEMS', logic:'STRATEGIC LOGIC', tool:'TOOLS / ESTIMATORS', diag:'DIAGNOSTICS'};
+  const stagger = 800; // ms between layers — slow enough to watch the path unfold
+
   function igniteNode(n){
-    const g=d3.select('#kgn-'+n.id);
-    const color=colorMap[n.cat];
+    const g = d3.select('#kgn-'+n.id);
+    const color = colorMap[n.cat];
+
+    // Anticipation pulse: scale up, then settle (gives each layer its moment)
+    const existingTransform = g.attr('transform') || '';
+    g.transition().duration(220).ease(d3.easeQuadOut)
+      .attr('transform', existingTransform + ' scale(1.35)')
+      .transition().duration(380).ease(d3.easeCubicOut)
+      .attr('transform', existingTransform);
+
     g.select('rect')
-      .transition().duration(600)
-      .attr('fill',color+'22')
-      .attr('stroke',color)
-      .attr('stroke-width',2);
+      .transition().delay(120).duration(500)
+      .attr('fill', color+'22')
+      .attr('stroke', color)
+      .attr('stroke-width', 2);
     g.selectAll('text').filter(function(){ return !this.getAttribute('class'); })
-      .transition().duration(600)
+      .transition().delay(120).duration(500)
       .attr('fill','rgba(0,0,0,0.9)')
       .attr('stroke','rgba(0,0,0,0.9)');
     g.select('.kg-node-text')
-      .transition().duration(600)
+      .transition().delay(120).duration(500)
       .attr('fill','#ffffff')
       .attr('font-weight',700);
-    g.select('rect').classed(glowMap[n.cat],true);
+    g.select('rect').classed(glowMap[n.cat], true);
   }
+
+  function flashLabel(cat){
+    // Category label brightens then settles
+    _kgZoomLayer.selectAll('.kg-cluster-label')
+      .filter(function(){ return d3.select(this).attr('data-cat') === cat; })
+      .transition().duration(200).attr('opacity', 1).attr('font-size', '15px')
+      .transition().duration(900).attr('opacity', 0.55).attr('font-size', '11px');
+  }
+
   layerOrder.forEach((cat, layerIdx) => {
     const nodesInLayer = KG_BLUEPRINT.nodes.filter(n => _kgActive.has(n.id) && n.cat === cat);
+    if (nodesInLayer.length === 0) return; // skip layers user doesn't touch
     setTimeout(() => {
+      flashLabel(cat);
       nodesInLayer.forEach(igniteNode);
     }, layerIdx * stagger);
   });
