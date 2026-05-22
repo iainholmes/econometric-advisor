@@ -5722,7 +5722,11 @@ function exportLog() {
       toolkitHtml += `<div class="section">
         <div class="section-label">${s.label}</div>
         <div class="section-method">${s.method}</div>
-        ${s.detail ? `<div class="section-detail">${s.detail}</div>` : ''}
+        ${s.detail ? `<div class="section-detail">${
+  s.detail.startsWith('-') 
+    ? '<ul style="padding-left:18px;margin:0">' + s.detail.split(/\s*-\s+/).filter(Boolean).map(x=>`<li style="margin-bottom:5px">${x}</li>`).join('') + '</ul>'
+    : s.detail
+}</div>` : ''}
         ${s.watch ? `<div class="section-watch"><span class="watch-tag">Watch out for</span> ${s.watch}</div>` : ''}
       </div>`;
     });
