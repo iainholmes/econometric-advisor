@@ -804,14 +804,17 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 
 /* PATCH 15: AI Analysis sidecar styles */
 .audit-modal-bg{align-items:center !important}
-.audit-modal-flex{display:flex;align-items:stretch;gap:0;max-height:88vh;max-width:100%}
+.audit-modal-flex{display:flex;align-items:flex-start;gap:0;max-height:88vh;max-width:100%}
 .audit-modal-flex .audit-modal{border-radius:14px 0 0 14px}
 .audit-modal-flex.no-side .audit-modal{border-radius:14px}
 .audit-ai-side{
   display:none;width:340px;flex-shrink:0;
   background:#0a1d33;border:.5px solid var(--border);border-left:none;
   border-radius:0 14px 14px 0;
-  flex-direction:column;max-height:88vh;overflow:hidden;
+  flex-direction:column;
+  /* PATCH 16: pin height independently so modal expansion doesn't move us */
+  height:88vh;max-height:88vh;align-self:flex-start;
+  overflow:hidden;
 }
 .audit-modal-flex.show-side .audit-ai-side{display:flex}
 .audit-ai-side-hdr{padding:18px 14px 12px;border-bottom:.5px solid var(--border);flex-shrink:0}
