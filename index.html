@@ -351,7 +351,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-edge{transition:opacity .22s ease, stroke .22s ease}
 .kg-edge-label{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:15px;font-weight:500;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
 .kg-edge-label.active{fill:#cbd5e1}
-.kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+.kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:15px;letter-spacing:.18em;font-weight:700;text-anchor:middle;text-transform:uppercase;pointer-events:none;dominant-baseline:middle}
 
 
 
@@ -3892,21 +3892,29 @@ function initKnowledgeGraph(activeSet){
       .attr('class', 'kg-cluster-halo');
   });
 
-  // Category labels — large and prominent above each cluster
+  // Category labels — vertical, flanking each halo on left or right side
+  // Problems + Tools: left side, read bottom-to-top (rotate -90)
+  // Logic + Diagnostics: right side, read top-to-bottom (rotate +90)
   Object.entries(clusters).forEach(([cat,cl])=>{
-    const labelY = cat==='tool'||cat==='diag' ? cl.cy - haloR[cat] - 18 : cl.cy - haloR[cat] - 18;
     const catColorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+    const isRight = cat==='logic' || cat==='diag';
+    const lx = isRight ? cl.cx + haloR[cat] + 28 : cl.cx - haloR[cat] - 28;
+    const ly = cl.cy;
+    const rotate = isRight ? 90 : -90;
     _kgZoomLayer.append('text')
       .attr('class','kg-cluster-label')
       .attr('data-cat',cat)
-      .attr('x',cl.cx).attr('y',labelY)
-      .attr('fill', catColorMap[cat] || 'rgba(255,255,255,0.85)')
-      .attr('fill-opacity', 0.9)
+      .attr('x', lx)
+      .attr('y', ly)
       .attr('text-anchor','middle')
-      .attr('font-size','18px')
+      .attr('dominant-baseline','middle')
+      .attr('fill', catColorMap[cat])
+      .attr('fill-opacity', 0.85)
+      .attr('font-size','15px')
       .attr('font-weight','700')
       .attr('letter-spacing','0.18em')
       .attr('font-family',"'JetBrains Mono', ui-monospace, monospace")
+      .attr('transform', `rotate(${rotate}, ${lx}, ${ly})`)
       .text(cl.label);
   });
 
