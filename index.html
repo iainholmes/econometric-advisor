@@ -354,6 +354,18 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
 
 
+
+/* PATCH 6: pre-reveal dormant state */
+.kg-graph.pre-reveal .kg-node-g { opacity: 0.18 !important; }
+.kg-graph.pre-reveal .kg-edge { opacity: 0.12 !important; stroke: #475569 !important; }
+.kg-graph.pre-reveal .kg-edge-glow { opacity: 0 !important; }
+.kg-graph.pre-reveal .kg-cluster-halo { opacity: 0.4 !important; }
+.kg-graph.pre-reveal .kg-cluster-label { opacity: 0.4 !important; }
+/* When hovered in pre-reveal, still allow node + edges to brighten */
+.kg-graph.pre-reveal.has-hover .kg-node-g.is-focus,
+.kg-graph.pre-reveal.has-hover .kg-node-g.is-neighbor { opacity: 0.85 !important; }
+.kg-graph.pre-reveal.has-hover .kg-edge.is-connected { opacity: 0.7 !important; stroke: #cbd5e1 !important; }
+/* end PATCH 6 */
 /* PATCH 3: visual polish */
 .kg-canvas {
   background:
@@ -3579,6 +3591,9 @@ function initKnowledgeGraph(activeSet){
   if(svg.empty())return;
   svg.selectAll('*').remove();
   svg.classed('kg-graph',true);
+  // PATCH 6: pre-reveal class when toolkit hasn't been revealed yet
+  const hasActive = _kgActive && _kgActive.size > 0;
+  svg.classed('pre-reveal', !hasActive);
 
   const W=1600,H=1150;
 
