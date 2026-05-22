@@ -5037,9 +5037,9 @@ function runSeDiagnostics(lang, code) {
                    || (c.match(/i\.\w+/g) || []).length >= 2;
 
   // ── SE pattern detection (per language) ──
-  const hasClusterSE = /\b(cluster\s*=|vcov\s*=\s*['"]?cluster|vcovCL|cluster_se|cluster_robust|cluster\s*\(|clustered_standard_errors|cov_type\s*=\s*['"]cluster|get_robustcov_results.*cluster)\b/i.test(c);
-  const hasRobustSE  = /\b(robust|vcovHC|HC0|HC1|HC2|HC3|hc3|HAC|cov_type\s*=\s*['"]H|cov_type\s*=\s*['"]HC|White|sandwich)\b/i.test(c);
-  const hasConleySE  = /\b(conley|Conley|conley_ses|conleyses|spatial_HAC|HAC_spatial)\b/.test(c);
+  const hasClusterSE = /(vce\s*\(\s*cluster|cluster\s*=\s*[~'"\w]|vcov\s*=\s*['"]?cluster|vcovCL|cluster_robust\s*\(|cov_type\s*=\s*['"]?cluster|cov_type\s*=\s*['"]clustered|cluster_entity\s*=\s*True)/i.test(c);
+  const hasRobustSE  = /(vcovHC\s*\(|cov_type\s*=\s*['"]?(HC0|HC1|HC2|HC3|HAC|robust)|vce\s*\(\s*robust|,\s*robust\b|sandwich\s*\(|coeftest.*vcovHC)/i.test(c);
+  const hasConleySE  = /(conley_ses|conleyses|conleyreg|conley_se|spatial_HAC|HAC_spatial|acreg\s*\(|conley\s*\()/i.test(c);
   const hasTwoWayClust = /cluster\s*=\s*[~c]\(?\s*\w+\s*[,+]\s*\w+/.test(c) || /vcov.*cluster.*[,+].*cluster/i.test(c);
 
   // ── Build fix snippets per language ──
