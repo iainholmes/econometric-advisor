@@ -3497,7 +3497,7 @@ function renderKnowledgeGraph(tk){
         <button class="kg-filter-btn" data-cat="diag" onclick="kgFilter('diag')"><span class="dot"></span>Diagnostics</button>
       </div>
       <div class="kg-canvas-area">
-        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 940" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 1020" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="kg-controls">
           <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
           <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
@@ -3524,15 +3524,15 @@ function initKnowledgeGraph(activeSet){
   svg.selectAll('*').remove();
   svg.classed('kg-graph',true);
 
-  const W=1400,H=940;
+  const W=1400,H=1020;
 
   // Constellation layout — 4 tight clusters at compass positions
   // Problems: top-left, Logic: top-right, Tools: bottom-center, Diagnostics: bottom-right
   const clusters={
     problem:{cx:220,cy:240,label:'PROBLEMS',color:'#ef4444'},
     logic:{cx:900,cy:200,label:'STRATEGIC LOGIC',color:'#3b82f6'},
-    tool:{cx:480,cy:760,label:'TOOLS / ESTIMATORS',color:'#10b981'},
-    diag:{cx:1180,cy:680,label:'DIAGNOSTICS',color:'#f59e0b'}
+    tool:{cx:460,cy:790,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    diag:{cx:1200,cy:720,label:'DIAGNOSTICS',color:'#f59e0b'}
   };
 
   const byCat={problem:[],logic:[],tool:[],diag:[]};
@@ -3568,11 +3568,11 @@ function initKnowledgeGraph(activeSet){
   const toolNodes = byCat['tool'];
   const coreTools = toolNodes.slice(0, 6);
   const otherTools = toolNodes.slice(6);
-  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 40, 155);
-  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 100, 145);
+  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 50, 175);
+  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 120, 165);
 
   // Diagnostics cluster — bottom right (9 nodes)
-  clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 140);
+  clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 170);
 
   // Build neighbor lookup for hover-dim
   _kgNeighbors={};
@@ -3592,7 +3592,7 @@ function initKnowledgeGraph(activeSet){
 
   // Cluster labels (in zoom layer so they scale)
   // Draw cluster halos
-  const haloR = {problem:160, logic:160, tool:270, diag:190};
+  const haloR = {problem:160, logic:160, tool:290, diag:220};
   Object.entries(clusters).forEach(([cat,cl])=>{
     _kgZoomLayer.append('circle')
       .attr('cx', cl.cx).attr('cy', cl.cy)
@@ -3613,7 +3613,7 @@ function initKnowledgeGraph(activeSet){
       .attr('x',cl.cx).attr('y',labelY)
       .attr('fill','rgba(255,255,255,0.55)')
       .attr('text-anchor','middle')
-      .attr('font-size','16px')
+      .attr('font-size','20px')
       .attr('font-weight','600')
       .attr('letter-spacing','0.14em')
       .text(cl.label);
@@ -3831,7 +3831,7 @@ function kgFilter(cat){
   } else {
     const b=_kgClusterBounds[cat];
     if(b){
-      const W=1400,H=940;
+      const W=1400,H=1020;
       const padX=80,padY=80;
       const bw=b.x2-b.x1+padX*2,bh=b.y2-b.y1+padY*2;
       const cx=(b.x1+b.x2)/2,cy=(b.y1+b.y2)/2;
