@@ -366,6 +366,20 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.pre-reveal.has-hover .kg-node-g.is-neighbor { opacity: 0.85 !important; }
 .kg-graph.pre-reveal.has-hover .kg-edge.is-connected { opacity: 0.7 !important; stroke: #cbd5e1 !important; }
 /* end PATCH 6 */
+
+/* PATCH 8: dormant pre-reveal + post-reveal hover-only edges */
+.kg-graph.pre-reveal .kg-node-g { opacity: 0.18 !important; }
+.kg-graph.pre-reveal .kg-edge,
+.kg-graph.pre-reveal .kg-edge-glow { opacity: 0 !important; }
+.kg-graph.pre-reveal .kg-cluster-halo { opacity: 0.22 !important; }
+.kg-graph.pre-reveal .kg-cluster-label { opacity: 0.4 !important; }
+/* Post-reveal: hide all edges; only show on node hover via .is-connected */
+.kg-graph:not(.pre-reveal) .kg-edge,
+.kg-graph:not(.pre-reveal) .kg-edge-glow { opacity: 0 !important; }
+.kg-graph:not(.pre-reveal).has-hover .kg-edge.is-connected { opacity: 0.85 !important; stroke: #cbd5e1 !important; }
+.kg-graph:not(.pre-reveal).has-hover .kg-edge-glow.is-connected { opacity: 0.55 !important; }
+.kg-graph:not(.pre-reveal).has-hover .kg-edge-label.is-connected { opacity: 1 !important; fill: #e2e8f0 !important; }
+/* end PATCH 8 */
 /* PATCH 3: visual polish */
 .kg-canvas {
   background:
@@ -3591,9 +3605,8 @@ function initKnowledgeGraph(activeSet){
   if(svg.empty())return;
   svg.selectAll('*').remove();
   svg.classed('kg-graph',true);
-  // PATCH 6: pre-reveal class when toolkit hasn't been revealed yet
-  const hasActive = _kgActive && _kgActive.size > 0;
-  svg.classed('pre-reveal', !hasActive);
+  // PATCH 8: pre-reveal flag (drives CSS dimming until user clicks the button)
+  svg.classed('pre-reveal', !_kgRevealed);
 
   const W=1600,H=1150;
 
@@ -4002,6 +4015,8 @@ function onKgNodeHover(nodeId){
     }
     if(line)line.classList.toggle('is-connected',isConn);
     if(lbl)lbl.classList.toggle('is-connected',isConn);
+    const glow=document.querySelectorAll('.kg-edge-glow')[idx];
+    if(glow)glow.classList.toggle('is-connected',isConn);
   });
 }
 
@@ -4010,7 +4025,7 @@ function onKgNodeUnhover(){
   svg.classed('has-hover',false);
   d3.select('#kg-canvas').node().classList.remove('over-node');
   document.querySelectorAll('.kg-node-g').forEach(g=>g.classList.remove('is-focus','is-neighbor'));
-  document.querySelectorAll('.kg-edge,.kg-edge-label').forEach(e=>e.classList.remove('is-connected'));
+  document.querySelectorAll('.kg-edge,.kg-edge-label,.kg-edge-glow').forEach(e=>e.classList.remove('is-connected'));
 }
 
 function kgZoomIn(){
@@ -4250,6 +4265,8 @@ function kgToggleExpand(){
 function revealKgPath(){
   if(_kgRevealed)return;
   _kgRevealed=true;
+  // PATCH 8: lift the dormant state
+  d3.select('#kg-canvas').classed('pre-reveal', false);
   const btn=document.getElementById('kg-reveal-btn');
   if(btn){btn.disabled=true;btn.textContent='Architecture revealed';}
 
