@@ -3483,6 +3483,8 @@ function kgFindSectionForNode(nodeId,sections){
 
 let _kgRevealed=false;
 let _kgActive=new Set();
+var _kgFocusedCat='problem';
+var _kgPositions=null;
 
 function renderKnowledgeGraph(tk){
   return `<div class="tk-tab-panel" data-tab="graph"><div class="kg-section" id="tk-graph">
@@ -3840,80 +3842,95 @@ function kgRegisterClusterBounds(bounds){_kgClusterBounds=bounds;}
 
 function kgSetFocus(cat) {
   _kgFocusedCat = cat;
-  const catOrder = ['problem','logic','tool','diag'];
-  const focusIdx = catOrder.indexOf(cat);
 
-  const clusterCenters = {
+  document.querySelectorAll('.kg-filter-btn').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-cat')===cat);
+  });
+
+  if(!_kgZoomLayer) return;
+
+  const W=1400, H=1020;
+  const CX=W/2, CY=H/2-60;
+
+  // Original cluster centers
+  const origins = {
     problem:{cx:220,cy:240},
     logic:{cx:900,cy:200},
     tool:{cx:460,cy:790},
     diag:{cx:1200,cy:720}
   };
 
-  // Update rail buttons
-  document.querySelectorAll('.kg-filter-btn').forEach(b=>{
-    b.classList.toggle('active', b.getAttribute('data-cat')===cat);
-  });
-
-  if(!_kgZoomLayer || !_kgPositions) return;
+  // Corner retreat positions for non-focused clusters
+  const retreats = {
+    problem: {all:{cx:220,cy:240}, logic:{cx:130,cy:120}, tool:{cx:130,cy:120}, diag:{cx:130,cy:120}},
+    logic:   {all:{cx:900,cy:200}, problem:{cx:1270,cy:120}, tool:{cx:1270,cy:120}, diag:{cx:1270,cy:120}},
+    tool:    {all:{cx:460,cy:790}, problem:{cx:200,cy:950}, logic:{cx:200,cy:950}, diag:{cx:1200,cy:950}},
+    diag:    {all:{cx:1200,cy:720}, problem:{cx:1270,cy:950}, logic:{cx:1270,cy:950}, tool:{cx:1270,cy:950}}
+  };
 
   KG_BLUEPRINT.nodes.forEach(n=>{
     const g = d3.select('#kgn-'+n.id);
     if(g.empty()) return;
-    const pos = _kgPositions[n.id];
-    if(!pos) return;
-    const cl = clusterCenters[n.cat];
+    if(!_kgPositions || !_kgPositions[n.id]) return;
 
-    let opacity, nodeScale;
-    if(cat==='all'){
-      opacity=1; nodeScale=1;
+    const pos = _kgPositions[n.id];
+    const origCl = origins[n.cat];
+    let targetCx, targetCy, nodeS, opacity;
+
+    if(cat === 'all') {
+      targetCx = origCl.cx;
+      targetCy = origCl.cy;
+      nodeS = 1;
+      opacity = 1;
+    } else if(n.cat === cat) {
+      targetCx = CX;
+      targetCy = CY;
+      nodeS = 2.0;
+      opacity = 1;
     } else {
-      const dist = Math.abs(catOrder.indexOf(n.cat) - focusIdx);
-      if(dist===0){opacity=1;nodeScale=1.2;}
-      else if(dist===1){opacity=0.55;nodeScale=0.9;}
-      else{opacity=0.2;nodeScale=0.75;}
+      const r = retreats[n.cat] && retreats[n.cat][cat] ? retreats[n.cat][cat] : origCl;
+      targetCx = r.cx;
+      targetCy = r.cy;
+      nodeS = 0.38;
+      opacity = 0.22;
     }
 
-    const dx = pos.x - cl.cx;
-    const dy = pos.y - cl.cy;
-    const nx = cl.cx + dx * (cat==='all'?1:nodeScale);
-    const ny = cl.cy + dy * (cat==='all'?1:nodeScale);
+    const dx = pos.x - origCl.cx;
+    const dy = pos.y - origCl.cy;
+    const nx = targetCx + dx * nodeS;
+    const ny = targetCy + dy * nodeS;
 
-    g.transition().duration(380)
+    g.transition().duration(500).ease(d3.easeCubicInOut)
       .attr('opacity', opacity)
       .attr('transform','translate('+nx+','+ny+')');
   });
 
-  // Fade edges
-  _kgZoomLayer.selectAll('.kg-edge').transition().duration(380)
+  _kgZoomLayer.selectAll('.kg-edge').transition().duration(500)
     .attr('opacity', function(){
-      if(cat==='all') return 0.3;
+      if(cat==='all') return 0.28;
       const sc = d3.select(this).attr('data-src-cat');
       const tc = d3.select(this).attr('data-tgt-cat');
-      if(sc===cat||tc===cat) return 0.55;
-      return 0.04;
+      if(sc===cat && tc===cat) return 0.75;
+      if(sc===cat || tc===cat) return 0.2;
+      return 0.03;
     });
 
-  // Fade cluster labels
-  _kgZoomLayer.selectAll('.kg-cluster-label').transition().duration(380)
+  _kgZoomLayer.selectAll('.kg-cluster-label').transition().duration(500)
     .attr('opacity', function(){
       const lcat = d3.select(this).attr('data-cat');
       if(cat==='all') return 0.55;
-      return lcat===cat ? 0.9 : 0.15;
+      return lcat===cat ? 0.95 : 0.06;
     });
 
-  // Fade halos
-  _kgZoomLayer.selectAll('circle').transition().duration(380)
+  _kgZoomLayer.selectAll('circle[data-cat]').transition().duration(500)
     .attr('opacity', function(){
       const hcat = d3.select(this).attr('data-cat');
-      if(!hcat) return null;
       if(cat==='all') return 0.05;
-      return hcat===cat ? 0.12 : 0.02;
+      return hcat===cat ? 0.12 : 0.01;
     });
 }
 
-var _kgFocusedCat = 'problem';
-var _kgPositions = null;
+
 
 function kgFilter(cat){
   // Toggle button states
