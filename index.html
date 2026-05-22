@@ -3858,12 +3858,13 @@ function initKnowledgeGraph(activeSet){
     g.append('text')
       .attr('y', labelY)
       .attr('text-anchor','middle')
-      .attr('fill','#000000')
+      .attr('fill','rgba(0,0,0,0.9)')
       .attr('font-size', labelSize)
       .attr('font-weight', isActive?700:400)
-      .attr('stroke','#000000')
-      .attr('stroke-width', isActive?5:2)
+      .attr('stroke','rgba(0,0,0,0.9)')
+      .attr('stroke-width', isActive?3:1.5)
       .attr('stroke-linejoin','round')
+      .attr('paint-order','stroke')
       .attr('pointer-events','none')
       .text(n.label);
     g.append('text')
@@ -4059,7 +4060,7 @@ function kgSetFocus(cat) {
     .attr('opacity', function(){
       const hcat = d3.select(this).attr('data-cat');
       if(cat==='all') return 0.05;
-      return hcat===cat ? 0.12 : 0.01;
+      return hcat===cat ? 0.22 : 0.01;
     });
 
   // Move halos with their clusters
