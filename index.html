@@ -3659,7 +3659,7 @@ function initKnowledgeGraph(activeSet){
       .attr('x',cl.cx).attr('y',labelY)
       .attr('fill','rgba(255,255,255,0.55)')
       .attr('text-anchor','middle')
-      .attr('font-size','22px')
+      .attr('font-size','26px')
       .attr('font-weight','700')
       .attr('letter-spacing','0.14em')
       .text(cl.label);
@@ -3852,7 +3852,7 @@ function initKnowledgeGraph(activeSet){
 
     // Label
     const labelY = r+18;
-    const labelSize = isActive ? 14 : 10;
+    const labelSize = isActive ? 16 : 11;
     const labelColor = isActive ? '#ffffff' : '#374151';
     // Shadow for legibility
     g.append('text')
