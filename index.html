@@ -4281,7 +4281,7 @@ function kgSetFocus(cat) {
       targetCy = origCl.cy;
       nodeS = 1;
       opacity = 1;
-    } else if(n.cat === cat) {
+    } else if (n.cat === cat || (cat === "tool" && (n.id === "t_dml" || n.id === "t_cf"))) {
       targetCx = CX;
       targetCy = CY;
       nodeS = 1.4;
