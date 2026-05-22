@@ -4330,19 +4330,47 @@ function kgSetFocus(cat) {
       if(cat==='all') return 0.55;
       return lcat===cat ? 0.95 : 0.0;
     })
-    .attr('x', function(){
-      const lcat = d3.select(this).attr('data-cat');
-      if(cat==='all') return ({problem:280,logic:1320,tool:520,diag:1320})[lcat];
-      if(lcat===cat) return CX;
-      return ({problem:{logic:130,tool:130,diag:130},logic:{problem:1270,tool:1270,diag:1270},tool:{problem:200,logic:200,diag:1200},diag:{problem:1270,logic:1270,tool:1270}})[lcat][cat] || CX;
-    })
-    .attr('y', function(){
+    .attr('transform', function(){
       const lcat = d3.select(this).attr('data-cat');
       const haloRMap = {problem:175,logic:175,tool:310,diag:240};
       const baseR = haloRMap[lcat] || 175;
-      if(cat==='all') return ({problem:240,logic:240,tool:900,diag:900})[lcat] - baseR - 18;
-      if(lcat===cat) return CY - (baseR * 0.42) - 18;
-      return 80;
+      const clOrigins = {problem:{cx:280,cy:240},logic:{cx:1320,cy:240},tool:{cx:520,cy:900},diag:{cx:1320,cy:900}};
+      const cl = clOrigins[lcat];
+      const isRight = lcat==='logic' || lcat==='diag';
+      const rotate = isRight ? 90 : -90;
+
+      if(cat==='all'){
+        // Return to flanking position beside each halo
+        const lx = isRight ? cl.cx + baseR + 55 : cl.cx - baseR - 55;
+        const ly = cl.cy;
+        return `rotate(${rotate}, ${lx}, ${ly}) translate(0, 0)`;
+      }
+      if(lcat===cat){
+        // Focused: center on canvas, vertical
+        const lx = isRight ? CX + baseR * 0.42 + 55 : CX - baseR * 0.42 - 55;
+        const ly = CY;
+        return `rotate(${rotate}, ${lx}, ${ly})`;
+      }
+      // Retreated: hide
+      return `rotate(${rotate}, ${isRight ? 1500 : 50}, 100)`;
+    })
+    .attr('x', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      const haloRMap = {problem:175,logic:175,tool:310,diag:240};
+      const baseR = haloRMap[lcat] || 175;
+      const clOrigins = {problem:{cx:280,cy:240},logic:{cx:1320,cy:240},tool:{cx:520,cy:900},diag:{cx:1320,cy:900}};
+      const cl = clOrigins[lcat];
+      const isRight = lcat==='logic' || lcat==='diag';
+      if(cat==='all') return isRight ? cl.cx + baseR + 55 : cl.cx - baseR - 55;
+      if(lcat===cat) return isRight ? CX + baseR * 0.42 + 55 : CX - baseR * 0.42 - 55;
+      return isRight ? 1500 : 50;
+    })
+    .attr('y', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      const clOrigins = {problem:{cx:280,cy:240},logic:{cx:1320,cy:240},tool:{cx:520,cy:900},diag:{cx:1320,cy:900}};
+      if(cat==='all') return clOrigins[lcat].cy;
+      if(lcat===cat) return CY;
+      return 100;
     });
 
   _kgZoomLayer.selectAll('circle[data-cat]').transition().duration(500)
