@@ -3627,6 +3627,13 @@ function initKnowledgeGraph(activeSet){
   // Zoom-able root layer
   _kgZoomLayer=svg.append('g').attr('class','kg-zoom-layer');
 
+  // Background dot texture
+  _kgZoomLayer.append('rect')
+    .attr('x',-2000).attr('y',-2000)
+    .attr('width',6000).attr('height',6000)
+    .attr('fill','url(#bg-dots)')
+    .attr('pointer-events','none');
+
   // Cluster labels (in zoom layer so they scale)
   // Draw cluster halos
   const haloR = {problem:160, logic:160, tool:290, diag:220};
@@ -3660,20 +3667,46 @@ function initKnowledgeGraph(activeSet){
   // Arrowhead markers
   const defs=svg.append('defs');
 
-  // Glow filters for each category
-  const glowColorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
-  Object.entries(glowColorMap).forEach(([cat,color])=>{
+  // Radial gradients for each category node
+  const gradColors = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  Object.entries(gradColors).forEach(([cat,color])=>{
+    // Node radial gradient
+    const grad = defs.append('radialGradient')
+      .attr('id','rgrad-'+cat)
+      .attr('cx','50%').attr('cy','50%').attr('r','50%');
+    grad.append('stop').attr('offset','0%').attr('stop-color',color).attr('stop-opacity',0.9);
+    grad.append('stop').attr('offset','45%').attr('stop-color',color).attr('stop-opacity',0.3);
+    grad.append('stop').attr('offset','100%').attr('stop-color',color).attr('stop-opacity',0.0);
+
+    // Outer glow gradient
+    const outerGrad = defs.append('radialGradient')
+      .attr('id','oggrad-'+cat)
+      .attr('cx','50%').attr('cy','50%').attr('r','50%');
+    outerGrad.append('stop').attr('offset','0%').attr('stop-color',color).attr('stop-opacity',0.15);
+    outerGrad.append('stop').attr('offset','100%').attr('stop-color',color).attr('stop-opacity',0.0);
+
+    // Blur filter for light trail edges
     const filter = defs.append('filter')
       .attr('id','glow-'+cat)
-      .attr('x','-50%').attr('y','-50%')
-      .attr('width','200%').attr('height','200%');
+      .attr('x','-100%').attr('y','-100%')
+      .attr('width','300%').attr('height','300%');
     filter.append('feGaussianBlur')
-      .attr('stdDeviation','3.5')
+      .attr('stdDeviation','2.5')
       .attr('result','coloredBlur');
     const feMerge = filter.append('feMerge');
     feMerge.append('feMergeNode').attr('in','coloredBlur');
     feMerge.append('feMergeNode').attr('in','SourceGraphic');
   });
+
+  // Background subtle dot texture
+  const bgPattern = defs.append('pattern')
+    .attr('id','bg-dots')
+    .attr('x',0).attr('y',0)
+    .attr('width',40).attr('height',40)
+    .attr('patternUnits','userSpaceOnUse');
+  bgPattern.append('circle')
+    .attr('cx',20).attr('cy',20).attr('r',1)
+    .attr('fill','rgba(255,255,255,0.04)');
 
   // Glow filters for each category
 
@@ -3700,23 +3733,38 @@ function initKnowledgeGraph(activeSet){
     const sx=s.x+ux*nodeOffS,sy=s.y+uy*nodeOffS;
     const tx=t.x-ux*nodeOffT,ty=t.y-uy*nodeOffT;
 
-    // Curved bezier edge
-    const mx=(sx+tx)/2, my=(sy+ty)/2;
-    const cpx=mx+(ty-sy)*0.2, cpy=my-(tx-sx)*0.2;
-    const srcCat = KG_BLUEPRINT.nodes.find(x=>x.id===e.s)?.cat||'tool';
-    const edgeCol = {problem:'rgba(239,68,68,0.4)',logic:'rgba(59,130,246,0.4)',tool:'rgba(16,185,129,0.4)',diag:'rgba(245,158,11,0.4)'}[srcCat]||'rgba(148,163,184,0.3)';
+    // Light trail edge — glow base + bright core
+    const emx2=(sx+tx)/2, emy2=(sy+ty)/2;
+    const cpx=emx2+(ty-sy)*0.18, cpy=emy2-(tx-sx)*0.18;
+    const srcCat = (KG_BLUEPRINT.nodes.find(x=>x.id===e.s)||{}).cat||'tool';
+    const tgtCat = (KG_BLUEPRINT.nodes.find(x=>x.id===e.t)||{}).cat||'tool';
+    const edgeColGlow = {problem:'rgba(239,68,68,0.15)',logic:'rgba(59,130,246,0.15)',tool:'rgba(16,185,129,0.15)',diag:'rgba(245,158,11,0.15)'}[srcCat]||'rgba(148,163,184,0.1)';
+    const edgeColCore = {problem:'rgba(239,68,68,0.55)',logic:'rgba(59,130,246,0.55)',tool:'rgba(16,185,129,0.55)',diag:'rgba(245,158,11,0.55)'}[srcCat]||'rgba(148,163,184,0.4)';
+    const pathD = `M${sx},${sy} Q${cpx},${cpy} ${tx},${ty}`;
+
+    // Glow trail (wide, blurred)
+    edgeG.append('path')
+      .attr('class','kg-edge-glow')
+      .attr('d', pathD)
+      .attr('fill','none')
+      .attr('stroke', edgeColGlow)
+      .attr('stroke-width', 6)
+      .attr('opacity', 0.8)
+      .attr('filter','url(#glow-'+srcCat+')');
+
+    // Core trail (thin, sharp)
     edgeG.append('path')
       .attr('class','kg-edge')
       .attr('id','kge-'+idx)
       .attr('data-source',e.s)
       .attr('data-target',e.t)
       .attr('data-src-cat', srcCat)
-      .attr('data-tgt-cat', KG_BLUEPRINT.nodes.find(x=>x.id===e.t)?.cat||'tool')
-      .attr('d',`M${sx},${sy} Q${cpx},${cpy} ${tx},${ty}`)
+      .attr('data-tgt-cat', tgtCat)
+      .attr('d', pathD)
       .attr('fill','none')
-      .attr('stroke', edgeCol)
+      .attr('stroke', edgeColCore)
       .attr('stroke-width', 1.2)
-      .attr('opacity', 0.6)
+      .attr('opacity', 0.7)
       .attr('marker-end','url(#arrow-dim)');
 
     const emx=(sx+tx)/2,emy=(sy+ty)/2;
@@ -3739,8 +3787,8 @@ function initKnowledgeGraph(activeSet){
     const p=positions[n.id];
     if(!p)return;
     const col=colorMap[n.cat]||'#94a3b8';
-    const colDim=colorDim[n.cat]||'rgba(148,163,184,0.15)';
-    const r=22;
+    const isActive=_kgActive&&_kgActive.has(n.id);
+    const r=isActive?26:22;
 
     const g=nodeG.append('g')
       .attr('class','kg-node-g')
@@ -3752,37 +3800,67 @@ function initKnowledgeGraph(activeSet){
       .on('mouseenter',()=>onKgNodeHover(n.id))
       .on('mouseleave',()=>onKgNodeUnhover());
 
-    // Outer glow ring
+    // Outer radial glow — large soft halo
     g.append('circle')
-      .attr('r', r+10)
-      .attr('fill', colDim)
-      .attr('stroke', col)
-      .attr('stroke-width', 0.5)
-      .attr('stroke-opacity', 0.3);
+      .attr('r', r*2.8)
+      .attr('fill', 'url(#oggrad-'+n.cat+')')
+      .attr('pointer-events','none');
 
-    // Main circle
+    // Mid ring
+    g.append('circle')
+      .attr('r', r+6)
+      .attr('fill','none')
+      .attr('stroke', col)
+      .attr('stroke-width', 0.8)
+      .attr('opacity', 0.25)
+      .attr('pointer-events','none');
+
+    // Main circle with dark fill
     g.append('circle')
       .attr('class','kg-node-rect')
       .attr('r', r)
-      .attr('fill', '#0d1f33')
+      .attr('fill', '#060e1a')
       .attr('stroke', col)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', isActive?2.5:1.8)
+      .attr('filter','url(#glow-'+n.cat+')');
 
-    // Inner dot
+    // Radial gradient overlay — the "glow center"
     g.append('circle')
-      .attr('r', 5)
-      .attr('fill', col)
-      .attr('opacity', 0.9);
+      .attr('r', r)
+      .attr('fill', 'url(#rgrad-'+n.cat+')')
+      .attr('pointer-events','none');
 
-    // Label below node
+    // Bright center dot
+    g.append('circle')
+      .attr('r', isActive?5:3.5)
+      .attr('fill','#ffffff')
+      .attr('opacity', isActive?0.95:0.7)
+      .attr('pointer-events','none');
+
+    // Label — larger, white, with subtle shadow effect
+    const labelY = r+20;
+    // Shadow text for legibility
+    g.append('text')
+      .attr('y', labelY)
+      .attr('text-anchor','middle')
+      .attr('fill','#000000')
+      .attr('font-size', 12)
+      .attr('font-weight', 600)
+      .attr('stroke','#000000')
+      .attr('stroke-width', 3)
+      .attr('stroke-linejoin','round')
+      .attr('pointer-events','none')
+      .text(n.label);
+    // Foreground text
     g.append('text')
       .attr('class','kg-node-text')
-      .attr('y', r+16)
+      .attr('y', labelY)
       .attr('text-anchor','middle')
-      .attr('fill','rgba(255,255,255,0.85)')
-      .attr('font-size', 11)
-      .attr('font-weight', 500)
-      .attr('letter-spacing', '0.02em')
+      .attr('fill', isActive?'#ffffff':col)
+      .attr('font-size', 12)
+      .attr('font-weight', 600)
+      .attr('letter-spacing','0.01em')
+      .attr('pointer-events','none')
       .text(n.label);
   });
 
@@ -3925,7 +4003,7 @@ function kgSetFocus(cat) {
       targetCx = r.cx;
       targetCy = r.cy;
       nodeS = 0.38;
-      opacity = 0.22;
+      opacity = 0.07;
     }
 
     const dx = pos.x - origCl.cx;
