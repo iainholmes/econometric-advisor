@@ -3001,8 +3001,8 @@ function buildToolkit(a){
   // Tool nodes (green)
   if(fewTreated&&hasNatExp)active.add('t_scm');
   if(isPanel&&hasNatExp)active.add('t_did');
-  if(hasNatExp&&isGeo&&!isPanel&&!fewTreated)active.add('t_iv');
-  if(hasNatExp&&!fewTreated&&!isPanel)active.add('t_iv');
+  if(hasNatExp && !fewTreated && !isPanel){
+  }
   if(isThreshold)active.add('t_rd');
   if(isPanel)active.add('t_fe');
   if(isGeo||isSpatial)active.add('t_sar');
