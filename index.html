@@ -349,7 +349,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-node-rect{transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer}
 .kg-node-text{font-family:'Instrument Sans',-apple-system,sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
 .kg-edge{transition:all .4s cubic-bezier(.4,0,.2,1)}
-.kg-edge-label{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
+.kg-edge-label{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:15px;font-weight:500;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
 .kg-edge-label.active{fill:#cbd5e1}
 .kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
 
@@ -3970,13 +3970,23 @@ function onKgNodeHover(nodeId){
     if(n.id===nodeId)g.classList.add('is-focus');
     else if(neighbors.has(n.id))g.classList.add('is-neighbor');
   });
-  // Mark connected edges
+  // Mark connected edges -- in focus mode, only intra-cluster edges
   const edgeIdxs=new Set(_kgEdgesByEndpoint[nodeId]||[]);
+  const focusedCat = _kgFocusedCat && _kgFocusedCat !== 'all' ? _kgFocusedCat : null;
   KG_BLUEPRINT.edges.forEach((e,idx)=>{
     const line=document.getElementById('kge-'+idx);
     const lbl=document.getElementById('kgel-'+idx);
-    if(line)line.classList.toggle('is-connected',edgeIdxs.has(idx));
-    if(lbl)lbl.classList.toggle('is-connected',edgeIdxs.has(idx));
+    let isConn = edgeIdxs.has(idx);
+    if (isConn && focusedCat) {
+      // suppress cross-cluster edges in focus mode
+      const sNode = KG_BLUEPRINT.nodes.find(x=>x.id===e.s);
+      const tNode = KG_BLUEPRINT.nodes.find(x=>x.id===e.t);
+      if (!sNode || !tNode || sNode.cat !== focusedCat || tNode.cat !== focusedCat) {
+        isConn = false;
+      }
+    }
+    if(line)line.classList.toggle('is-connected',isConn);
+    if(lbl)lbl.classList.toggle('is-connected',isConn);
   });
 }
 
@@ -4141,7 +4151,8 @@ function kgSetFocus(cat) {
       const hcat = d3.select(this).attr('data-cat');
       const baseR = haloRMap[hcat] || 175;
       if(cat==='all') return baseR;
-      if(hcat===cat) return baseR * 2.0;
+      // PATCH 4: focused halo fills ~95% of shorter canvas dimension
+      if(hcat===cat) return Math.min(W, H) * 0.475;
       return baseR * 0.35;
     });
 }
