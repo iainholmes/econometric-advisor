@@ -3531,7 +3531,7 @@ function initKnowledgeGraph(activeSet){
   const clusters={
     problem:{cx:220,cy:240,label:'PROBLEMS',color:'#ef4444'},
     logic:{cx:900,cy:200,label:'STRATEGIC LOGIC',color:'#3b82f6'},
-    tool:{cx:520,cy:680,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    tool:{cx:480,cy:760,label:'TOOLS / ESTIMATORS',color:'#10b981'},
     diag:{cx:1180,cy:680,label:'DIAGNOSTICS',color:'#f59e0b'}
   };
 
@@ -3568,8 +3568,8 @@ function initKnowledgeGraph(activeSet){
   const toolNodes = byCat['tool'];
   const coreTools = toolNodes.slice(0, 6);
   const otherTools = toolNodes.slice(6);
-  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 30, 130);
-  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 80, 120);
+  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 40, 155);
+  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 100, 145);
 
   // Diagnostics cluster — bottom right (9 nodes)
   clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 140);
@@ -3592,7 +3592,7 @@ function initKnowledgeGraph(activeSet){
 
   // Cluster labels (in zoom layer so they scale)
   // Draw cluster halos
-  const haloR = {problem:160, logic:160, tool:230, diag:190};
+  const haloR = {problem:160, logic:160, tool:270, diag:190};
   Object.entries(clusters).forEach(([cat,cl])=>{
     _kgZoomLayer.append('circle')
       .attr('cx', cl.cx).attr('cy', cl.cy)
@@ -3611,11 +3611,11 @@ function initKnowledgeGraph(activeSet){
       .attr('class','kg-cluster-label')
       .attr('data-cat',cat)
       .attr('x',cl.cx).attr('y',labelY)
-      .attr('fill',cl.color).attr('opacity',.7)
+      .attr('fill','rgba(255,255,255,0.55)')
       .attr('text-anchor','middle')
-      .attr('font-size','13px')
-      .attr('font-weight','700')
-      .attr('letter-spacing','0.12em')
+      .attr('font-size','16px')
+      .attr('font-weight','600')
+      .attr('letter-spacing','0.14em')
       .text(cl.label);
   });
 
