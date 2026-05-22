@@ -320,7 +320,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-filter-btn[data-cat="diag"].active{border-color:var(--kg-diag)}
 .kg-filter-btn[data-cat="diag"].active .dot,.kg-filter-btn[data-cat="diag"] .dot{background:var(--kg-diag)}
 .kg-canvas-area{position:relative}
-.kg-canvas{width:100%;height:780px;display:block;cursor:grab}
+.kg-canvas{width:100%;height:780px;display:block;cursor:grab;position:relative;overflow:hidden}
 .kg-canvas:active{cursor:grabbing}
 .kg-canvas.over-node{cursor:pointer}
 @media(max-width:760px){
@@ -352,6 +352,43 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-edge-label{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
 .kg-edge-label.active{fill:#cbd5e1}
 .kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+
+
+/* PATCH 3: visual polish */
+.kg-canvas {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 45%, #0d2240 0%, #061429 55%, #02091a 100%);
+}
+.kg-canvas::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(126,182,255,0.06) 1px, transparent 0);
+  background-size: 32px 32px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 80%);
+}
+/* Active nodes: brighter, tighter — make them feel "lit" */
+.kg-node-g.is-active .kg-node-rect { stroke-width: 2.5px; }
+.kg-node-g.is-active .kg-node-label {
+  fill: #ffffff !important;
+  letter-spacing: 0.02em;
+}
+/* Inactive nodes: pull back further, almost ghosted unless focused */
+.kg-graph:not(.focus-mode) .kg-node-g:not(.is-active) { opacity: 0.35; }
+.kg-graph.focus-mode .kg-node-g.in-focus-cat:not(.is-active) { opacity: 0.85; }
+/* Cluster halos: softer, less competitive with nodes */
+.kg-cluster-halo { mix-blend-mode: screen; }
+/* end PATCH 3 */
+/* PATCH 2: layer-focus label sizing */
+.kg-node-label, .kg-node-label-shadow { font-size: 11px; transition: font-size .4s cubic-bezier(.4,0,.2,1); }
+.kg-node-g.is-active .kg-node-label, .kg-node-g.is-active .kg-node-label-shadow { font-size: 14px; }
+.kg-graph.focus-mode .kg-node-g.in-focus-cat .kg-node-label,
+.kg-graph.focus-mode .kg-node-g.in-focus-cat .kg-node-label-shadow { font-size: 17px; }
+.kg-graph.focus-mode .kg-node-g.in-focus-cat.is-active .kg-node-label,
+.kg-graph.focus-mode .kg-node-g.in-focus-cat.is-active .kg-node-label-shadow { font-size: 20px; font-weight: 600; }
+.kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label,
+.kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label-shadow { font-size: 9px; opacity: 0.4; }
+/* end PATCH 2 */
 /* HOVER DIM STATE */
 .kg-graph.has-hover .kg-node-g{opacity:.18;transition:opacity .25s}
 .kg-graph.has-hover .kg-node-g.is-focus,
@@ -360,10 +397,10 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.has-hover .kg-edge.is-connected{opacity:.95;stroke:#cbd5e1 !important}
 .kg-graph.has-hover .kg-edge-label{opacity:0}
 .kg-graph.has-hover .kg-edge-label.is-connected{opacity:1;fill:#e2e8f0 !important}
-@keyframes kgPulseRed{0%,100%{filter:drop-shadow(0 0 6px rgba(239,68,68,.85))}50%{filter:drop-shadow(0 0 18px rgba(239,68,68,1))}}
-@keyframes kgPulseBlue{0%,100%{filter:drop-shadow(0 0 6px rgba(59,130,246,.85))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,1))}}
-@keyframes kgPulseGreen{0%,100%{filter:drop-shadow(0 0 6px rgba(16,185,129,.85))}50%{filter:drop-shadow(0 0 18px rgba(16,185,129,1))}}
-@keyframes kgPulseAmber{0%,100%{filter:drop-shadow(0 0 6px rgba(245,158,11,.85))}50%{filter:drop-shadow(0 0 18px rgba(245,158,11,1))}}
+@keyframes kgPulseRed{0%,100%{filter:drop-shadow(0 0 3px rgba(239,68,68,.85))}50%{filter:drop-shadow(0 0 18px rgba(239,68,68,1))}}
+@keyframes kgPulseBlue{0%,100%{filter:drop-shadow(0 0 3px rgba(59,130,246,.85))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,1))}}
+@keyframes kgPulseGreen{0%,100%{filter:drop-shadow(0 0 3px rgba(16,185,129,.85))}50%{filter:drop-shadow(0 0 18px rgba(16,185,129,1))}}
+@keyframes kgPulseAmber{0%,100%{filter:drop-shadow(0 0 3px rgba(245,158,11,.85))}50%{filter:drop-shadow(0 0 18px rgba(245,158,11,1))}}
 .glow-problem{animation:kgPulseRed 2.6s ease-in-out infinite}
 .glow-logic{animation:kgPulseBlue 2.6s ease-in-out infinite}
 .glow-tool{animation:kgPulseGreen 2.6s ease-in-out infinite}
@@ -3793,7 +3830,7 @@ function initKnowledgeGraph(activeSet){
     const r=isActive?28:16;  // Active much larger, inactive much smaller
 
     const g=nodeG.append('g')
-      .attr('class','kg-node-g')
+      .attr('class','kg-node-g' + (isActive ? ' is-active' : ''))
       .attr('id','kgn-'+n.id)
       .attr('data-cat',n.cat)
       .attr('transform',`translate(${p.x},${p.y})`)
@@ -3858,6 +3895,7 @@ function initKnowledgeGraph(activeSet){
     // Shadow for legibility
     g.append('text')
       .attr('y', labelY)
+      .attr('class','kg-node-label-shadow')
       .attr('text-anchor','middle')
       .attr('fill','rgba(0,0,0,0.9)')
       .attr('font-size', labelSize)
@@ -3869,7 +3907,7 @@ function initKnowledgeGraph(activeSet){
       .attr('pointer-events','none')
       .text(n.label);
     g.append('text')
-      .attr('class','kg-node-text')
+      .attr('class','kg-node-text kg-node-label')
       .attr('y', labelY)
       .attr('text-anchor','middle')
       .attr('fill', labelColor)
@@ -3974,6 +4012,16 @@ function kgSetFocus(cat) {
     b.classList.toggle('active', b.getAttribute('data-cat')===cat);
   });
 
+  // PATCH 2: toggle focus-mode + in-focus-cat for CSS-driven label sizing
+  const svgEl = document.getElementById('kg-canvas');
+  if (svgEl) {
+    svgEl.classList.toggle('focus-mode', cat !== 'all');
+    document.querySelectorAll('.kg-node-g').forEach(g => {
+      const isInCat = g.getAttribute('data-cat') === cat;
+      g.classList.toggle('in-focus-cat', cat !== 'all' && isInCat);
+    });
+  }
+
   if(!_kgZoomLayer) return;
 
   const W=1400, H=1020;
@@ -4012,7 +4060,7 @@ function kgSetFocus(cat) {
     } else if(n.cat === cat) {
       targetCx = CX;
       targetCy = CY;
-      nodeS = 2.0;
+      nodeS = 1.4;
       opacity = 1;
     } else {
       const r = retreats[n.cat] && retreats[n.cat][cat] ? retreats[n.cat][cat] : origCl;
