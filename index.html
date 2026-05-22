@@ -4034,8 +4034,9 @@ function kgSetFocus(cat) {
 
   if(!_kgZoomLayer) return;
 
-  const W=1400, H=1020;
-  const CX=W/2, CY=H/2-60;
+  // PATCH 5: use actual SVG viewBox dimensions so positioning matches what's visible
+  const W=1600, H=1150;
+  const CX=W/2, CY=H/2;
 
   // Original cluster centers
   const origins = {
@@ -4152,7 +4153,7 @@ function kgSetFocus(cat) {
       const baseR = haloRMap[hcat] || 175;
       if(cat==='all') return baseR;
       // PATCH 4: focused halo fills ~95% of shorter canvas dimension
-      if(hcat===cat) return Math.min(W, H) * 0.475;
+      if(hcat===cat) return Math.min(W, H) * 0.42; // PATCH 5: 85% of shorter dim, stays inside canvas
       return baseR * 0.35;
     });
 }
