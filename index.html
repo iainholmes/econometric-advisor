@@ -404,7 +404,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.focus-mode .kg-node-g.in-focus-cat.is-active .kg-node-label,
 .kg-graph.focus-mode .kg-node-g.in-focus-cat.is-active .kg-node-label-shadow { font-size: 20px; font-weight: 600; }
 .kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label,
-.kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label-shadow { font-size: 9px; opacity: 0.4; }
+.kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label-shadow { font-size: 0px; opacity: 0; pointer-events: none; }
 /* end PATCH 2 */
 /* HOVER DIM STATE */
 .kg-graph.has-hover .kg-node-g{opacity:.22}
@@ -3832,10 +3832,10 @@ function initKnowledgeGraph(activeSet){
   const TCY = clusters.tool.cy;
   // Core causal inference tools — top ring
   const toolManual = {
-    "t_dml":      {x: TCX - 250, y: TCY + 40},
-    "t_cf":       {x: TCX + 250, y: TCY + 40},
-    "t_dml":      {x: TCX - 250, y: TCY + 40},
-    "t_cf":       {x: TCX + 250, y: TCY + 40},
+    "t_dml":      {x: TCX - 250, y: TCY - 30},
+    "t_cf":       {x: TCX + 250, y: TCY - 30},
+    "t_dml":      {x: TCX - 250, y: TCY - 30},
+    "t_cf":       {x: TCX + 250, y: TCY - 30},
     't_ols':      {x: TCX - 170, y: TCY - 120},
     't_fe':       {x: TCX - 60,  y: TCY - 175},
     't_iv':       {x: TCX + 70,  y: TCY - 175},
@@ -4570,7 +4570,7 @@ function onKgNodeClick(nodeId){
   }
 
   // Build trainer URL for this node
-  const _kgMap = {"t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}};
+  const _kgMap = { "t_dml": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_cf": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}};
   const _trainerMods = _kgMap[nodeId];
   const _trainerLang = codeLang || 'r';
   const _trainerMod = _trainerMods ? (_trainerMods[_trainerLang] || _trainerMods['r']) : null;
@@ -5543,7 +5543,7 @@ function qstOpenSection(e, kgTag, secIdx) {
 function qstOpenLang(e, lang) {
   e.preventDefault();
   var map = {
-    't_ols':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
+    "t_dml":{"r":"r_ml","python":"py_ml","stata":"st_ols"}, "t_cf":{"r":"r_ml","python":"py_ml","stata":"st_ols"}, 't_ols':{'r':'r_ols','python':'py_ols','stata':'st_ols'},
     't_iv':{'r':'r_iv','python':'py_iv','stata':'st_iv'},
     't_did':{'r':'r_did','python':'py_did','stata':'st_did'},
     't_rd':{'r':'r_rd','python':'py_rd','stata':'st_rd'},
@@ -5648,7 +5648,7 @@ function qstOpenLang(e, lang) {
   </div>
   <aside class="audit-ai-side" id="audit-ai-side">
     <div class="audit-ai-side-hdr">
-      <div class="audit-ai-side-title">AI Analysis<br>Calibrated to your design</div>
+      <div class="audit-ai-side-title">Code Audit<br>Specification & Design Check</div>
     </div>
     <div class="audit-ai-side-body" id="audit-ai-side-body"></div>
   </aside>
