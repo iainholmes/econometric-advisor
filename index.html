@@ -3659,8 +3659,8 @@ function initKnowledgeGraph(activeSet){
       .attr('x',cl.cx).attr('y',labelY)
       .attr('fill','rgba(255,255,255,0.55)')
       .attr('text-anchor','middle')
-      .attr('font-size','20px')
-      .attr('font-weight','600')
+      .attr('font-size','22px')
+      .attr('font-weight','700')
       .attr('letter-spacing','0.14em')
       .text(cl.label);
   });
@@ -3805,7 +3805,7 @@ function initKnowledgeGraph(activeSet){
     const nodeCol = isActive ? col : '#334155';
     const nodeGradId = isActive ? 'rgrad-'+n.cat : 'rgrad-diag';
     const nodeOGradId = isActive ? 'oggrad-'+n.cat : 'oggrad-diag';
-    const nodeOpacity = isActive ? 1 : 0.35;
+    const nodeOpacity = isActive ? 1 : 0.22;
 
     g.attr('opacity', nodeOpacity);
 
@@ -3852,8 +3852,8 @@ function initKnowledgeGraph(activeSet){
 
     // Label
     const labelY = r+18;
-    const labelSize = isActive ? 13 : 10;
-    const labelColor = isActive ? '#ffffff' : '#4a5568';
+    const labelSize = isActive ? 14 : 10;
+    const labelColor = isActive ? '#ffffff' : '#374151';
     // Shadow for legibility
     g.append('text')
       .attr('y', labelY)
@@ -3862,7 +3862,7 @@ function initKnowledgeGraph(activeSet){
       .attr('font-size', labelSize)
       .attr('font-weight', isActive?700:400)
       .attr('stroke','#000000')
-      .attr('stroke-width', isActive?4:2)
+      .attr('stroke-width', isActive?5:2)
       .attr('stroke-linejoin','round')
       .attr('pointer-events','none')
       .text(n.label);
@@ -4030,14 +4030,22 @@ function kgSetFocus(cat) {
       .attr('transform','translate('+nx+','+ny+')');
   });
 
+  _kgZoomLayer.selectAll('.kg-edge-glow').transition().duration(500)
+    .attr('opacity', function(){
+      if(cat==='all') return 0.8;
+      const sc = d3.select(this).attr('data-src-cat');
+      const tc = d3.select(this).attr('data-tgt-cat');
+      if(sc===cat && tc===cat) return 0.8;
+      return 0.0;
+    });
   _kgZoomLayer.selectAll('.kg-edge').transition().duration(500)
     .attr('opacity', function(){
       if(cat==='all') return 0.28;
       const sc = d3.select(this).attr('data-src-cat');
       const tc = d3.select(this).attr('data-tgt-cat');
-      if(sc===cat && tc===cat) return 0.7;
-      if(sc===cat || tc===cat) return 0.08;
-      return 0.01;
+      if(sc===cat && tc===cat) return 0.75;
+      if(sc===cat || tc===cat) return 0.02;
+      return 0.0;
     });
 
   _kgZoomLayer.selectAll('.kg-cluster-label').transition().duration(500)
@@ -4065,6 +4073,7 @@ function kgSetFocus(cat) {
     tool:{all:{cx:460,cy:790},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1200,cy:950}},
     diag:{all:{cx:1200,cy:720},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
   };
+  const haloRMap = {problem:175, logic:175, tool:310, diag:240};
   _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
     .attr('cx', function(){
       const hcat = d3.select(this).attr('data-cat');
@@ -4077,6 +4086,13 @@ function kgSetFocus(cat) {
       if(cat==='all') return haloOrigins[hcat].cy;
       if(hcat===cat) return CY;
       return (haloRetreats[hcat]&&haloRetreats[hcat][cat]) ? haloRetreats[hcat][cat].cy : haloOrigins[hcat].cy;
+    })
+    .attr('r', function(){
+      const hcat = d3.select(this).attr('data-cat');
+      const baseR = haloRMap[hcat] || 175;
+      if(cat==='all') return baseR;
+      if(hcat===cat) return baseR * 2.0;
+      return baseR * 0.35;
     });
 }
 
