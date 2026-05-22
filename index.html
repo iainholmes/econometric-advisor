@@ -846,6 +846,42 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   .audit-ai-side{width:auto;border-left:.5px solid var(--border);border-top:none;border-radius:0 0 14px 14px;max-height:35vh}
 }
 /* end PATCH 15 */
+
+/* PATCH 16: cinematic KG depth */
+.kg-cluster{
+  filter: drop-shadow(0 0 32px rgba(0,0,0,.45));
+  transform-origin:center;
+  animation:kgClusterBreath 7s ease-in-out infinite;
+}
+
+.kg-graph.has-hover .kg-cluster{
+  opacity:.22;
+  filter:blur(1.5px);
+  transition:all .35s ease;
+}
+
+.kg-graph.has-hover .kg-cluster.active-cluster{
+  opacity:1;
+  filter:blur(0);
+  transform:scale(1.025);
+}
+
+.kg-edge.is-connected{
+  stroke-dasharray:6 10;
+  animation:kgEdgeFlow 1.4s linear infinite;
+}
+
+@keyframes kgEdgeFlow{
+  from{stroke-dashoffset:16}
+  to{stroke-dashoffset:0}
+}
+
+@keyframes kgClusterBreath{
+  0%,100%{opacity:.92}
+  50%{opacity:1}
+}
+/* end PATCH 16 */
+
 </style>
 </head>
 <body>
