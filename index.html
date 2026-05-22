@@ -3965,7 +3965,7 @@ function initKnowledgeGraph(activeSet){
   // Glow filters for each category
 
   ['dim','lit','focus'].forEach((tag,i)=>{
-    const color=tag==='dim'?'#334155':tag==='lit'?'#cbd5e1':'#e2e8f0';
+    const color=tag==='dim'?'#64748b':tag==='lit'?'#cbd5e1':'#e2e8f0';
     defs.append('marker')
       .attr('id','arrow-'+tag)
       .attr('viewBox','0 -5 10 10')
@@ -4004,7 +4004,8 @@ function initKnowledgeGraph(activeSet){
       .attr('stroke', edgeColGlow)
       .attr('stroke-width', 6)
       .attr('opacity', 0)
-      .attr('filter','url(#glow-'+srcCat+')');
+      .attr('filter','url(#glow-'+srcCat+')')
+      .attr('marker-end','url(#arrow-dim)');
 
     // Core trail (thin, sharp)
     edgeG.append('path')
