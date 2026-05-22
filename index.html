@@ -416,13 +416,14 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.focus-mode .kg-node-g:not(.in-focus-cat) .kg-node-label-shadow { font-size: 9px; opacity: 0.4; }
 /* end PATCH 2 */
 /* HOVER DIM STATE */
-.kg-graph.has-hover .kg-node-g{opacity:.18;transition:opacity .25s}
+.kg-graph.has-hover .kg-node-g{opacity:.10;filter:blur(.6px);transform:scale(.985);transition:opacity .28s, filter .28s, transform .28s}
 .kg-graph.has-hover .kg-node-g.is-focus,
-.kg-graph.has-hover .kg-node-g.is-neighbor{opacity:1}
-.kg-graph.has-hover .kg-edge{opacity:.08;transition:opacity .25s}
-.kg-graph.has-hover .kg-edge.is-connected{opacity:.95;stroke:#cbd5e1 !important}
-.kg-graph.has-hover .kg-edge-label{opacity:0}
-.kg-graph.has-hover .kg-edge-label.is-connected{opacity:1;fill:#e2e8f0 !important}
+.kg-graph.has-hover .kg-node-g.is-neighbor{opacity:1;filter:none;transform:scale(1)}
+.kg-graph.has-hover .kg-edge{opacity:.03;transition:opacity .28s}
+.kg-graph.has-hover .kg-edge.is-connected{opacity:1;stroke:#e2e8f0 !important;stroke-width:1.6px}
+.kg-graph.has-hover .kg-edge-label{opacity:0;transition:opacity .2s}
+.kg-graph.has-hover .kg-edge-label.is-connected{opacity:1;fill:#f8fafc !important}
+
 @keyframes kgPulseRed{0%,100%{filter:drop-shadow(0 0 3px rgba(239,68,68,.85))}50%{filter:drop-shadow(0 0 18px rgba(239,68,68,1))}}
 @keyframes kgPulseBlue{0%,100%{filter:drop-shadow(0 0 3px rgba(59,130,246,.85))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,1))}}
 @keyframes kgPulseGreen{0%,100%{filter:drop-shadow(0 0 3px rgba(16,185,129,.85))}50%{filter:drop-shadow(0 0 18px rgba(16,185,129,1))}}
