@@ -3490,11 +3490,11 @@ function renderKnowledgeGraph(tk){
     <div class="kg-wrap" id="kg-wrap">
       <div class="kg-filter-rail">
         <div class="kg-filter-lbl">Focus layer</div>
-        <button class="kg-filter-btn active" data-cat="all" onclick="kgFilter('all')"><span class="dot"></span>All four layers</button>
-        <button class="kg-filter-btn" data-cat="problem" onclick="kgFilter('problem')"><span class="dot"></span>Problems</button>
-        <button class="kg-filter-btn" data-cat="logic" onclick="kgFilter('logic')"><span class="dot"></span>Strategic Logic</button>
-        <button class="kg-filter-btn" data-cat="tool" onclick="kgFilter('tool')"><span class="dot"></span>Tools / Estimators</button>
-        <button class="kg-filter-btn" data-cat="diag" onclick="kgFilter('diag')"><span class="dot"></span>Diagnostics</button>
+        <button class="kg-filter-btn active" data-cat="all" onclick="kgSetFocus('all')"><span class="dot"></span>All four layers</button>
+        <button class="kg-filter-btn" data-cat="problem" onclick="kgSetFocus('problem')"><span class="dot"></span>Problems</button>
+        <button class="kg-filter-btn" data-cat="logic" onclick="kgSetFocus('logic')"><span class="dot"></span>Strategic Logic</button>
+        <button class="kg-filter-btn" data-cat="tool" onclick="kgSetFocus('tool')"><span class="dot"></span>Tools / Estimators</button>
+        <button class="kg-filter-btn" data-cat="diag" onclick="kgSetFocus('diag')"><span class="dot"></span>Diagnostics</button>
       </div>
       <div class="kg-canvas-area">
         <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 1020" preserveAspectRatio="xMidYMid meet"></svg>
@@ -3590,6 +3590,9 @@ function initKnowledgeGraph(activeSet){
   // Diagnostics cluster — bottom right (9 nodes)
   clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 170);
 
+  // Store positions globally for focus system
+  _kgPositions = JSON.parse(JSON.stringify(positions));
+
   // Build neighbor lookup for hover-dim
   _kgNeighbors={};
   _kgEdgesByEndpoint={};
@@ -3617,7 +3620,8 @@ function initKnowledgeGraph(activeSet){
       .attr('opacity', 0.05)
       .attr('stroke', ({problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'})[cat])
       .attr('stroke-opacity', 0.15)
-      .attr('stroke-width', 1.5);
+      .attr('stroke-width', 1.5)
+      .attr('data-cat', cat);
   });
 
   // Category labels — large and prominent above each cluster
@@ -3798,6 +3802,84 @@ function kgResetView(){
 
 let _kgClusterBounds={};
 function kgRegisterClusterBounds(bounds){_kgClusterBounds=bounds;}
+
+
+function kgSetFocus(cat) {
+  _kgFocusedCat = cat;
+  const catOrder = ['problem','logic','tool','diag'];
+  const focusIdx = catOrder.indexOf(cat);
+
+  const clusterCenters = {
+    problem:{cx:220,cy:240},
+    logic:{cx:900,cy:200},
+    tool:{cx:460,cy:790},
+    diag:{cx:1200,cy:720}
+  };
+
+  // Update rail buttons
+  document.querySelectorAll('.kg-filter-btn').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-cat')===cat);
+  });
+
+  if(!_kgZoomLayer || !_kgPositions) return;
+
+  KG_BLUEPRINT.nodes.forEach(n=>{
+    const g = d3.select('#kgn-'+n.id);
+    if(g.empty()) return;
+    const pos = _kgPositions[n.id];
+    if(!pos) return;
+    const cl = clusterCenters[n.cat];
+
+    let opacity, nodeScale;
+    if(cat==='all'){
+      opacity=1; nodeScale=1;
+    } else {
+      const dist = Math.abs(catOrder.indexOf(n.cat) - focusIdx);
+      if(dist===0){opacity=1;nodeScale=1.2;}
+      else if(dist===1){opacity=0.55;nodeScale=0.9;}
+      else{opacity=0.2;nodeScale=0.75;}
+    }
+
+    const dx = pos.x - cl.cx;
+    const dy = pos.y - cl.cy;
+    const nx = cl.cx + dx * (cat==='all'?1:nodeScale);
+    const ny = cl.cy + dy * (cat==='all'?1:nodeScale);
+
+    g.transition().duration(380)
+      .attr('opacity', opacity)
+      .attr('transform','translate('+nx+','+ny+')');
+  });
+
+  // Fade edges
+  _kgZoomLayer.selectAll('.kg-edge').transition().duration(380)
+    .attr('opacity', function(){
+      if(cat==='all') return 0.3;
+      const sc = d3.select(this).attr('data-src-cat');
+      const tc = d3.select(this).attr('data-tgt-cat');
+      if(sc===cat||tc===cat) return 0.55;
+      return 0.04;
+    });
+
+  // Fade cluster labels
+  _kgZoomLayer.selectAll('.kg-cluster-label').transition().duration(380)
+    .attr('opacity', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return 0.55;
+      return lcat===cat ? 0.9 : 0.15;
+    });
+
+  // Fade halos
+  _kgZoomLayer.selectAll('circle').transition().duration(380)
+    .attr('opacity', function(){
+      const hcat = d3.select(this).attr('data-cat');
+      if(!hcat) return null;
+      if(cat==='all') return 0.05;
+      return hcat===cat ? 0.12 : 0.02;
+    });
+}
+
+var _kgFocusedCat = 'problem';
+var _kgPositions = null;
 
 function kgFilter(cat){
   // Toggle button states
