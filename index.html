@@ -4330,6 +4330,16 @@ function kgSetFocus(cat) {
       if(cat==='all') return 0.55;
       return lcat===cat ? 0.95 : 0.0;
     })
+    .attr('font-size', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return '15px';
+      return lcat===cat ? '22px' : '15px';
+    })
+    .attr('letter-spacing', function(){
+      const lcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return '0.18em';
+      return lcat===cat ? '0.22em' : '0.18em';
+    })
     .attr('transform', function(){
       const lcat = d3.select(this).attr('data-cat');
       const haloRMap = {problem:175,logic:175,tool:310,diag:240};
@@ -4346,10 +4356,8 @@ function kgSetFocus(cat) {
         return `rotate(${rotate}, ${lx}, ${ly}) translate(0, 0)`;
       }
       if(lcat===cat){
-        // Focused: center on canvas, vertical
-        const lx = isRight ? CX + baseR * 0.42 + 55 : CX - baseR * 0.42 - 55;
-        const ly = CY;
-        return `rotate(${rotate}, ${lx}, ${ly})`;
+        // Focused: horizontal, centered inside the halo near the top
+        return `rotate(0, ${CX}, ${CY})`;
       }
       // Retreated: hide
       return `rotate(${rotate}, ${isRight ? 1500 : 50}, 100)`;
@@ -4362,14 +4370,18 @@ function kgSetFocus(cat) {
       const cl = clOrigins[lcat];
       const isRight = lcat==='logic' || lcat==='diag';
       if(cat==='all') return isRight ? cl.cx + baseR + 55 : cl.cx - baseR - 55;
-      if(lcat===cat) return isRight ? CX + baseR * 0.42 + 55 : CX - baseR * 0.42 - 55;
+      if(lcat===cat) return CX;
       return isRight ? 1500 : 50;
     })
     .attr('y', function(){
       const lcat = d3.select(this).attr('data-cat');
       const clOrigins = {problem:{cx:280,cy:240},logic:{cx:1320,cy:240},tool:{cx:520,cy:900},diag:{cx:1320,cy:900}};
       if(cat==='all') return clOrigins[lcat].cy;
-      if(lcat===cat) return CY;
+      if(lcat===cat){
+        const haloRMap2 = {problem:175,logic:175,tool:310,diag:240};
+        const baseR2 = haloRMap2[lcat] || 175;
+        return CY - baseR2 * 0.65;
+      }
       return 100;
     });
 
