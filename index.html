@@ -3835,8 +3835,8 @@ function initKnowledgeGraph(activeSet){
     "t_matching", "t_sar", "t_logit", "t_poisson", "t_tobit", "t_cox",
   ];
   const toolRings = [
-    {ids: ["t_dml","t_cf"], r: 80},
-    {ids: ["t_ols","t_fe","t_iv","t_did","t_rd","t_scm"], r: 175},
+    {ids: ["t_dml","t_ols"], r: 110, offset: Math.PI * 0.25},
+    {ids: ["t_cf","t_fe","t_iv","t_did","t_rd","t_scm"], r: 175, offset: 0},
     {ids: ["t_matching","t_sar","t_logit","t_poisson","t_tobit","t_cox"], r: 285},
   ];
   toolRings.forEach(ring => {
