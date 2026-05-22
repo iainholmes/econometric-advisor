@@ -3878,7 +3878,7 @@ function initKnowledgeGraph(activeSet){
 
   // Cluster labels (in zoom layer so they scale)
   // Draw cluster halos
-  const haloR = {problem:175, logic:175, tool:310, diag:210};
+  const haloR = {problem:120, logic:120, tool:210, diag:150};
   Object.entries(clusters).forEach(([cat,cl])=>{
     _kgZoomLayer.append('circle')
       .attr('cx', cl.cx).attr('cy', cl.cy)
@@ -4362,7 +4362,7 @@ function kgSetFocus(cat) {
     })
     .attr('y', function(){
       const lcat = d3.select(this).attr('data-cat');
-      const haloRMap = {problem:175,logic:175,tool:310,diag:240};
+      const haloRMap = {problem:120,logic:120,tool:210,diag:150};
       const baseR = haloRMap[lcat] || 175;
       if(cat==='all') return ({problem:240,logic:200,tool:790,diag:720})[lcat] - baseR - 18;
       if(lcat===cat) return CY - (baseR * 0.42) - 18;
@@ -4387,7 +4387,7 @@ function kgSetFocus(cat) {
     tool:{all:{cx:700,cy:820},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1250,cy:950}},
     diag:{all:{cx:1250,cy:820},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
   };
-  const haloRMap = {problem:175, logic:175, tool:310, diag:210};
+  const haloRMap = {problem:120, logic:120, tool:210, diag:150};
   _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
     .attr('cx', function(){
       const hcat = d3.select(this).attr('data-cat');
