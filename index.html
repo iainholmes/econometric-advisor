@@ -645,6 +645,57 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 
 .qst-lang-chip.active{background:rgba(126,182,255,.2);border-color:#7eb6ff;font-weight:600;}
 
+
+/* PATCH 11: SE diagnostics cards */
+.audit-se-section { margin: 1.5rem 0; }
+.audit-se-list { display: flex; flex-direction: column; gap: 8px; }
+.audit-se-card {
+  border: .5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg2);
+  overflow: hidden;
+  transition: all .2s;
+}
+.audit-se-card.tier-critical { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.06); }
+.audit-se-card.tier-warning  { border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.06); }
+.audit-se-card.tier-suggestion { border-color: rgba(126,182,255,.3); background: rgba(126,182,255,.04); }
+.audit-se-card.tier-clean { border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.05); }
+.audit-se-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; cursor: pointer; user-select: none;
+}
+.audit-se-tier-tag {
+  font-size: 9.5px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+  white-space: nowrap;
+}
+.tier-critical .audit-se-tier-tag { background: rgba(239,68,68,.18); color: #f87171; }
+.tier-warning  .audit-se-tier-tag { background: rgba(245,158,11,.18); color: #fbbf24; }
+.tier-suggestion .audit-se-tier-tag { background: rgba(126,182,255,.18); color: #93c5fd; }
+.tier-clean .audit-se-tier-tag { background: rgba(16,185,129,.18); color: #34d399; }
+.audit-se-title { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; }
+.audit-se-caret { color: var(--hint); font-size: 11px; transition: transform .2s; }
+.audit-se-card.open .audit-se-caret { transform: rotate(90deg); }
+.audit-se-body {
+  display: none; padding: 0 14px 14px 14px;
+  border-top: .5px solid var(--border);
+  margin-top: 0;
+}
+.audit-se-card.open .audit-se-body { display: block; }
+.audit-se-why { font-size: 12.5px; color: var(--muted); line-height: 1.6; padding-top: 12px; margin: 0 0 10px 0; }
+.audit-se-fix-label { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--hint); font-weight: 600; margin-bottom: 5px; }
+.audit-se-fix {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11.5px; line-height: 1.55;
+  background: rgba(2,14,31,.65);
+  border: .5px solid var(--border);
+  border-radius: 5px;
+  padding: 9px 11px;
+  color: #cbd5e1;
+  white-space: pre-wrap; word-break: break-word;
+}
+/* end PATCH 11 */
+
 /* ── Code Audit Tool ─────────────────────────────────────────────────────── */
 .audit-modal-bg{position:fixed;inset:0;background:rgba(2,14,31,.88);display:flex;align-items:center;justify-content:center;z-index:300;padding:1.5rem;backdrop-filter:blur(4px)}
 .audit-modal{background:#0a1d33;border:.5px solid var(--border);border-radius:14px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
@@ -4970,6 +5021,119 @@ function detectLang(filename,code){
   return 'stata';
 }
 
+
+// PATCH 11: SE / inference diagnostics
+// Scans uploaded code for data-structure cues and flags missing or misspecified SEs.
+// Each flag has: tier (critical|warning|suggestion), title, why, fix (corrected code).
+function runSeDiagnostics(lang, code) {
+  const flags = [];
+  const c = code; // shorthand
+
+  // ── Data structure detection ──
+  const hasPanelHint = /\b(plm|felm|feols|xtreg|xtset|pdata\.frame|PanelOLS|panel\s*=\s*True|fixed_effects|fixef|absorb)\b/i.test(c)
+                    || /\bgroupby\s*\(\s*['"][\w_]+['"]\s*\)/.test(c) && /\b(year|time|date|period|month)\b/i.test(c);
+  const hasSpatialHint = /\b(lat|latitude|lon|long|longitude|geometry|sf::|geopandas|gpd\.|spdep|spatialreg|sp_dep|distance_matrix|conley|st_distance|haversine)\b/i.test(c);
+  const hasTwoWayFE = /(absorb|fixed_effects|fixef)\s*[=:][^,)]*[,+][^,)]/i.test(c)
+                   || (c.match(/i\.\w+/g) || []).length >= 2;
+
+  // ── SE pattern detection (per language) ──
+  const hasClusterSE = /\b(cluster\s*=|vcov\s*=\s*['"]?cluster|vcovCL|cluster_se|cluster_robust|cluster\s*\(|clustered_standard_errors|cov_type\s*=\s*['"]cluster|get_robustcov_results.*cluster)\b/i.test(c);
+  const hasRobustSE  = /\b(robust|vcovHC|HC0|HC1|HC2|HC3|hc3|HAC|cov_type\s*=\s*['"]H|cov_type\s*=\s*['"]HC|White|sandwich)\b/i.test(c);
+  const hasConleySE  = /\b(conley|Conley|conley_ses|conleyses|spatial_HAC|HAC_spatial)\b/.test(c);
+  const hasTwoWayClust = /cluster\s*=\s*[~c]\(?\s*\w+\s*[,+]\s*\w+/.test(c) || /vcov.*cluster.*[,+].*cluster/i.test(c);
+
+  // ── Build fix snippets per language ──
+  const fixCluster = {
+    python: "# statsmodels\nresults = model.fit(cov_type='cluster', cov_kwds={'groups': df['unit_id']})\n# linearmodels (recommended for panel)\nfrom linearmodels import PanelOLS\nmod = PanelOLS.from_formula('y ~ x + EntityEffects', data=df).fit(cov_type='clustered', cluster_entity=True)",
+    r: "# fixest (recommended)\nlibrary(fixest)\nfeols(y ~ x | unit_id, data = df, vcov = ~unit_id)\n# or with sandwich + lmtest\nlibrary(sandwich); library(lmtest)\ncoeftest(model, vcov = vcovCL, cluster = ~unit_id)",
+    stata: "* Cluster at the entity level\nreg y x, vce(cluster unit_id)\n* or with fixed effects\nxtreg y x, fe vce(cluster unit_id)"
+  };
+  const fixConley = {
+    python: "# Use the 'reg2hdfespatial' approach or implement Conley SEs\n# Example with Colella et al. (2019) acreg package via rpy2,\n# or use econtools.conley_ses(): https://github.com/dmcatch/conley_ses\nfrom econtools import conley_ses\ncoefs, ses = conley_ses(y, X, lat, lon, dist_cutoff=100)  # km",
+    r: "# conleyreg (recommended) or sphet\nlibrary(conleyreg)\nconleyreg(y ~ x, data = df, dist_cutoff = 100,\n          lat = 'latitude', lon = 'longitude')",
+    stata: "* Colella et al. (2019) acreg\nnet install acreg, from(https://github.com/cmgpsacreg/acreg/raw/master)\nacreg y x, latitude(lat) longitude(lon) dist(100) pfe1(unit_id)"
+  };
+  const fixTwoWay = {
+    python: "# linearmodels two-way clustering\nmod = PanelOLS.from_formula('y ~ x + EntityEffects + TimeEffects', data=df)\nres = mod.fit(cov_type='clustered', cluster_entity=True, cluster_time=True)",
+    r: "# fixest with two-way clustering\nfeols(y ~ x | unit_id + year, data = df, vcov = ~unit_id + year)",
+    stata: "* Two-way clustering via reghdfe\nreghdfe y x, absorb(unit_id year) vce(cluster unit_id year)"
+  };
+
+  // ── FLAG: panel data without clustered SEs (CRITICAL) ──
+  if (hasPanelHint && !hasClusterSE) {
+    flags.push({
+      tier: 'critical',
+      title: 'Panel data without clustered standard errors',
+      why: 'Detected panel/longitudinal structure but no clustering. Default SEs assume independent observations — for panel data this typically understates SEs by 2–5×, inflating significance.',
+      fix: fixCluster[lang] || fixCluster.r
+    });
+  }
+
+  // ── FLAG: spatial data without Conley correction (WARNING) ──
+  if (hasSpatialHint && !hasConleySE) {
+    flags.push({
+      tier: 'warning',
+      title: 'Spatial data without Conley standard errors',
+      why: 'Coordinates or spatial joins detected. If observations are spatially correlated (typical in environmental, regional, or housing data), default SEs are biased. Conley SEs correct for distance-based dependence.',
+      fix: fixConley[lang] || fixConley.r
+    });
+  }
+
+  // ── FLAG: two-way FE without two-way clustering (SUGGESTION) ──
+  if (hasTwoWayFE && hasClusterSE && !hasTwoWayClust) {
+    flags.push({
+      tier: 'suggestion',
+      title: 'Two-way fixed effects with one-way clustering',
+      why: 'With FEs along multiple dimensions, single-cluster SEs may be too small. Two-way clustering (e.g., unit and time) is the modern default for DiD and similar designs.',
+      fix: fixTwoWay[lang] || fixTwoWay.r
+    });
+  }
+
+  // ── FLAG: no SE specification at all (WARNING, only if a model was detected) ──
+  const hasAnyModel = /\b(lm\s*\(|glm\s*\(|feols|reg\s+\w|OLS\s*\(|Logit\s*\(|Probit\s*\(|ols\s*\()/i.test(c);
+  if (hasAnyModel && !hasClusterSE && !hasRobustSE && !hasPanelHint && !hasSpatialHint) {
+    flags.push({
+      tier: 'suggestion',
+      title: 'No robust standard errors specified',
+      why: 'Default SEs assume homoskedasticity and independence. Heteroskedasticity-robust (HC3) SEs are a near-universal default for cross-sectional OLS in applied work.',
+      fix: lang === 'python'
+        ? "results = model.fit(cov_type='HC3')"
+        : lang === 'stata'
+          ? "reg y x, robust"
+          : "library(sandwich); library(lmtest)\ncoeftest(model, vcov = vcovHC(model, type = 'HC3'))"
+    });
+  }
+
+  return flags;
+}
+
+function renderSeDiagnostics(flags) {
+  const wrap = document.getElementById('audit-se-list');
+  if (!wrap) return;
+  if (flags.length === 0) {
+    wrap.innerHTML = '<div class="audit-se-card tier-clean"><div class="audit-se-head"><span class="audit-se-tier-tag">Clean</span><span class="audit-se-title">Standard errors appropriate for detected data structure</span></div></div>';
+    return;
+  }
+  // Sort: critical → warning → suggestion
+  const order = { critical: 0, warning: 1, suggestion: 2 };
+  flags.sort((a, b) => order[a.tier] - order[b.tier]);
+  wrap.innerHTML = flags.map((f, i) => (
+    '<div class="audit-se-card tier-' + f.tier + '" onclick="this.classList.toggle(\'open\')">' +
+      '<div class="audit-se-head">' +
+        '<span class="audit-se-tier-tag">' + f.tier + '</span>' +
+        '<span class="audit-se-title">' + f.title + '</span>' +
+        '<span class="audit-se-caret">▶</span>' +
+      '</div>' +
+      '<div class="audit-se-body">' +
+        '<p class="audit-se-why">' + f.why + '</p>' +
+        '<div class="audit-se-fix-label">Suggested fix</div>' +
+        '<pre class="audit-se-fix">' + f.fix.replace(/</g,'&lt;') + '</pre>' +
+      '</div>' +
+    '</div>'
+  )).join('');
+}
+// end PATCH 11
+
 function runAudit(filename,code){
   var lang=detectLang(filename,code);
   var patterns=AUDIT_PATTERNS[lang]||AUDIT_PATTERNS.r;
@@ -4987,7 +5151,8 @@ function runAudit(filename,code){
       });
     });
   }
-  renderAuditResults(lang,filename,detected,gaps,detectedNodes,code);
+  const seFlags = runSeDiagnostics(lang, code);
+  renderAuditResults(lang,filename,detected,gaps,detectedNodes,code,seFlags);
   highlightAuditNodes(detectedNodes);
   if (typeof code !== 'undefined') runAuditAI(lang, code, detected, gaps);
 }
@@ -5061,7 +5226,7 @@ Return only the JSON object, no other text.`;
   });
 }
 
-function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code){
+function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code,seFlags){
   document.getElementById('audit-upload-area').style.display='none';
   document.getElementById('audit-results').classList.add('show');
   var langLabel={python:'Python',r:'R',stata:'Stata'}[lang]||lang;
@@ -5081,6 +5246,7 @@ function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code){
       return '<div class="audit-method-item"><div class="audit-method-dot" style="background:'+color+'"></div><div class="audit-method-name">'+p.label+'</div>'+(trUrl?'<a class="audit-method-link" href="'+trUrl+'" target="_blank">Practice &rarr;</a>':'')+'</div>';
     }).join('');
   }
+  renderSeDiagnostics(seFlags || []);
   var gapSec=document.getElementById('audit-gaps-section');
   var gapEl=document.getElementById('audit-gaps-list');
   if(typeof _toolkit==='undefined'||!_toolkit){
@@ -5321,7 +5487,7 @@ function qstOpenLang(e, lang) {
           <div class="audit-result-label">Methods detected in your code</div>
           <div class="audit-method-list" id="audit-detected-list"></div>
         </div>
-        <div class="audit-result-section" id="audit-gaps-section">
+        <div class="audit-result-section" id="audit-se-section"><div class="audit-result-label">Inference & Standard Errors — Diagnostics based on your data structure</div><div class="audit-se-list" id="audit-se-list"></div></div><div class="audit-result-section" id="audit-gaps-section">
           <div class="audit-result-label">Not yet implemented — from your Advisor toolkit</div>
           <div class="audit-method-list" id="audit-gaps-list"></div>
         </div>
