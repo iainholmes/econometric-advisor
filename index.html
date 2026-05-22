@@ -3964,6 +3964,28 @@ function initKnowledgeGraph(activeSet){
 
   // Glow filters for each category
 
+  // Extra markers: open arrowhead (motivates) + diamond (extends/uses)
+  defs.append('marker')
+    .attr('id','arrow-open')
+    .attr('viewBox','0 -5 10 10')
+    .attr('refX',9).attr('refY',0)
+    .attr('markerWidth',6).attr('markerHeight',6)
+    .attr('orient','auto')
+    .append('path').attr('d','M0,-5L10,0L0,5')
+    .attr('fill','none')
+    .attr('stroke','#94a3b8')
+    .attr('stroke-width',1.5);
+
+  defs.append('marker')
+    .attr('id','diamond-end')
+    .attr('viewBox','-5 -5 10 10')
+    .attr('refX',5).attr('refY',0)
+    .attr('markerWidth',6).attr('markerHeight',6)
+    .attr('orient','auto')
+    .append('path').attr('d','M0,-4L4,0L0,4L-4,0Z')
+    .attr('fill','#94a3b8')
+    .attr('stroke','none');
+
   ['dim','lit','focus'].forEach((tag,i)=>{
     const color=tag==='dim'?'#64748b':tag==='lit'?'#cbd5e1':'#e2e8f0';
     defs.append('marker')
@@ -4008,6 +4030,14 @@ function initKnowledgeGraph(activeSet){
       .attr('marker-end','url(#arrow-dim)');
 
     // Core trail (thin, sharp)
+    // Pick marker based on relationship type
+    const _peerLabels = ['extends','uses'];
+    const _softLabels = ['motivates'];
+    const _edgeMarker = _peerLabels.indexOf(e.label) >= 0
+      ? 'url(#diamond-end)'
+      : _softLabels.indexOf(e.label) >= 0
+        ? 'url(#arrow-open)'
+        : 'url(#arrow-dim)';
     edgeG.append('path')
       .attr('class','kg-edge')
       .attr('id','kge-'+idx)
@@ -4020,7 +4050,7 @@ function initKnowledgeGraph(activeSet){
       .attr('stroke', edgeColCore)
       .attr('stroke-width', 1.2)
       .attr('opacity', 0)
-      .attr('marker-end','url(#arrow-dim)');
+      .attr('marker-end', _edgeMarker);
 
     const emx=(sx+tx)/2,emy=(sy+ty)/2;
     edgeG.append('text')
@@ -4381,7 +4411,7 @@ function kgSetFocus(cat) {
       if(lcat===cat){
         const haloRMap2 = {problem:175,logic:175,tool:310,diag:240};
         const baseR2 = haloRMap2[lcat] || 175;
-        const yFactor = lcat === 'tool' ? 0.96 : 0.65;
+        const yFactor = lcat === 'tool' ? 1.05 : 0.65;
         return CY - baseR2 * yFactor;
       }
       return 100;
