@@ -411,7 +411,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-graph.has-hover .kg-node-g.is-focus,
 .kg-graph.has-hover .kg-node-g.is-neighbor{opacity:1}
 .kg-graph.has-hover .kg-edge{opacity:.06}
-.kg-graph.has-hover .kg-edge.is-connected{opacity:1;stroke:#e2e8f0 !important;stroke-width:1.35px}
+.kg-graph.has-hover .kg-edge.is-connected{opacity:1;stroke:#e2e8f0 !important;stroke-width:2px}
 .kg-graph.has-hover .kg-edge-label{opacity:0}
 .kg-graph.has-hover .kg-edge-label.is-connected{opacity:1;fill:#f8fafc !important}
 
@@ -867,9 +867,10 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 }
 
 .kg-edge.is-connected{
-  stroke-dasharray:6 10;
+  stroke-dasharray:8 6;
   animation:kgEdgeFlow 1.4s linear infinite;
 }
+
 
 @keyframes kgEdgeFlow{
   from{stroke-dashoffset:16}
@@ -4181,12 +4182,8 @@ function onKgNodeHover(nodeId){
     const lbl=document.getElementById('kgel-'+idx);
     let isConn = edgeIdxs.has(idx);
     if (isConn && focusedCat) {
-      // suppress cross-cluster edges in focus mode
-      const sNode = KG_BLUEPRINT.nodes.find(x=>x.id===e.s);
-      const tNode = KG_BLUEPRINT.nodes.find(x=>x.id===e.t);
-      if (!sNode || !tNode || sNode.cat !== focusedCat || tNode.cat !== focusedCat) {
-        isConn = false;
-      }
+      // In single-category focus mode, suppress all edge hover to avoid distraction
+      isConn = false;
     }
     if(line)line.classList.toggle('is-connected',isConn);
     if(lbl)lbl.classList.toggle('is-connected',isConn);
