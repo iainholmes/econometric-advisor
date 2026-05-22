@@ -3497,7 +3497,7 @@ function renderKnowledgeGraph(tk){
         <button class="kg-filter-btn" data-cat="diag" onclick="kgFilter('diag')"><span class="dot"></span>Diagnostics</button>
       </div>
       <div class="kg-canvas-area">
-        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 880" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="kg-controls">
           <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
           <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
@@ -3524,67 +3524,55 @@ function initKnowledgeGraph(activeSet){
   svg.selectAll('*').remove();
   svg.classed('kg-graph',true);
 
-  const W=1400,H=900;
-  const CX=700, CY=440; // center of radial layout
+  const W=1400,H=880;
 
+  // Constellation layout — 4 tight clusters at compass positions
+  // Problems: top-left, Logic: top-right, Tools: bottom-center, Diagnostics: bottom-right
   const clusters={
-    problem:{cx:CX,cy:CY,label:'PROBLEMS',color:'#ef4444'},
-    logic:{cx:CX,cy:CY,label:'STRATEGIC LOGIC',color:'#3b82f6'},
-    tool:{cx:CX,cy:CY,label:'TOOLS / ESTIMATORS',color:'#10b981'},
-    diag:{cx:CX,cy:CY,label:'DIAGNOSTICS',color:'#f59e0b'}
+    problem:{cx:280,cy:220,label:'PROBLEMS',color:'#ef4444'},
+    logic:{cx:780,cy:180,label:'STRATEGIC LOGIC',color:'#3b82f6'},
+    tool:{cx:580,cy:560,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    diag:{cx:1100,cy:560,label:'DIAGNOSTICS',color:'#f59e0b'}
   };
 
   const byCat={problem:[],logic:[],tool:[],diag:[]};
   KG_BLUEPRINT.nodes.forEach(n=>byCat[n.cat].push(n));
 
-  // Radial layout: 4 rings, each category on its own ring
-  // Problems: outer top arc (ring r=380, angles -160 to -20 deg)
-  // Logic: inner top arc (ring r=260, angles -150 to -30 deg)
-  // Tools: middle ring (ring r=160, full circle spread)
-  // Diagnostics: outer bottom arc (ring r=360, angles 20 to 160 deg)
-
-  const toRad = d => d * Math.PI / 180;
   const positions = {};
 
-  // Problems — outer top arc
-  const problems = byCat['problem'];
-  problems.forEach((n,i) => {
-    const angle = toRad(-150 + i * (120/(problems.length-1)));
-    positions[n.id] = {
-      x: CX + 370 * Math.cos(angle),
-      y: CY + 370 * Math.sin(angle)
-    };
-  });
+  // Helper: arrange nodes in a tight circular cluster around a center
+  function clusterNodes(nodes, cx, cy, radius) {
+    if (nodes.length === 1) {
+      positions[nodes[0].id] = {x: cx, y: cy};
+      return;
+    }
+    const angleStep = (2 * Math.PI) / nodes.length;
+    // Adjust radius based on count
+    const r = radius || Math.max(60, nodes.length * 18);
+    nodes.forEach((n, i) => {
+      const angle = -Math.PI/2 + i * angleStep;
+      positions[n.id] = {
+        x: cx + r * Math.cos(angle),
+        y: cy + r * Math.sin(angle)
+      };
+    });
+  }
 
-  // Logic — inner top arc
-  const logics = byCat['logic'];
-  logics.forEach((n,i) => {
-    const angle = toRad(-140 + i * (100/(logics.length-1)));
-    positions[n.id] = {
-      x: CX + 240 * Math.cos(angle),
-      y: CY + 240 * Math.sin(angle)
-    };
-  });
+  // Problems cluster — top left (6 nodes, tight circle)
+  clusterNodes(byCat['problem'], clusters.problem.cx, clusters.problem.cy, 100);
 
-  // Tools — middle ring, spread across upper and side arcs
-  const tools = byCat['tool'];
-  tools.forEach((n,i) => {
-    const angle = toRad(-120 + i * (240/(tools.length-1)));
-    positions[n.id] = {
-      x: CX + 140 * Math.cos(angle),
-      y: CY + 140 * Math.sin(angle)
-    };
-  });
+  // Logic cluster — top right (6 nodes, tight circle)
+  clusterNodes(byCat['logic'], clusters.logic.cx, clusters.logic.cy, 100);
 
-  // Diagnostics — outer bottom arc
-  const diags = byCat['diag'];
-  diags.forEach((n,i) => {
-    const angle = toRad(20 + i * (140/(diags.length-1)));
-    positions[n.id] = {
-      x: CX + 360 * Math.cos(angle),
-      y: CY + 360 * Math.sin(angle)
-    };
-  });
+  // Tools cluster — bottom center (12 nodes, wider circle + inner ring)
+  const toolNodes = byCat['tool'];
+  const coreTools = toolNodes.slice(0, 6);  // OLS, FE, DiD, IV, RD, SCM
+  const otherTools = toolNodes.slice(6);    // Matching, SAR, Logit, Poisson, Tobit, Cox
+  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 20, 90);
+  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 60, 90);
+
+  // Diagnostics cluster — bottom right (9 nodes, circle)
+  clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 110);
 
   // Build neighbor lookup for hover-dim
   _kgNeighbors={};
@@ -3603,37 +3591,28 @@ function initKnowledgeGraph(activeSet){
   _kgZoomLayer=svg.append('g').attr('class','kg-zoom-layer');
 
   // Cluster labels (in zoom layer so they scale)
-  // Draw subtle concentric ring guides
-  [140, 240, 370].forEach((r,i) => {
+  // Draw subtle cluster halos
+  Object.entries(clusters).forEach(([cat,cl])=>{
+    const r = cat==='tool' ? 180 : cat==='diag' ? 150 : 130;
     _kgZoomLayer.append('circle')
-      .attr('cx', CX).attr('cy', CY)
+      .attr('cx', cl.cx).attr('cy', cl.cy)
       .attr('r', r)
       .attr('fill', 'none')
-      .attr('stroke', 'rgba(255,255,255,0.04)')
-      .attr('stroke-width', 1)
-      .attr('stroke-dasharray', '3,6');
+      .attr('stroke', ({problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'})[cat])
+      .attr('opacity', 0.06)
+      .attr('stroke-width', 1);
   });
 
-  // Category labels positioned at arc midpoints
-  const labelPositions = {
-    problem: {angle: -90, r: 400},
-    logic:   {angle: -90, r: 275},
-    tool:    {angle: -90, r: 100},
-    diag:    {angle: 90,  r: 400}
-  };
-  const catColors = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
-  const catLabels = {problem:'PROBLEMS',logic:'STRATEGIC LOGIC',tool:'TOOLS',diag:'DIAGNOSTICS'};
-  Object.entries(labelPositions).forEach(([cat,pos])=>{
-    const angle = pos.angle * Math.PI / 180;
-    const lx = CX + pos.r * Math.cos(angle);
-    const ly = CY + pos.r * Math.sin(angle) - 20;
+  // Category labels above each cluster
+  Object.entries(clusters).forEach(([cat,cl])=>{
+    const labelY = cat==='tool'||cat==='diag' ? cl.cy - 170 : cl.cy - 130;
     _kgZoomLayer.append('text')
       .attr('class','kg-cluster-label')
       .attr('data-cat',cat)
-      .attr('x',lx).attr('y',ly)
-      .attr('fill',catColors[cat]).attr('opacity',.55)
+      .attr('x',cl.cx).attr('y',labelY)
+      .attr('fill',cl.color).attr('opacity',.55)
       .attr('text-anchor','middle')
-      .text(catLabels[cat]);
+      .text(cl.label);
   });
 
   // Arrowhead markers
