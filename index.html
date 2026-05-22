@@ -3012,15 +3012,33 @@ function buildToolkit(a){
   if(isCensored)active.add('t_tobit');
   if(isDuration)active.add('t_cox');
   if(isHedonic||(!isBinary&&!isCount&&!isCensored&&!isDuration))active.add('t_ols');
-  // Diagnostic nodes (yellow)
-  if(hasNatExp)active.add('d_firststage');
-  if(hasNatExp)active.add('d_sargan');
-  if(hasEndo)active.add('d_hausman');
-  if(isPanel)active.add('d_pretrend');
-  if(isGeo||isSpatial)active.add('d_moran');
-  if(isNonLinear)active.add('d_ftest');
-  if(fewTreated)active.add('d_placebo');
-  if(hasSmallCluster)active.add('d_wildboot');
+  // Diagnostic nodes (yellow) -- ONLY FOR ACTIVE METHOD
+  if(active.has('t_iv')){
+    active.add('d_firststage');
+    active.add('d_sargan');
+    active.add('d_hausman');
+  }
+
+  if(active.has('t_did')){
+    active.add('d_pretrend');
+  }
+
+  if(active.has('t_sar')){
+    active.add('d_moran');
+  }
+
+  if(isNonLinear){
+    active.add('d_ftest');
+  }
+
+  if(active.has('t_scm')){
+    active.add('d_placebo');
+  }
+
+  if(hasSmallCluster){
+    active.add('d_wildboot');
+  }
+
   active.add('d_robust');
 
   const sections=[];
