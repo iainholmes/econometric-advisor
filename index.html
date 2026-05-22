@@ -3637,8 +3637,6 @@ const KG_BLUEPRINT={
      example:'Estimating how a job-training program affects time-to-reemployment for unemployed workers, with hazard ratios on the program indicator alongside controls for age and prior earnings.'},
     {id:"t_dml", label:"Double ML", cat:"tool", def:"Uses flexible ML algorithms to nonparametrically remove the effect of high-dimensional controls from both the outcome and the treatment. Neyman orthogonality ensures the final causal estimate remains robust to small prediction errors in the ML step.", example:"Estimating the effect of a specific contamination event on housing prices while using random forests to flexibly control for hundreds of overlapping parcel and neighborhood characteristics."},
     {id:"t_cf", label:"Causal Forests", cat:"tool", def:"An extension of random forests designed to estimate heterogeneous treatment effects. It partitions the data to maximize the difference in treatment effects across splits, yielding valid asymptotic confidence intervals for individual-level estimates via honest splitting.", example:"After establishing a valid DiD for a dam removal, using a causal forest to discover whether the capitalization effect varies non-linearly by baseline property value and distance."},
-    {id:"t_dml", label:"Double ML", cat:"tool", def:"Uses flexible ML algorithms to nonparametrically remove the effect of high-dimensional controls from both the outcome and the treatment. Neyman orthogonality ensures the final causal estimate remains robust to small prediction errors in the ML step.", example:"Estimating the effect of a specific contamination event on housing prices while using random forests to flexibly control for hundreds of overlapping parcel and neighborhood characteristics."},
-    {id:"t_cf", label:"Causal Forests", cat:"tool", def:"An extension of random forests designed to estimate heterogeneous treatment effects. It partitions the data to maximize the difference in treatment effects across splits, yielding valid asymptotic confidence intervals for individual-level estimates via honest splitting.", example:"After establishing a valid DiD for a dam removal, using a causal forest to discover whether the capitalization effect varies non-linearly by baseline property value and distance."},
     // DIAGNOSTICS (amber)
     {id:'d_hausman',label:'Hausman Test',cat:'diag',
      def:'A specification test comparing two estimators where one is consistent under weaker assumptions and the other more efficient under stronger assumptions. A significant test statistic indicates the more efficient estimator is inconsistent — so use the robust one. Common pairings: FE vs. RE, OLS vs. IV.',
@@ -3669,10 +3667,6 @@ const KG_BLUEPRINT={
      example:'A regression of student test scores on a school-level intervention uses cluster-robust standard errors at the school level — recognizing that students within the same school share unobservables and treatment.'}
   ],
   edges:[
-    {s:"l_obs", t:"t_dml", label:"enhances"},
-    {s:"t_did", t:"t_cf", label:"extends"},
-    {s:"t_rd", t:"t_cf", label:"extends"},
-    {s:"t_dml", t:"d_robust", label:"requires"},
     {s:"l_obs", t:"t_dml", label:"enhances"},
     {s:"t_did", t:"t_cf", label:"extends"},
     {s:"t_rd", t:"t_cf", label:"extends"},
@@ -3832,10 +3826,8 @@ function initKnowledgeGraph(activeSet){
   const TCY = clusters.tool.cy;
   // Core causal inference tools — top ring
   const toolManual = {
-    "t_dml":      {x: TCX - 250, y: TCY - 30},
-    "t_cf":       {x: TCX + 250, y: TCY - 30},
-    "t_dml":      {x: TCX - 250, y: TCY - 30},
-    "t_cf":       {x: TCX + 250, y: TCY - 30},
+    "t_dml":      {x: TCX - 130, y: TCY - 30},
+    "t_cf":       {x: TCX + 130, y: TCY - 30},
     't_ols':      {x: TCX - 170, y: TCY - 120},
     't_fe':       {x: TCX - 60,  y: TCY - 175},
     't_iv':       {x: TCX + 70,  y: TCY - 175},
