@@ -3515,7 +3515,7 @@ function renderKnowledgeGraph(tk){
         <button class="kg-filter-btn" data-cat="diag" onclick="kgSetFocus('diag')"><span class="dot"></span>Diagnostics</button>
       </div>
       <div class="kg-canvas-area">
-        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1400 1020" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1600 1150" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="kg-controls">
           <button class="kg-ctl-btn" onclick="kgZoomIn()" title="Zoom in">+</button>
           <button class="kg-ctl-btn" onclick="kgZoomOut()" title="Zoom out">&minus;</button>
@@ -3542,7 +3542,7 @@ function initKnowledgeGraph(activeSet){
   svg.selectAll('*').remove();
   svg.classed('kg-graph',true);
 
-  const W=1400,H=1020;
+  const W=1600,H=1150;
 
   // Constellation layout — 4 tight clusters at compass positions
   // Problems: top-left, Logic: top-right, Tools: bottom-center, Diagnostics: bottom-right
@@ -3646,7 +3646,8 @@ function initKnowledgeGraph(activeSet){
       .attr('stroke', ({problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'})[cat])
       .attr('stroke-opacity', 0.15)
       .attr('stroke-width', 1.5)
-      .attr('data-cat', cat);
+      .attr('data-cat', cat)
+      .attr('class', 'kg-cluster-halo');
   });
 
   // Category labels — large and prominent above each cluster
@@ -3788,7 +3789,7 @@ function initKnowledgeGraph(activeSet){
     if(!p)return;
     const col=colorMap[n.cat]||'#94a3b8';
     const isActive=_kgActive&&_kgActive.has(n.id);
-    const r=isActive?26:22;
+    const r=isActive?28:16;  // Active much larger, inactive much smaller
 
     const g=nodeG.append('g')
       .attr('class','kg-node-g')
@@ -3800,65 +3801,78 @@ function initKnowledgeGraph(activeSet){
       .on('mouseenter',()=>onKgNodeHover(n.id))
       .on('mouseleave',()=>onKgNodeUnhover());
 
-    // Outer radial glow — large soft halo
-    g.append('circle')
-      .attr('r', r*2.8)
-      .attr('fill', 'url(#oggrad-'+n.cat+')')
-      .attr('pointer-events','none');
+    // Inactive nodes are ghosted grey; active nodes are full color
+    const nodeCol = isActive ? col : '#334155';
+    const nodeGradId = isActive ? 'rgrad-'+n.cat : 'rgrad-diag';
+    const nodeOGradId = isActive ? 'oggrad-'+n.cat : 'oggrad-diag';
+    const nodeOpacity = isActive ? 1 : 0.35;
 
-    // Mid ring
-    g.append('circle')
-      .attr('r', r+6)
-      .attr('fill','none')
-      .attr('stroke', col)
-      .attr('stroke-width', 0.8)
-      .attr('opacity', 0.25)
-      .attr('pointer-events','none');
+    g.attr('opacity', nodeOpacity);
 
-    // Main circle with dark fill
+    // Outer radial glow — only for active nodes
+    if(isActive) {
+      g.append('circle')
+        .attr('r', r*2.8)
+        .attr('fill', 'url(#oggrad-'+n.cat+')')
+        .attr('pointer-events','none');
+
+      // Mid ring
+      g.append('circle')
+        .attr('r', r+6)
+        .attr('fill','none')
+        .attr('stroke', col)
+        .attr('stroke-width', 1)
+        .attr('opacity', 0.3)
+        .attr('pointer-events','none');
+    }
+
+    // Main circle
     g.append('circle')
       .attr('class','kg-node-rect')
       .attr('r', r)
       .attr('fill', '#060e1a')
-      .attr('stroke', col)
-      .attr('stroke-width', isActive?2.5:1.8)
-      .attr('filter','url(#glow-'+n.cat+')');
+      .attr('stroke', nodeCol)
+      .attr('stroke-width', isActive?2.5:1)
+      .attr('filter', isActive?'url(#glow-'+n.cat+')':null);
 
-    // Radial gradient overlay — the "glow center"
+    // Radial gradient overlay
     g.append('circle')
       .attr('r', r)
-      .attr('fill', 'url(#rgrad-'+n.cat+')')
+      .attr('fill', isActive?'url(#rgrad-'+n.cat+')':'rgba(51,65,85,0.3)')
       .attr('pointer-events','none');
 
-    // Bright center dot
-    g.append('circle')
-      .attr('r', isActive?5:3.5)
-      .attr('fill','#ffffff')
-      .attr('opacity', isActive?0.95:0.7)
-      .attr('pointer-events','none');
+    // Center dot — only for active
+    if(isActive) {
+      g.append('circle')
+        .attr('r', 5)
+        .attr('fill','#ffffff')
+        .attr('opacity', 0.95)
+        .attr('pointer-events','none');
+    }
 
-    // Label — larger, white, with subtle shadow effect
-    const labelY = r+20;
-    // Shadow text for legibility
+    // Label
+    const labelY = r+18;
+    const labelSize = isActive ? 13 : 10;
+    const labelColor = isActive ? '#ffffff' : '#4a5568';
+    // Shadow for legibility
     g.append('text')
       .attr('y', labelY)
       .attr('text-anchor','middle')
       .attr('fill','#000000')
-      .attr('font-size', 12)
-      .attr('font-weight', 600)
+      .attr('font-size', labelSize)
+      .attr('font-weight', isActive?700:400)
       .attr('stroke','#000000')
-      .attr('stroke-width', 3)
+      .attr('stroke-width', isActive?4:2)
       .attr('stroke-linejoin','round')
       .attr('pointer-events','none')
       .text(n.label);
-    // Foreground text
     g.append('text')
       .attr('class','kg-node-text')
       .attr('y', labelY)
       .attr('text-anchor','middle')
-      .attr('fill', isActive?'#ffffff':col)
-      .attr('font-size', 12)
-      .attr('font-weight', 600)
+      .attr('fill', labelColor)
+      .attr('font-size', labelSize)
+      .attr('font-weight', isActive?700:400)
       .attr('letter-spacing','0.01em')
       .attr('pointer-events','none')
       .text(n.label);
@@ -4021,9 +4035,9 @@ function kgSetFocus(cat) {
       if(cat==='all') return 0.28;
       const sc = d3.select(this).attr('data-src-cat');
       const tc = d3.select(this).attr('data-tgt-cat');
-      if(sc===cat && tc===cat) return 0.75;
-      if(sc===cat || tc===cat) return 0.2;
-      return 0.03;
+      if(sc===cat && tc===cat) return 0.7;
+      if(sc===cat || tc===cat) return 0.08;
+      return 0.01;
     });
 
   _kgZoomLayer.selectAll('.kg-cluster-label').transition().duration(500)
@@ -4038,6 +4052,31 @@ function kgSetFocus(cat) {
       const hcat = d3.select(this).attr('data-cat');
       if(cat==='all') return 0.05;
       return hcat===cat ? 0.12 : 0.01;
+    });
+
+  // Move halos with their clusters
+  const haloOrigins = {
+    problem:{cx:220,cy:240}, logic:{cx:900,cy:200},
+    tool:{cx:460,cy:790}, diag:{cx:1200,cy:720}
+  };
+  const haloRetreats = {
+    problem:{all:{cx:220,cy:240},logic:{cx:130,cy:120},tool:{cx:130,cy:120},diag:{cx:130,cy:120}},
+    logic:{all:{cx:900,cy:200},problem:{cx:1270,cy:120},tool:{cx:1270,cy:120},diag:{cx:1270,cy:120}},
+    tool:{all:{cx:460,cy:790},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1200,cy:950}},
+    diag:{all:{cx:1200,cy:720},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
+  };
+  _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
+    .attr('cx', function(){
+      const hcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return haloOrigins[hcat].cx;
+      if(hcat===cat) return CX;
+      return (haloRetreats[hcat]&&haloRetreats[hcat][cat]) ? haloRetreats[hcat][cat].cx : haloOrigins[hcat].cx;
+    })
+    .attr('cy', function(){
+      const hcat = d3.select(this).attr('data-cat');
+      if(cat==='all') return haloOrigins[hcat].cy;
+      if(hcat===cat) return CY;
+      return (haloRetreats[hcat]&&haloRetreats[hcat][cat]) ? haloRetreats[hcat][cat].cy : haloOrigins[hcat].cy;
     });
 }
 
@@ -4091,7 +4130,7 @@ function kgFilter(cat){
   } else {
     const b=_kgClusterBounds[cat];
     if(b){
-      const W=1400,H=1020;
+      const W=1600,H=1150;
       const padX=80,padY=80;
       const bw=b.x2-b.x1+padX*2,bh=b.y2-b.y1+padY*2;
       const cx=(b.x1+b.x2)/2,cy=(b.y1+b.y2)/2;
