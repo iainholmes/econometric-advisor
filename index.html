@@ -4251,7 +4251,7 @@ function kgSetFocus(cat) {
     problem: {all:{cx:300,cy:270}, logic:{cx:130,cy:120}, tool:{cx:130,cy:120}, diag:{cx:130,cy:120}},
     logic:   {all:{cx:1100,cy:270}, problem:{cx:1270,cy:120}, tool:{cx:1270,cy:120}, diag:{cx:1270,cy:120}},
     tool:    {all:{cx:700,cy:820}, problem:{cx:200,cy:950}, logic:{cx:200,cy:950}, diag:{cx:1250,cy:950}},
-    diag:    {all:{cx:1200,cy:720}, problem:{cx:1270,cy:950}, logic:{cx:1270,cy:950}, tool:{cx:1270,cy:950}}
+    diag:    {all:{cx:1250,cy:820}, problem:{cx:1270,cy:950}, logic:{cx:1270,cy:950}, tool:{cx:1270,cy:950}}
   };
 
   KG_BLUEPRINT.nodes.forEach(n=>{
@@ -4271,7 +4271,7 @@ function kgSetFocus(cat) {
     } else if (n.cat === cat || (cat === "tool" && (n.id === "t_dml" || n.id === "t_cf"))) {
       targetCx = CX;
       targetCy = CY;
-      nodeS = 1.4;
+      nodeS = n.cat==='tool' ? 1.6 : 2.2;
       opacity = 1;
     } else {
       const r = retreats[n.cat] && retreats[n.cat][cat] ? retreats[n.cat][cat] : origCl;
@@ -4332,7 +4332,7 @@ function kgSetFocus(cat) {
     problem:{all:{cx:300,cy:270},logic:{cx:130,cy:120},tool:{cx:130,cy:120},diag:{cx:130,cy:120}},
     logic:{all:{cx:1100,cy:270},problem:{cx:1270,cy:120},tool:{cx:1270,cy:120},diag:{cx:1270,cy:120}},
     tool:{all:{cx:700,cy:820},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1250,cy:950}},
-    diag:{all:{cx:1200,cy:720},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
+    diag:{all:{cx:1250,cy:820},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
   };
   const haloRMap = {problem:175, logic:175, tool:310, diag:210};
   _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
