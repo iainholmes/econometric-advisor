@@ -3564,12 +3564,28 @@ function initKnowledgeGraph(activeSet){
   // Logic cluster — top right (6 nodes)
   clusterNodes(byCat['logic'], clusters.logic.cx, clusters.logic.cy, 130);
 
-  // Tools cluster — bottom center (12 nodes, two rings)
-  const toolNodes = byCat['tool'];
-  const coreTools = toolNodes.slice(0, 6);
-  const otherTools = toolNodes.slice(6);
-  clusterNodes(coreTools, clusters.tool.cx, clusters.tool.cy - 50, 175);
-  clusterNodes(otherTools, clusters.tool.cx, clusters.tool.cy + 120, 165);
+  // Tools cluster — manual positions to avoid overlaps
+  const TCX = clusters.tool.cx;
+  const TCY = clusters.tool.cy;
+  // Core causal inference tools — top ring
+  const toolManual = {
+    't_ols':      {x: TCX - 170, y: TCY - 120},
+    't_fe':       {x: TCX - 60,  y: TCY - 175},
+    't_iv':       {x: TCX + 70,  y: TCY - 175},
+    't_did':      {x: TCX + 170, y: TCY - 120},
+    't_rd':       {x: TCX + 175, y: TCY - 10},
+    't_scm':      {x: TCX - 175, y: TCY - 10},
+    // Other methods — bottom ring
+    't_matching': {x: TCX - 160, y: TCY + 100},
+    't_sar':      {x: TCX - 60,  y: TCY + 160},
+    't_logit':    {x: TCX + 60,  y: TCY + 160},
+    't_poisson':  {x: TCX + 160, y: TCY + 100},
+    't_tobit':    {x: TCX + 80,  y: TCY + 60},
+    't_cox':      {x: TCX - 80,  y: TCY + 60},
+  };
+  byCat['tool'].forEach(n => {
+    if (toolManual[n.id]) positions[n.id] = toolManual[n.id];
+  });
 
   // Diagnostics cluster — bottom right (9 nodes)
   clusterNodes(byCat['diag'], clusters.diag.cx, clusters.diag.cy, 170);
