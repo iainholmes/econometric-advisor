@@ -3700,56 +3700,89 @@ function initKnowledgeGraph(activeSet){
     const sx=s.x+ux*nodeOffS,sy=s.y+uy*nodeOffS;
     const tx=t.x-ux*nodeOffT,ty=t.y-uy*nodeOffT;
 
-    edgeG.append('line')
+    // Curved bezier edge
+    const mx=(sx+tx)/2, my=(sy+ty)/2;
+    const cpx=mx+(ty-sy)*0.2, cpy=my-(tx-sx)*0.2;
+    const srcCat = KG_BLUEPRINT.nodes.find(x=>x.id===e.s)?.cat||'tool';
+    const edgeCol = {problem:'rgba(239,68,68,0.4)',logic:'rgba(59,130,246,0.4)',tool:'rgba(16,185,129,0.4)',diag:'rgba(245,158,11,0.4)'}[srcCat]||'rgba(148,163,184,0.3)';
+    edgeG.append('path')
       .attr('class','kg-edge')
       .attr('id','kge-'+idx)
       .attr('data-source',e.s)
       .attr('data-target',e.t)
-      .attr('x1',sx).attr('y1',sy).attr('x2',tx).attr('y2',ty)
-      .attr('stroke','#334155').attr('stroke-width',.7)
-      .attr('opacity',.35).attr('marker-end','url(#arrow-dim)');
+      .attr('data-src-cat', srcCat)
+      .attr('data-tgt-cat', KG_BLUEPRINT.nodes.find(x=>x.id===e.t)?.cat||'tool')
+      .attr('d',`M${sx},${sy} Q${cpx},${cpy} ${tx},${ty}`)
+      .attr('fill','none')
+      .attr('stroke', edgeCol)
+      .attr('stroke-width', 1.2)
+      .attr('opacity', 0.6)
+      .attr('marker-end','url(#arrow-dim)');
 
-    const mx=(sx+tx)/2,my=(sy+ty)/2;
+    const emx=(sx+tx)/2,emy=(sy+ty)/2;
     edgeG.append('text')
       .attr('class','kg-edge-label')
       .attr('id','kgel-'+idx)
       .attr('data-source',e.s)
       .attr('data-target',e.t)
-      .attr('x',mx).attr('y',my-3)
+      .attr('x',emx).attr('y',emy-3)
       .attr('opacity',0)
       .text(e.label);
   });
 
-  // Nodes layer
+  // Nodes layer — circle design with glow
   const nodeG=_kgZoomLayer.append('g').attr('class','kg-nodes');
   const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  const colorDim={problem:'rgba(239,68,68,0.15)',logic:'rgba(59,130,246,0.15)',tool:'rgba(16,185,129,0.15)',diag:'rgba(245,158,11,0.15)'};
+
   KG_BLUEPRINT.nodes.forEach(n=>{
     const p=positions[n.id];
     if(!p)return;
-    const w=n.label.length>14?148:n.label.length>9?124:112;
-    const h=46;
+    const col=colorMap[n.cat]||'#94a3b8';
+    const colDim=colorDim[n.cat]||'rgba(148,163,184,0.15)';
+    const r=22;
+
     const g=nodeG.append('g')
       .attr('class','kg-node-g')
       .attr('id','kgn-'+n.id)
       .attr('data-cat',n.cat)
       .attr('transform',`translate(${p.x},${p.y})`)
+      .style('cursor','pointer')
       .on('click',(ev)=>{ev.stopPropagation();onKgNodeClick(n.id)})
       .on('mouseenter',()=>onKgNodeHover(n.id))
       .on('mouseleave',()=>onKgNodeUnhover());
 
-    g.append('rect')
-      .attr('class','kg-node-rect')
-      .attr('x',-w/2).attr('y',-h/2)
-      .attr('width',w).attr('height',h).attr('rx',9)
-      .attr('fill','#0f172a')
-      .attr('stroke','#1e293b')
-      .attr('stroke-width',.7);
+    // Outer glow ring
+    g.append('circle')
+      .attr('r', r+10)
+      .attr('fill', colDim)
+      .attr('stroke', col)
+      .attr('stroke-width', 0.5)
+      .attr('stroke-opacity', 0.3);
 
+    // Main circle
+    g.append('circle')
+      .attr('class','kg-node-rect')
+      .attr('r', r)
+      .attr('fill', '#0d1f33')
+      .attr('stroke', col)
+      .attr('stroke-width', 2);
+
+    // Inner dot
+    g.append('circle')
+      .attr('r', 5)
+      .attr('fill', col)
+      .attr('opacity', 0.9);
+
+    // Label below node
     g.append('text')
       .attr('class','kg-node-text')
-      .attr('fill','#475569')
-      .attr('font-size',13)
-      .attr('font-weight',500)
+      .attr('y', r+16)
+      .attr('text-anchor','middle')
+      .attr('fill','rgba(255,255,255,0.85)')
+      .attr('font-size', 11)
+      .attr('font-weight', 500)
+      .attr('letter-spacing', '0.02em')
       .text(n.label);
   });
 
