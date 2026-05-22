@@ -655,6 +655,22 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 
 .tk-tab-panel{display:none}
 .tk-tab-panel.active{display:block}
+
+/* KG glow enhancement */
+.kg-node-g rect { filter: url(#glow-tool); }
+.kg-node-g[data-cat="problem"] rect { filter: url(#glow-problem); }
+.kg-node-g[data-cat="logic"] rect { filter: url(#glow-logic); }
+.kg-node-g[data-cat="tool"] rect { filter: url(#glow-tool); }
+.kg-node-g[data-cat="diag"] rect { filter: url(#glow-diag); }
+.kg-node-g text { text-shadow: 0 0 8px rgba(0,0,0,0.8); }
+
+/* KG glow enhancement */
+.kg-node-g rect { filter: url(#glow-tool); }
+.kg-node-g[data-cat="problem"] rect { filter: url(#glow-problem); }
+.kg-node-g[data-cat="logic"] rect { filter: url(#glow-logic); }
+.kg-node-g[data-cat="tool"] rect { filter: url(#glow-tool); }
+.kg-node-g[data-cat="diag"] rect { filter: url(#glow-diag); }
+.kg-node-g text { text-shadow: 0 0 8px rgba(0,0,0,0.8); }
 </style>
 </head>
 <body>
@@ -3641,6 +3657,24 @@ function initKnowledgeGraph(activeSet){
 
   // Arrowhead markers
   const defs=svg.append('defs');
+
+  // Glow filters for each category
+  const glowColorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  Object.entries(glowColorMap).forEach(([cat,color])=>{
+    const filter = defs.append('filter')
+      .attr('id','glow-'+cat)
+      .attr('x','-50%').attr('y','-50%')
+      .attr('width','200%').attr('height','200%');
+    filter.append('feGaussianBlur')
+      .attr('stdDeviation','3.5')
+      .attr('result','coloredBlur');
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode').attr('in','coloredBlur');
+    feMerge.append('feMergeNode').attr('in','SourceGraphic');
+  });
+
+  // Glow filters for each category
+
   ['dim','lit','focus'].forEach((tag,i)=>{
     const color=tag==='dim'?'#334155':tag==='lit'?'#cbd5e1':'#e2e8f0';
     defs.append('marker')
