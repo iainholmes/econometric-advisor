@@ -3787,10 +3787,10 @@ function initKnowledgeGraph(activeSet){
   // Constellation layout — 4 tight clusters at compass positions
   // Problems: top-left, Logic: top-right, Tools: bottom-center, Diagnostics: bottom-right
   const clusters={
-    problem:{cx:220,cy:240,label:'PROBLEMS',color:'#ef4444'},
-    logic:{cx:900,cy:200,label:'STRATEGIC LOGIC',color:'#3b82f6'},
-    tool:{cx:460,cy:790,label:'TOOLS / ESTIMATORS',color:'#10b981'},
-    diag:{cx:1200,cy:720,label:'DIAGNOSTICS',color:'#f59e0b'}
+    problem:{cx:300,cy:270,label:'PROBLEMS',color:'#ef4444'},
+    logic:{cx:1100,cy:270,label:'STRATEGIC LOGIC',color:'#3b82f6'},
+    tool:{cx:700,cy:820,label:'TOOLS / ESTIMATORS',color:'#10b981'},
+    diag:{cx:1250,cy:820,label:'DIAGNOSTICS',color:'#f59e0b'}
   };
 
   const byCat={problem:[],logic:[],tool:[],diag:[]};
@@ -3876,7 +3876,7 @@ function initKnowledgeGraph(activeSet){
 
   // Cluster labels (in zoom layer so they scale)
   // Draw cluster halos
-  const haloR = {problem:160, logic:160, tool:290, diag:220};
+  const haloR = {problem:175, logic:175, tool:310, diag:210};
   Object.entries(clusters).forEach(([cat,cl])=>{
     _kgZoomLayer.append('circle')
       .attr('cx', cl.cx).attr('cy', cl.cy)
@@ -4240,17 +4240,17 @@ function kgSetFocus(cat) {
 
   // Original cluster centers
   const origins = {
-    problem:{cx:220,cy:240},
-    logic:{cx:900,cy:200},
-    tool:{cx:460,cy:790},
-    diag:{cx:1200,cy:720}
+    problem:{cx:300,cy:270},
+    logic:{cx:1100,cy:270},
+    tool:{cx:700,cy:820},
+    diag:{cx:1250,cy:820}
   };
 
   // Corner retreat positions for non-focused clusters
   const retreats = {
     problem: {all:{cx:220,cy:240}, logic:{cx:130,cy:120}, tool:{cx:130,cy:120}, diag:{cx:130,cy:120}},
     logic:   {all:{cx:900,cy:200}, problem:{cx:1270,cy:120}, tool:{cx:1270,cy:120}, diag:{cx:1270,cy:120}},
-    tool:    {all:{cx:460,cy:790}, problem:{cx:200,cy:950}, logic:{cx:200,cy:950}, diag:{cx:1200,cy:950}},
+    tool:    {all:{cx:700,cy:820}, problem:{cx:200,cy:950}, logic:{cx:200,cy:950}, diag:{cx:1250,cy:950}},
     diag:    {all:{cx:1200,cy:720}, problem:{cx:1270,cy:950}, logic:{cx:1270,cy:950}, tool:{cx:1270,cy:950}}
   };
 
@@ -4325,16 +4325,16 @@ function kgSetFocus(cat) {
 
   // Move halos with their clusters
   const haloOrigins = {
-    problem:{cx:220,cy:240}, logic:{cx:900,cy:200},
-    tool:{cx:460,cy:790}, diag:{cx:1200,cy:720}
+    problem:{cx:300,cy:270}, logic:{cx:1100,cy:270},
+    tool:{cx:700,cy:820}, diag:{cx:1250,cy:820}
   };
   const haloRetreats = {
     problem:{all:{cx:220,cy:240},logic:{cx:130,cy:120},tool:{cx:130,cy:120},diag:{cx:130,cy:120}},
     logic:{all:{cx:900,cy:200},problem:{cx:1270,cy:120},tool:{cx:1270,cy:120},diag:{cx:1270,cy:120}},
-    tool:{all:{cx:460,cy:790},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1200,cy:950}},
+    tool:{all:{cx:700,cy:820},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1250,cy:950}},
     diag:{all:{cx:1200,cy:720},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
   };
-  const haloRMap = {problem:175, logic:175, tool:310, diag:240};
+  const haloRMap = {problem:175, logic:175, tool:310, diag:210};
   _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
     .attr('cx', function(){
       const hcat = d3.select(this).attr('data-cat');
