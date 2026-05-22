@@ -4245,18 +4245,18 @@ function kgSetFocus(cat) {
 
   // Original cluster centers
   const origins = {
-    problem:{cx:300,cy:270},
-    logic:{cx:1100,cy:270},
-    tool:{cx:700,cy:820},
-    diag:{cx:1250,cy:820}
+    problem:{cx:220,cy:200},
+    logic:{cx:1380,cy:200},
+    tool:{cx:480,cy:950},
+    diag:{cx:1380,cy:950}
   };
 
   // Corner retreat positions for non-focused clusters
   const retreats = {
-    problem: {all:{cx:300,cy:270}, logic:{cx:130,cy:120}, tool:{cx:130,cy:120}, diag:{cx:130,cy:120}},
-    logic:   {all:{cx:1100,cy:270}, problem:{cx:1270,cy:120}, tool:{cx:1270,cy:120}, diag:{cx:1270,cy:120}},
-    tool:    {all:{cx:700,cy:820}, problem:{cx:200,cy:950}, logic:{cx:200,cy:950}, diag:{cx:1250,cy:950}},
-    diag:    {all:{cx:1250,cy:820}, problem:{cx:1270,cy:950}, logic:{cx:1270,cy:950}, tool:{cx:1270,cy:950}}
+    problem: {all:{cx:220,cy:200}, logic:{cx:100,cy:100}, tool:{cx:100,cy:100}, diag:{cx:100,cy:100}},
+    logic:   {all:{cx:1380,cy:200}, problem:{cx:1500,cy:100}, tool:{cx:1500,cy:100}, diag:{cx:1500,cy:100}},
+    tool:    {all:{cx:480,cy:950}, problem:{cx:150,cy:1050}, logic:{cx:150,cy:1050}, diag:{cx:1450,cy:1050}},
+    diag:    {all:{cx:1380,cy:950}, problem:{cx:1500,cy:1050}, logic:{cx:1500,cy:1050}, tool:{cx:1500,cy:1050}}
   };
 
   KG_BLUEPRINT.nodes.forEach(n=>{
@@ -4356,7 +4356,7 @@ function kgSetFocus(cat) {
     })
     .attr('x', function(){
       const lcat = d3.select(this).attr('data-cat');
-      if(cat==='all') return ({problem:220,logic:900,tool:460,diag:1200})[lcat];
+      if(cat==='all') return ({problem:220,logic:1380,tool:480,diag:1380})[lcat];
       if(lcat===cat) return CX;
       return ({problem:{logic:130,tool:130,diag:130},logic:{problem:1270,tool:1270,diag:1270},tool:{problem:200,logic:200,diag:1200},diag:{problem:1270,logic:1270,tool:1270}})[lcat][cat] || CX;
     })
@@ -4364,7 +4364,7 @@ function kgSetFocus(cat) {
       const lcat = d3.select(this).attr('data-cat');
       const haloRMap = {problem:175,logic:175,tool:310,diag:240};
       const baseR = haloRMap[lcat] || 175;
-      if(cat==='all') return ({problem:240,logic:200,tool:790,diag:720})[lcat] - baseR - 18;
+      if(cat==='all') return ({problem:200,logic:200,tool:950,diag:950})[lcat] - baseR - 18;
       if(lcat===cat) return CY - (baseR * 0.42) - 18;
       return 80;
     });
@@ -4378,14 +4378,14 @@ function kgSetFocus(cat) {
 
   // Move halos with their clusters
   const haloOrigins = {
-    problem:{cx:300,cy:270}, logic:{cx:1100,cy:270},
-    tool:{cx:700,cy:820}, diag:{cx:1250,cy:820}
+    problem:{cx:220,cy:200}, logic:{cx:1380,cy:200},
+    tool:{cx:480,cy:950}, diag:{cx:1380,cy:950}
   };
   const haloRetreats = {
-    problem:{all:{cx:300,cy:270},logic:{cx:130,cy:120},tool:{cx:130,cy:120},diag:{cx:130,cy:120}},
-    logic:{all:{cx:1100,cy:270},problem:{cx:1270,cy:120},tool:{cx:1270,cy:120},diag:{cx:1270,cy:120}},
-    tool:{all:{cx:700,cy:820},problem:{cx:200,cy:950},logic:{cx:200,cy:950},diag:{cx:1250,cy:950}},
-    diag:{all:{cx:1250,cy:820},problem:{cx:1270,cy:950},logic:{cx:1270,cy:950},tool:{cx:1270,cy:950}}
+    problem:{all:{cx:220,cy:200},logic:{cx:100,cy:100},tool:{cx:100,cy:100},diag:{cx:100,cy:100}},
+    logic:{all:{cx:1380,cy:200},problem:{cx:1500,cy:100},tool:{cx:1500,cy:100},diag:{cx:1500,cy:100}},
+    tool:{all:{cx:480,cy:950},problem:{cx:150,cy:1050},logic:{cx:150,cy:1050},diag:{cx:1450,cy:1050}},
+    diag:{all:{cx:1380,cy:950},problem:{cx:1500,cy:1050},logic:{cx:1500,cy:1050},tool:{cx:1500,cy:1050}}
   };
   const haloRMap = {problem:175, logic:175, tool:310, diag:210};
   _kgZoomLayer.selectAll('.kg-cluster-halo').transition().duration(500).ease(d3.easeCubicInOut)
