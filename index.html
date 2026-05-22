@@ -4411,7 +4411,7 @@ function kgSetFocus(cat) {
       if(lcat===cat){
         const haloRMap2 = {problem:175,logic:175,tool:310,diag:240};
         const baseR2 = haloRMap2[lcat] || 175;
-        const yFactor = lcat === 'tool' ? 1.05 : 0.65;
+        const yFactor = lcat === 'tool' ? 1.16 : 0.65;
         return CY - baseR2 * yFactor;
       }
       return 100;
