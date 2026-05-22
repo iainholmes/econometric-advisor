@@ -3068,6 +3068,10 @@ function buildToolkit(a){
   if(isCensored)active.add('t_tobit');
   if(isDuration)active.add('t_cox');
   if(isHedonic||(!isBinary&&!isCount&&!isCensored&&!isDuration))active.add('t_ols');
+  // ML methods — activated by ml_interest question
+  if(wantsML&&['dml','regularize'].includes(ml_interest))active.add('t_dml');
+  if(wantsML&&ml_interest==='causal_forest')active.add('t_cf');
+  if(wantsML&&['dml','causal_forest'].includes(ml_interest)){active.add('t_dml');active.add('t_cf');}
   // Diagnostic nodes (yellow) -- ONLY FOR ACTIVE METHOD
   if(active.has('t_iv')){
     active.add('d_firststage');
