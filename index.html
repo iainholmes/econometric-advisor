@@ -385,15 +385,6 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   background:
     radial-gradient(ellipse 80% 70% at 50% 45%, #0d2240 0%, #061429 55%, #02091a 100%);
 }
-.kg-canvas::before {
-  content: ""; position: absolute; inset: 0;
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(126,182,255,0.06) 1px, transparent 0);
-  background-size: 32px 32px;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 80%);
-}
-/* Active nodes: brighter, tighter — make them feel "lit" */
 .kg-node-g.is-active .kg-node-rect { stroke-width: 2.5px; }
 .kg-node-g.is-active .kg-node-label {
   fill: #ffffff !important;
