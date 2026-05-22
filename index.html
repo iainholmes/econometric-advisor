@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Econometric Advisor</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='512' height='512' rx='112' fill='%230a0f1e'/%3E%3Ccircle cx='256' cy='256' r='110' fill='none' stroke='%233b82f6' stroke-width='4'/%3E%3Ccircle cx='256' cy='256' r='90' fill='%23080e1c'/%3E%3Cline x1='256' y1='254' x2='256' y2='152' stroke='%233b82f6' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='256' cy='146' r='7' fill='%233b82f6'/%3E%3Cline x1='250' y1='262' x2='178' y2='334' stroke='%23a855f7' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='174' cy='339' r='7' fill='%23a855f7'/%3E%3Cline x1='262' y1='262' x2='334' y2='334' stroke='%2310b981' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='338' cy='339' r='7' fill='%2310b981'/%3E%3Ccircle cx='256' cy='256' r='10' fill='%2393c5fd'/%3E%3Ccircle cx='256' cy='256' r='5' fill='%23fff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
@@ -18,7 +19,7 @@
   --math:#ffffff;--math-accent:#7eb6ff;
   --kg-problem:#ef4444;--kg-logic:#3b82f6;--kg-tool:#10b981;--kg-diag:#f59e0b
 }
-body{font-family:-apple-system,'Helvetica Neue',sans-serif;background:#020e1f;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
+body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;color:#ffffff;min-height:100vh;font-size:15px;line-height:1.65}
 .hdr{display:none;align-items:center;gap:14px;padding:14px 28px;border-bottom:.5px solid var(--border);position:sticky;top:0;background:#020e1f;z-index:50}
 .hdr-logo svg{width:48px;height:48px}
 .hdr-name{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.005em}
@@ -346,11 +347,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 @media(max-width:760px){.kg-expanded{inset:14px}}
 /* KG NODES + EDGES */
 .kg-node-rect{transition:all .35s cubic-bezier(.4,0,.2,1);cursor:pointer}
-.kg-node-text{font-family:-apple-system,'Helvetica Neue',sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
+.kg-node-text{font-family:'Instrument Sans',-apple-system,sans-serif;pointer-events:none;user-select:none;dominant-baseline:central;text-anchor:middle}
 .kg-edge{transition:all .4s cubic-bezier(.4,0,.2,1)}
-.kg-edge-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
+.kg-edge-label{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:10px;fill:#64748b;pointer-events:none;user-select:none;text-anchor:middle;font-style:italic;transition:fill .35s,opacity .35s}
 .kg-edge-label.active{fill:#cbd5e1}
-.kg-cluster-label{font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:11.5px;letter-spacing:.18em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
+.kg-cluster-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.22em;font-weight:600;text-anchor:middle;text-transform:uppercase;pointer-events:none}
 /* HOVER DIM STATE */
 .kg-graph.has-hover .kg-node-g{opacity:.18;transition:opacity .25s}
 .kg-graph.has-hover .kg-node-g.is-focus,
@@ -3750,7 +3751,7 @@ function initKnowledgeGraph(activeSet){
       .attr('fill','none')
       .attr('stroke', edgeColGlow)
       .attr('stroke-width', 6)
-      .attr('opacity', 0.8)
+      .attr('opacity', 0)
       .attr('filter','url(#glow-'+srcCat+')');
 
     // Core trail (thin, sharp)
@@ -3765,7 +3766,7 @@ function initKnowledgeGraph(activeSet){
       .attr('fill','none')
       .attr('stroke', edgeColCore)
       .attr('stroke-width', 1.2)
-      .attr('opacity', 0.7)
+      .attr('opacity', 0)
       .attr('marker-end','url(#arrow-dim)');
 
     const emx=(sx+tx)/2,emy=(sy+ty)/2;
@@ -4033,19 +4034,19 @@ function kgSetFocus(cat) {
 
   _kgZoomLayer.selectAll('.kg-edge-glow').transition().duration(500)
     .attr('opacity', function(){
-      if(cat==='all') return 0.8;
+      if(cat==='all') return 0;
       const sc = d3.select(this).attr('data-src-cat');
       const tc = d3.select(this).attr('data-tgt-cat');
-      if(sc===cat && tc===cat) return 0.8;
+      if(sc===cat && tc===cat) return 0;
       return 0.0;
     });
   _kgZoomLayer.selectAll('.kg-edge').transition().duration(500)
     .attr('opacity', function(){
-      if(cat==='all') return 0.28;
+      if(cat==='all') return 0;
       const sc = d3.select(this).attr('data-src-cat');
       const tc = d3.select(this).attr('data-tgt-cat');
-      if(sc===cat && tc===cat) return 0.75;
-      if(sc===cat || tc===cat) return 0.02;
+      if(sc===cat && tc===cat) return 0;
+      if(sc===cat || tc===cat) return 0;
       return 0.0;
     });
 
