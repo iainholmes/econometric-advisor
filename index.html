@@ -1348,7 +1348,7 @@ async function generate(){
   // adjustments, watchout, and per-section rationales.
   let payload=buildLocalPayload(tk);
   if(apiKey&&apiKey.length>20){
-    document.getElementById('loading-msg').textContent='Enhancing with AI-tailored language...';
+    document.getElementById('loading-msg').textContent='Synthesizing your toolkit...';
     const aiPayload=await enrichWithAI(ans,tk);
     if(aiPayload){
       // Merge: AI fields override local where present
@@ -4274,27 +4274,33 @@ function revealKgPath(){
   const colorMap={problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   const glowMap={problem:'glow-problem',logic:'glow-logic',tool:'glow-tool',diag:'glow-diag'};
 
-  // Light up active nodes
-  KG_BLUEPRINT.nodes.forEach(n=>{
-    if(_kgActive.has(n.id)){
-      const g=d3.select('#kgn-'+n.id);
-      const color=colorMap[n.cat];
-      g.select('rect')
-        .transition().duration(700)
-        .attr('fill',color+'22')
-        .attr('stroke',color)
-        .attr('stroke-width',2);
-      g.selectAll('text').filter(function(){ return !this.getAttribute('class'); })
-        .transition().duration(700)
-        .attr('fill','rgba(0,0,0,0.9)')
-        .attr('stroke','rgba(0,0,0,0.9)');
-      g.select('.kg-node-text')
-        .transition().duration(700)
-        .attr('fill','#ffffff')
-        .attr('font-weight',700);
-      // Add glow class to the rect for animation
-      g.select('rect').classed(glowMap[n.cat],true);
-    }
+  // PATCH 9: sequenced light-up — Problem → Logic → Tool → Diagnostic.
+  // Reads as a narrative: here's your problem, your strategy, your tool, your validation.
+  const layerOrder = ['problem','logic','tool','diag'];
+  const stagger = 320; // ms between layers
+  function igniteNode(n){
+    const g=d3.select('#kgn-'+n.id);
+    const color=colorMap[n.cat];
+    g.select('rect')
+      .transition().duration(600)
+      .attr('fill',color+'22')
+      .attr('stroke',color)
+      .attr('stroke-width',2);
+    g.selectAll('text').filter(function(){ return !this.getAttribute('class'); })
+      .transition().duration(600)
+      .attr('fill','rgba(0,0,0,0.9)')
+      .attr('stroke','rgba(0,0,0,0.9)');
+    g.select('.kg-node-text')
+      .transition().duration(600)
+      .attr('fill','#ffffff')
+      .attr('font-weight',700);
+    g.select('rect').classed(glowMap[n.cat],true);
+  }
+  layerOrder.forEach((cat, layerIdx) => {
+    const nodesInLayer = KG_BLUEPRINT.nodes.filter(n => _kgActive.has(n.id) && n.cat === cat);
+    setTimeout(() => {
+      nodesInLayer.forEach(igniteNode);
+    }, layerIdx * stagger);
   });
 
   // Light up edges where BOTH endpoints are active
