@@ -4373,8 +4373,16 @@ function kgFilter(cat){
   KG_BLUEPRINT.nodes.forEach(n=>{
     const g=document.getElementById('kgn-'+n.id);
     if(!g)return;
-    g.style.transition='opacity .45s';
+    g.style.transition='opacity .45s, transform .45s';
     g.style.opacity=isAll||n.cat===cat?'1':'0.08';
+    if(!isAll && n.cat===cat){
+      const scale = n.cat==='tool' ? 1.6 : 2.4;
+      g.style.transform='scale('+scale+')';
+      g.style.transformOrigin='0px 0px';
+    } else {
+      g.style.transform='';
+      g.style.transformOrigin='';
+    }
   });
   document.querySelectorAll('.kg-edge').forEach(line=>{
     const sId=line.getAttribute('data-source');
