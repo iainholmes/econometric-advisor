@@ -24,6 +24,101 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .hdr-logo svg{width:48px;height:48px}
 .hdr-name{font-size:17px;font-weight:600;color:var(--text);letter-spacing:.005em}
 .hdr-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+/* ── TOOLS DROPDOWN ────────────────────────────────────────────────── */
+.hdr-tools-wrap{position:relative;display:inline-flex}
+.hdr-tools-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 13px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.005em;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.hdr-tools-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
+.hdr-tools-btn.open{border-color:var(--surface);color:var(--text);background:var(--bg2)}
+.hdr-tools-menu{position:absolute;top:calc(100% + 6px);right:0;background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:6px;min-width:180px;z-index:200;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .15s,transform .15s;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.hdr-tools-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.hdr-tools-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:7px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .12s;font-family:inherit;background:transparent;border:none;width:100%;text-align:left;letter-spacing:.005em}
+.hdr-tools-item:hover{background:var(--bg3);color:var(--text)}
+.hdr-tools-icon{font-size:13px;line-height:1;width:16px;text-align:center}
+
+/* ── OVERVIEW DASHBOARD ─────────────────────────────────────────────── */
+/* Full-bleed: break out of .results 1200px constraint */
+.ov-bleed{margin:0 -2.5rem}
+.ov-hero{background:linear-gradient(135deg,#08192e 0%,#0d2240 50%,#081929 100%);border-bottom:.5px solid var(--border);padding:2.5rem 2.5rem 2rem;position:relative;overflow:hidden}
+.ov-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(61,107,133,.13) 0%,transparent 70%);pointer-events:none}
+.ov-hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.ov-hero-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+.ov-hero-grid{display:grid;grid-template-columns:2fr 1.1fr 1fr;gap:24px;align-items:start}
+.ov-narrative-text{color:var(--text);font-size:14px;line-height:1.85;margin:0}
+.ov-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.ov-chip{font-size:11px;padding:4px 11px;border-radius:20px;border:.5px solid;font-weight:500;letter-spacing:.02em}
+.ov-chip.identification{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35);color:#93c5fd}
+.ov-chip.estimator{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.35);color:#6ee7b7}
+.ov-chip.diagnostic{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);color:#fcd34d}
+.ov-chip.neutral{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:var(--muted)}
+.ov-adj{display:flex;flex-direction:column;gap:6px}
+.ov-adj-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:4px}
+.ov-adj-item{color:var(--muted);font-size:12.5px;line-height:1.7;padding-left:10px;border-left:2px solid var(--surface)}
+.ov-caution{background:rgba(245,158,11,.07);border:.5px solid rgba(245,158,11,.25);border-radius:10px;padding:13px 15px}
+.ov-caution-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:5px}
+.ov-caution-text{color:var(--muted);font-size:12.5px;line-height:1.7}
+
+/* Toolkit grid band */
+.ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
+.ov-toolkit-inner{max-width:1200px;margin:0 auto}
+.ov-band-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.ov-band-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.005em}
+.ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:1000px){.ov-node-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.ov-node-grid{grid-template-columns:1fr}}
+.ov-node-card{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+.ov-node-card:hover{border-color:var(--surface)}
+.ov-node-cat{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.ov-node-label{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
+.ov-node-def{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1}
+.ov-node-links{display:flex;gap:12px;margin-top:4px;padding-top:8px;border-top:.5px solid var(--border)}
+.ov-node-link{font-size:11px;color:var(--hint);text-decoration:none;transition:color .12s;letter-spacing:.02em}
+.ov-node-link:hover{color:var(--text)}
+
+/* Research band: literature + data teasers */
+.ov-research-band{background:#06131f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
+.ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:760px){.ov-research-inner{grid-template-columns:1fr}}
+.ov-research-col-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.ov-research-col-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:1rem;letter-spacing:-.005em}
+.ov-teaser-item{padding:10px 0;border-bottom:.5px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.ov-teaser-item:last-child{border-bottom:none}
+.ov-teaser-title{font-size:12.5px;color:var(--text);font-weight:500;line-height:1.4}
+.ov-teaser-sub{font-size:11.5px;color:var(--muted);line-height:1.5}
+.ov-see-all{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:12px;color:#7eb6ff;text-decoration:none;letter-spacing:.02em;font-weight:500;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.ov-see-all:hover{color:#fff}
+
+/* Implementation row */
+.ov-impl-band{background:#020e1f;padding:1.75rem 2.5rem 2.5rem}
+.ov-impl-inner{max-width:1200px;margin:0 auto}
+.ov-impl-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:1.25rem;font-family:'JetBrains Mono',monospace}
+.ov-impl-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.ov-impl-row{grid-template-columns:1fr}}
+.ov-impl-item{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s;text-decoration:none}
+.ov-impl-item:hover{border-color:var(--surface)}
+.ov-impl-icon{font-size:16px;line-height:1;margin-top:1px;flex-shrink:0;opacity:.7}
+.ov-impl-text{}
+.ov-impl-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.ov-impl-desc{font-size:11.5px;color:var(--muted);line-height:1.6}
+
+/* ── TOUR OVERLAY ───────────────────────────────────────────────────── */
+#advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none}
+#advisor-tour.active{pointer-events:all}
+.tour-backdrop{position:absolute;inset:0;background:rgba(2,14,31,.82);opacity:0;transition:opacity .3s;backdrop-filter:blur(2px)}
+#advisor-tour.active .tour-backdrop{opacity:1}
+.tour-spotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(2,14,31,.82);border:1.5px solid rgba(126,182,255,.5);transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.tour-card{position:absolute;background:#0d2240;border:.5px solid rgba(126,182,255,.3);border-radius:14px;padding:20px 22px;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.5);transition:all .4s cubic-bezier(.4,0,.2,1)}
+.tour-step-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.tour-card h4{font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;line-height:1.3}
+.tour-card p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.tour-actions{display:flex;gap:8px;align-items:center}
+.tour-next{background:rgba(126,182,255,.15);border:.5px solid rgba(126,182,255,.4);border-radius:7px;color:#7eb6ff;font-size:12.5px;font-weight:600;padding:8px 18px;cursor:pointer;font-family:inherit;transition:all .15s}
+.tour-next:hover{background:rgba(126,182,255,.25);color:#fff}
+.tour-skip{background:none;border:none;color:var(--hint);font-size:12px;cursor:pointer;font-family:inherit;padding:8px;transition:color .15s}
+.tour-skip:hover{color:var(--muted)}
+.tour-dots{display:flex;gap:5px;margin-left:auto}
+.tour-dot{width:5px;height:5px;border-radius:50%;background:rgba(126,182,255,.25);transition:background .2s}
+.tour-dot.active{background:#7eb6ff}
+
 .hdr-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 14px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.005em;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .hdr-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
 .hdr-btn-icon{font-size:13px;line-height:1}
@@ -911,13 +1006,42 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <span class="hdr-sep">/</span>
   <span id="hdr-sub" class="hdr-sub">assessment</span>
   <div class="hdr-actions">
-    <button class="hdr-btn" id="btn-export" onclick="exportLog()" style="display:none"><span class="hdr-btn-icon">↓</span>Export log</button>
-    <button class="hdr-btn" id="btn-library" onclick="openLibrary()" style="display:none"><span class="hdr-btn-icon">⊞</span>Reference library</button>
-    <button class="hdr-btn" id="btn-audit" onclick="openAuditTool()" style="display:none"><span class="hdr-btn-icon">⌂</span>Audit code</button>
+    <!-- hidden legacy buttons keep existing show/hide JS working -->
+    <button id="btn-export" onclick="exportLog()" style="display:none"></button>
+    <button id="btn-library" onclick="openLibrary()" style="display:none"></button>
+    <button id="btn-audit" onclick="openAuditTool()" style="display:none"></button>
+    <!-- tools dropdown -->
+    <div class="hdr-tools-wrap" id="hdr-tools-wrap" style="display:none">
+      <button class="hdr-tools-btn" id="hdr-tools-btn" onclick="toggleToolsMenu(event)">
+        <span style="font-size:13px">⊙</span> Tools
+        <span style="font-size:9px;opacity:.6;margin-left:2px">▾</span>
+      </button>
+      <div class="hdr-tools-menu" id="hdr-tools-menu">
+        <button class="hdr-tools-item" onclick="exportLog();closeToolsMenu()"><span class="hdr-tools-icon">↓</span>Export log</button>
+        <button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button>
+        <button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>
+      </div>
+    </div>
     <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
 </div>
 <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+<!-- ADVISOR TOUR OVERLAY -->
+<div id="advisor-tour">
+  <div class="tour-backdrop" onclick="skipTour()"></div>
+  <div class="tour-spotlight" id="tour-spotlight"></div>
+  <div class="tour-card" id="tour-card">
+    <div class="tour-step-label" id="tour-step-label">Step 1 of 5</div>
+    <h4 id="tour-title"></h4>
+    <p id="tour-desc"></p>
+    <div class="tour-actions">
+      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">Next →</button>
+      <button class="tour-skip" onclick="skipTour()">Skip tour</button>
+      <div class="tour-dots" id="tour-dots"></div>
+    </div>
+  </div>
+</div>
 
 <div id="screen-landing">
   <div class="landing">
@@ -1257,10 +1381,206 @@ const QS=[
 let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||localStorage.getItem('qst_api_key_v1')||'',codeLang='r';
 
 function show(id){['landing','quiz','loading','results'].forEach(s=>{document.getElementById('screen-'+s).style.display=s===id?'block':'none';});}
+/* ── TOOLS DROPDOWN ── */
+function toggleToolsMenu(e){
+  e.stopPropagation();
+  const btn=document.getElementById('hdr-tools-btn');
+  const menu=document.getElementById('hdr-tools-menu');
+  const open=menu.classList.contains('open');
+  btn.classList.toggle('open',!open);
+  menu.classList.toggle('open',!open);
+}
+function closeToolsMenu(){
+  document.getElementById('hdr-tools-btn')?.classList.remove('open');
+  document.getElementById('hdr-tools-menu')?.classList.remove('open');
+}
+document.addEventListener('click',function(){closeToolsMenu();});
+
+/* ── OVERVIEW POPULATION ── */
+function buildOverviewSections(tk, ai){
+  // Design chips from active toolkit sections
+  const chipMap = {
+    'Identification strategy': {cls:'identification', label:'Identification strategy'},
+    'Estimator & model specification': {cls:'estimator', label:'Estimator'},
+    'Functional form': {cls:'neutral', label:'Functional form'},
+    'Spatial econometrics': {cls:'neutral', label:'Spatial'},
+    'Inference & diagnostic checklist': {cls:'diagnostic', label:'Diagnostics'}
+  };
+  const chipsEl = document.getElementById('ov-design-chips');
+  if(chipsEl && tk.sections){
+    chipsEl.innerHTML = tk.sections.map(s=>{
+      const m = chipMap[s.title] || {cls:'neutral', label:s.title};
+      return `<span class="ov-chip ${m.cls}">${m.label}</span>`;
+    }).join('');
+  }
+
+  // Node grid — active KG nodes
+  const catMeta = {
+    problem:{color:'#ef4444',label:'Problem'},
+    logic:{color:'#3b82f6',label:'Strategic Logic'},
+    tool:{color:'#10b981',label:'Tool / Estimator'},
+    diag:{color:'#f59e0b',label:'Diagnostic'}
+  };
+  // Clean color mapping: only unambiguous KG category mappings
+  const sectionCatMap = {
+    'Identification strategy':'logic',
+    'Estimator & model specification':'tool',
+    'Inference & diagnostic checklist':'diag'
+  };
+  const gridEl = document.getElementById('ov-node-grid');
+  if(gridEl && tk.sections){
+    let cards = '';
+    tk.sections.forEach(s => {
+      const cat = sectionCatMap[s.title] || null;
+      const meta = cat ? catMeta[cat] : null;
+      const catColor = meta ? meta.color : 'var(--hint)';
+      const catLabel = meta ? meta.label : s.title;
+      // Find matching KG node for trainer link
+      const kgTag = s.kgTags?.[0] || '';
+      const trainerUrl = kgTag ? buildTrainerUrl(kgTag) : '';
+      cards += `<div class="ov-node-card" style="border-left:2px solid ${catColor}20">
+        <div class="ov-node-cat" style="color:${catColor}">${catLabel}</div>
+        <div class="ov-node-label">${esc(s.title)}</div>
+        <div class="ov-node-def">${esc(s.short||s.rationale||'')}</div>
+        <div class="ov-node-links">
+          <a class="ov-node-link" href="#" onclick="switchTab('methods');return false;">Deep dive →</a>
+          ${trainerUrl?`<a class="ov-node-link" href="${trainerUrl}" target="_blank" rel="noreferrer">Practice →</a>`:''}
+        </div>
+      </div>`;
+    });
+    gridEl.innerHTML = cards;
+  }
+
+  // Literature teaser — up to 3 foundational refs
+  const litEl = document.getElementById('ov-lit-teaser');
+  if(litEl && tk.literature?.length){
+    litEl.innerHTML = tk.literature.slice(0,3).map(p=>`
+      <div class="ov-teaser-item">
+        <div class="ov-teaser-title">${esc(p.title||p.t||'')}</div>
+        <div class="ov-teaser-sub">${esc(p.authors||p.a||'')}${p.year||p.y?' · '+(p.year||p.y):''}</div>
+      </div>`).join('');
+  } else if(litEl){
+    litEl.innerHTML = '<div class="ov-teaser-item"><div class="ov-teaser-sub">Run the assessment to surface literature recommendations.</div></div>';
+  }
+
+  // Data teaser — up to 3 sources
+  const dataEl = document.getElementById('ov-data-teaser');
+  if(dataEl && tk.sources?.length){
+    dataEl.innerHTML = tk.sources.slice(0,3).map(s=>`
+      <div class="ov-teaser-item">
+        <div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
+        <div class="ov-teaser-sub">${esc(s.d||s.desc||'')}</div>
+      </div>`).join('');
+  }
+}
+
+function buildTrainerUrl(kgTag){
+  const kgMap = {"t_dml":{"r":"r_ml","python":"py_ml"},"t_cf":{"r":"r_ml","python":"py_ml"},"t_ols":{"r":"r_ols","python":"py_ols"},"t_iv":{"r":"r_iv","python":"py_iv"},"t_did":{"r":"r_did","python":"py_did"},"t_rd":{"r":"r_rd","python":"py_rd"},"t_fe":{"r":"r_panel","python":"py_panel"},"t_logit":{"r":"glm_bridge","python":"glm_bridge"},"t_sar":{"r":"r_panel","python":"py_panel"}};
+  const lang = 'r';
+  const mod = kgMap[kgTag]?.[lang];
+  if(!mod) return '';
+  return 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+kgTag;
+}
+
+/* ── ADVISOR TOUR ── */
+const TOUR_STEPS = [
+  {
+    target:'tab-overview-chip',
+    title:'Your research dashboard',
+    desc:'This is your home base. The Overview tab gives you your full research design at a glance — the identification strategy, toolkit, literature, and data curated for your specific study.',
+    pos:'below'
+  },
+  {
+    target:'tab-graph-chip',
+    title:'Explore the architecture',
+    desc:'The Knowledge Graph shows how your study connects to the broader landscape of applied econometrics. Click any node to understand why it's in your toolkit and how it relates to the others.',
+    pos:'below'
+  },
+  {
+    target:'tab-literature-chip',
+    title:'Follow the literature',
+    desc:'Your toolkit comes with foundational and curated reading recommendations across five lenses — foundational, recent, methodological, applied, and adjacent fields.',
+    pos:'below'
+  },
+  {
+    target:'tab-data-chip',
+    title:'Find your data',
+    desc:'Open-access datasets relevant to your research design are surfaced here — organized by the type of variation your identification strategy requires.',
+    pos:'below'
+  },
+  {
+    target:'hdr-tools-wrap',
+    title:'When you're ready to implement',
+    desc:'The Tools menu gives you quick access to code audit, reference library, and log export — return to these when you move from research design to implementation.',
+    pos:'below-left'
+  }
+];
+
+let _tourStep = 0;
+
+function initAdvisorTour(){
+  if(localStorage.getItem('advisor_tour_v1')) return;
+  _tourStep = 0;
+  renderTourStep();
+  document.getElementById('advisor-tour').classList.add('active');
+}
+
+function renderTourStep(){
+  const step = TOUR_STEPS[_tourStep];
+  if(!step) { endTour(); return; }
+
+  // Dots
+  const dots = document.getElementById('tour-dots');
+  dots.innerHTML = TOUR_STEPS.map((_,i)=>`<div class="tour-dot${i===_tourStep?' active':''}"></div>`).join('');
+
+  document.getElementById('tour-step-label').textContent = `Step ${_tourStep+1} of ${TOUR_STEPS.length}`;
+  document.getElementById('tour-title').textContent = step.title;
+  document.getElementById('tour-desc').textContent = step.desc;
+  document.getElementById('tour-next-btn').textContent = _tourStep === TOUR_STEPS.length-1 ? 'Get started →' : 'Next →';
+
+  // Spotlight
+  const targetEl = document.getElementById(step.target) ||
+    document.querySelector(`[data-tab="${step.target}"]`) ||
+    document.querySelector(`.tk-jump-chip[data-tab="${step.target?.replace('tab-','').replace('-chip','')}"]`);
+
+  const spotlight = document.getElementById('tour-spotlight');
+  const card = document.getElementById('tour-card');
+
+  if(targetEl){
+    const r = targetEl.getBoundingClientRect();
+    const pad = 8;
+    spotlight.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;opacity:1`;
+    // Position card below target
+    const cardTop = r.bottom + 16;
+    const cardLeft = Math.min(r.left, window.innerWidth - 360);
+    card.style.cssText = `left:${Math.max(12,cardLeft)}px;top:${cardTop}px;opacity:1`;
+  } else {
+    spotlight.style.cssText = 'opacity:0';
+    card.style.cssText = `left:50%;top:50%;transform:translate(-50%,-50%);opacity:1`;
+  }
+}
+
+function tourNext(){
+  _tourStep++;
+  if(_tourStep >= TOUR_STEPS.length){ endTour(); return; }
+  renderTourStep();
+}
+
+function skipTour(){ endTour(); }
+
+function endTour(){
+  localStorage.setItem('advisor_tour_v1','1');
+  const tour = document.getElementById('advisor-tour');
+  tour.classList.remove('active');
+  document.getElementById('tour-spotlight').style.opacity='0';
+}
+
 function setHdr(sub,showResults){
   const h=document.getElementById('hdr');h.style.display='flex';
   document.getElementById('hdr-sub').textContent=sub;
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
+  const _tw=document.getElementById('hdr-tools-wrap');
+  if(_tw) _tw.style.display=showResults?'inline-flex':'none';
   document.getElementById('btn-library').style.display='inline-flex';
   const btnAudit = document.getElementById('btn-audit');
   if(btnAudit) btnAudit.style.display = showResults ? 'inline-flex' : 'none';
@@ -1538,6 +1858,13 @@ async function generate(){
   setHdr('your toolkit',true);
   document.getElementById('btn-reset').style.display='inline-flex';
   document.getElementById('btn-export').style.display='inline-flex';
+  const toolsWrap = document.getElementById('hdr-tools-wrap');
+  if(toolsWrap) toolsWrap.style.display='inline-flex';
+  // Build overview sections and fire tour on first visit
+  if(typeof buildOverviewSections === 'function' && window._tkData && window._aiData){
+    buildOverviewSections(window._tkData, window._aiData);
+  }
+  setTimeout(initAdvisorTour, 800);
 }
 
 // ============================================================
@@ -3422,33 +3749,86 @@ function renderResults(tk,ai){
   let html=``;
 
   if(ai&&ai.narrative){
-    html+=`<div class="tk-tab-panel active" data-tab="overview"><div class="narrative" id="tk-narrative">
-      <div class="narrative-hdr"><span class="star">*</span><span class="lbl">Your research design -- plain English</span></div>
-      <div class="narrative-body">
-        <div class="narrative-left">
-          <p>${esc(ai.narrative)}</p>
-        </div>
-        <div class="narrative-mid">
-          ${ai.key_adjustments?.length?`<div class="adj-label">Design-specific adjustments</div>${ai.key_adjustments.map(a=>`<div class="adj-item">-- ${esc(a)}</div>`).join('')}`:''}
-        </div>
-        <div class="narrative-right">
-          ${ai.watchout?`<div class="caution">
-            <div class="caution-label">Study-specific caution</div>
-            <div class="caution-text">${esc(ai.watchout)}</div>
-          </div>`:''}
+    html+=`<div class="tk-tab-panel active" data-tab="overview"><div id="tk-narrative" class="ov-bleed">
+
+      <!-- SECTION 1: HERO — Research Design Summary -->
+      <div class="ov-hero">
+        <div class="ov-hero-inner">
+          <div class="ov-hero-label">Your research design — plain English</div>
+          <div class="ov-hero-grid">
+            <div>
+              <p class="ov-narrative-text">${esc(ai.narrative)}</p>
+              <div class="ov-chips" id="ov-design-chips"></div>
+            </div>
+            <div class="ov-adj" id="ov-adj-col">
+              ${ai.key_adjustments?.length?`<div class="ov-adj-label">Design-specific adjustments</div>${ai.key_adjustments.map(a=>`<div class="ov-adj-item">${esc(a)}</div>`).join('')}`:''}
+            </div>
+            <div>
+              ${ai.watchout?`<div class="ov-caution"><div class="ov-caution-label">Study-specific caution</div><div class="ov-caution-text">${esc(ai.watchout)}</div></div>`:''}
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- SECTION 2: ACTIVE TOOLKIT GRID -->
+      <div class="ov-toolkit-band">
+        <div class="ov-toolkit-inner">
+          <div class="ov-band-label">Active toolkit</div>
+          <div class="ov-band-title">Your recommended methods at a glance</div>
+          <div class="ov-node-grid" id="ov-node-grid"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: RESEARCH RESOURCES — Literature + Data teasers -->
+      <div class="ov-research-band">
+        <div class="ov-research-inner">
+          <div>
+            <div class="ov-research-col-label">Literature</div>
+            <div class="ov-research-col-title">Foundational reading for your design</div>
+            <div id="ov-lit-teaser"></div>
+            <button class="ov-see-all" onclick="switchTab('literature')">See all recommendations →</button>
+          </div>
+          <div>
+            <div class="ov-research-col-label">Open-access data</div>
+            <div class="ov-research-col-title">Curated sources for your research design</div>
+            <div id="ov-data-teaser"></div>
+            <button class="ov-see-all" onclick="switchTab('data')">Browse all sources →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: IMPLEMENTATION — quiet, bottom-positioned -->
+      <div class="ov-impl-band">
+        <div class="ov-impl-inner">
+          <div class="ov-impl-label">When you're ready to implement</div>
+          <div class="ov-impl-row">
+            <a class="ov-impl-item" href="#" onclick="switchTab('methods');return false;">
+              <span class="ov-impl-icon">⟳</span>
+              <div class="ov-impl-text">
+                <div class="ov-impl-title">Practice your methods</div>
+                <div class="ov-impl-desc">Structured modules for your exact toolkit, pre-filtered and contextualized.</div>
+              </div>
+            </a>
+            <a class="ov-impl-item" href="#" onclick="openAuditTool();return false;">
+              <span class="ov-impl-icon">△</span>
+              <div class="ov-impl-text">
+                <div class="ov-impl-title">Audit your code</div>
+                <div class="ov-impl-desc">Upload a script to check your implementation against your toolkit.</div>
+              </div>
+            </a>
+            <a class="ov-impl-item" href="#" onclick="exportLog();return false;">
+              <span class="ov-impl-icon">↓</span>
+              <div class="ov-impl-text">
+                <div class="ov-impl-title">Export your log</div>
+                <div class="ov-impl-desc">Generate a reproducibility log for your thesis or consulting deliverable.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <div class="qst-section">
-      <div class="qst-section-label">Continue your learning</div>
-      <div class="qst-section-title">Build the skills to execute your research design</div>
-      <div class="qst-section-desc">The Quant Skills Trainer gives you structured, hands-on practice implementing the exact methods recommended above — in R, Stata, or Python. Each module combines a lesson, worked code, and AI-reviewed exercises tailored to applied econometrics.</div>
-      <div class="qst-section-desc" style="margin-top:8px;">Completing the relevant modules will take you from understanding the method conceptually to being able to implement, interpret, and defend it in your own research.</div>
-      <div id="qst-trainer-btn-wrap"></div>
-      <div style="margin-top:20px; padding-top:18px; border-top:.5px solid rgba(126,182,255,.15)">
-        <button class="btn-primary" onclick="openAuditTool()" style="padding:10px 18px; font-size:13.5px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;"><span style="font-size:15px">⌂</span>Run AI Code Audit</button>
-      </div>
-    </div>`;
+    <div id="qst-trainer-btn-wrap" style="display:none"></div>`;
   }
 
   // FULL-WIDTH DATA SOURCES BAND
