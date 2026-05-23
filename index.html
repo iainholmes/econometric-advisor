@@ -38,11 +38,14 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* ── OVERVIEW DASHBOARD ─────────────────────────────────────────────── */
 /* Full-bleed: break out of .results 1200px constraint */
 .ov-bleed{margin:0 -2.5rem}
-.ov-hero{background:linear-gradient(135deg,#08192e 0%,#0d2240 50%,#081929 100%);border-bottom:.5px solid var(--border);padding:2.5rem 2.5rem 2rem;position:relative;overflow:hidden}
+.ov-hero{background:linear-gradient(135deg,#08192e 0%,#0d2240 50%,#081929 100%);border-bottom:.5px solid rgba(255,255,255,.08);padding:2.75rem 2.5rem 2.25rem;position:relative;overflow:hidden}
 .ov-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(61,107,133,.13) 0%,transparent 70%);pointer-events:none}
 .ov-hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
 .ov-hero-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:14px;font-family:'JetBrains Mono',monospace;display:inline-block;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1)}
 .ov-hero-grid{display:grid;grid-template-columns:2fr 1.1fr 1fr;gap:24px;align-items:start}
+@media(max-width:960px){.ov-hero-grid{grid-template-columns:1fr 1fr;gap:20px}}
+@media(max-width:960px){.ov-hero-grid>div:last-child{grid-column:1/-1}}
+@media(max-width:640px){.ov-hero-grid{grid-template-columns:1fr;gap:16px}}
 .ov-narrative-text{color:var(--text);font-size:14px;line-height:1.85;margin:0;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
 .ov-chip{font-size:11px;padding:4px 11px;border-radius:20px;border:.5px solid;font-weight:500;letter-spacing:.02em}
@@ -59,16 +62,16 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-caution-text{color:var(--muted);font-size:12.5px;line-height:1.7}
 
 /* Toolkit grid band */
-.ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
+.ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid rgba(255,255,255,.08)}
 .ov-toolkit-inner{max-width:1200px;margin:0 auto}
 .ov-band-label{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:0;font-family:'Instrument Sans',-apple-system,sans-serif;display:table;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.18)}
 .ov-band-title{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px;margin-bottom:1.25rem;letter-spacing:.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
-.ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:stretch}
 @media(max-width:1000px){.ov-node-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:580px){.ov-node-grid{grid-template-columns:1fr}}
-.ov-node-card{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+.ov-node-card{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s;min-height:180px}
 .ov-node-card:hover{border-color:var(--surface)}
-.ov-node-cat{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.ov-node-cat{font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:600;opacity:.75}
 .ov-node-label{font-size:13px;font-weight:600;color:var(--text);line-height:1.3}
 .ov-node-def{font-size:11.5px;color:var(--muted);line-height:1.6;flex:1}
 .ov-node-links{display:flex;gap:12px;margin-top:4px;padding-top:8px;border-top:.5px solid var(--border)}
@@ -76,7 +79,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-node-link:hover{color:var(--text)}
 
 /* Research band: literature + data teasers */
-.ov-research-band{background:#06131f;padding:2.5rem 2.5rem;border-bottom:.5px solid var(--border)}
+.ov-research-band{background:#06131f;padding:2.5rem 2.5rem;border-bottom:.5px solid rgba(255,255,255,.08)}
 .ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px}
 @media(max-width:760px){.ov-research-inner{grid-template-columns:1fr}}
 .ov-research-col-label{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;margin-bottom:0;font-family:'Instrument Sans',-apple-system,sans-serif;display:table;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.18)}
@@ -3869,6 +3872,9 @@ function renderResults(tk,ai){
           <div class="ov-band-label">Active Toolkit</div>
           <div class="ov-band-title">Your recommended methods at a glance</div>
           <div class="ov-node-grid" id="ov-node-grid"></div>
+          <div style="margin-top:14px;text-align:right">
+            <button onclick="switchTab('methods')" style="background:none;border:none;color:var(--hint);font-size:12px;cursor:pointer;font-family:inherit;letter-spacing:.02em;transition:color .15s;padding:0" onmouseover="this.style.color='var(--muted)'" onmouseout="this.style.color='var(--hint)'">Full details — equations, code &amp; watch-outs — in the Methods tab →</button>
+          </div>
         </div>
       </div>
 
