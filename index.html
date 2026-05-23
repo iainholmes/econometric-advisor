@@ -1436,50 +1436,51 @@ document.addEventListener('click',function(){closeToolsMenu();});
 
 /* ── OVERVIEW POPULATION ── */
 function buildOverviewSections(tk, ai){
-  // Design chips from active toolkit sections
+  // Design chips — s.label is the correct property (not s.title)
   const chipMap = {
-    'Identification strategy': {cls:'identification', label:'Identification strategy'},
-    'Estimator & model specification': {cls:'estimator', label:'Estimator'},
-    'Functional form': {cls:'neutral', label:'Functional form'},
-    'Spatial econometrics': {cls:'neutral', label:'Spatial'},
-    'Inference & diagnostic checklist': {cls:'diagnostic', label:'Diagnostics'}
+    'Identification strategy':          {cls:'identification', label:'Identification strategy'},
+    'Estimator & model specification':  {cls:'estimator',      label:'Estimator'},
+    'Functional form':                  {cls:'neutral',        label:'Functional form'},
+    'Spatial econometrics':             {cls:'neutral',        label:'Spatial'},
+    'Inference & diagnostic checklist': {cls:'diagnostic',     label:'Diagnostics'}
   };
   const chipsEl = document.getElementById('ov-design-chips');
   if(chipsEl && tk.sections){
     chipsEl.innerHTML = tk.sections.map(s=>{
-      const m = chipMap[s.title] || {cls:'neutral', label:s.title};
+      const m = chipMap[s.label] || {cls:'neutral', label:s.label};
       return `<span class="ov-chip ${m.cls}">${m.label}</span>`;
     }).join('');
   }
 
-  // Node grid — active KG nodes
+  // Node grid — use s.label, s.method, s.detail (correct property names)
   const catMeta = {
     problem:{color:'#ef4444',label:'Problem'},
-    logic:{color:'#3b82f6',label:'Strategic Logic'},
-    tool:{color:'#10b981',label:'Tool / Estimator'},
-    diag:{color:'#f59e0b',label:'Diagnostic'}
+    logic:  {color:'#3b82f6',label:'Strategic Logic'},
+    tool:   {color:'#10b981',label:'Tool / Estimator'},
+    diag:   {color:'#f59e0b',label:'Diagnostic'}
   };
-  // Clean color mapping: only unambiguous KG category mappings
   const sectionCatMap = {
-    'Identification strategy':'logic',
-    'Estimator & model specification':'tool',
-    'Inference & diagnostic checklist':'diag'
+    'Identification strategy':          'logic',
+    'Estimator & model specification':  'tool',
+    'Inference & diagnostic checklist': 'diag'
   };
   const gridEl = document.getElementById('ov-node-grid');
   if(gridEl && tk.sections){
     let cards = '';
     tk.sections.forEach(s => {
-      const cat = sectionCatMap[s.title] || null;
+      const cat = sectionCatMap[s.label] || null;
       const meta = cat ? catMeta[cat] : null;
       const catColor = meta ? meta.color : 'var(--hint)';
-      const catLabel = meta ? meta.label : s.title;
-      // Find matching KG node for trainer link
+      const catLabel = meta ? meta.label : s.label;
       const kgTag = s.kgTags?.[0] || '';
       const trainerUrl = kgTag ? buildTrainerUrl(kgTag) : '';
-      cards += `<div class="ov-node-card" style="border-left:2px solid ${catColor}20">
+      // s.method is the method name; s.detail is the description
+      const methodName = s.method || s.label || '';
+      const methodDetail = s.detail ? s.detail.split('.')[0]+'.' : '';
+      cards += `<div class="ov-node-card" style="border-left:2px solid ${catColor}40">
         <div class="ov-node-cat" style="color:${catColor}">${catLabel}</div>
-        <div class="ov-node-label">${esc(s.title)}</div>
-        <div class="ov-node-def">${esc(s.short||s.rationale||'')}</div>
+        <div class="ov-node-label">${esc(methodName)}</div>
+        <div class="ov-node-def">${esc(methodDetail)}</div>
         <div class="ov-node-links">
           <a class="ov-node-link" href="#" onclick="switchTab('methods');return false;">Deep dive →</a>
           ${trainerUrl?`<a class="ov-node-link" href="${trainerUrl}" target="_blank" rel="noreferrer">Practice →</a>`:''}
@@ -1489,27 +1490,53 @@ function buildOverviewSections(tk, ai){
     gridEl.innerHTML = cards;
   }
 
-  // Literature teaser — up to 3 foundational refs
-  const litEl = document.getElementById('ov-lit-teaser');
-  if(litEl && tk.literature?.length){
-    litEl.innerHTML = tk.literature.slice(0,3).map(p=>`
-      <div class="ov-teaser-item">
-        <div class="ov-teaser-title">${esc(p.title||p.t||'')}</div>
-        <div class="ov-teaser-sub">${esc(p.authors||p.a||'')}${p.year||p.y?' · '+(p.year||p.y):''}</div>
-      </div>`).join('');
-  } else if(litEl){
-    litEl.innerHTML = '<div class="ov-teaser-item"><div class="ov-teaser-sub">Run the assessment to surface literature recommendations.</div></div>';
+  // Literature teaser — pull from _litFoundational global (populated by fetchLiterature)
+  // If not yet populated, show a pending state and retry after a short delay
+  function renderLitTeaser(){
+    const litEl = document.getElementById('ov-lit-teaser');
+    if(!litEl) return;
+    if(typeof _litFoundational !== 'undefined' && _litFoundational.length){
+      litEl.innerHTML = _litFoundational.slice(0,3).map(p=>`
+        <div class="ov-teaser-item">
+          <div class="ov-teaser-title">${esc(p.title||p.t||'Untitled')}</div>
+          <div class="ov-teaser-sub">${esc(p.authors||p.a||'')}${(p.year||p.y)?' · '+(p.year||p.y):''}</div>
+        </div>`).join('');
+    } else {
+      litEl.innerHTML = '<div class="ov-teaser-item"><div class="ov-teaser-sub" style="opacity:.5">Loading recommendations...</div></div>';
+      setTimeout(renderLitTeaser, 1200);
+    }
   }
+  renderLitTeaser();
 
-  // Data teaser — up to 3 sources
-  const dataEl = document.getElementById('ov-data-teaser');
-  if(dataEl && tk.sources?.length){
-    dataEl.innerHTML = tk.sources.slice(0,3).map(s=>`
-      <div class="ov-teaser-item">
-        <div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
-        <div class="ov-teaser-sub">${esc(s.d||s.desc||'')}</div>
-      </div>`).join('');
+  // Data teaser — pull from the rendered data-sources tab cards
+  // _drawerSources is populated by renderDataSources; fall back to direct DOM scrape
+  function renderDataTeaser(){
+    const dataEl = document.getElementById('ov-data-teaser');
+    if(!dataEl) return;
+    if(typeof _drawerSources !== 'undefined' && _drawerSources.length){
+      dataEl.innerHTML = _drawerSources.slice(0,3).map(s=>`
+        <div class="ov-teaser-item">
+          <div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
+          <div class="ov-teaser-sub">${esc(s.d||s.desc||s.tagline||'')}</div>
+        </div>`).join('');
+    } else {
+      // Scrape from rendered source cards in the data tab
+      const cards = document.querySelectorAll('.source-card');
+      if(cards.length){
+        let html = '';
+        Array.from(cards).slice(0,3).forEach(c=>{
+          const title = c.querySelector('.source-name')?.textContent || '';
+          const desc  = c.querySelector('.source-desc,.source-tagline')?.textContent || '';
+          if(title) html += `<div class="ov-teaser-item"><div class="ov-teaser-title">${esc(title)}</div><div class="ov-teaser-sub">${esc(desc)}</div></div>`;
+        });
+        dataEl.innerHTML = html || '<div class="ov-teaser-item"><div class="ov-teaser-sub" style="opacity:.5">Browse the Data sources tab →</div></div>';
+      } else {
+        dataEl.innerHTML = '<div class="ov-teaser-item"><div class="ov-teaser-sub" style="opacity:.5">Browse the Data sources tab →</div></div>';
+        setTimeout(renderDataTeaser, 1500);
+      }
+    }
   }
+  renderDataTeaser();
 }
 
 function buildTrainerUrl(kgTag){
@@ -1639,7 +1666,7 @@ function saveKey(){const k=document.getElementById('api-key-input').value.trim()
 function skipKey(){document.getElementById('api-modal').style.display='none';beginQuiz();}
 function resetKey(){localStorage.removeItem('ea_ak');apiKey='';document.getElementById('api-key-input').value='';document.getElementById('api-modal').style.display='flex';}
 function beginQuiz(){step=0;ans={};renderQ();}
-function resetApp(){step=-1;ans={};_sourceFitCache={};_sourceFitAIDone={};_drawerSources=[];_drawerToolkit=null;_drawerPapers=[];_drawerAnswers={};_litLens='recent';_litShownTitles=new Set();_litAIPapers=[];_litFoundational=[];_litLastAnswers=null;_litLastToolkit=null;_qPanelOpen.clear();show('landing');document.getElementById('hdr').style.display='none';setProgress(0);const nav=document.getElementById('tk-jump-nav');if(nav)nav.classList.remove('show');}
+function resetApp(){step=-1;ans={};_sourceFitCache={};_sourceFitAIDone={};_drawerSources=[];_drawerToolkit=null;_drawerPapers=[];_drawerAnswers={};_litLens='recent';_litShownTitles=new Set();_litAIPapers=[];_litFoundational=[];_litLastAnswers=null;_litLastToolkit=null;_qPanelOpen.clear();window._tourReady=false;localStorage.removeItem('advisor_tour_v1');show('landing');document.getElementById('hdr').style.display='none';setProgress(0);const nav=document.getElementById('tk-jump-nav');if(nav)nav.classList.remove('show');}
 
 function openClaudeHandoff(){
   // Build a summary prompt the user can carry into claude.ai for deeper analysis with file uploads
