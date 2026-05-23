@@ -29,7 +29,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .hdr-tools-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 13px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.005em;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .hdr-tools-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
 .hdr-tools-btn.open{border-color:var(--surface);color:var(--text);background:var(--bg2)}
-.hdr-tools-menu{position:absolute;top:calc(100% + 6px);right:0;background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:6px;min-width:180px;z-index:200;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .15s,transform .15s;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.hdr-tools-menu{position:fixed;top:auto;right:auto;background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:6px;min-width:190px;z-index:9999;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .15s,transform .15s;box-shadow:0 8px 32px rgba(0,0,0,.6)}
 .hdr-tools-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hdr-tools-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:7px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .12s;font-family:inherit;background:transparent;border:none;width:100%;text-align:left;letter-spacing:.005em}
 .hdr-tools-item:hover{background:var(--bg3);color:var(--text)}
@@ -1425,6 +1425,11 @@ function toggleToolsMenu(e){
   const btn=document.getElementById('hdr-tools-btn');
   const menu=document.getElementById('hdr-tools-menu');
   const open=menu.classList.contains('open');
+  if(!open){
+    const r=btn.getBoundingClientRect();
+    menu.style.top=(r.bottom+6)+'px';
+    menu.style.right=(window.innerWidth-r.right)+'px';
+  }
   btn.classList.toggle('open',!open);
   menu.classList.toggle('open',!open);
 }
@@ -1654,7 +1659,7 @@ function setHdr(sub,showResults){
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
   const _tw=document.getElementById('hdr-tools-wrap');
   if(_tw) _tw.style.display=showResults?'inline-flex':'none';
-  document.getElementById('btn-library').style.display='inline-flex';
+  // btn-library moved to tools dropdown — no longer shown standalone
   const btnAudit = document.getElementById('btn-audit');
   if(btnAudit) btnAudit.style.display = showResults ? 'inline-flex' : 'none';
 }
