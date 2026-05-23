@@ -50,9 +50,10 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-chip.estimator{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.35);color:#6ee7b7}
 .ov-chip.diagnostic{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35);color:#fcd34d}
 .ov-chip.neutral{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);color:var(--muted)}
-.ov-adj{display:flex;flex-direction:column;gap:6px}
-.ov-adj-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:4px}
-.ov-adj-item{color:var(--muted);font-size:12.5px;line-height:1.7;padding-left:10px;border-left:2px solid var(--surface)}
+.ov-adj{display:flex;flex-direction:column;gap:0;background:rgba(59,130,246,.07);border:.5px solid rgba(59,130,246,.25);border-radius:10px;padding:13px 15px}
+.ov-adj-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd;font-weight:700;margin-bottom:8px}
+.ov-adj-item{color:var(--muted);font-size:12.5px;line-height:1.7;padding-left:10px;border-left:2px solid rgba(59,130,246,.4);margin-bottom:5px}
+.ov-adj-item:last-child{margin-bottom:0}
 .ov-caution{background:rgba(245,158,11,.07);border:.5px solid rgba(245,158,11,.25);border-radius:10px;padding:13px 15px}
 .ov-caution-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:5px}
 .ov-caution-text{color:var(--muted);font-size:12.5px;line-height:1.7}
@@ -3846,17 +3847,17 @@ function renderResults(tk,ai){
       <!-- SECTION 1: HERO — Research Design Summary -->
       <div class="ov-hero">
         <div class="ov-hero-inner">
-          <div class="ov-hero-label">Your research design — plain English</div>
+          <div class="ov-hero-label">Your Research Design — Plain English</div>
           <div class="ov-hero-grid">
             <div>
               <p class="ov-narrative-text">${esc(ai.narrative)}</p>
               <div class="ov-chips" id="ov-design-chips"></div>
             </div>
             <div class="ov-adj" id="ov-adj-col">
-              ${ai.key_adjustments?.length?`<div class="ov-adj-label">Design-specific adjustments</div>${ai.key_adjustments.map(a=>`<div class="ov-adj-item">${esc(a)}</div>`).join('')}`:''}
+              ${ai.key_adjustments?.length?`<div class="ov-adj-label">Design-Specific Adjustments</div>${ai.key_adjustments.map(a=>`<div class="ov-adj-item">${esc(a)}</div>`).join('')}`:''}
             </div>
             <div>
-              ${ai.watchout?`<div class="ov-caution"><div class="ov-caution-label">Study-specific caution</div><div class="ov-caution-text">${esc(ai.watchout)}</div></div>`:''}
+              ${ai.watchout?`<div class="ov-caution"><div class="ov-caution-label">Study-Specific Caution</div><div class="ov-caution-text">${esc(ai.watchout)}</div></div>`:''}
             </div>
           </div>
         </div>
@@ -3865,7 +3866,7 @@ function renderResults(tk,ai){
       <!-- SECTION 2: ACTIVE TOOLKIT GRID -->
       <div class="ov-toolkit-band">
         <div class="ov-toolkit-inner">
-          <div class="ov-band-label">Active toolkit</div>
+          <div class="ov-band-label">Active Toolkit</div>
           <div class="ov-band-title">Your recommended methods at a glance</div>
           <div class="ov-node-grid" id="ov-node-grid"></div>
         </div>
@@ -3876,13 +3877,13 @@ function renderResults(tk,ai){
         <div class="ov-research-inner">
           <div>
             <div class="ov-research-col-label">Literature</div>
-            <div class="ov-research-col-title">Foundational reading for your design</div>
+            <div class="ov-research-col-title">Foundational Reading for Your Design</div>
             <div id="ov-lit-teaser"></div>
             <button class="ov-see-all" onclick="switchTab('literature')">See all recommendations →</button>
           </div>
           <div>
-            <div class="ov-research-col-label">Open-access data</div>
-            <div class="ov-research-col-title">Curated sources for your research design</div>
+            <div class="ov-research-col-label">Open-Access Data</div>
+            <div class="ov-research-col-title">Curated Sources for Your Research Design</div>
             <div id="ov-data-teaser"></div>
             <button class="ov-see-all" onclick="switchTab('data')">Browse all sources →</button>
           </div>
@@ -3892,7 +3893,7 @@ function renderResults(tk,ai){
       <!-- SECTION 4: IMPLEMENTATION -->
       <div class="ov-impl-band">
         <div class="ov-impl-inner">
-          <div class="ov-impl-label">When you are ready to implement</div>
+          <div class="ov-impl-label">When You Are Ready to Implement</div>
           <div class="ov-impl-intro">Once your research design is set, three tools help you move from strategy to execution — practice the methods, verify your code, and document your decisions.</div>
           <div class="ov-impl-row">
             <a class="ov-impl-item practice" href="#" onclick="switchTab('methods');return false;">
