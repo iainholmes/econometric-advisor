@@ -43,7 +43,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
 .ov-hero-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
 .ov-hero-grid{display:grid;grid-template-columns:2fr 1.1fr 1fr;gap:24px;align-items:start}
-.ov-narrative-text{color:var(--text);font-size:14px;line-height:1.85;margin:0}
+.ov-narrative-text{color:var(--text);font-size:14px;line-height:1.85;margin:0;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
 .ov-chip{font-size:11px;padding:4px 11px;border-radius:20px;border:.5px solid;font-weight:500;letter-spacing:.02em}
 .ov-chip.identification{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35);color:#93c5fd}
@@ -61,7 +61,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
 .ov-toolkit-inner{max-width:1200px;margin:0 auto}
 .ov-band-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
-.ov-band-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.005em}
+.ov-band-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media(max-width:1000px){.ov-node-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:580px){.ov-node-grid{grid-template-columns:1fr}}
@@ -75,30 +75,36 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-node-link:hover{color:var(--text)}
 
 /* Research band: literature + data teasers */
-.ov-research-band{background:#06131f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
-.ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.ov-research-band{background:#06131f;padding:2.5rem 2.5rem;border-bottom:.5px solid var(--border)}
+.ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px}
 @media(max-width:760px){.ov-research-inner{grid-template-columns:1fr}}
-.ov-research-col-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
-.ov-research-col-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:1rem;letter-spacing:-.005em}
-.ov-teaser-item{padding:10px 0;border-bottom:.5px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.ov-research-col-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.ov-research-col-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-teaser-item{padding:12px 0;border-bottom:.5px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:4px}
 .ov-teaser-item:last-child{border-bottom:none}
-.ov-teaser-title{font-size:12.5px;color:var(--text);font-weight:500;line-height:1.4}
-.ov-teaser-sub{font-size:11.5px;color:var(--muted);line-height:1.5}
-.ov-see-all{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:12px;color:#7eb6ff;text-decoration:none;letter-spacing:.02em;font-weight:500;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.ov-teaser-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.45;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-teaser-sub{font-size:12px;color:var(--muted);line-height:1.55;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-see-all{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12.5px;color:#7eb6ff;text-decoration:none;letter-spacing:.02em;font-weight:500;cursor:pointer;background:none;border:none;font-family:'Instrument Sans',-apple-system,sans-serif;padding:0;transition:color .15s}
 .ov-see-all:hover{color:#fff}
+.ov-research-divider{width:1px;background:rgba(255,255,255,.06);margin:0}
 
 /* Implementation row */
-.ov-impl-band{background:#020e1f;padding:1.75rem 2.5rem 2.5rem}
+.ov-impl-band{background:#020e1f;padding:2.5rem 2.5rem 3rem}
 .ov-impl-inner{max-width:1200px;margin:0 auto}
-.ov-impl-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:1.25rem;font-family:'JetBrains Mono',monospace}
-.ov-impl-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ov-impl-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.ov-impl-intro{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;max-width:640px;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-impl-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:700px){.ov-impl-row{grid-template-columns:1fr}}
-.ov-impl-item{background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:border-color .15s;text-decoration:none}
-.ov-impl-item:hover{border-color:var(--surface)}
-.ov-impl-icon{font-size:16px;line-height:1;margin-top:1px;flex-shrink:0;opacity:.7}
-.ov-impl-text{}
-.ov-impl-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
-.ov-impl-desc{font-size:11.5px;color:var(--muted);line-height:1.6}
+.ov-impl-item{background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:0;cursor:pointer;transition:border-color .2s,background .2s;text-decoration:none;position:relative;overflow:hidden}
+.ov-impl-item::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:12px}
+.ov-impl-item:hover{border-color:var(--surface);background:#0d2035}
+.ov-impl-item-icon{font-size:20px;line-height:1;margin-bottom:14px;display:block}
+.ov-impl-item-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:'Instrument Sans',-apple-system,sans-serif;letter-spacing:-.005em}
+.ov-impl-item-desc{font-size:12.5px;color:var(--muted);line-height:1.65;font-family:'Instrument Sans',-apple-system,sans-serif;margin-bottom:14px;flex:1}
+.ov-impl-item-cta{font-size:11.5px;color:#7eb6ff;font-weight:500;letter-spacing:.02em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-impl-item.practice .ov-impl-item-icon{color:#10b981}
+.ov-impl-item.audit .ov-impl-item-icon{color:#f59e0b}
+.ov-impl-item.export .ov-impl-item-icon{color:#3b82f6}
 
 /* ── TOUR OVERLAY ───────────────────────────────────────────────────── */
 #advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none;display:none}
@@ -1659,9 +1665,7 @@ function setHdr(sub,showResults){
   document.getElementById('btn-reset').style.display=showResults?'inline-flex':'none';
   const _tw=document.getElementById('hdr-tools-wrap');
   if(_tw) _tw.style.display=showResults?'inline-flex':'none';
-  // btn-library moved to tools dropdown — no longer shown standalone
-  const btnAudit = document.getElementById('btn-audit');
-  if(btnAudit) btnAudit.style.display = showResults ? 'inline-flex' : 'none';
+  // btn-library and btn-audit moved to tools dropdown — not shown standalone
 }
 function setProgress(p){document.getElementById('prog').style.width=p+'%';}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1935,7 +1939,6 @@ async function generate(){
   });
   setHdr('your toolkit',true);
   document.getElementById('btn-reset').style.display='inline-flex';
-  document.getElementById('btn-export').style.display='inline-flex';
   const toolsWrap = document.getElementById('hdr-tools-wrap');
   if(toolsWrap) toolsWrap.style.display='inline-flex';
   // Build overview sections and fire tour on first visit
@@ -3876,31 +3879,29 @@ function renderResults(tk,ai){
         </div>
       </div>
 
-      <!-- SECTION 4: IMPLEMENTATION — quiet, bottom-positioned -->
+      <!-- SECTION 4: IMPLEMENTATION -->
       <div class="ov-impl-band">
         <div class="ov-impl-inner">
-          <div class="ov-impl-label">When you're ready to implement</div>
+          <div class="ov-impl-label">When you are ready to implement</div>
+          <div class="ov-impl-intro">Once your research design is set, three tools help you move from strategy to execution — practice the methods, verify your code, and document your decisions.</div>
           <div class="ov-impl-row">
-            <a class="ov-impl-item" href="#" onclick="switchTab('methods');return false;">
-              <span class="ov-impl-icon">⟳</span>
-              <div class="ov-impl-text">
-                <div class="ov-impl-title">Practice your methods</div>
-                <div class="ov-impl-desc">Structured modules for your exact toolkit, pre-filtered and contextualized.</div>
-              </div>
+            <a class="ov-impl-item practice" href="#" onclick="switchTab('methods');return false;">
+              <span class="ov-impl-item-icon">⟳</span>
+              <div class="ov-impl-item-title">Practice your methods</div>
+              <div class="ov-impl-item-desc">The Quant Skills Trainer includes structured modules for every method in your toolkit — in R, Python, or Stata. Each module covers the key concepts, worked code, and common misspecification risks specific to your design.</div>
+              <span class="ov-impl-item-cta">Open in Trainer →</span>
             </a>
-            <a class="ov-impl-item" href="#" onclick="openAuditTool();return false;">
-              <span class="ov-impl-icon">△</span>
-              <div class="ov-impl-text">
-                <div class="ov-impl-title">Audit your code</div>
-                <div class="ov-impl-desc">Upload a script to check your implementation against your toolkit.</div>
-              </div>
+            <a class="ov-impl-item audit" href="#" onclick="openAuditTool();return false;">
+              <span class="ov-impl-item-icon">△</span>
+              <div class="ov-impl-item-title">Audit your code</div>
+              <div class="ov-impl-item-desc">Upload a .py, .R, or .do script and the Advisor maps what you have implemented, flags standard error misspecifications by severity, and identifies gaps between your code and your recommended toolkit.</div>
+              <span class="ov-impl-item-cta">Open code audit →</span>
             </a>
-            <a class="ov-impl-item" href="#" onclick="exportLog();return false;">
-              <span class="ov-impl-icon">↓</span>
-              <div class="ov-impl-text">
-                <div class="ov-impl-title">Export your log</div>
-                <div class="ov-impl-desc">Generate a reproducibility log for your thesis or consulting deliverable.</div>
-              </div>
+            <a class="ov-impl-item export" href="#" onclick="exportLog();return false;">
+              <span class="ov-impl-item-icon">↓</span>
+              <div class="ov-impl-item-title">Export your log</div>
+              <div class="ov-impl-item-desc">Generate a print-ready reproducibility log documenting your full identification strategy, recommended toolkit with rationales, diagnostic checklist, and design-specific cautions. Suitable for thesis appendices and consulting deliverables.</div>
+              <span class="ov-impl-item-cta">Generate PDF →</span>
             </a>
           </div>
         </div>
