@@ -261,7 +261,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 
 .lit-loading-mini{color:var(--muted);font-size:13px;text-align:center;padding:.5rem}
 /* SEC DIVIDER */
-.section-title{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.section-title{font-size:22px;color:var(--text);font-weight:600;margin:10px 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .section-title-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;line-height:1.4}
 .sec-divider{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin:0 0 1rem;padding-bottom:8px;border-bottom:.5px solid var(--border)}
 /* SOURCES */
@@ -367,7 +367,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .tk-jump-chip.active{background:rgba(126,182,255,.14);border-color:#7eb6ff;color:#7eb6ff}
 /* TOOLKIT WITH LEFT RAIL */
 .toolkit-section{margin-top:0}
-.toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
+.toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:10px 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;line-height:1.4}
 .toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
 .lang-rail{position:sticky;top:74px;display:flex;flex-direction:column;gap:8px;background:#0a1d33;border:.5px solid var(--border);border-radius:11px;padding:14px 12px}
@@ -4211,7 +4211,7 @@ var _kgPositions=null;
 function renderKnowledgeGraph(tk){
   return `<div class="tk-tab-panel" data-tab="graph"><div class="kg-section" id="tk-graph">
     <div class="kg-header">
-      <h3>The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node to learn more</span></h3>
+       <h3 style="margin-top: 10px; margin-bottom: 1rem; padding-bottom: 11px; border-bottom: 2px solid #7eb6ff; display: flex; flex-direction: column; gap: 5px;">The econometric architecture<span class="kg-sub">Drag to pan · scroll to zoom · click any node to learn more</span></h3>
       <div style="background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:16px 20px">
         <p>This is the conceptual map of applied econometrics: <strong style="color:var(--text)">Problems</strong> create the need for <strong style="color:var(--text)">Strategic Logic</strong>, which justifies the <strong style="color:var(--text)">Tools</strong> used to estimate causal effects, which are validated by <strong style="color:var(--text)">Diagnostics</strong>. Use the filter rail to focus on one layer at a time; click any node to read its definition and jump to the relevant toolkit section.</p>
         <div class="kg-legend">
