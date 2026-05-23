@@ -101,8 +101,8 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-impl-desc{font-size:11.5px;color:var(--muted);line-height:1.6}
 
 /* ── TOUR OVERLAY ───────────────────────────────────────────────────── */
-#advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none}
-#advisor-tour.active{pointer-events:all}
+#advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none;display:none}
+#advisor-tour.active{pointer-events:all;display:block}
 .tour-backdrop{position:absolute;inset:0;background:rgba(2,14,31,.82);opacity:0;transition:opacity .3s;backdrop-filter:blur(2px)}
 #advisor-tour.active .tour-backdrop{opacity:1}
 .tour-spotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(2,14,31,.82);border:1.5px solid rgba(126,182,255,.5);transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
