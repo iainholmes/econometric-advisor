@@ -103,21 +103,57 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* ── TOUR OVERLAY ───────────────────────────────────────────────────── */
 #advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none;display:none}
 #advisor-tour.active{pointer-events:all;display:block}
-.tour-backdrop{position:absolute;inset:0;background:rgba(2,14,31,.82);opacity:0;transition:opacity .3s;backdrop-filter:blur(2px)}
-#advisor-tour.active .tour-backdrop{opacity:1}
-.tour-spotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(2,14,31,.82);border:1.5px solid rgba(126,182,255,.5);transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
-.tour-card{position:absolute;background:#0d2240;border:.5px solid rgba(126,182,255,.3);border-radius:14px;padding:20px 22px;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.5);transition:all .4s cubic-bezier(.4,0,.2,1)}
-.tour-step-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7eb6ff;font-weight:600;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
-.tour-card h4{font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;line-height:1.3}
-.tour-card p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.tour-backdrop{position:absolute;inset:0;background:rgba(2,14,31,.78);backdrop-filter:blur(3px)}
+.tour-spotlight{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(2,14,31,.78);transition:all .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
+/* Base card */
+.tour-card{position:absolute;border-radius:16px;padding:0;max-width:360px;width:360px;box-shadow:0 24px 64px rgba(0,0,0,.6);transition:left .45s cubic-bezier(.4,0,.2,1),top .45s cubic-bezier(.4,0,.2,1),opacity .3s;overflow:hidden}
+/* Progress bar at top of card */
+.tour-progress-bar{height:3px;background:rgba(255,255,255,.08);width:100%}
+.tour-progress-fill{height:100%;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.tour-card-body{padding:20px 22px 18px}
+.tour-step-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:10px;font-family:'JetBrains Mono',monospace;opacity:.7}
+.tour-card h4{font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;line-height:1.35;font-family:'Instrument Sans',-apple-system,sans-serif}
+.tour-card p{font-size:13px;line-height:1.75;margin-bottom:18px;font-family:'Instrument Sans',-apple-system,sans-serif}
 .tour-actions{display:flex;gap:8px;align-items:center}
-.tour-next{background:rgba(126,182,255,.15);border:.5px solid rgba(126,182,255,.4);border-radius:7px;color:#7eb6ff;font-size:12.5px;font-weight:600;padding:8px 18px;cursor:pointer;font-family:inherit;transition:all .15s}
-.tour-next:hover{background:rgba(126,182,255,.25);color:#fff}
-.tour-skip{background:none;border:none;color:var(--hint);font-size:12px;cursor:pointer;font-family:inherit;padding:8px;transition:color .15s}
-.tour-skip:hover{color:var(--muted)}
-.tour-dots{display:flex;gap:5px;margin-left:auto}
-.tour-dot{width:5px;height:5px;border-radius:50%;background:rgba(126,182,255,.25);transition:background .2s}
-.tour-dot.active{background:#7eb6ff}
+.tour-next{border-radius:7px;font-size:12.5px;font-weight:600;padding:8px 18px;cursor:pointer;font-family:inherit;transition:all .15s;border:none}
+.tour-next:hover{opacity:.85}
+.tour-skip{background:none;border:none;font-size:12px;cursor:pointer;font-family:inherit;padding:8px;transition:opacity .15s;opacity:.45}
+.tour-skip:hover{opacity:.7}
+.tour-connector{position:absolute;width:2px;background:linear-gradient(to bottom,rgba(255,255,255,.3),transparent);pointer-events:none;transition:all .45s cubic-bezier(.4,0,.2,1)}
+/* Per-step themes */
+.tour-card[data-step="0"]{background:linear-gradient(135deg,#08192e 0%,#0d2240 100%);border:.5px solid rgba(61,107,133,.5)}
+.tour-card[data-step="0"] .tour-progress-fill{background:linear-gradient(90deg,#3d6b85,#7eb6ff)}
+.tour-card[data-step="0"] .tour-step-label{color:#7eb6ff}
+.tour-card[data-step="0"] .tour-card-inner-accent{background:rgba(61,107,133,.12);border-left:2px solid rgba(126,182,255,.4)}
+.tour-card[data-step="0"] .tour-next{background:rgba(126,182,255,.18);color:#7eb6ff}
+.tour-card[data-step="0"] .tour-skip{color:var(--muted)}
+.tour-card[data-step="0"] p{color:var(--muted)}
+.tour-card[data-step="1"]{background:linear-gradient(135deg,#070f20 0%,#0c1a38 100%);border:.5px solid rgba(59,130,246,.4);box-shadow:0 0 40px rgba(59,130,246,.08),0 24px 64px rgba(0,0,0,.6)}
+.tour-card[data-step="1"] .tour-progress-fill{background:linear-gradient(90deg,#1d4ed8,#3b82f6)}
+.tour-card[data-step="1"] .tour-step-label{color:#93c5fd}
+.tour-card[data-step="1"] .tour-next{background:rgba(59,130,246,.2);color:#93c5fd}
+.tour-card[data-step="1"] .tour-skip{color:#93c5fd}
+.tour-card[data-step="1"] p{color:#cbd5e1}
+/* KG constellation accent — 3 decorative dots */
+.tour-card[data-step="1"]::after{content:'· · ·';position:absolute;top:14px;right:16px;font-size:18px;letter-spacing:6px;color:rgba(59,130,246,.35);pointer-events:none}
+.tour-card[data-step="2"]{background:linear-gradient(135deg,#0a1520 0%,#0f1e2e 100%);border:.5px solid rgba(255,255,255,.12)}
+.tour-card[data-step="2"] .tour-progress-fill{background:linear-gradient(90deg,#475569,#94a3b8)}
+.tour-card[data-step="2"] .tour-step-label{color:#94a3b8}
+.tour-card[data-step="2"] .tour-next{background:rgba(255,255,255,.1);color:#e2e8f0}
+.tour-card[data-step="2"] .tour-skip{color:#94a3b8}
+.tour-card[data-step="2"] p{color:#94a3b8}
+.tour-card[data-step="3"]{background:linear-gradient(135deg,#060e18 0%,#0a1624 100%);border:.5px solid rgba(61,107,133,.35)}
+.tour-card[data-step="3"] .tour-progress-fill{background:linear-gradient(90deg,#1e3a4f,#3d6b85)}
+.tour-card[data-step="3"] .tour-step-label{color:#7ea8c4}
+.tour-card[data-step="3"] .tour-next{background:rgba(61,107,133,.2);color:#7ea8c4}
+.tour-card[data-step="3"] .tour-skip{color:#7ea8c4}
+.tour-card[data-step="3"] p{color:#8fafc4}
+.tour-card[data-step="4"]{background:#0a1d33;border:.5px solid rgba(255,255,255,.1)}
+.tour-card[data-step="4"] .tour-progress-fill{background:linear-gradient(90deg,#3d6b85,#7eb6ff)}
+.tour-card[data-step="4"] .tour-step-label{color:var(--muted)}
+.tour-card[data-step="4"] .tour-next{background:rgba(61,107,133,.25);color:#fff;font-weight:700}
+.tour-card[data-step="4"] .tour-skip{color:var(--hint)}
+.tour-card[data-step="4"] p{color:var(--muted)}
 
 .hdr-btn{background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);padding:7px 14px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.005em;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
 .hdr-btn:hover{border-color:var(--surface);color:var(--text);background:var(--bg2)}
@@ -1031,14 +1067,16 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 <div id="advisor-tour">
   <div class="tour-backdrop" onclick="skipTour()"></div>
   <div class="tour-spotlight" id="tour-spotlight"></div>
-  <div class="tour-card" id="tour-card">
-    <div class="tour-step-label" id="tour-step-label">Step 1 of 5</div>
-    <h4 id="tour-title"></h4>
-    <p id="tour-desc"></p>
-    <div class="tour-actions">
-      <button class="tour-next" id="tour-next-btn" onclick="tourNext()">Next →</button>
-      <button class="tour-skip" onclick="skipTour()">Skip tour</button>
-      <div class="tour-dots" id="tour-dots"></div>
+  <div class="tour-card" id="tour-card" data-step="0">
+    <div class="tour-progress-bar"><div class="tour-progress-fill" style="width:20%"></div></div>
+    <div class="tour-card-body">
+      <div class="tour-step-label">Step 1 of 5</div>
+      <h4></h4>
+      <p></p>
+      <div class="tour-actions">
+        <button class="tour-next" onclick="tourNext()">Next →</button>
+        <button class="tour-skip" onclick="skipTour()">Skip tour</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1530,34 +1568,41 @@ function renderTourStep(){
   const step = TOUR_STEPS[_tourStep];
   if(!step) { endTour(); return; }
 
-  // Dots
-  const dots = document.getElementById('tour-dots');
-  dots.innerHTML = TOUR_STEPS.map((_,i)=>`<div class="tour-dot${i===_tourStep?' active':''}"></div>`).join('');
-
-  document.getElementById('tour-step-label').textContent = `Step ${_tourStep+1} of ${TOUR_STEPS.length}`;
-  document.getElementById('tour-title').textContent = step.title;
-  document.getElementById('tour-desc').textContent = step.desc;
-  document.getElementById('tour-next-btn').textContent = _tourStep === TOUR_STEPS.length-1 ? 'Get started →' : 'Next →';
-
-  // Spotlight
-  const targetEl = document.getElementById(step.target) ||
-    document.querySelector(`[data-tab="${step.target}"]`) ||
-    document.querySelector(`.tk-jump-chip[data-tab="${step.target?.replace('tab-','').replace('-chip','')}"]`);
-
-  const spotlight = document.getElementById('tour-spotlight');
   const card = document.getElementById('tour-card');
+  const spotlight = document.getElementById('tour-spotlight');
 
+  // Set step theme
+  card.setAttribute('data-step', _tourStep);
+
+  // Progress bar
+  const pct = ((_tourStep+1)/TOUR_STEPS.length*100).toFixed(1);
+  card.querySelector('.tour-progress-fill').style.width = pct+'%';
+
+  // Content
+  card.querySelector('.tour-step-label').textContent = `Step ${_tourStep+1} of ${TOUR_STEPS.length}`;
+  card.querySelector('h4').textContent = step.title;
+  card.querySelector('p').textContent = step.desc;
+  const nextBtn = card.querySelector('.tour-next');
+  nextBtn.textContent = _tourStep === TOUR_STEPS.length-1 ? 'Get started →' : 'Next →';
+
+  // Find target element — try multiple selectors
+  const tabKey = step.target.replace('tab-','').replace('-chip','');
+  const targetEl = document.getElementById(step.target)
+    || document.querySelector(`.tk-jump-chip[data-tab="${tabKey}"]`)
+    || document.querySelector(`[data-tab="${tabKey}"]`);
+
+  const pad = 10;
   if(targetEl){
     const r = targetEl.getBoundingClientRect();
-    const pad = 8;
-    spotlight.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;opacity:1`;
-    // Position card below target
-    const cardTop = r.bottom + 16;
-    const cardLeft = Math.min(r.left, window.innerWidth - 360);
-    card.style.cssText = `left:${Math.max(12,cardLeft)}px;top:${cardTop}px;opacity:1`;
+    spotlight.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;border:1.5px solid rgba(255,255,255,.2);opacity:1`;
+    // Position card below, clamped to viewport
+    const cardTop = r.bottom + 14;
+    const cardLeft = Math.min(Math.max(r.left, 12), window.innerWidth - 376);
+    const safeTop = Math.min(cardTop, window.innerHeight - 260);
+    card.style.cssText = `left:${cardLeft}px;top:${safeTop}px;opacity:1`;
   } else {
-    spotlight.style.cssText = 'opacity:0';
-    card.style.cssText = `left:50%;top:50%;transform:translate(-50%,-50%);opacity:1`;
+    spotlight.style.cssText = 'opacity:0;width:0;height:0';
+    card.style.cssText = `left:50%;top:40%;transform:translate(-50%,-50%);opacity:1`;
   }
 }
 
@@ -1862,8 +1907,8 @@ async function generate(){
   const toolsWrap = document.getElementById('hdr-tools-wrap');
   if(toolsWrap) toolsWrap.style.display='inline-flex';
   // Build overview sections and fire tour on first visit
-  if(typeof buildOverviewSections === 'function' && window._tkData && window._aiData){
-    buildOverviewSections(window._tkData, window._aiData);
+  if(typeof buildOverviewSections === 'function'){
+    buildOverviewSections(tk, payload);
   }
   window._tourReady = true;
   setTimeout(initAdvisorTour, 800);
