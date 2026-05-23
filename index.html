@@ -4675,7 +4675,7 @@ function onKgNodeClick(nodeId){
   const _trainerLang = codeLang || 'r';
   const _trainerMod = _trainerMods ? (_trainerMods[_trainerLang] || _trainerMods['r']) : null;
   const _trainerURL = _trainerMod
-    ? 'https://iainholmes.github.io/quant-skills-trainer/?lang='+_trainerLang+'&module='+_trainerMod+'&from=advisor'
+    ? 'https://iainholmes.github.io/quant-skills-trainer/?lang='+_trainerLang+'&module='+_trainerMod+'&from=advisor&focus='+n.id
     : null;
 
   html+=`<div class="kg-drawer-section"><div class="kg-drawer-actions">`;
@@ -5199,8 +5199,8 @@ function handleAuditFile(file) {
 var AUDIT_PATTERNS = {
   python:[
     {methods:['IV2SLS','IVLIML','linearmodels','AbsorbingLS','IVGMM'],node:'t_iv',label:'Instrumental Variables (2SLS)',trainer:{lang:'python',mod:'py_iv'}},
-    {methods:['DML','DoubleML','dml','LinearDML','CausalForestDML','NonParamDML','SparseLinearDML'],node:'t_dml',label:'Double ML / Debiased ML',trainer:{lang:'python',mod:'py_iv'}},
-    {methods:['CausalForest','causal_forest','CausalForestDML','GRFForest'],node:'t_cf',label:'Causal Forests',trainer:{lang:'python',mod:'py_iv'}},
+    {methods:['DML','DoubleML','dml','LinearDML','CausalForestDML','NonParamDML','SparseLinearDML'],node:'t_dml',label:'Double ML / Debiased ML',trainer:{lang:'python',mod:'py_ml'}},
+    {methods:['CausalForest','causal_forest','CausalForestDML','GRFForest'],node:'t_cf',label:'Causal Forests',trainer:{lang:'python',mod:'py_ml'}},
     {methods:['feols','feglm'],node:'t_ols',label:'OLS / Fixed Effects (fixest)',trainer:{lang:'python',mod:'py_ols'}},
     {methods:['att_gt','csdid'],node:'t_did',label:'Difference-in-Differences',trainer:{lang:'python',mod:'py_did'}},
     {methods:['rdrobust'],node:'t_rd',label:'Regression Discontinuity',trainer:{lang:'python',mod:'py_rd'}},
