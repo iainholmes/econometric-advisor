@@ -41,7 +41,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-hero{background:linear-gradient(135deg,#08192e 0%,#0d2240 50%,#081929 100%);border-bottom:.5px solid var(--border);padding:2.5rem 2.5rem 2rem;position:relative;overflow:hidden}
 .ov-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(61,107,133,.13) 0%,transparent 70%);pointer-events:none}
 .ov-hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
-.ov-hero-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:12px;font-family:'JetBrains Mono',monospace}
+.ov-hero-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--surface);font-weight:600;margin-bottom:14px;font-family:'JetBrains Mono',monospace}
 .ov-hero-grid{display:grid;grid-template-columns:2fr 1.1fr 1fr;gap:24px;align-items:start}
 .ov-narrative-text{color:var(--text);font-size:14px;line-height:1.85;margin:0;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
@@ -60,8 +60,8 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* Toolkit grid band */
 .ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
 .ov-toolkit-inner{max-width:1200px;margin:0 auto}
-.ov-band-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
-.ov-band-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-band-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.ov-band-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:1.5rem;letter-spacing:-.02em;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media(max-width:1000px){.ov-node-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:580px){.ov-node-grid{grid-template-columns:1fr}}
@@ -79,7 +79,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px}
 @media(max-width:760px){.ov-research-inner{grid-template-columns:1fr}}
 .ov-research-col-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
-.ov-research-col-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-research-col-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:1.25rem;letter-spacing:-.015em;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-teaser-item{padding:12px 0;border-bottom:.5px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:4px}
 .ov-teaser-item:last-child{border-bottom:none}
 .ov-teaser-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.45;font-family:'Instrument Sans',-apple-system,sans-serif}
@@ -91,7 +91,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* Implementation row */
 .ov-impl-band{background:#020e1f;padding:2.5rem 2.5rem 3rem}
 .ov-impl-inner{max-width:1200px;margin:0 auto}
-.ov-impl-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.ov-impl-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
 .ov-impl-intro{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;max-width:640px;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-impl-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:700px){.ov-impl-row{grid-template-columns:1fr}}
@@ -1058,11 +1058,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
         <span style="font-size:13px">⊙</span> Tools
         <span style="font-size:9px;opacity:.6;margin-left:2px">▾</span>
       </button>
-      <div class="hdr-tools-menu" id="hdr-tools-menu">
-        <button class="hdr-tools-item" onclick="exportLog();closeToolsMenu()"><span class="hdr-tools-icon">↓</span>Export log</button>
-        <button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button>
-        <button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>
-      </div>
+      <!-- tools menu injected into body by JS to escape stacking context -->
     </div>
     <button class="hdr-btn" id="btn-reset" onclick="resetApp()" style="display:none">← New assessment</button>
   </div>
@@ -1426,8 +1422,17 @@ let step=-1,ans={},apiKey=localStorage.getItem('ea_ak')||localStorage.getItem('q
 
 function show(id){['landing','quiz','loading','results'].forEach(s=>{document.getElementById('screen-'+s).style.display=s===id?'block':'none';});}
 /* ── TOOLS DROPDOWN ── */
+function _ensureToolsMenu(){
+  if(document.getElementById('hdr-tools-menu')) return;
+  const m=document.createElement('div');
+  m.id='hdr-tools-menu';
+  m.className='hdr-tools-menu';
+  m.innerHTML=`<button class="hdr-tools-item" onclick="exportLog();closeToolsMenu()"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
+  document.body.appendChild(m);
+}
 function toggleToolsMenu(e){
   e.stopPropagation();
+  _ensureToolsMenu();
   const btn=document.getElementById('hdr-tools-btn');
   const menu=document.getElementById('hdr-tools-menu');
   const open=menu.classList.contains('open');
@@ -1435,6 +1440,7 @@ function toggleToolsMenu(e){
     const r=btn.getBoundingClientRect();
     menu.style.top=(r.bottom+6)+'px';
     menu.style.right=(window.innerWidth-r.right)+'px';
+    menu.style.left='auto';
   }
   btn.classList.toggle('open',!open);
   menu.classList.toggle('open',!open);
