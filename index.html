@@ -60,8 +60,8 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* Toolkit grid band */
 .ov-toolkit-band{background:#020e1f;padding:2rem 2.5rem;border-bottom:.5px solid var(--border)}
 .ov-toolkit-inner{max-width:1200px;margin:0 auto}
-.ov-band-label{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:6px;font-family:'Instrument Sans',-apple-system,sans-serif;display:inline-block;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.15)}
-.ov-band-title{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:1.25rem;letter-spacing:.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-band-label{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:0;font-family:'Instrument Sans',-apple-system,sans-serif;display:table;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.18)}
+.ov-band-title{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px;margin-bottom:1.25rem;letter-spacing:.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-node-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media(max-width:1000px){.ov-node-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:580px){.ov-node-grid{grid-template-columns:1fr}}
@@ -78,8 +78,8 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .ov-research-band{background:#06131f;padding:2.5rem 2.5rem;border-bottom:.5px solid var(--border)}
 .ov-research-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px}
 @media(max-width:760px){.ov-research-inner{grid-template-columns:1fr}}
-.ov-research-col-label{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;margin-bottom:6px;font-family:'Instrument Sans',-apple-system,sans-serif;display:inline-block;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.15)}
-.ov-research-col-title{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:1.25rem;letter-spacing:.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
+.ov-research-col-label{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;margin-bottom:0;font-family:'Instrument Sans',-apple-system,sans-serif;display:table;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.18)}
+.ov-research-col-title{font-size:12px;font-weight:500;color:var(--muted);margin-top:6px;margin-bottom:1.25rem;letter-spacing:.01em;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-teaser-item{padding:12px 0;border-bottom:.5px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:4px}
 .ov-teaser-item:last-child{border-bottom:none}
 .ov-teaser-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.45;font-family:'Instrument Sans',-apple-system,sans-serif}
@@ -91,7 +91,7 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 /* Implementation row */
 .ov-impl-band{background:#020e1f;padding:2.5rem 2.5rem 3rem}
 .ov-impl-inner{max-width:1200px;margin:0 auto}
-.ov-impl-label{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;margin-bottom:6px;font-family:'Instrument Sans',-apple-system,sans-serif;display:inline-block;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.15)}
+.ov-impl-label{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.015em;margin-bottom:0;font-family:'Instrument Sans',-apple-system,sans-serif;display:table;padding-bottom:6px;border-bottom:1.5px solid rgba(255,255,255,.18)}
 .ov-impl-intro{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;max-width:640px;font-family:'Instrument Sans',-apple-system,sans-serif}
 .ov-impl-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:700px){.ov-impl-row{grid-template-columns:1fr}}
@@ -1493,7 +1493,11 @@ function buildOverviewSections(tk, ai){
       const trainerUrl = kgTag ? buildTrainerUrl(kgTag) : '';
       // s.method is the method name; s.detail is the description
       const methodName = s.method || s.label || '';
-      const methodDetail = s.detail ? s.detail.split('.')[0]+'.' : '';
+      // Diagnostics section has a long bullet list in s.detail — use s.watch instead for card
+      const rawDetail = s.label === 'Inference & diagnostic checklist'
+        ? (s.watch || s.detail || '').split('--')[0].trim()
+        : (s.detail ? s.detail.split('.')[0]+'.' : '');
+      const methodDetail = rawDetail;
       cards += `<div class="ov-node-card" style="border-left:2px solid ${catColor}40">
         <div class="ov-node-cat" style="color:${catColor}">${catLabel}</div>
         <div class="ov-node-label">${esc(methodName)}</div>
