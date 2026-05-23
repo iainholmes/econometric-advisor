@@ -114,7 +114,8 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 #advisor-tour{position:fixed;inset:0;z-index:1000;pointer-events:none;display:none}
 #advisor-tour.active{pointer-events:all;display:block}
 .tour-backdrop{position:absolute;inset:0;background:rgba(2,14,31,.78);backdrop-filter:blur(3px)}
-.tour-spotlight{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(2,14,31,.78);transition:all .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.tour-spotlight{position:absolute;border-radius:8px;box-shadow:0 0 0 9999px rgba(2,14,31,.78);transition:all .45s cubic-bezier(.4,0,.2,1);pointer-events:none;animation:tourPulse 2s ease-in-out infinite}
+@keyframes tourPulse{0%,100%{box-shadow:0 0 0 9999px rgba(2,14,31,.78),0 0 0 2px rgba(126,182,255,.3)}50%{box-shadow:0 0 0 9999px rgba(2,14,31,.78),0 0 0 4px rgba(126,182,255,.55)}}
 /* Base card */
 .tour-card{position:absolute;border-radius:16px;padding:0;max-width:360px;width:360px;box-shadow:0 24px 64px rgba(0,0,0,.6);transition:left .45s cubic-bezier(.4,0,.2,1),top .45s cubic-bezier(.4,0,.2,1),opacity .3s;overflow:hidden}
 /* Progress bar at top of card */
@@ -1643,10 +1644,10 @@ function renderTourStep(){
     || document.querySelector(`.tk-jump-chip[data-tab="${tabKey}"]`)
     || document.querySelector(`[data-tab="${tabKey}"]`);
 
-  const pad = 10;
+  const pad = 4;
   if(targetEl){
     const r = targetEl.getBoundingClientRect();
-    spotlight.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;border:1.5px solid rgba(255,255,255,.2);opacity:1`;
+    spotlight.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px;border:1.5px solid rgba(126,182,255,.4);opacity:1`;
     // Position card below, clamped to viewport
     const cardTop = r.bottom + 14;
     const cardLeft = Math.min(Math.max(r.left, 12), window.innerWidth - 376);
@@ -5115,6 +5116,26 @@ function onKgNodeClick(nodeId){
   // Header
   document.getElementById('kg-drawer-cat').className='kg-drawer-cat '+n.cat;
   document.getElementById('kg-drawer-cat').textContent=catLabels[n.cat];
+  // Show "not in toolkit" badge for inactive nodes
+  const _inToolkit = _kgActive && _kgActive.has(n.id);
+  let _badge = document.getElementById('kg-drawer-toolkit-badge');
+  if(!_badge){
+    _badge = document.createElement('span');
+    _badge.id = 'kg-drawer-toolkit-badge';
+    _badge.style.cssText = 'font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle';
+    document.getElementById('kg-drawer-cat').parentNode.appendChild(_badge);
+  }
+  if(_inToolkit){
+    _badge.textContent = '✓ In your toolkit';
+    _badge.style.background = 'rgba(16,185,129,.12)';
+    _badge.style.color = '#6ee7b7';
+    _badge.style.border = '.5px solid rgba(16,185,129,.3)';
+  } else {
+    _badge.textContent = 'Not in current toolkit';
+    _badge.style.background = 'rgba(255,255,255,.05)';
+    _badge.style.color = 'var(--hint)';
+    _badge.style.border = '.5px solid rgba(255,255,255,.1)';
+  }
   document.getElementById('kg-drawer-title').textContent=n.label;
 
   // Body
