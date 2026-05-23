@@ -230,7 +230,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading p{color:var(--muted);font-size:14px}
 /* RESULTS */
-.results{max-width:1200px;margin:0 auto;padding:2rem 2.5rem 5rem;overflow-x:hidden}
+.results{max-width:1200px;margin:0 auto;padding:2rem 2.5rem 8rem;overflow-x:hidden;overflow-y:visible}
 .results-meta{color:var(--hint);font-size:13px;margin-bottom:1.25rem}
 /* NARRATIVE */
 .narrative{background:#0a1d33;border:.5px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:1.5rem}
@@ -251,7 +251,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 /* TWO-COL PANEL */
 /* FULL-WIDTH DATA & LITERATURE BANDS — both stretch beyond the standard
    results column to use more horizontal space, since they hold a lot of cards */
-.data-band, .lit-band { margin: 0 -3vw 2.5rem -3vw; }
+.data-band, .lit-band { margin: 0 -3vw 2.5rem -3vw; padding-bottom: 4rem; overflow: visible; }
 @media (max-width: 1100px){ .data-band, .lit-band { margin-left: 0; margin-right: 0; } }
 
 /* Data sources: 3-up grid (drops to 2 then 1 on narrower viewports) */
@@ -366,7 +366,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .tk-jump-chip:hover{border-color:var(--surface);color:var(--text)}
 .tk-jump-chip.active{background:rgba(126,182,255,.14);border-color:#7eb6ff;color:#7eb6ff}
 /* TOOLKIT WITH LEFT RAIL */
-.toolkit-section{margin-top:2rem}
+.toolkit-section{margin-top:0}
 .toolkit-header{font-size:22px;color:var(--text);font-weight:600;margin:0 0 1rem;padding-bottom:11px;border-bottom:2px solid #7eb6ff;letter-spacing:-.005em;display:flex;flex-direction:column;gap:5px}
 .toolkit-header-sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;line-height:1.4}
 .toolkit-layout{display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start}
