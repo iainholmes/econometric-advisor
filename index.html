@@ -1510,7 +1510,7 @@ const TOUR_STEPS = [
   },
   {
     target:'hdr-tools-wrap',
-    title:'When you're ready to implement',
+    title:'When you are ready to implement',
     desc:'The Tools menu gives you quick access to code audit, reference library, and log export — return to these when you move from research design to implementation.',
     pos:'below-left'
   }
@@ -1520,8 +1520,7 @@ let _tourStep = 0;
 
 function initAdvisorTour(){
   if(localStorage.getItem('advisor_tour_v1')) return;
-  // Only fire if toolkit has been generated
-  if(!document.getElementById('hdr-tools-wrap') || document.getElementById('hdr-tools-wrap').style.display==='none') return;
+  if(!window._tourReady) return;
   _tourStep = 0;
   renderTourStep();
   document.getElementById('advisor-tour').classList.add('active');
@@ -1866,6 +1865,7 @@ async function generate(){
   if(typeof buildOverviewSections === 'function' && window._tkData && window._aiData){
     buildOverviewSections(window._tkData, window._aiData);
   }
+  window._tourReady = true;
   setTimeout(initAdvisorTour, 800);
 }
 
