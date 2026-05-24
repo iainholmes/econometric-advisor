@@ -33,6 +33,13 @@ body{font-family:'Instrument Sans',-apple-system,sans-serif;background:#020e1f;c
 .hdr-tools-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .hdr-tools-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:7px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .12s;font-family:inherit;background:transparent;border:none;width:100%;text-align:left;letter-spacing:.005em}
 .hdr-tools-item:hover{background:var(--bg3);color:var(--text)}
+.hdr-tools-item.has-sub{position:relative}
+.hdr-tools-item.has-sub::after{content:'◂';font-size:9px;margin-left:auto;opacity:.5}
+.hdr-tools-submenu{position:fixed;background:#0a1d33;border:.5px solid var(--border);border-radius:10px;padding:6px;min-width:200px;z-index:10000;opacity:0;pointer-events:none;transform:translateX(6px);transition:opacity .15s,transform .15s;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.hdr-tools-submenu.open{opacity:1;pointer-events:all;transform:translateX(0)}
+.hdr-tools-sub-item{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:7px;color:var(--muted);font-size:12.5px;cursor:pointer;transition:all .12s;font-family:inherit;background:transparent;border:none;width:100%;text-align:left;letter-spacing:.005em}
+.hdr-tools-sub-item:hover{background:var(--bg3);color:var(--text)}
+.hdr-tools-sub-desc{font-size:10.5px;color:var(--hint);margin-top:1px;font-weight:400}
 .hdr-tools-icon{font-size:13px;line-height:1;width:16px;text-align:center}
 
 /* ── OVERVIEW DASHBOARD ─────────────────────────────────────────────── */
@@ -1433,7 +1440,7 @@ function _ensureToolsMenu(){
   const m=document.createElement('div');
   m.id='hdr-tools-menu';
   m.className='hdr-tools-menu';
-  m.innerHTML=`<button class="hdr-tools-item" onclick="exportLog();closeToolsMenu()"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
+  m.innerHTML=`<button class="hdr-tools-item has-sub" onmouseenter="openExportSubmenu(event)" onclick="openExportSubmenu(event)"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
   document.body.appendChild(m);
 }
 function toggleToolsMenu(e){
@@ -6258,6 +6265,329 @@ function qstOpenLang(e, lang) {
 // assessment answers, recommended toolkit, AI narrative,
 // key adjustments, watchouts, and SE diagnostics if available.
 // ============================================================
+function openExportSubmenu(e) {
+  e.stopPropagation();
+  var existing = document.getElementById('export-submenu');
+  if (existing) { existing.classList.toggle('open'); return; }
+  var sub = document.createElement('div');
+  sub.id = 'export-submenu';
+  sub.className = 'hdr-tools-submenu';
+  sub.innerHTML = `
+    <button class="hdr-tools-sub-item" onclick="exportBrief();closeToolsMenu()">
+      <span>Research Design Brief</span>
+      <span class="hdr-tools-sub-desc">2–3 pages · For advisor meetings</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportAppendix();closeToolsMenu()">
+      <span>Methods Appendix</span>
+      <span class="hdr-tools-sub-desc">Full technical reference · For thesis appendix</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportReviewerCard();closeToolsMenu()">
+      <span>Reviewer Reference Card</span>
+      <span class="hdr-tools-sub-desc">1 page · For committee reviewers</span>
+    </button>`;
+  document.body.appendChild(sub);
+  var btn = e.currentTarget.getBoundingClientRect();
+  sub.style.top = btn.top + 'px';
+  sub.style.left = (btn.left - 210) + 'px';
+  setTimeout(() => sub.classList.add('open'), 10);
+  document.addEventListener('click', function closeSub(ev) {
+    if (!sub.contains(ev.target)) { sub.remove(); document.removeEventListener('click', closeSub); }
+  });
+}
+
+function exportLog() { exportAppendix(); }
+
+function _exportBase() {
+  const ts = new Date();
+  const dateStr = ts.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+  const timeStr = ts.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+  const _ANS_LABELS = {
+    proposal:'Proposal / early stage', data_prep:'Data preparation', estimating:'Estimation in progress',
+    refining:'Refining specification', revising:'Revising / responding to reviewers', unsure:'Not sure yet',
+    env:'Environmental / Natural Resource Economics', urban:'Urban / Regional Economics', health:'Health Economics',
+    labor:'Labor Economics', public:'Public Economics', dev:'Development Economics',
+    macro:'Macro / International Economics', io:'Industrial Organization', ag:'Agricultural Economics',
+    finance:'Finance', edu:'Education Economics',
+    causal:'Causal identification — does X cause Y?', descriptive:'Descriptive / correlational', prediction:'Prediction / forecasting',
+    env_reg:'Environmental regulation or contamination event', infra:'Infrastructure or place-based policy',
+    policy:'Policy intervention or program', price:'Price or market shock', natdisaster:'Natural disaster or weather shock',
+    tech:'Technology adoption', other_treat:'Other treatment',
+    one:'Single treated unit', few:'Few — 2 to 10 units', some:'Moderate — 10 to 50 units', many:'Large — more than 50 units',
+    panel:'Panel (units over time)', cross:'Cross-section (many units, one point in time)',
+    spatial:'Geographic / spatial data', ts:'Time series', repeated:'Repeated cross-sections',
+    continuous:'Continuous (e.g. log price, income)', binary:'Binary (yes/no, adopt/not adopt, 0/1)',
+    count:'Count data (number of events)', duration:'Duration / survival time', ordinal:'Ordinal',
+    none_endog:'No endogeneity concern', ols_ok:'OLS is likely fine', suspect:'Possible but unclear',
+    natexp:'Yes — natural experiment, IV, or quasi-experiment', rct:'Randomized control trial',
+    none_geo:'Geography not central', distance:'Yes — distance / proximity is a key variable',
+    boundary:'Administrative boundaries matter', spillover:'Spillovers across space expected',
+    linear:'Linear / constant marginal effects', nonlinear:'Non-linear / diminishing returns',
+    discrete:'Discrete jumps or threshold effects', heterogeneous:'Heterogeneous treatment effects',
+  };
+  function _decode(v) {
+    if (!v || v === '_skipped') return null;
+    if (Array.isArray(v)) return v.map(x => _ANS_LABELS[x] || x).join(', ');
+    return _ANS_LABELS[v] || v;
+  }
+  const confLabel = {'critical':'Essential to your design','high':'Strongly recommended','medium':'Relevant to your design','low':'Worth being aware of'};
+  const confBars  = {'critical':'▰▰▰▰','high':'▰▰▰▱','medium':'▰▰▱▱','low':'▰▱▱▱'};
+  return { dateStr, timeStr, _decode, confLabel, confBars };
+}
+
+function _basePrintCSS() {
+  return `* { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 13.5px; line-height: 1.75; color: #0f172a; background: #fff; padding: 48px 56px; max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 700; color: #0a1d33; letter-spacing: -.02em; margin-bottom: 6px; }
+  h2 { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1.5px solid #cbd5e1; }
+  .app-name { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; margin-bottom: 6px; }
+  .meta { font-size: 12px; color: #334155; font-family: 'Courier New', monospace; }
+  .cover { border-bottom: 3px solid #0a1d33; padding-bottom: 20px; margin-bottom: 28px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  td { padding: 7px 10px; vertical-align: top; border-bottom: .5px solid #e2e8f0; font-size: 13px; }
+  td.q { color: #334155; width: 38%; font-style: italic; }
+  td.a { color: #0f172a; font-weight: 500; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #cbd5e1; font-size: 11px; color: #475569; font-family: 'Courier New', monospace; display: flex; justify-content: space-between; }
+  @media print { body { padding: 0; } @page { margin: 40px 48px; } }`;
+}
+
+function exportBrief() {
+  const { dateStr, timeStr, _decode } = _exportBase();
+  const qLabels = {
+    stage:'Research stage', field:'Primary field', question_type:'Research question type',
+    treatment:'Treatment / shock', n_treated:'Units treated', data_structure:'Data structure',
+    outcome:'Outcome variable type', endogeneity:'Endogeneity / identification',
+    geo:'Geography role', functional_form:'Functional form', context:'Study description'
+  };
+  // Decision log — each answer + what it implies
+  const implications = {
+    stage: v => v === 'proposal' ? 'Identification strategy not yet finalised — key decisions remain open.' : v === 'estimating' ? 'Methods are in active use — verify specification before reporting.' : null,
+    endogeneity: v => v === 'natexp' ? 'Natural experiment identified — IV or DiD strategy required.' : v === 'ols_ok' ? 'OLS is the baseline — document why endogeneity is not a concern.' : null,
+    data_structure: v => Array.isArray(v) && v.includes('panel') ? 'Panel structure requires fixed effects and clustered standard errors.' : null,
+    geo: v => v && v !== 'none_geo' ? 'Spatial dimension present — spatial autocorrelation must be tested.' : null,
+    functional_form: v => v === 'nonlinear' ? 'Non-linear specification required — test quadratic and spline forms.' : v === 'heterogeneous' ? 'Heterogeneous effects — consider causal forest or interaction terms.' : null,
+  };
+  let decisionRows = '';
+  Object.entries(qLabels).forEach(([k, label]) => {
+    const v = ans[k];
+    if (!v || v === '_skipped') return;
+    const val = _decode(v);
+    const impl = implications[k] ? implications[k](v) : null;
+    decisionRows += `<tr><td class="q">${label}</td><td class="a">${val}</td><td class="impl">${impl || '—'}</td></tr>`;
+  });
+  // Key assumptions from toolkit
+  let assumptionRows = '';
+  const assumptionMap = {
+    't_iv':   ['Instrument is correlated with the endogenous variable (relevance)', 'Instrument affects outcome only through the treatment (exclusion restriction)', 'Instrument assignment is as-good-as-random (independence)'],
+    't_did':  ['Parallel trends hold in the pre-treatment period', 'No anticipation effects', 'Stable unit treatment value assumption (SUTVA)'],
+    't_rd':   ['Agents cannot precisely manipulate the running variable (continuity)', 'No other discontinuities at the cutoff', 'Local randomisation around the cutoff'],
+    't_ols':  ['No omitted variable bias', 'Correct functional form specified', 'Homoskedastic errors (or robust SEs reported)'],
+    't_fe':   ['Time-invariant unobservables are the main source of confounding', 'Strict exogeneity of regressors given the fixed effect'],
+    't_dml':  ['Neyman orthogonality holds for the moment conditions', 'Cross-fitting prevents overfitting bias', 'Sparsity assumption for LASSO-based selection'],
+    't_cf':   ['Unconfoundedness given observed covariates', 'Overlap: every unit has positive probability of treatment', 'Honest splitting used to avoid overfitting'],
+  };
+  if (_toolkit && _toolkit.sections) {
+    _toolkit.sections.forEach(s => {
+      (s.kgTags || []).forEach(tag => {
+        if (assumptionMap[tag]) {
+          assumptionMap[tag].forEach(a => {
+            assumptionRows += `<tr><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:12.5px;width:24px;text-align:center">☐</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:12.5px">${a}</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:11px;color:#64748b;font-style:italic">${s.method}</td></tr>`;
+          });
+        }
+      });
+    });
+  }
+  // Open questions — gaps
+  let openQHtml = '';
+  if (_toolkit && _toolkit.gaps && _toolkit.gaps.length) {
+    openQHtml = '<ul style="padding-left:20px;margin:0">' + _toolkit.gaps.map(g => `<li style="margin-bottom:6px;font-size:13px">${g}</li>`).join('') + '</ul>';
+  } else {
+    openQHtml = '<p style="font-size:13px;color:#64748b;font-style:italic">No outstanding gaps identified from current intake answers.</p>';
+  }
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Research Design Brief</title><style>
+  ${_basePrintCSS()}
+  .impl-col { font-size: 12px; color: #1e40af; font-style: italic; }
+  td.impl { font-size: 12px; color: #1e40af; font-style: italic; width: 34%; }
+  .doc-type { display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#1e40af;padding:3px 10px;border-radius:3px;margin-bottom:10px; }
+  </style></head><body>
+  <div class="cover">
+    <div class="app-name">Econometric Advisor</div>
+    <div class="doc-type">Research Design Brief</div>
+    <h1>${ans.context ? ans.context.slice(0,80) + (ans.context.length > 80 ? '...' : '') : 'Research Design Brief'}</h1>
+    <div class="meta">Generated ${dateStr} at ${timeStr} &nbsp;·&nbsp; For advisor review — structured decision log, not submitted prose</div>
+  </div>
+  <h2>Research Design Decisions</h2>
+  <table><thead><tr><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Question</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Your Answer</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Implication</th></tr></thead><tbody>${decisionRows}</tbody></table>
+  <h2>Key Assumptions to Justify</h2>
+  <table><thead><tr><th style="padding:6px 10px;border-bottom:1px solid #e2e8f0;width:24px"></th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Assumption</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Method</th></tr></thead><tbody>${assumptionRows || '<tr><td colspan="3" style="padding:10px;color:#64748b;font-style:italic;font-size:13px">No specific assumptions mapped for current toolkit.</td></tr>'}</tbody></table>
+  <h2>Open Questions</h2>
+  ${openQHtml}
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
+function exportAppendix() {
+  const { dateStr, timeStr, _decode, confLabel, confBars } = _exportBase();
+  const qLabels = {
+    stage:'Research stage', field:'Primary field', question_type:'Research question type',
+    treatment:'Treatment / shock', n_treated:'Units treated', data_structure:'Data structure',
+    outcome:'Outcome variable type', endogeneity:'Endogeneity / identification',
+    geo:'Geography role', functional_form:'Functional form', context:'Study description'
+  };
+  let answersHtml = '';
+  Object.entries(qLabels).forEach(([k, label]) => {
+    const v = ans[k];
+    if (!v || v === '_skipped') return;
+    answersHtml += `<tr><td class="q">${label}</td><td class="a">${_decode(v)}</td></tr>`;
+  });
+  let toolkitHtml = '';
+  if (_toolkit && _toolkit.sections) {
+    _toolkit.sections.forEach(s => {
+      const cl = confLabel[s.conf] || s.conf;
+      const cb = confBars[s.conf] || '';
+      toolkitHtml += `<div style="margin-bottom:22px;padding:16px 18px;border-left:3px solid #1e40af;background:#f8fafc;border-radius:0 6px 6px 0;page-break-inside:avoid">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#1e40af;font-family:'Courier New',monospace;font-weight:700">${s.label}</span>
+          <span style="font-size:10px;font-family:'Courier New',monospace;color:#64748b">${cb} ${cl}</span>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#0a1d33;margin-bottom:8px">${s.method}</div>
+        ${s.detail ? `<div style="font-size:13px;color:#1e293b;line-height:1.7;margin-bottom:8px">${s.detail.startsWith('-') ? '<ul style="padding-left:18px;margin:4px 0">' + s.detail.split('\n').map(x=>x.replace(/^- /,'')).filter(Boolean).map(x=>`<li style="margin-bottom:5px">${x}</li>`).join('') + '</ul>' : s.detail}</div>` : ''}
+        ${s.equation ? `<div style="margin:10px 0;padding:12px 16px;background:#fff;border:.5px solid #e2e8f0;border-radius:5px;font-family:'Courier New',monospace;font-size:12.5px;color:#0f172a">${s.equation}</div>` : ''}
+        ${s.watch ? `<div style="font-size:12.5px;color:#92400e;margin-top:8px"><span style="background:#fef3c7;padding:2px 7px;border-radius:3px;font-weight:700;margin-right:5px">Watch out for</span>${s.watch}</div>` : ''}
+      </div>`;
+    });
+  }
+  // Diagnostics checklist
+  let checklistHtml = '';
+  const diagMap = {
+    'd_firststage': 'Report first-stage F-statistic (threshold: F > 10)',
+    'd_sargan': 'Run Sargan-Hansen overidentification test if overidentified',
+    'd_pretrend': 'Plot and test pre-treatment parallel trends',
+    'd_hausman': 'Run Hausman test for endogeneity / FE vs RE',
+    'd_moran': "Run Moran's I test on OLS residuals",
+    'd_robust': 'Report heteroskedasticity-robust standard errors',
+    'd_ftest': 'Test joint significance of non-linear terms',
+  };
+  if (_toolkit && _toolkit.active) {
+    Object.entries(diagMap).forEach(([tag, desc]) => {
+      if (_toolkit.active.includes(tag)) {
+        checklistHtml += `<tr><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;width:20px;text-align:center">☐</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:13px">${desc}</td></tr>`;
+      }
+    });
+  }
+  let narrativeHtml = '';
+  if (_aiPayload) {
+    if (_aiPayload.narrative) narrativeHtml += `<p style="font-size:13.5px;color:#1e293b;line-height:1.8;margin-bottom:14px">${_aiPayload.narrative}</p>`;
+    if (_aiPayload.key_adjustments && _aiPayload.key_adjustments.length) narrativeHtml += '<ul style="padding-left:22px;margin-bottom:14px">' + _aiPayload.key_adjustments.map(a=>`<li style="font-size:13px;margin-bottom:5px">${a}</li>`).join('') + '</ul>';
+    if (_aiPayload.watchout) narrativeHtml += `<div style="background:#fef2f2;border-left:3px solid #dc2626;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#7f1d1d"><strong>Watch out for:</strong> ${_aiPayload.watchout}</div>`;
+  }
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Methods Appendix</title><style>
+  ${_basePrintCSS()}
+  .doc-type{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#1e40af;padding:3px 10px;border-radius:3px;margin-bottom:10px}
+  </style></head><body>
+  <div class="cover">
+    <div class="app-name">Econometric Advisor</div>
+    <div class="doc-type">Methods Appendix</div>
+    <h1>Methodological Specification</h1>
+    <div class="meta">Generated ${dateStr} at ${timeStr} &nbsp;·&nbsp; For thesis appendix — technical reference</div>
+  </div>
+  <h2>Assessment Responses</h2>
+  <table>${answersHtml}</table>
+  <h2>Recommended Toolkit</h2>
+  ${toolkitHtml}
+  <h2>Diagnostic Checklist</h2>
+  <table>${checklistHtml || '<tr><td colspan="2" style="padding:10px;color:#64748b;font-style:italic;font-size:13px">No specific diagnostics mapped for current toolkit.</td></tr>'}</table>
+  ${narrativeHtml ? `<h2>AI-Calibrated Analysis</h2>${narrativeHtml}` : ''}
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
+function exportReviewerCard() {
+  const { dateStr, timeStr, _decode, confBars } = _exportBase();
+  const idSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Identification strategy') : null;
+  const estSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Estimator & model specification') : null;
+  const infSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Inference & diagnostic checklist') : null;
+  const allMethods = _toolkit && _toolkit.sections ? _toolkit.sections.map(s => `${s.label}: ${s.method}`).join(' &nbsp;·&nbsp; ') : '';
+  // Key assumptions for reviewer
+  const assumptionMap = {
+    't_iv':  ['Instrument relevance (F > 10)','Exclusion restriction','Instrument independence'],
+    't_did': ['Parallel trends (pre-treatment)','No anticipation effects','SUTVA'],
+    't_rd':  ['No manipulation of running variable','Continuity at cutoff'],
+    't_ols': ['No omitted variable bias','Correct functional form'],
+    't_fe':  ['Strict exogeneity','Time-invariant confounders only'],
+    't_dml': ['Neyman orthogonality','Cross-fitting','Sparsity'],
+    't_cf':  ['Unconfoundedness','Overlap','Honest splitting'],
+  };
+  let assumptions = [];
+  if (_toolkit && _toolkit.active) {
+    Object.entries(assumptionMap).forEach(([tag, list]) => {
+      if (_toolkit.active.includes(tag)) assumptions = assumptions.concat(list);
+    });
+  }
+  assumptions = [...new Set(assumptions)];
+  const diagMap = {'d_firststage':'First-stage F-statistic','d_pretrend':'Pre-trend test','d_hausman':'Hausman test','d_moran':"Moran's I",'d_robust':'Robust SEs','d_sargan':'Sargan-Hansen test','d_ftest':'F-test for functional form'};
+  let diags = [];
+  if (_toolkit && _toolkit.active) {
+    Object.entries(diagMap).forEach(([tag, label]) => { if (_toolkit.active.includes(tag)) diags.push(label); });
+  }
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviewer Reference Card</title><style>
+  ${_basePrintCSS()}
+  body { font-size: 13px; }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card-box { padding: 14px 16px; border: .5px solid #cbd5e1; border-radius: 6px; }
+  .card-box-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin-bottom: 6px; }
+  .card-box-value { font-size: 13.5px; font-weight: 600; color: #0f172a; line-height: 1.5; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 3px; background: #f1f5f9; color: #334155; font-family: 'Courier New', monospace; }
+  .doc-type { display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#0f766e;padding:3px 10px;border-radius:3px;margin-bottom:10px; }
+  @media print { body { padding: 0; } @page { margin: 36px 44px; size: A4; } }
+  </style></head><body>
+  <div class="cover">
+    <div class="app-name">Econometric Advisor</div>
+    <div class="doc-type">Reviewer Reference Card</div>
+    <h1>${ans.context ? ans.context.slice(0,70) + (ans.context.length > 70 ? '...' : '') : 'Methodological Reference'}</h1>
+    <div class="meta">Generated ${dateStr} &nbsp;·&nbsp; For committee reviewers — one-page methodological reference</div>
+  </div>
+  <div class="card-grid">
+    <div class="card-box">
+      <div class="card-box-label">Identification Strategy</div>
+      <div class="card-box-value">${idSection ? idSection.method : '—'}</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-label">Estimator</div>
+      <div class="card-box-value">${estSection ? estSection.method : '—'}</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-label">Data Structure</div>
+      <div class="card-box-value">${_decode(ans.data_structure) || '—'}</div>
+    </div>
+    <div class="card-box">
+      <div class="card-box-label">Outcome Variable</div>
+      <div class="card-box-value">${_decode(ans.outcome) || '—'}</div>
+    </div>
+  </div>
+  <h2>Key Identifying Assumptions</h2>
+  <div class="pill-row">${assumptions.map(a=>`<span class="pill">☐ ${a}</span>`).join('')}</div>
+  <h2>Diagnostics Required</h2>
+  <div class="pill-row">${diags.map(d=>`<span class="pill">☐ ${d}</span>`).join('')}</div>
+  <h2>Full Method Stack</h2>
+  <p style="font-size:12.5px;color:#334155;line-height:1.8">${allMethods}</p>
+  ${ans.context ? `<h2>Study Description</h2><p style="font-size:13px;color:#1e293b;line-height:1.7">${ans.context}</p>` : ''}
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
+
 function exportLog() {
   const ts = new Date();
   const dateStr = ts.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
@@ -6375,7 +6705,7 @@ function exportLog() {
   .watchout { background: #fef2f2; border-left: 3px solid #dc2626; padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #7f1d1d; }
   .footer { margin-top: 48px; padding-top: 14px; border-top: 1px solid #cbd5e1; font-size: 11.5px; color: #475569; font-family: 'Courier New', monospace; display: flex; justify-content: space-between; }
   @media print { body { padding: 0; } @page { margin: 40px 48px; } }
-.ov-band-label, .ov-research-col-label, .ov-implement-label { font-size: 16px !important; font-weight: 700 !important; color: #7eb6ff !important; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 12px; background: rgba(126, 182, 255, 0.1); border-left: 4px solid #7eb6ff; border-radius: 4px; display: inline-block; margin-bottom: 15px; } .tk-tab-panel { padding-top: 20px !important; padding-bottom: 50px !important; overflow: visible !important; } .results { overflow: visible !important; padding-top: 20px !important; padding-bottom: 100px !important; } .ov-band-label, .ov-research-col-label, .ov-implement-label { font-size: 16px !important; font-weight: 700 !important; color: #7eb6ff !important; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 12px; background: rgba(126, 182, 255, 0.1); border-left: 4px solid #7eb6ff; border-radius: 4px; display: inline-block; margin-bottom: 15px; } .tk-tab-panel { padding-top: 20px !important; padding-bottom: 50px !important; overflow: visible !important; } .results { overflow: visible !important; padding-top: 20px !important; padding-bottom: 100px !important; } .ov-band-label, .ov-research-col-label { font-size: 16px !important; font-weight: 700 !important; color: #7eb6ff !important; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 12px; background: rgba(126, 182, 255, 0.1); border-left: 4px solid #7eb6ff; border-radius: 4px; display: inline-block; margin-bottom: 15px; } .ov-impl-label { display: block; text-align: center; width: 100%; font-size: 24px !important; font-weight: 600; color: var(--text); padding-top: 40px; margin-bottom: 8px; position: relative; } .ov-impl-label::before { content: "—— NEXT STEPS ——"; display: block; font-size: 12px; color: #7eb6ff; font-weight: 700; letter-spacing: 0.2em; margin-bottom: 12px; } .ov-impl-intro { text-align: center; max-width: 600px; margin: 0 auto 40px auto; color: var(--muted); line-height: 1.6; } .tk-tab-panel { padding-top: 20px !important; padding-bottom: 50px !important; overflow: visible !important; } .results { overflow: visible !important; padding-top: 20px !important; padding-bottom: 100px !important; } .ov-impl-super { font-size: 11px; font-weight: 700; color: #5a7b9e; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; font-family: monospace; } .ov-impl-label-new { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 8px; } .ov-impl-band { border-top: .5px solid rgba(126, 182, 255, 0.2); padding-top: 40px; margin-top: 20px; } .ov-impl-intro { max-width: 600px; margin-bottom: 30px; color: var(--muted); line-height: 1.5; font-size: 14px; } .ov-impl-label-new { display: block !important; text-align: center !important; width: 100% !important; font-size: 24px !important; font-weight: 600 !important; color: var(--text) !important; padding-top: 40px !important; margin-bottom: 8px !important; position: relative !important; } .ov-impl-label-new::before { content: "—— NEXT STEPS ——" !important; display: block !important; font-size: 12px !important; color: #7eb6ff !important; font-weight: 700 !important; letter-spacing: 0.2em !important; margin-bottom: 12px !important; } .ov-impl-super { text-align: center !important; display: block !important; width: 100% !important; margin-bottom: 25px !important; } .ov-impl-band { border-top: 2px solid rgba(126, 182, 255, 0.3) !important; margin-top: 80px !important; padding-top: 50px !important; } </style>
+</style>
 </head>
 <body>
 <div class="cover">
