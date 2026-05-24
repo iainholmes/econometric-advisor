@@ -6469,18 +6469,15 @@ function exportAppendix() {
     _toolkit.sections.forEach(s => {
       const cl = confLabel[s.conf] || s.conf;
       const cb = confBars[s.conf] || '';
-      toolkitHtml += `<div style="margin-bottom:22px;padding:16px 18px;border-left:3px solid #1e40af;background:#f8fafc;border-radius:0 6px 6px 0;page-break-inside:avoid">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <span style="font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#1e40af;font-family:'Courier New',monospace;font-weight:700">${s.label}</span>
-          <span style="font-size:10px;font-family:'Courier New',monospace;color:#64748b">${cb} ${cl}</span>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#0a1d33;margin-bottom:8px">${s.method}</div>
-        ${s.detail ? `<div style="font-size:13px;color:#1e293b;line-height:1.7;margin-bottom:8px">${s.detail.startsWith('-') ? '<ul style="padding-left:18px;margin:4px 0">' + s.detail.split('\n').map(x=>x.replace(/^- /,'')).filter(Boolean).map(x=>`<li style="margin-bottom:5px">${x}</li>`).join('') + '</ul>' : s.detail}</div>` : ''}
-        ${s.equation ? `<div style="margin:10px 0;padding:12px 16px;background:#fff;border:.5px solid #e2e8f0;border-radius:5px;font-family:'Courier New',monospace;font-size:12.5px;color:#0f172a">${s.equation}</div>` : ''}
-        ${s.watch ? `<div style="font-size:12.5px;color:#92400e;margin-top:8px"><span style="background:#fef3c7;padding:2px 7px;border-radius:3px;font-weight:700;margin-right:5px">Watch out for</span>${s.watch}</div>` : ''}
+      toolkitHtml += `<div class="section-block">
+        <div class="margin-note">${cb}<br>${s.conf ? s.conf.toUpperCase() : ''}</div>
+        <div class="section-label">${s.label}</div>
+        <div class="section-method">${s.method}</div>
+        <div class="section-conf">${cb} ${cl}</div>
+        ${s.detail ? `<div class="section-detail">${s.detail}</div>` : ''}
+        ${s.equation ? `<div class="equation-block">${s.equation}</div>` : ''}
+        ${s.watch ? `<div class="watchout">Watch out for: ${s.watch}</div>` : ''}
       </div>`;
-    });
-  }
   // Diagnostics checklist
   let checklistHtml = '';
   const diagMap = {
