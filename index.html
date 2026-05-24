@@ -6518,119 +6518,175 @@ document.addEventListener('keydown', function(e) {
       <div id="trainer-guide-slides" style="display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);">
 
         <div class="tg-slide" style="min-width:100%;padding:32px 36px;box-sizing:border-box;">
-          <svg viewBox="0 0 560 200" style="width:100%;border-radius:10px;margin-bottom:24px;background:#06131f;">
-            <rect x="0" y="0" width="160" height="200" fill="#0a1d33"/>
-            <rect x="12" y="16" width="60" height="8" rx="4" fill="#3b82f6" opacity=".9"/>
-            <rect x="12" y="32" width="40" height="6" rx="3" fill="#1f3d5c"/>
-            <rect x="12" y="56" width="136" height="1" fill="#1f3d5c"/>
-            <rect x="12" y="68" width="100" height="7" rx="3" fill="#1f3d5c"/>
-            <rect x="12" y="84" width="80" height="6" rx="3" fill="#334155" opacity=".6"/>
-            <rect x="12" y="98" width="90" height="6" rx="3" fill="#334155" opacity=".6"/>
-            <rect x="12" y="112" width="75" height="6" rx="3" fill="#334155" opacity=".6"/>
-            <rect x="12" y="128" width="100" height="7" rx="3" fill="#1f3d5c"/>
-            <rect x="12" y="142" width="85" height="6" rx="3" fill="#334155" opacity=".6"/>
-            <rect x="160" y="0" width="400" height="200" fill="#06131f"/>
-            <rect x="176" y="16" width="120" height="10" rx="4" fill="#e2e8f0" opacity=".9"/>
-            <rect x="176" y="32" width="80" height="6" rx="3" fill="#3b82f6" opacity=".6"/>
-            <rect x="176" y="50" width="55" height="20" rx="4" fill="#10b981" opacity=".15"/>
-            <rect x="178" y="55" width="51" height="10" rx="3" fill="#10b981" opacity=".5"/>
-            <rect x="238" y="55" width="56" height="10" rx="3" fill="#334155" opacity=".5"/>
-            <rect x="307" y="55" width="61" height="10" rx="3" fill="#334155" opacity=".5"/>
-            <rect x="176" y="82" width="340" height="7" rx="3" fill="#1f3d5c"/>
-            <rect x="176" y="96" width="300" height="7" rx="3" fill="#1f3d5c"/>
-            <rect x="176" y="110" width="320" height="7" rx="3" fill="#1f3d5c"/>
-            <rect x="176" y="128" width="340" height="48" rx="6" fill="#0a1d33"/>
-            <rect x="188" y="138" width="200" height="6" rx="3" fill="#334155" opacity=".7"/>
-            <rect x="188" y="150" width="180" height="6" rx="3" fill="#334155" opacity=".5"/>
-            <rect x="188" y="162" width="160" height="6" rx="3" fill="#334155" opacity=".5"/>
+          <svg viewBox="0 0 560 210" style="width:100%;border-radius:10px;margin-bottom:24px;background:#f8fafc;font-family:ui-monospace,monospace;">
+            <!-- Header bar -->
+            <rect x="0" y="0" width="560" height="32" fill="#ffffff"/>
+            <circle cx="16" cy="16" r="5" fill="#10b981"/>
+            <text x="28" y="20" font-size="9" font-weight="700" fill="#1e293b" letter-spacing="1">QUANT SKILLS TRAINER</text>
+            <!-- Tab bar -->
+            <rect x="0" y="32" width="560" height="1" fill="#e2e8f0"/>
+            <rect x="0" y="33" width="187" height="30" fill="#f0fdf4"/>
+            <rect x="0" y="62" width="187" height="2" fill="#10b981"/>
+            <text x="93" y="52" text-anchor="middle" font-size="9" font-weight="700" fill="#10b981" letter-spacing="1">PYTHON</text>
+            <rect x="187" y="33" width="187" height="30" fill="#f8fafc"/>
+            <text x="280" y="52" text-anchor="middle" font-size="9" font-weight="500" fill="#64748b" letter-spacing="1">R</text>
+            <rect x="374" y="33" width="186" height="30" fill="#f8fafc"/>
+            <text x="467" y="52" text-anchor="middle" font-size="9" font-weight="500" fill="#64748b" letter-spacing="1">STATA</text>
+            <!-- Welcome content -->
+            <text x="280" y="90" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Build your quant foundation.</text>
+            <text x="280" y="106" text-anchor="middle" font-size="8" fill="#64748b">A structured curriculum for econometric modeling in Python, R, and Stata</text>
+            <!-- Language cards -->
+            <rect x="40" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
+            <text x="110" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#10b981">Python</text>
+            <text x="110" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">16 modules</text>
+            <rect x="210" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1"/>
+            <text x="280" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#3b82f6">R</text>
+            <text x="280" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">16 modules</text>
+            <rect x="380" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1"/>
+            <text x="450" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#6366f1">Stata</text>
+            <text x="450" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">15 modules</text>
+            <!-- Steps -->
+            <text x="40" y="178" font-size="7" fill="#10b981" font-weight="700">01</text>
+            <text x="54" y="178" font-size="7" fill="#64748b">Choose a language and module</text>
+            <text x="220" y="178" font-size="7" fill="#10b981" font-weight="700">02</text>
+            <text x="234" y="178" font-size="7" fill="#64748b">Read the lesson</text>
+            <text x="340" y="178" font-size="7" fill="#10b981" font-weight="700">03</text>
+            <text x="354" y="178" font-size="7" fill="#64748b">Practice and submit</text>
+            <rect x="0" y="196" width="560" height="14" fill="#f1f5f9"/>
+            <text x="280" y="205" text-anchor="middle" font-size="7" fill="#94a3b8">Quant Skills Trainer — built for econometrics practice</text>
           </svg>
           <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">A structured curriculum for econometric practice</div>
           <div style="font-size:14px;color:var(--muted);line-height:1.7">The Quant Skills Trainer is a companion app with 47 structured modules across Python, R, and Stata. Each module covers a specific econometric method — the same ones in your Advisor toolkit. You work locally in your editor, paste your code, and receive structured feedback.</div>
         </div>
 
         <div class="tg-slide" style="min-width:100%;padding:32px 36px;box-sizing:border-box;">
-          <svg viewBox="0 0 560 200" style="width:100%;border-radius:10px;margin-bottom:24px;background:#06131f;">
-            <rect x="20" y="20" width="155" height="160" rx="8" fill="#0a1d33" stroke="#10b981" stroke-width="1.5"/>
-            <rect x="32" y="36" width="20" height="20" rx="10" fill="#10b981" opacity=".2"/>
-            <text x="42" y="50" text-anchor="middle" font-size="11" fill="#10b981" font-weight="700">01</text>
-            <rect x="32" y="64" width="80" height="7" rx="3" fill="#10b981" opacity=".6"/>
-            <rect x="32" y="78" width="120" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="32" y="90" width="110" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="32" y="102" width="100" height="5" rx="2" fill="#1f3d5c"/>
-            <text x="97" y="168" text-anchor="middle" font-size="10" fill="#10b981" opacity=".8">LEARN</text>
-            <rect x="202" y="20" width="155" height="160" rx="8" fill="#0a1d33" stroke="#3b82f6" stroke-width="1"/>
-            <rect x="214" y="36" width="20" height="20" rx="10" fill="#3b82f6" opacity=".2"/>
-            <text x="224" y="50" text-anchor="middle" font-size="11" fill="#3b82f6" font-weight="700">02</text>
-            <rect x="214" y="64" width="80" height="7" rx="3" fill="#3b82f6" opacity=".6"/>
-            <rect x="214" y="78" width="120" height="35" rx="5" fill="#06131f"/>
-            <rect x="222" y="86" width="100" height="5" rx="2" fill="#334155" opacity=".5"/>
-            <rect x="222" y="96" width="90" height="5" rx="2" fill="#334155" opacity=".4"/>
-            <rect x="214" y="120" width="120" height="40" rx="5" fill="#0d1f2d"/>
-            <rect x="222" y="128" width="80" height="4" rx="2" fill="#3b82f6" opacity=".3"/>
-            <rect x="222" y="138" width="100" height="4" rx="2" fill="#3b82f6" opacity=".2"/>
-            <text x="279" y="168" text-anchor="middle" font-size="10" fill="#3b82f6" opacity=".8">PRACTICE</text>
-            <rect x="384" y="20" width="155" height="160" rx="8" fill="#0a1d33" stroke="#1f3d5c" stroke-width="1"/>
-            <rect x="396" y="36" width="20" height="20" rx="10" fill="#f59e0b" opacity=".15"/>
-            <text x="406" y="50" text-anchor="middle" font-size="11" fill="#f59e0b" font-weight="700">03</text>
-            <rect x="396" y="64" width="80" height="7" rx="3" fill="#f59e0b" opacity=".4"/>
-            <rect x="396" y="78" width="120" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="396" y="90" width="100" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="396" y="102" width="110" height="5" rx="2" fill="#1f3d5c"/>
-            <text x="461" y="168" text-anchor="middle" font-size="10" fill="#f59e0b" opacity=".6">FEEDBACK</text>
+          <svg viewBox="0 0 560 210" style="width:100%;border-radius:10px;margin-bottom:24px;background:#f8fafc;font-family:ui-monospace,monospace;">
+            <!-- Header -->
+            <rect x="0" y="0" width="560" height="32" fill="#ffffff"/>
+            <circle cx="16" cy="16" r="5" fill="#10b981"/>
+            <text x="28" y="20" font-size="9" font-weight="700" fill="#1e293b" letter-spacing="1">QUANT SKILLS TRAINER</text>
+            <!-- Back link -->
+            <text x="16" y="50" font-size="8" fill="#64748b">← back</text>
+            <!-- Module title row -->
+            <text x="16" y="68" font-size="13" font-weight="700" fill="#0f172a">Machine learning for causal inference</text>
+            <rect x="340" y="58" width="60" height="16" rx="8" fill="#dcfce7"/>
+            <text x="370" y="69" text-anchor="middle" font-size="8" font-weight="700" fill="#10b981">PYTHON</text>
+            <text x="16" y="82" font-size="8" font-family="monospace" fill="#64748b">LASSO, double ML, partialling out</text>
+            <!-- Tab bar -->
+            <rect x="16" y="92" width="560" height="1" fill="#e2e8f0"/>
+            <rect x="16" y="93" width="155" height="26" fill="#f0fdf4"/>
+            <rect x="16" y="118" width="155" height="2" fill="#10b981"/>
+            <text x="93" y="109" text-anchor="middle" font-size="8" font-weight="700" fill="#10b981">01  LEARN</text>
+            <rect x="171" y="93" width="155" height="26" fill="#f8fafc"/>
+            <text x="249" y="109" text-anchor="middle" font-size="8" fill="#94a3b8">02  PRACTICE</text>
+            <rect x="326" y="93" width="155" height="26" fill="#f8fafc"/>
+            <text x="404" y="109" text-anchor="middle" font-size="8" fill="#94a3b8">03  FEEDBACK</text>
+            <!-- Key concepts -->
+            <rect x="16" y="126" width="3" height="52" fill="#10b981"/>
+            <text x="26" y="137" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1">KEY CONCEPTS</text>
+            <text x="26" y="151" font-size="7.5" fill="#334155">→  Lazy evaluation avoids loading entire datasets into RAM</text>
+            <text x="26" y="163" font-size="7.5" fill="#334155">→  Double ML separates variable selection from causal estimation</text>
+            <text x="26" y="175" font-size="7.5" fill="#334155">→  Cross-fitting prevents overfitting from contaminating causal estimates</text>
+            <!-- Watch out panel hint -->
+            <rect x="420" y="126" width="124" height="56" rx="5" fill="#fffbeb" stroke="#fde68a" stroke-width="1"/>
+            <text x="432" y="139" font-size="7" font-weight="700" fill="#92400e">⚠ WATCH OUT</text>
+            <text x="432" y="151" font-size="6.5" fill="#92400e">DML requires</text>
+            <text x="432" y="161" font-size="6.5" fill="#92400e">cross-fitting —</text>
+            <text x="432" y="171" font-size="6.5" fill="#92400e">never fit on full</text>
+            <text x="432" y="181" font-size="6.5" fill="#92400e">sample.</text>
+            <rect x="0" y="196" width="560" height="14" fill="#f1f5f9"/>
           </svg>
           <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">Three tabs per module</div>
           <div style="font-size:14px;color:var(--muted);line-height:1.7">Every module has the same structure. <strong style="color:var(--text)">Learn</strong> — read the key concepts and a worked lesson. <strong style="color:var(--text)">Practice</strong> — complete the exercise in your local editor, then paste your code back in. <strong style="color:var(--text)">Feedback</strong> — submit for structured review against the exercise requirements.</div>
         </div>
 
         <div class="tg-slide" style="min-width:100%;padding:32px 36px;box-sizing:border-box;">
-          <svg viewBox="0 0 560 200" style="width:100%;border-radius:10px;margin-bottom:24px;background:#06131f;">
-            <rect x="20" y="16" width="520" height="50" rx="6" fill="#0a1d33"/>
-            <rect x="32" y="26" width="60" height="6" rx="3" fill="#10b981" opacity=".6"/>
-            <rect x="32" y="38" width="380" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="32" y="50" width="320" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="20" y="76" width="520" height="90" rx="6" fill="#0d1117"/>
-            <rect x="32" y="88" width="40" height="5" rx="2" fill="#3b82f6" opacity=".6"/>
-            <rect x="80" y="88" width="120" height="5" rx="2" fill="#e2e8f0" opacity=".5"/>
-            <rect x="32" y="100" width="60" height="5" rx="2" fill="#10b981" opacity=".5"/>
-            <rect x="100" y="100" width="80" height="5" rx="2" fill="#f59e0b" opacity=".5"/>
-            <rect x="32" y="112" width="50" height="5" rx="2" fill="#3b82f6" opacity=".4"/>
-            <rect x="90" y="112" width="100" height="5" rx="2" fill="#e2e8f0" opacity=".4"/>
-            <rect x="32" y="124" width="80" height="5" rx="2" fill="#10b981" opacity=".4"/>
-            <rect x="32" y="136" width="200" height="5" rx="2" fill="#e2e8f0" opacity=".2"/>
-            <rect x="20" y="176" width="100" height="20" rx="5" fill="#10b981" opacity=".2"/>
-            <rect x="28" y="182" width="84" height="8" rx="3" fill="#10b981" opacity=".5"/>
-            <rect x="130" y="176" width="80" height="20" rx="5" fill="#1f3d5c"/>
+          <svg viewBox="0 0 560 210" style="width:100%;border-radius:10px;margin-bottom:24px;background:#f8fafc;font-family:ui-monospace,monospace;">
+            <!-- Header -->
+            <rect x="0" y="0" width="560" height="32" fill="#ffffff"/>
+            <circle cx="16" cy="16" r="5" fill="#10b981"/>
+            <text x="28" y="20" font-size="9" font-weight="700" fill="#1e293b" letter-spacing="1">QUANT SKILLS TRAINER</text>
+            <!-- Tab bar - Practice active -->
+            <rect x="0" y="32" width="560" height="1" fill="#e2e8f0"/>
+            <rect x="0" y="33" width="187" height="26" fill="#f8fafc"/>
+            <text x="93" y="49" text-anchor="middle" font-size="8" fill="#94a3b8">01  LEARN</text>
+            <rect x="187" y="33" width="187" height="26" fill="#f0fdf4"/>
+            <rect x="187" y="58" width="187" height="2" fill="#10b981"/>
+            <text x="280" y="49" text-anchor="middle" font-size="8" font-weight="700" fill="#10b981">02  PRACTICE</text>
+            <rect x="374" y="33" width="186" height="26" fill="#f8fafc"/>
+            <text x="467" y="49" text-anchor="middle" font-size="8" fill="#94a3b8">03  FEEDBACK</text>
+            <!-- Exercise prompt -->
+            <rect x="16" y="66" width="528" height="40" rx="5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="26" y="79" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1">YOUR EXERCISE</text>
+            <text x="26" y="91" font-size="7" fill="#334155">1. Load a large CSV using polars with lazy evaluation (LazyFrame)</text>
+            <text x="26" y="101" font-size="7" fill="#334155">2. Filter rows and select columns before calling .collect()</text>
+            <!-- Code editor -->
+            <rect x="16" y="112" width="528" height="68" rx="5" fill="#1e293b"/>
+            <text x="26" y="126" font-size="7" font-family="monospace" fill="#7c3aed">import</text>
+            <text x="62" y="126" font-size="7" font-family="monospace" fill="#e2e8f0">polars</text>
+            <text x="96" y="126" font-size="7" font-family="monospace" fill="#10b981">as</text>
+            <text x="110" y="126" font-size="7" font-family="monospace" fill="#e2e8f0">pl</text>
+            <text x="26" y="138" font-size="7" font-family="monospace" fill="#94a3b8"># Load lazily — no data in RAM yet</text>
+            <text x="26" y="150" font-size="7" font-family="monospace" fill="#e2e8f0">df</text>
+            <text x="40" y="150" font-size="7" font-family="monospace" fill="#64748b">=</text>
+            <text x="48" y="150" font-size="7" font-family="monospace" fill="#f59e0b">pl</text>
+            <text x="60" y="150" font-size="7" font-family="monospace" fill="#e2e8f0">.scan_csv(</text>
+            <text x="124" y="150" font-size="7" font-family="monospace" fill="#10b981">"data.csv"</text>
+            <text x="176" y="150" font-size="7" font-family="monospace" fill="#e2e8f0">)</text>
+            <text x="26" y="162" font-size="7" font-family="monospace" fill="#e2e8f0">result</text>
+            <text x="60" y="162" font-size="7" font-family="monospace" fill="#64748b">=</text>
+            <text x="68" y="162" font-size="7" font-family="monospace" fill="#e2e8f0">df.filter(pl.col(</text>
+            <text x="176" y="162" font-size="7" font-family="monospace" fill="#10b981">"year"</text>
+            <text x="208" y="162" font-size="7" font-family="monospace" fill="#e2e8f0">) &gt; 2010).collect()</text>
+            <!-- Submit row -->
+            <rect x="16" y="186" width="90" height="18" rx="4" fill="#10b981" opacity=".2" stroke="#10b981" stroke-width="1"/>
+            <text x="61" y="198" text-anchor="middle" font-size="7" font-weight="700" fill="#10b981">⌘↵  Submit</text>
+            <text x="120" y="198" font-size="7" fill="#94a3b8">YOUR CODE — write locally, paste here</text>
+            <rect x="0" y="196" width="560" height="14" fill="#f1f5f9"/>
           </svg>
           <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">Write locally, paste here</div>
           <div style="font-size:14px;color:var(--muted);line-height:1.7">The Practice tab shows the exercise prompt and a code editor. Write your solution in Jupyter, RStudio, or Stata — then paste the finished code into the editor. Optionally paste your output too. Hit <strong style="color:var(--text)">Cmd+Enter</strong> to submit for feedback.</div>
         </div>
 
         <div class="tg-slide" style="min-width:100%;padding:32px 36px;box-sizing:border-box;">
-          <svg viewBox="0 0 560 200" style="width:100%;border-radius:10px;margin-bottom:24px;background:#06131f;">
-            <rect x="20" y="30" width="200" height="140" rx="8" fill="#0a1d33" stroke="#3b82f6" stroke-width="1"/>
-            <rect x="32" y="46" width="80" height="8" rx="4" fill="#3b82f6" opacity=".7"/>
-            <rect x="32" y="62" width="160" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="32" y="74" width="140" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="32" y="92" width="176" height="52" rx="5" fill="#06131f"/>
-            <rect x="40" y="102" width="100" height="5" rx="2" fill="#10b981" opacity=".5"/>
-            <rect x="40" y="114" width="80" height="5" rx="2" fill="#10b981" opacity=".4"/>
-            <rect x="40" y="126" width="90" height="5" rx="2" fill="#10b981" opacity=".3"/>
-            <text x="120" y="158" text-anchor="middle" font-size="9" fill="#3b82f6" opacity=".7">ADVISOR</text>
-            <line x1="220" y1="100" x2="330" y2="100" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3" opacity=".6"/>
-            <polygon points="328,96 338,100 328,104" fill="#3b82f6" opacity=".6"/>
-            <text x="280" y="94" text-anchor="middle" font-size="9" fill="#7a96ae">context</text>
-            <rect x="340" y="30" width="200" height="140" rx="8" fill="#0a1d33" stroke="#10b981" stroke-width="1"/>
-            <rect x="352" y="46" width="80" height="8" rx="4" fill="#10b981" opacity=".7"/>
-            <rect x="352" y="62" width="160" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="352" y="74" width="140" height="5" rx="2" fill="#1f3d5c"/>
-            <rect x="352" y="92" width="176" height="52" rx="5" fill="#06131f"/>
-            <rect x="360" y="100" width="100" height="5" rx="2" fill="#10b981" opacity=".4"/>
-            <rect x="360" y="112" width="156" height="24" rx="4" fill="#0d1117"/>
-            <rect x="368" y="120" width="80" height="4" rx="2" fill="#10b981" opacity=".3"/>
-            <text x="440" y="158" text-anchor="middle" font-size="9" fill="#10b981" opacity=".7">TRAINER</text>
+          <svg viewBox="0 0 560 210" style="width:100%;border-radius:10px;margin-bottom:24px;background:#f8fafc;font-family:ui-monospace,monospace;">
+            <!-- Header -->
+            <rect x="0" y="0" width="560" height="32" fill="#ffffff"/>
+            <circle cx="16" cy="16" r="5" fill="#10b981"/>
+            <text x="28" y="20" font-size="9" font-weight="700" fill="#1e293b" letter-spacing="1">QUANT SKILLS TRAINER</text>
+            <text x="460" y="20" font-size="8" fill="#64748b">Set API key</text>
+            <!-- Advisor banner -->
+            <rect x="0" y="32" width="560" height="22" fill="#eef4fb"/>
+            <circle cx="12" cy="43" r="4" fill="#3b82f6"/>
+            <text x="22" y="47" font-size="7.5" fill="#2e5484">From Advisor: Environmental economics · IV / Control Function</text>
+            <text x="530" y="47" font-size="9" fill="#64748b">✕</text>
+            <!-- Focus banner -->
+            <rect x="16" y="60" width="528" height="28" rx="5" fill="#fffbeb" stroke="#fde68a" stroke-width="1"/>
+            <text x="26" y="72" font-size="7" font-weight="700" fill="#92400e">Note: Your Advisor toolkit recommends Instrumental Variables (2SLS).</text>
+            <text x="26" y="82" font-size="7" fill="#92400e">Focus on the first-stage F-statistic and exclusion restriction — these are non-negotiable for IV validity.</text>
+            <!-- Tab bar -->
+            <rect x="16" y="94" width="560" height="1" fill="#e2e8f0"/>
+            <rect x="16" y="95" width="170" height="22" fill="#f0fdf4"/>
+            <rect x="16" y="116" width="170" height="2" fill="#10b981"/>
+            <text x="101" y="109" text-anchor="middle" font-size="7.5" font-weight="700" fill="#10b981">01  LEARN</text>
+            <rect x="186" y="95" width="170" height="22" fill="#f8fafc"/>
+            <text x="271" y="109" text-anchor="middle" font-size="7.5" fill="#94a3b8">02  PRACTICE</text>
+            <rect x="356" y="95" width="170" height="22" fill="#f8fafc"/>
+            <text x="441" y="109" text-anchor="middle" font-size="7.5" fill="#94a3b8">03  FEEDBACK</text>
+            <!-- Module title -->
+            <text x="16" y="134" font-size="11" font-weight="700" fill="#0f172a">Instrumental Variables (2SLS)</text>
+            <rect x="300" y="124" width="40" height="14" rx="7" fill="#dcfce7"/>
+            <text x="320" y="134" text-anchor="middle" font-size="7" font-weight="700" fill="#10b981">PYTHON</text>
+            <text x="16" y="148" font-size="7.5" font-family="monospace" fill="#64748b">Endogeneity, exclusion restriction, two-stage least squares</text>
+            <!-- Key concepts -->
+            <rect x="16" y="156" width="3" height="34" fill="#10b981"/>
+            <text x="26" y="167" font-size="7" fill="#334155">→  An instrument must be correlated with the endogenous variable</text>
+            <text x="26" y="178" font-size="7" fill="#334155">→  The exclusion restriction cannot be tested — only justified</text>
+            <text x="26" y="189" font-size="7" fill="#334155">→  Weak instruments (F &lt; 10) invalidate inference</text>
+            <rect x="0" y="196" width="560" height="14" fill="#f1f5f9"/>
           </svg>
           <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">Your research context travels with you</div>
-          <div style="font-size:14px;color:var(--muted);line-height:1.7">When you arrive from the Advisor, your research design is pre-loaded. Exercises are calibrated to your study and a banner reminds you how each method applies to your identification strategy. Progress is saved in the browser across sessions.</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7">When you arrive from the Advisor, your research design is pre-loaded. A blue banner shows your study context and an amber note tells you exactly how the method applies to your identification strategy. Progress is saved in the browser across sessions.</div>
         </div>
 
       </div>
