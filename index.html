@@ -6271,10 +6271,7 @@ function _removeExportSubmenu() {
 }
 function openExportSubmenuCard(e) {
   e.stopPropagation();
-  _removeExportSubmenu();
-  var rect = e.currentTarget.getBoundingClientRect();
-  // Position will be adjusted after build based on submenu height
-  _buildExportSubmenuAbove(rect);
+  openExportModal();
 }
 function openExportSubmenu(e) {
   e.stopPropagation();
@@ -6344,7 +6341,7 @@ function _buildExportSubmenu(x, y) {
   });
 }
 
-function exportLog() { exportAppendix(); }
+function exportLog() { openExportModal(); }
 
 function _exportBase() {
   const ts = new Date();
@@ -6383,33 +6380,183 @@ function _exportBase() {
   return { dateStr, timeStr, _decode, confLabel, confBars };
 }
 
-function _basePrintCSS() {
-  return `* { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Georgia', serif; font-size: 13.5px; line-height: 1.75; color: #0f172a; background: #fff; padding: 48px 56px; max-width: 820px; margin: 0 auto; }
-  h1 { font-size: 26px; font-weight: 700; color: #0a1d33; letter-spacing: -.02em; margin-bottom: 6px; }
-  h2 { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1.5px solid #cbd5e1; }
-  .app-name { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; margin-bottom: 6px; }
-  .meta { font-size: 12px; color: #334155; font-family: 'Courier New', monospace; }
-  .cover { border-bottom: 3px solid #0a1d33; padding-bottom: 20px; margin-bottom: 28px; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-  td { padding: 7px 10px; vertical-align: top; border-bottom: .5px solid #e2e8f0; font-size: 13px; }
-  td.q { color: #334155; width: 38%; font-style: italic; }
-  td.a { color: #0f172a; font-weight: 500; }
-  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #cbd5e1; font-size: 11px; color: #475569; font-family: 'Courier New', monospace; display: flex; justify-content: space-between; }
-  @media print { body { padding: 0; } @page { margin: 40px 48px; } }`;
+function _basePrintCSS(sidebarHtml) {
+  return `
+@import url('https://fonts.googleapis.com/css2?family=TeX+Gyre+Pagella&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body {
+  font-family: 'TeX Gyre Pagella', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  font-size: 13px;
+  line-height: 1.72;
+  color: #111;
+  background: #fff;
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  min-height: 100vh;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.sidebar {
+  padding: 48px 18px 48px 36px;
+  border-right: 1px solid #c8c8c8;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #444;
+  word-break: break-word;
+}
+.sidebar-logo {
+  font-size: 8px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 24px;
+  display: block;
+}
+.sidebar-section {
+  margin-bottom: 18px;
+}
+.sidebar-label {
+  font-size: 8px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #999;
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 700;
+}
+.sidebar-value {
+  font-size: 10px;
+  color: #222;
+  line-height: 1.5;
+}
+.sidebar-rule {
+  border: none;
+  border-top: .5px solid #ddd;
+  margin: 16px 0;
+}
+.main {
+  padding: 48px 44px 56px 36px;
+}
+.doc-eyebrow {
+  font-size: 8.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 10px;
+  display: block;
+  font-family: 'Courier New', monospace;
+}
+h1 {
+  font-size: 21px;
+  font-weight: normal;
+  color: #0a0a0a;
+  letter-spacing: -.01em;
+  margin-bottom: 4px;
+  line-height: 1.25;
+}
+.doc-meta {
+  font-size: 10.5px;
+  color: #777;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #222;
+}
+h2 {
+  font-size: 8.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  margin: 28px 0 10px;
+  padding-bottom: 5px;
+  border-bottom: .5px solid #bbb;
+}
+table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 12px; }
+td { padding: 6px 8px; vertical-align: top; border-bottom: .5px solid #e8e8e8; }
+td.q { color: #555; width: 36%; font-style: italic; }
+td.a { color: #111; }
+td.impl { font-size: 11px; color: #333; width: 32%; font-style: italic; }
+p { margin-bottom: 10px; font-size: 13px; line-height: 1.72; }
+ul { padding-left: 18px; margin-bottom: 10px; }
+li { margin-bottom: 4px; font-size: 12.5px; }
+.method-block {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-left: 2px solid #333;
+  background: #fafafa;
+  page-break-inside: avoid;
+}
+.method-label {
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #666;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.method-conf {
+  font-size: 9.5px;
+  font-family: 'Courier New', monospace;
+  color: #888;
+  margin-left: 10px;
+}
+.method-name {
+  font-size: 14.5px;
+  font-weight: bold;
+  color: #0a0a0a;
+  margin-bottom: 7px;
+}
+.method-detail { font-size: 12px; color: #222; line-height: 1.65; margin-bottom: 6px; }
+.method-watch { font-size: 11.5px; color: #444; font-style: italic; margin-top: 6px; }
+.method-watch::before { content: 'Watch out for: '; font-weight: bold; font-style: normal; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  background: #f0f0f0;
+  color: #222;
+  font-family: 'Courier New', monospace;
+  border: .5px solid #ddd;
+}
+.footer {
+  grid-column: 1 / -1;
+  border-top: 1px solid #bbb;
+  padding: 10px 36px;
+  font-size: 9.5px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  justify-content: space-between;
+}
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.card-box { padding: 12px 14px; border: .5px solid #ccc; border-radius: 3px; }
+.card-box-label { font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: #777; font-family: 'Courier New', monospace; font-weight: 700; margin-bottom: 5px; }
+.card-box-value { font-size: 13px; font-weight: bold; color: #0a0a0a; line-height: 1.4; }
+@media print {
+  body { max-width: none; }
+  .sidebar { padding: 36px 16px 36px 28px; }
+  .main { padding: 36px 36px 48px 28px; }
+  @page { margin: 0; size: A4; }
+}`;
 }
 
-function exportBrief() {
-  const { dateStr, timeStr, _decode } = _exportBase();
+
+function exportBrief(u) {
+  u = u || {};
+  const { dateStr, _decode } = _exportBase();
   const qLabels = {
     stage:'Research stage', field:'Primary field', question_type:'Research question type',
     treatment:'Treatment / shock', n_treated:'Units treated', data_structure:'Data structure',
     outcome:'Outcome variable type', endogeneity:'Endogeneity / identification',
-    geo:'Geography role', functional_form:'Functional form', context:'Study description'
+    geo:'Geography role', functional_form:'Functional form'
   };
-  // Decision log — each answer + what it implies
   const implications = {
-    stage: v => v === 'proposal' ? 'Identification strategy not yet finalised — key decisions remain open.' : v === 'estimating' ? 'Methods are in active use — verify specification before reporting.' : null,
+    stage: v => v === 'proposal' ? 'Identification strategy not yet finalised — key decisions remain open.' : v === 'estimating' ? 'Methods in active use — verify specification before reporting.' : null,
     endogeneity: v => v === 'natexp' ? 'Natural experiment identified — IV or DiD strategy required.' : v === 'ols_ok' ? 'OLS is the baseline — document why endogeneity is not a concern.' : null,
     data_structure: v => Array.isArray(v) && v.includes('panel') ? 'Panel structure requires fixed effects and clustered standard errors.' : null,
     geo: v => v && v !== 'none_geo' ? 'Spatial dimension present — spatial autocorrelation must be tested.' : null,
@@ -6421,70 +6568,86 @@ function exportBrief() {
     if (!v || v === '_skipped') return;
     const val = _decode(v);
     const impl = implications[k] ? implications[k](v) : null;
-    decisionRows += `<tr><td class="q">${label}</td><td class="a">${val}</td><td class="impl">${impl || '—'}</td></tr>`;
+    decisionRows += `<tr><td class="q">${label}</td><td class="a">${val}</td><td class="impl">${impl || ''}</td></tr>`;
   });
-  // Key assumptions from toolkit
-  let assumptionRows = '';
   const assumptionMap = {
-    't_iv':   ['Instrument is correlated with the endogenous variable (relevance)', 'Instrument affects outcome only through the treatment (exclusion restriction)', 'Instrument assignment is as-good-as-random (independence)'],
-    't_did':  ['Parallel trends hold in the pre-treatment period', 'No anticipation effects', 'Stable unit treatment value assumption (SUTVA)'],
-    't_rd':   ['Agents cannot precisely manipulate the running variable (continuity)', 'No other discontinuities at the cutoff', 'Local randomisation around the cutoff'],
-    't_ols':  ['No omitted variable bias', 'Correct functional form specified', 'Homoskedastic errors (or robust SEs reported)'],
-    't_fe':   ['Time-invariant unobservables are the main source of confounding', 'Strict exogeneity of regressors given the fixed effect'],
-    't_dml':  ['Neyman orthogonality holds for the moment conditions', 'Cross-fitting prevents overfitting bias', 'Sparsity assumption for LASSO-based selection'],
-    't_cf':   ['Unconfoundedness given observed covariates', 'Overlap: every unit has positive probability of treatment', 'Honest splitting used to avoid overfitting'],
+    't_iv':  ['Instrument correlated with endogenous variable (relevance)', 'Instrument affects outcome only through treatment (exclusion restriction)', 'Instrument assignment as-good-as-random (independence)'],
+    't_did': ['Parallel trends hold in pre-treatment period', 'No anticipation effects', 'SUTVA'],
+    't_rd':  ['No precise manipulation of running variable', 'No other discontinuities at cutoff', 'Local randomisation around cutoff'],
+    't_ols': ['No omitted variable bias', 'Correct functional form specified', 'Errors homoskedastic or robust SEs reported'],
+    't_fe':  ['Time-invariant unobservables are primary confound', 'Strict exogeneity of regressors given FE'],
+    't_dml': ['Neyman orthogonality holds', 'Cross-fitting prevents overfitting bias', 'Sparsity assumption for selection'],
+    't_cf':  ['Unconfoundedness given observed covariates', 'Overlap: positive treatment probability for all units', 'Honest splitting'],
   };
+  let assumptionRows = '';
   if (_toolkit && _toolkit.sections) {
     _toolkit.sections.forEach(s => {
       (s.kgTags || []).forEach(tag => {
         if (assumptionMap[tag]) {
           assumptionMap[tag].forEach(a => {
-            assumptionRows += `<tr><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:12.5px;width:24px;text-align:center">☐</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:12.5px">${a}</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:11px;color:#64748b;font-style:italic">${s.method}</td></tr>`;
+            assumptionRows += `<tr><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;width:20px;text-align:center;font-size:11px">☐</td><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;font-size:12px">${a}</td><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;font-size:10.5px;color:#555;font-style:italic">${s.method}</td></tr>`;
           });
         }
       });
     });
   }
-  // Open questions — gaps
   let openQHtml = '';
   if (_toolkit && _toolkit.gaps && _toolkit.gaps.length) {
-    openQHtml = '<ul style="padding-left:20px;margin:0">' + _toolkit.gaps.map(g => `<li style="margin-bottom:6px;font-size:13px">${g}</li>`).join('') + '</ul>';
+    openQHtml = '<ul>' + _toolkit.gaps.map(g => `<li>${g}</li>`).join('') + '</ul>';
   } else {
-    openQHtml = '<p style="font-size:13px;color:#64748b;font-style:italic">No outstanding gaps identified from current intake answers.</p>';
+    openQHtml = '<p style="font-style:italic;color:#666">No outstanding gaps identified from current intake answers.</p>';
   }
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Research Design Brief</title><style>
-  ${_basePrintCSS()}
-  .impl-col { font-size: 12px; color: #1e40af; font-style: italic; }
-  td.impl { font-size: 12px; color: #1e40af; font-style: italic; width: 34%; }
-  .doc-type { display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#1e40af;padding:3px 10px;border-radius:3px;margin-bottom:10px; }
-  </style></head><body>
-  <div class="cover">
-    <div class="app-name">Econometric Advisor</div>
-    <div class="doc-type">Research Design Brief</div>
-    <h1>${ans.context ? ans.context.slice(0,80) + (ans.context.length > 80 ? '...' : '') : 'Research Design Brief'}</h1>
-    <div class="meta">Generated ${dateStr} at ${timeStr} &nbsp;·&nbsp; For advisor review — structured decision log, not submitted prose</div>
+  // Sidebar
+  const idSec = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Identification strategy') : null;
+  const sidebar = `
+    <span class="sidebar-logo">Econometric Advisor</span>
+    ${u.studytitle ? `<div class="sidebar-section"><span class="sidebar-label">Study</span><span class="sidebar-value">${u.studytitle}</span></div><hr class="sidebar-rule">` : ''}
+    ${u.author ? `<div class="sidebar-section"><span class="sidebar-label">Researcher</span><span class="sidebar-value">${u.author}${u.degree ? '<br><span style="color:#888">' + u.degree + '</span>' : ''}${u.institution ? '<br><span style="color:#888">' + u.institution + '</span>' : ''}</span></div>` : ''}
+    ${u.advisor ? `<div class="sidebar-section"><span class="sidebar-label">Advisor</span><span class="sidebar-value">${u.advisor}</span></div>` : ''}
+    ${u.committee ? `<div class="sidebar-section"><span class="sidebar-label">Committee</span><span class="sidebar-value">${u.committee}</span></div>` : ''}
+    ${u.meeting ? `<div class="sidebar-section"><span class="sidebar-label">Meeting</span><span class="sidebar-value">${u.meeting}</span></div>` : ''}
+    <hr class="sidebar-rule">
+    ${idSec ? `<div class="sidebar-section"><span class="sidebar-label">Identification</span><span class="sidebar-value">${idSec.method}</span></div>` : ''}
+    ${ans.field ? `<div class="sidebar-section"><span class="sidebar-label">Field</span><span class="sidebar-value">${_decode(ans.field)}</span></div>` : ''}
+    ${ans.stage ? `<div class="sidebar-section"><span class="sidebar-label">Stage</span><span class="sidebar-value">${_decode(ans.stage)}</span></div>` : ''}
+  `;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Research Design Brief</title><style>${_basePrintCSS()}</style></head><body>
+  <div class="sidebar">${sidebar}</div>
+  <div class="main">
+    <span class="doc-eyebrow">Research Design Brief</span>
+    <h1>${u.studytitle || (ans.context ? ans.context.slice(0,70) + (ans.context.length > 70 ? '...' : '') : 'Research Design Brief')}</h1>
+    <div class="doc-meta">Generated ${u.date || dateStr}${u.meeting ? ' &nbsp;·&nbsp; ' + u.meeting : ''}</div>
+    <h2>Research Design Decisions</h2>
+    <table><thead><tr>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Question</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Answer</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Implication</th>
+    </tr></thead><tbody>${decisionRows}</tbody></table>
+    <h2>Key Assumptions to Justify</h2>
+    <table><thead><tr>
+      <th style="padding:5px 8px;border-bottom:1px solid #bbb;width:20px"></th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Assumption</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Method</th>
+    </tr></thead><tbody>${assumptionRows || '<tr><td colspan="3" style="padding:8px;font-style:italic;color:#777;font-size:12px">No specific assumptions mapped for current toolkit.</td></tr>'}</tbody></table>
+    <h2>Open Questions</h2>
+    ${openQHtml}
   </div>
-  <h2>Research Design Decisions</h2>
-  <table><thead><tr><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Question</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Your Answer</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Implication</th></tr></thead><tbody>${decisionRows}</tbody></table>
-  <h2>Key Assumptions to Justify</h2>
-  <table><thead><tr><th style="padding:6px 10px;border-bottom:1px solid #e2e8f0;width:24px"></th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Assumption</th><th style="text-align:left;padding:6px 10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0">Method</th></tr></thead><tbody>${assumptionRows || '<tr><td colspan="3" style="padding:10px;color:#64748b;font-style:italic;font-size:13px">No specific assumptions mapped for current toolkit.</td></tr>'}</tbody></table>
-  <h2>Open Questions</h2>
-  ${openQHtml}
-  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${u.date || dateStr}</span></div>
   </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
-  setTimeout(() => w.print(), 400);
+  setTimeout(() => w.print(), 600);
 }
 
-function exportAppendix() {
-  const { dateStr, timeStr, _decode, confLabel, confBars } = _exportBase();
+function exportAppendix(u) {
+  u = u || {};
+  const { dateStr, _decode, confLabel, confBars } = _exportBase();
   const qLabels = {
     stage:'Research stage', field:'Primary field', question_type:'Research question type',
     treatment:'Treatment / shock', n_treated:'Units treated', data_structure:'Data structure',
     outcome:'Outcome variable type', endogeneity:'Endogeneity / identification',
-    geo:'Geography role', functional_form:'Functional form', context:'Study description'
+    geo:'Geography role', functional_form:'Functional form'
   };
   let answersHtml = '';
   Object.entries(qLabels).forEach(([k, label]) => {
@@ -6497,20 +6660,15 @@ function exportAppendix() {
     _toolkit.sections.forEach(s => {
       const cl = confLabel[s.conf] || s.conf;
       const cb = confBars[s.conf] || '';
-      toolkitHtml += `<div style="margin-bottom:22px;padding:16px 18px;border-left:3px solid #1e40af;background:#f8fafc;border-radius:0 6px 6px 0;page-break-inside:avoid">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <span style="font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#1e40af;font-family:'Courier New',monospace;font-weight:700">${s.label}</span>
-          <span style="font-size:10px;font-family:'Courier New',monospace;color:#64748b">${cb} ${cl}</span>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#0a1d33;margin-bottom:8px">${s.method}</div>
-        ${s.detail ? `<div style="font-size:13px;color:#1e293b;line-height:1.7;margin-bottom:8px">${s.detail.startsWith('-') ? '<ul style="padding-left:18px;margin:4px 0">' + s.detail.split('\n').map(x=>x.replace(/^- /,'')).filter(Boolean).map(x=>`<li style="margin-bottom:5px">${x}</li>`).join('') + '</ul>' : s.detail}</div>` : ''}
-        ${s.equation ? `<div style="margin:10px 0;padding:12px 16px;background:#fff;border:.5px solid #e2e8f0;border-radius:5px;font-family:'Courier New',monospace;font-size:12.5px;color:#0f172a">${s.equation}</div>` : ''}
-        ${s.watch ? `<div style="font-size:12.5px;color:#92400e;margin-top:8px"><span style="background:#fef3c7;padding:2px 7px;border-radius:3px;font-weight:700;margin-right:5px">Watch out for</span>${s.watch}</div>` : ''}
+      toolkitHtml += `<div class="method-block">
+        <div class="method-label">${s.label} <span class="method-conf">${cb} ${cl}</span></div>
+        <div class="method-name">${s.method}</div>
+        ${s.detail ? `<div class="method-detail">${s.detail.startsWith('-') ? '<ul>' + s.detail.split('\n').map(x=>x.replace(/^- /,'')).filter(Boolean).map(x=>`<li>${x}</li>`).join('') + '</ul>' : s.detail}</div>` : ''}
+        ${s.equation ? `<div style="margin:8px 0;padding:10px 14px;background:#f5f5f5;border:.5px solid #ddd;font-family:'Courier New',monospace;font-size:11.5px;color:#111">${s.equation}</div>` : ''}
+        ${s.watch ? `<div class="method-watch">${s.watch}</div>` : ''}
       </div>`;
     });
   }
-  // Diagnostics checklist
-  let checklistHtml = '';
   const diagMap = {
     'd_firststage': 'Report first-stage F-statistic (threshold: F > 10)',
     'd_sargan': 'Run Sargan-Hansen overidentification test if overidentified',
@@ -6520,59 +6678,67 @@ function exportAppendix() {
     'd_robust': 'Report heteroskedasticity-robust standard errors',
     'd_ftest': 'Test joint significance of non-linear terms',
   };
+  let checklistHtml = '';
   if (_toolkit && _toolkit.active) {
     Object.entries(diagMap).forEach(([tag, desc]) => {
       if (_toolkit.active.has(tag)) {
-        checklistHtml += `<tr><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;width:20px;text-align:center">☐</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:13px">${desc}</td></tr>`;
+        checklistHtml += `<tr><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;width:20px;text-align:center">☐</td><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;font-size:12px">${desc}</td></tr>`;
       }
     });
   }
   let narrativeHtml = '';
   if (_aiPayload) {
-    if (_aiPayload.narrative) narrativeHtml += `<p style="font-size:13.5px;color:#1e293b;line-height:1.8;margin-bottom:14px">${_aiPayload.narrative}</p>`;
-    if (_aiPayload.key_adjustments && _aiPayload.key_adjustments.length) narrativeHtml += '<ul style="padding-left:22px;margin-bottom:14px">' + _aiPayload.key_adjustments.map(a=>`<li style="font-size:13px;margin-bottom:5px">${a}</li>`).join('') + '</ul>';
-    if (_aiPayload.watchout) narrativeHtml += `<div style="background:#fef2f2;border-left:3px solid #dc2626;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#7f1d1d"><strong>Watch out for:</strong> ${_aiPayload.watchout}</div>`;
+    if (_aiPayload.narrative) narrativeHtml += `<p>${_aiPayload.narrative}</p>`;
+    if (_aiPayload.key_adjustments && _aiPayload.key_adjustments.length) narrativeHtml += '<ul>' + _aiPayload.key_adjustments.map(a=>`<li>${a}</li>`).join('') + '</ul>';
+    if (_aiPayload.watchout) narrativeHtml += `<p style="font-style:italic;border-left:2px solid #999;padding-left:12px;color:#333"><strong>Watch out for:</strong> ${_aiPayload.watchout}</p>`;
   }
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Methods Appendix</title><style>
-  ${_basePrintCSS()}
-  .doc-type{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#1e40af;padding:3px 10px;border-radius:3px;margin-bottom:10px}
-  </style></head><body>
-  <div class="cover">
-    <div class="app-name">Econometric Advisor</div>
-    <div class="doc-type">Methods Appendix</div>
+  // Sidebar — method stack
+  const methodStack = _toolkit && _toolkit.sections ? _toolkit.sections.map(s => `<div class="sidebar-section"><span class="sidebar-label">${s.label}</span><span class="sidebar-value">${s.method}</span></div>`) .join('<hr class="sidebar-rule">') : '';
+  const sidebar = `
+    <span class="sidebar-logo">Econometric Advisor</span>
+    ${u.studytitle ? `<div class="sidebar-section"><span class="sidebar-label">Study</span><span class="sidebar-value">${u.studytitle}</span></div><hr class="sidebar-rule">` : ''}
+    ${u.author ? `<div class="sidebar-section"><span class="sidebar-label">Author</span><span class="sidebar-value">${u.author}${u.institution ? '<br><span style="color:#888">' + u.institution + '</span>' : ''}</span></div>` : ''}
+    ${u.version ? `<div class="sidebar-section"><span class="sidebar-label">Version</span><span class="sidebar-value">${u.version}</span></div>` : ''}
+    <hr class="sidebar-rule">
+    <div class="sidebar-section"><span class="sidebar-label">Method stack</span></div>
+    ${methodStack}
+  `;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Methods Appendix</title><style>${_basePrintCSS()}</style></head><body>
+  <div class="sidebar">${sidebar}</div>
+  <div class="main">
+    <span class="doc-eyebrow">Methods Appendix</span>
     <h1>Methodological Specification</h1>
-    <div class="meta">Generated ${dateStr} at ${timeStr} &nbsp;·&nbsp; For thesis appendix — technical reference</div>
+    <div class="doc-meta">Generated ${u.date || dateStr}${u.note ? ' &nbsp;·&nbsp; ' + u.note : ' &nbsp;·&nbsp; For thesis appendix — technical reference'}</div>
+    <h2>Assessment Responses</h2>
+    <table>${answersHtml}</table>
+    <h2>Recommended Toolkit</h2>
+    ${toolkitHtml}
+    <h2>Diagnostic Checklist</h2>
+    <table>${checklistHtml || '<tr><td colspan="2" style="padding:8px;font-style:italic;color:#777;font-size:12px">No specific diagnostics mapped for current toolkit.</td></tr>'}</table>
+    ${narrativeHtml ? '<h2>Design Analysis</h2>' + narrativeHtml : ''}
   </div>
-  <h2>Assessment Responses</h2>
-  <table>${answersHtml}</table>
-  <h2>Recommended Toolkit</h2>
-  ${toolkitHtml}
-  <h2>Diagnostic Checklist</h2>
-  <table>${checklistHtml || '<tr><td colspan="2" style="padding:10px;color:#64748b;font-style:italic;font-size:13px">No specific diagnostics mapped for current toolkit.</td></tr>'}</table>
-  ${narrativeHtml ? `<h2>AI-Calibrated Analysis</h2>${narrativeHtml}` : ''}
-  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${u.date || dateStr}</span></div>
   </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
-  setTimeout(() => w.print(), 400);
+  setTimeout(() => w.print(), 600);
 }
 
-function exportReviewerCard() {
-  const { dateStr, timeStr, _decode, confBars } = _exportBase();
-  const idSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Identification strategy') : null;
+function exportReviewerCard(u) {
+  u = u || {};
+  const { dateStr, _decode } = _exportBase();
+  const idSection  = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Identification strategy') : null;
   const estSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Estimator & model specification') : null;
-  const infSection = _toolkit && _toolkit.sections ? _toolkit.sections.find(s => s.label === 'Inference & diagnostic checklist') : null;
   const allMethods = _toolkit && _toolkit.sections ? _toolkit.sections.map(s => `${s.label}: ${s.method}`).join(' &nbsp;·&nbsp; ') : '';
-  // Key assumptions for reviewer
   const assumptionMap = {
-    't_iv':  ['Instrument relevance (F > 10)','Exclusion restriction','Instrument independence'],
-    't_did': ['Parallel trends (pre-treatment)','No anticipation effects','SUTVA'],
-    't_rd':  ['No manipulation of running variable','Continuity at cutoff'],
-    't_ols': ['No omitted variable bias','Correct functional form'],
-    't_fe':  ['Strict exogeneity','Time-invariant confounders only'],
-    't_dml': ['Neyman orthogonality','Cross-fitting','Sparsity'],
-    't_cf':  ['Unconfoundedness','Overlap','Honest splitting'],
+    't_iv':  ['Instrument relevance (first-stage F > 10)', 'Exclusion restriction', 'Instrument independence'],
+    't_did': ['Parallel trends (pre-treatment period)', 'No anticipation effects', 'SUTVA'],
+    't_rd':  ['No manipulation of running variable', 'Continuity at cutoff'],
+    't_ols': ['No omitted variable bias', 'Correct functional form'],
+    't_fe':  ['Strict exogeneity', 'Time-invariant confounders only'],
+    't_dml': ['Neyman orthogonality', 'Cross-fitting', 'Sparsity'],
+    't_cf':  ['Unconfoundedness', 'Overlap', 'Honest splitting'],
   };
   let assumptions = [];
   if (_toolkit && _toolkit.active) {
@@ -6581,61 +6747,176 @@ function exportReviewerCard() {
     });
   }
   assumptions = [...new Set(assumptions)];
-  const diagMap = {'d_firststage':'First-stage F-statistic','d_pretrend':'Pre-trend test','d_hausman':'Hausman test','d_moran':"Moran's I",'d_robust':'Robust SEs','d_sargan':'Sargan-Hansen test','d_ftest':'F-test for functional form'};
+  const diagMap = {'d_firststage':'First-stage F-statistic','d_pretrend':'Pre-trend test','d_hausman':'Hausman test','d_moran':"Moran's I",'d_robust':'Robust standard errors','d_sargan':'Sargan-Hansen test','d_ftest':'F-test for functional form'};
   let diags = [];
   if (_toolkit && _toolkit.active) {
     Object.entries(diagMap).forEach(([tag, label]) => { if (_toolkit.active.has(tag)) diags.push(label); });
   }
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviewer Reference Card</title><style>
-  ${_basePrintCSS()}
-  body { font-size: 13px; }
-  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .card-box { padding: 14px 16px; border: .5px solid #cbd5e1; border-radius: 6px; }
-  .card-box-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin-bottom: 6px; }
-  .card-box-value { font-size: 13.5px; font-weight: 600; color: #0f172a; line-height: 1.5; }
-  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-  .pill { font-size: 11px; padding: 2px 8px; border-radius: 3px; background: #f1f5f9; color: #334155; font-family: 'Courier New', monospace; }
-  .doc-type { display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-family:'Courier New',monospace;color:#fff;background:#0f766e;padding:3px 10px;border-radius:3px;margin-bottom:10px; }
-  @media print { body { padding: 0; } @page { margin: 36px 44px; size: A4; } }
-  </style></head><body>
-  <div class="cover">
-    <div class="app-name">Econometric Advisor</div>
-    <div class="doc-type">Reviewer Reference Card</div>
-    <h1>${ans.context ? ans.context.slice(0,70) + (ans.context.length > 70 ? '...' : '') : 'Methodological Reference'}</h1>
-    <div class="meta">Generated ${dateStr} &nbsp;·&nbsp; For committee reviewers — one-page methodological reference</div>
+  const sidebar = `
+    <span class="sidebar-logo">Econometric Advisor</span>
+    ${u.studytitle ? `<div class="sidebar-section"><span class="sidebar-label">Study</span><span class="sidebar-value">${u.studytitle}</span></div><hr class="sidebar-rule">` : ''}
+    ${u.author ? `<div class="sidebar-section"><span class="sidebar-label">Researcher</span><span class="sidebar-value">${u.author}${u.institution ? '<br><span style="color:#888">' + u.institution + '</span>' : ''}</span></div>` : ''}
+    ${u.advisor ? `<div class="sidebar-section"><span class="sidebar-label">Advisor</span><span class="sidebar-value">${u.advisor}</span></div>` : ''}
+    ${u.defence ? `<div class="sidebar-section"><span class="sidebar-label">Review date</span><span class="sidebar-value">${u.defence}</span></div>` : ''}
+    <hr class="sidebar-rule">
+    ${idSection ? `<div class="sidebar-section"><span class="sidebar-label">Identification</span><span class="sidebar-value">${idSection.method}</span></div>` : ''}
+    ${estSection ? `<div class="sidebar-section"><span class="sidebar-label">Estimator</span><span class="sidebar-value">${estSection.method}</span></div>` : ''}
+    <hr class="sidebar-rule">
+    <div class="sidebar-section"><span class="sidebar-label">Diagnostics required</span><span class="sidebar-value">${diags.join('<br>')}</span></div>
+  `;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviewer Reference Card</title><style>${_basePrintCSS()}</style></head><body>
+  <div class="sidebar">${sidebar}</div>
+  <div class="main">
+    <span class="doc-eyebrow">Reviewer Reference Card</span>
+    <h1>${u.studytitle || (ans.context ? ans.context.slice(0,70) + (ans.context.length > 70 ? '...' : '') : 'Methodological Reference')}</h1>
+    <div class="doc-meta">Generated ${u.date || dateStr}${u.defence ? ' &nbsp;·&nbsp; Review: ' + u.defence : ''}</div>
+    <div class="card-grid">
+      <div class="card-box"><div class="card-box-label">Identification Strategy</div><div class="card-box-value">${idSection ? idSection.method : '—'}</div></div>
+      <div class="card-box"><div class="card-box-label">Estimator</div><div class="card-box-value">${estSection ? estSection.method : '—'}</div></div>
+      <div class="card-box"><div class="card-box-label">Data Structure</div><div class="card-box-value">${_decode(ans.data_structure) || '—'}</div></div>
+      <div class="card-box"><div class="card-box-label">Outcome Variable</div><div class="card-box-value">${_decode(ans.outcome) || '—'}</div></div>
+    </div>
+    <h2>Key Identifying Assumptions</h2>
+    <div class="pill-row">${assumptions.map(a=>`<span class="pill">☐ ${a}</span>`).join('')}</div>
+    <h2>Diagnostics Required</h2>
+    <div class="pill-row">${diags.map(d=>`<span class="pill">☐ ${d}</span>`).join('')}</div>
+    <h2>Full Method Stack</h2>
+    <p style="font-size:12px;color:#333;line-height:1.8">${allMethods}</p>
+    ${ans.context ? `<h2>Study Description</h2><p>${ans.context}</p>` : ''}
   </div>
-  <div class="card-grid">
-    <div class="card-box">
-      <div class="card-box-label">Identification Strategy</div>
-      <div class="card-box-value">${idSection ? idSection.method : '—'}</div>
-    </div>
-    <div class="card-box">
-      <div class="card-box-label">Estimator</div>
-      <div class="card-box-value">${estSection ? estSection.method : '—'}</div>
-    </div>
-    <div class="card-box">
-      <div class="card-box-label">Data Structure</div>
-      <div class="card-box-value">${_decode(ans.data_structure) || '—'}</div>
-    </div>
-    <div class="card-box">
-      <div class="card-box-label">Outcome Variable</div>
-      <div class="card-box-value">${_decode(ans.outcome) || '—'}</div>
-    </div>
-  </div>
-  <h2>Key Identifying Assumptions</h2>
-  <div class="pill-row">${assumptions.map(a=>`<span class="pill">☐ ${a}</span>`).join('')}</div>
-  <h2>Diagnostics Required</h2>
-  <div class="pill-row">${diags.map(d=>`<span class="pill">☐ ${d}</span>`).join('')}</div>
-  <h2>Full Method Stack</h2>
-  <p style="font-size:12.5px;color:#334155;line-height:1.8">${allMethods}</p>
-  ${ans.context ? `<h2>Study Description</h2><p style="font-size:13px;color:#1e293b;line-height:1.7">${ans.context}</p>` : ''}
-  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
+  <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${u.date || dateStr}</span></div>
   </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
-  setTimeout(() => w.print(), 400);
+  setTimeout(() => w.print(), 600);
 }
+
+// ── Export Modal ─────────────────────────────────────────────────────────────
+var _exportModalStep = 1;
+var _exportModalFormat = null;
+
+function openExportModal() {
+  _exportModalStep = 1;
+  _exportModalFormat = null;
+  document.getElementById('export-modal').style.display = 'flex';
+  _renderExportModal();
+}
+function closeExportModal() {
+  document.getElementById('export-modal').style.display = 'none';
+}
+function _selectExportFormat(fmt) {
+  _exportModalFormat = fmt;
+  _exportModalStep = 2;
+  _renderExportModal();
+}
+function _exportModalBack() {
+  _exportModalStep = 1;
+  _renderExportModal();
+}
+function _renderExportModal() {
+  var body = document.getElementById('export-modal-body');
+  var title = document.getElementById('export-modal-title');
+  if (_exportModalStep === 1) {
+    title.textContent = 'Export Research Log';
+    var formats = [
+      { id:'brief', icon:'◈', label:'Research Design Brief', desc:'A structured decision log for advisor meetings. Covers identification strategy, key assumptions, open questions, and implications of each design choice. 2–3 pages.', audience:'For: Advisor & committee meetings' },
+      { id:'appendix', icon:'≡', label:'Methods Appendix', desc:'Full technical specification of your econometric architecture. Covers estimators, diagnostics, confidence levels, AI-calibrated narrative, and complete assumption inventory. For thesis appendix.', audience:'For: Thesis appendix / replication package' },
+      { id:'reviewer', icon:'⊡', label:'Reviewer Reference Card', desc:'A compact methodological reference for committee members. Covers identification strategy, estimator, key assumptions to verify, and required diagnostics.', audience:'For: Committee reviewers' }
+    ];
+    body.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px;padding:24px 28px;">' +
+      formats.map(function(f) {
+        return '<button onclick="_selectExportFormat('' + f.id + '')" style="background:#0d2035;border:.5px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;cursor:pointer;transition:border-color .15s,background .15s;font-family:inherit;" onmouseover="this.style.borderColor='var(--surface)';this.style.background='#0f2540'" onmouseout="this.style.borderColor='var(--border)';this.style.background='#0d2035'">' +
+          '<div style="display:flex;align-items:flex-start;gap:14px;">' +
+          '<span style="font-size:18px;color:var(--text2);flex-shrink:0;margin-top:2px">' + f.icon + '</span>' +
+          '<div style="flex:1">' +
+          '<div style="font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:5px;font-family:'Instrument Sans',-apple-system,sans-serif">' + f.label + '</div>' +
+          '<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;font-family:'Instrument Sans',-apple-system,sans-serif">' + f.desc + '</div>' +
+          '<div style="font-size:11px;color:#7eb6ff;font-family:var(--mono);letter-spacing:.03em">' + f.audience + '</div>' +
+          '</div>' +
+          '<span style="color:var(--hint);font-size:16px;align-self:center;flex-shrink:0">→</span>' +
+          '</div></button>';
+      }).join('') + '</div>';
+  } else {
+    var fmtMeta = {
+      brief: { label:'Research Design Brief', desc:'Confirm details for your advisor meeting document.' },
+      appendix: { label:'Methods Appendix', desc:'Confirm details for your thesis appendix.' },
+      reviewer: { label:'Reviewer Reference Card', desc:'Confirm details for your committee reviewer document.' }
+    };
+    var meta = fmtMeta[_exportModalFormat];
+    title.textContent = meta.label;
+    var fields = _getExportFields(_exportModalFormat);
+    body.innerHTML = '<div style="padding:24px 28px;">' +
+      '<p style="font-size:12.5px;color:var(--muted);margin-bottom:20px;line-height:1.6;font-family:'Instrument Sans',-apple-system,sans-serif">' + meta.desc + ' Fields left blank will be omitted.</p>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">' +
+      fields.map(function(f) {
+        return '<div style="' + (f.full ? 'grid-column:1/-1;' : '') + '">' +
+          '<label style="display:block;font-size:10.5px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;font-family:var(--mono)">' + f.label + '</label>' +
+          (f.type === 'textarea'
+            ? '<textarea id="ef-' + f.id + '" rows="2" placeholder="' + (f.placeholder||'') + '" style="width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:'Instrument Sans',-apple-system,sans-serif;resize:none;box-sizing:border-box"></textarea>'
+            : '<input id="ef-' + f.id + '" type="text" placeholder="' + (f.placeholder||'') + '" value="' + (f.value||'') + '" style="width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:'Instrument Sans',-apple-system,sans-serif;box-sizing:border-box">') +
+          '</div>';
+      }).join('') +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:.5px solid var(--border)">' +
+      '<button onclick="_exportModalBack()" style="background:transparent;border:.5px solid var(--border);border-radius:6px;padding:8px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono)">← Back</button>' +
+      '<button onclick="_generateFromModal()" style="background:#1e40af;border:none;border-radius:6px;padding:9px 22px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;letter-spacing:.01em">Generate PDF →</button>' +
+      '</div></div>';
+  }
+}
+function _getExportFields(fmt) {
+  var today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var common = [
+    { id:'author', label:'Your name', placeholder:'e.g. Iain Holmes' },
+    { id:'institution', label:'Institution', placeholder:'e.g. NC State University' },
+    { id:'degree', label:'Degree programme', placeholder:'e.g. M.S. Economics' },
+    { id:'date', label:'Document date', placeholder:today, value:today },
+  ];
+  if (fmt === 'brief') return common.concat([
+    { id:'advisor', label:'Advisor name', placeholder:'e.g. Dr. Zachery Brown' },
+    { id:'meeting', label:'Meeting date / context', placeholder:'e.g. May 29, 2026 — Pre-thesis meeting' },
+    { id:'committee', label:'Committee members present', placeholder:'e.g. Dr. Stephanie Bolyard (DEQ)', full:true },
+    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
+  ]);
+  if (fmt === 'appendix') return common.concat([
+    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
+    { id:'version', label:'Document version', placeholder:'e.g. Draft v1 — May 2026' },
+    { id:'note', label:'Author note (optional)', placeholder:'e.g. Prepared for thesis committee review', full:true },
+  ]);
+  if (fmt === 'reviewer') return common.concat([
+    { id:'advisor', label:'Thesis advisor', placeholder:'e.g. Dr. Zachery Brown' },
+    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
+    { id:'defence', label:'Defence / review date', placeholder:'e.g. Fall 2026' },
+  ]);
+  return common;
+}
+function _getFieldVal(id) {
+  var el = document.getElementById('ef-' + id);
+  return el ? el.value.trim() : '';
+}
+function _generateFromModal() {
+  var u = {
+    author: _getFieldVal('author'),
+    institution: _getFieldVal('institution'),
+    degree: _getFieldVal('degree'),
+    date: _getFieldVal('date'),
+    advisor: _getFieldVal('advisor'),
+    meeting: _getFieldVal('meeting'),
+    committee: _getFieldVal('committee'),
+    studytitle: _getFieldVal('studytitle'),
+    version: _getFieldVal('version'),
+    note: _getFieldVal('note'),
+    defence: _getFieldVal('defence'),
+  };
+  closeExportModal();
+  if (_exportModalFormat === 'brief') exportBrief(u);
+  else if (_exportModalFormat === 'appendix') exportAppendix(u);
+  else if (_exportModalFormat === 'reviewer') exportReviewerCard(u);
+}
+document.addEventListener('keydown', function(e) {
+  var modal = document.getElementById('export-modal');
+  if (modal && modal.style.display === 'flex' && e.key === 'Escape') closeExportModal();
+});
 
 // ── Trainer Guide Modal ───────────────────────────────────────────────────────
 var _tgSlide = 0;
@@ -6738,6 +7019,17 @@ document.addEventListener('keydown', function(e) {
   </div>
 </div>
 
+
+<!-- Export Modal -->
+<div id="export-modal" style="display:none;position:fixed;inset:0;z-index:310;background:rgba(2,14,31,.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;" onclick="if(event.target===this)closeExportModal()">
+  <div style="background:#0a1d33;border:.5px solid var(--border);border-radius:16px;width:min(560px,94vw);max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.6);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:.5px solid var(--border);flex-shrink:0;position:sticky;top:0;background:#0a1d33;z-index:1;border-radius:16px 16px 0 0;">
+      <div id="export-modal-title" style="font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)">Export Research Log</div>
+      <button onclick="closeExportModal()" style="background:none;border:none;cursor:pointer;color:var(--hint);font-size:18px;padding:0 4px;line-height:1">✕</button>
+    </div>
+    <div id="export-modal-body"></div>
+  </div>
+</div>
 
 <!-- Trainer Guide Modal -->
 <div id="trainer-guide-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(2,14,31,.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
