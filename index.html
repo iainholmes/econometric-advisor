@@ -3697,7 +3697,7 @@ function buildToolkit(a){
   if(hasSensitivity)items.push('Oster (2019) coefficient stability; E-values for sensitivity to unobservables');
   items.push('HC3 robust SEs (cross-section) or clustered SEs at treatment-assignment level');
   items.push('Robustness checks -- alternative distance measures, bandwidth sensitivity, placebo dates');
-  sections.push({icon:'|-',color:'#dc2626',label:'Inference & diagnostic checklist',conf:'high',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in serious applied work — reviewers across applied economics journals expect them as standard.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
+  sections.push({icon:'✓',color:'#f59e0b',label:'Inference & diagnostic checklist',conf:'critical',method:'Validation layer',detail:items.map(i=>'- '+i).join('\n'),watch:'Robustness checks are not optional in serious applied work — reviewers across applied economics journals expect them as standard.',equation:null,codeR:null,codeStata:null,codePython:null,kgTags:infTags});
 
   const sources=[];
   // Each source has:
