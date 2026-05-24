@@ -1459,6 +1459,7 @@ function toggleToolsMenu(e){
   menu.classList.toggle('open',!open);
 }
 function closeToolsMenu(){
+  if(document.getElementById('export-submenu')) return;
   document.getElementById('hdr-tools-btn')?.classList.remove('open');
   document.getElementById('hdr-tools-menu')?.classList.remove('open');
 }
@@ -6273,10 +6274,8 @@ function openExportSubmenuCard(e) {
   e.stopPropagation();
   e.preventDefault();
   _removeExportSubmenu();
-  var rect = e.currentTarget.getBoundingClientRect();
-  var x = Math.min(rect.left, window.innerWidth - 220);
-  var y = rect.top - 130;
-  if (y < 10) y = rect.bottom + 8;
+  var x = window.innerWidth / 2 - 100;
+  var y = window.innerHeight / 2 - 80;
   _buildExportSubmenu(x, y);
 }
 function openExportSubmenu(e) {
