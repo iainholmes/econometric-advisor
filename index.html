@@ -3933,11 +3933,11 @@ function renderResults(tk,ai){
               <div class="ov-impl-item-desc">Upload a .py, .R, or .do script and the Advisor maps what you have implemented, flags standard error misspecifications by severity, and identifies gaps between your code and your recommended toolkit.</div>
               <span class="ov-impl-item-cta">Open code audit →</span>
             </a>
-            <a class="ov-impl-item export" href="#" onclick="exportLog();return false;">
+            <a class="ov-impl-item export" href="#" onclick="openExportSubmenuCard(event);return false;">
               <span class="ov-impl-item-icon">↓</span>
               <div class="ov-impl-item-title">Export your log</div>
-              <div class="ov-impl-item-desc">Generate a print-ready reproducibility log documenting your full identification strategy, recommended toolkit with rationales, diagnostic checklist, and design-specific cautions. Suitable for thesis appendices and consulting deliverables.</div>
-              <span class="ov-impl-item-cta">Generate PDF →</span>
+              <div class="ov-impl-item-desc">Three document formats: Research Design Brief for advisor meetings, Methods Appendix for your thesis, and a one-page Reviewer Reference Card for committee members.</div>
+              <span class="ov-impl-item-cta">Choose format →</span>
             </a>
           </div>
         </div>
@@ -6265,33 +6265,50 @@ function qstOpenLang(e, lang) {
 // assessment answers, recommended toolkit, AI narrative,
 // key adjustments, watchouts, and SE diagnostics if available.
 // ============================================================
+function _removeExportSubmenu() {
+  var s = document.getElementById('export-submenu');
+  if (s) s.remove();
+}
+function openExportSubmenuCard(e) {
+  e.stopPropagation();
+  _removeExportSubmenu();
+  var rect = e.currentTarget.getBoundingClientRect();
+  _buildExportSubmenu(rect.left + rect.width/2, rect.top);
+}
 function openExportSubmenu(e) {
   e.stopPropagation();
   var existing = document.getElementById('export-submenu');
-  if (existing) { existing.classList.toggle('open'); return; }
+  if (existing) { existing.remove(); return; }
+  var btn = e.currentTarget.getBoundingClientRect();
+  _buildExportSubmenu(btn.left - 210, btn.top);
+}
+function _buildExportSubmenu(x, y) {
+  _removeExportSubmenu();
   var sub = document.createElement('div');
   sub.id = 'export-submenu';
   sub.className = 'hdr-tools-submenu';
   sub.innerHTML = `
-    <button class="hdr-tools-sub-item" onclick="exportBrief();closeToolsMenu()">
+    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
       <span>Research Design Brief</span>
       <span class="hdr-tools-sub-desc">2–3 pages · For advisor meetings</span>
     </button>
-    <button class="hdr-tools-sub-item" onclick="exportAppendix();closeToolsMenu()">
+    <button class="hdr-tools-sub-item" onclick="exportAppendix();_removeExportSubmenu();closeToolsMenu()">
       <span>Methods Appendix</span>
       <span class="hdr-tools-sub-desc">Full technical reference · For thesis appendix</span>
     </button>
-    <button class="hdr-tools-sub-item" onclick="exportReviewerCard();closeToolsMenu()">
+    <button class="hdr-tools-sub-item" onclick="exportReviewerCard();_removeExportSubmenu();closeToolsMenu()">
       <span>Reviewer Reference Card</span>
       <span class="hdr-tools-sub-desc">1 page · For committee reviewers</span>
     </button>`;
   document.body.appendChild(sub);
-  var btn = e.currentTarget.getBoundingClientRect();
-  sub.style.top = btn.top + 'px';
-  sub.style.left = (btn.left - 210) + 'px';
+  sub.style.top = y + 'px';
+  sub.style.left = x + 'px';
   setTimeout(() => sub.classList.add('open'), 10);
   document.addEventListener('click', function closeSub(ev) {
-    if (!sub.contains(ev.target)) { sub.remove(); document.removeEventListener('click', closeSub); }
+    if (!sub.contains(ev.target)) { _removeExportSubmenu(); document.removeEventListener('click', closeSub); }
+  });
+  document.addEventListener('visibilitychange', function hideOnTab() {
+    _removeExportSubmenu(); document.removeEventListener('visibilitychange', hideOnTab);
   });
 }
 
@@ -6588,151 +6605,6 @@ function exportReviewerCard() {
   setTimeout(() => w.print(), 400);
 }
 
-function exportLog() {
-  const ts = new Date();
-  const dateStr = ts.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
-  const timeStr = ts.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
-
-  // Human-readable label lookup for answer values
-  const _ANS_LABELS = {
-    // stage
-    proposal:'Proposal / early stage', data_prep:'Data preparation', estimating:'Estimation in progress — running models now',
-    refining:'Refining specification', revising:'Revising / responding to reviewers', unsure:'Not sure yet',
-    // field
-    env:'Environmental / Natural Resource Economics', urban:'Urban / Regional Economics', health:'Health Economics',
-    labor:'Labor Economics', public:'Public Economics', dev:'Development Economics',
-    macro:'Macro / International Economics', io:'Industrial Organization', ag:'Agricultural Economics',
-    finance:'Finance', edu:'Education Economics',
-    // question_type
-    causal:'Causal identification — does X cause Y?', descriptive:'Descriptive / correlational', prediction:'Prediction / forecasting',
-    // treatment
-    env_reg:'Environmental regulation or contamination event', infra:'Infrastructure or place-based policy',
-    policy:'Policy intervention or program', price:'Price or market shock', natdisaster:'Natural disaster or weather shock',
-    tech:'Technology adoption', other_treat:'Other treatment',
-    // n_treated
-    one:'Single treated unit', few:'Few — 2 to 10 units', some:'Moderate — 10 to 50 units', many:'Large — more than 50 units',
-    // data_structure
-    panel:'Panel (units over time)', cross:'Cross-section (many units, one point in time)',
-    spatial:'Geographic / spatial data', ts:'Time series', repeated:'Repeated cross-sections',
-    // outcome
-    continuous:'Continuous (e.g. log price, income)', binary:'Binary (yes/no, adopt/not adopt, 0/1)',
-    count:'Count data (number of events)', duration:'Duration / survival time', ordinal:'Ordinal',
-    // endogeneity
-    none_endog:'No endogeneity concern', ols_ok:'OLS is likely fine', suspect:'Possible but unclear',
-    natexp:'Yes — natural experiment, IV, or quasi-experiment', rct:'Randomized control trial',
-    // geo
-    none_geo:'Geography not central', distance:'Yes — distance / proximity is a key variable',
-    boundary:'Administrative boundaries matter', spillover:'Spillovers across space expected',
-    // functional_form
-    linear:'Linear / constant marginal effects', nonlinear:'Non-linear / diminishing returns',
-    discrete:'Discrete jumps or threshold effects', heterogeneous:'Heterogeneous treatment effects',
-  };
-  function _decodeAns(v) {
-    if (!v || v === '_skipped') return null;
-    if (Array.isArray(v)) return v.map(x => _ANS_LABELS[x] || x).join(', ');
-    return _ANS_LABELS[v] || v;
-  }
-
-  // Gather assessment answers
-  const qLabels = {
-    stage: 'Research stage', field: 'Primary field', question_type: 'Research question type',
-    treatment: 'Treatment / shock', n_treated: 'Units treated', data_structure: 'Data structure',
-    outcome: 'Outcome variable type', endogeneity: 'Endogeneity / identification',
-    geo: 'Geography role', functional_form: 'Functional form', context: 'Study description'
-  };
-  let answersHtml = '';
-  Object.entries(qLabels).forEach(([k, label]) => {
-    const v = ans[k];
-    if (!v || v === '_skipped') return;
-    const val = _decodeAns(v);
-    answersHtml += `<tr><td class="q">${label}</td><td class="a">${val}</td></tr>`;
-  });
-
-  // Gather toolkit sections
-  let toolkitHtml = '';
-  if (_toolkit && _toolkit.sections) {
-    _toolkit.sections.forEach(s => {
-      toolkitHtml += `<div class="section">
-        <div class="section-label">${s.label}</div>
-        <div class="section-method">${s.method}</div>
-        ${s.detail ? `<div class="section-detail">${
-  s.detail.startsWith('-')
-    ? '<ul style="padding-left:18px;margin:4px 0">' + s.detail.split('\n').map(x=>x.replace(/^- /,'')).filter(Boolean).map(x=>`<li style="margin-bottom:6px">${x}</li>`).join('') + '</ul>'
-    : s.detail
-}</div>` : ''}
-        ${s.watch ? `<div class="section-watch"><span class="watch-tag">Watch out for</span> ${s.watch}</div>` : ''}
-      </div>`;
-    });
-  }
-
-  // Gather AI narrative
-  let narrativeHtml = '';
-  if (_aiPayload) {
-    if (_aiPayload.narrative) narrativeHtml += `<p class="narrative">${_aiPayload.narrative}</p>`;
-    if (_aiPayload.key_adjustments && _aiPayload.key_adjustments.length) {
-      narrativeHtml += '<ul class="adjustments">' +
-        _aiPayload.key_adjustments.map(a => `<li>${a}</li>`).join('') + '</ul>';
-    }
-    if (_aiPayload.watchout) narrativeHtml += `<div class="watchout"><strong>Watch out for:</strong> ${_aiPayload.watchout}</div>`;
-  }
-
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Econometric Advisor — Audit Trail</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Georgia', serif; font-size: 14.5px; line-height: 1.75; color: #0f172a; background: #fff; padding: 48px 56px; max-width: 820px; margin: 0 auto; }
-  .cover { border-bottom: 3px solid #0a1d33; padding-bottom: 24px; margin-bottom: 32px; }
-  .app-name { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; margin-bottom: 8px; }
-  h1 { font-size: 30px; font-weight: 700; color: #0a1d33; letter-spacing: -.02em; margin-bottom: 6px; }
-  .meta { font-size: 12.5px; color: #334155; font-family: 'Courier New', monospace; }
-  h2 { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin: 32px 0 14px; padding-bottom: 6px; border-bottom: 1.5px solid #cbd5e1; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-  td { padding: 8px 10px; vertical-align: top; border-bottom: .5px solid #e2e8f0; font-size: 13.5px; }
-  td.q { color: #334155; width: 38%; font-style: italic; }
-  td.a { color: #0f172a; font-weight: 500; }
-  .section { margin-bottom: 20px; padding: 16px 18px; border-left: 3px solid #1e40af; background: #f8fafc; border-radius: 0 6px 6px 0; }
-  .section-label { font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: #1e40af; font-family: 'Courier New', monospace; font-weight: 700; margin-bottom: 5px; }
-  .section-method { font-size: 16px; font-weight: 700; color: #0a1d33; margin-bottom: 7px; }
-  .section-detail { font-size: 13.5px; color: #1e293b; line-height: 1.7; margin-bottom: 7px; }
-  .section-watch { font-size: 13px; color: #92400e; }
-  .watch-tag { background: #fef3c7; padding: 2px 7px; border-radius: 3px; font-weight: 700; margin-right: 5px; }
-  .narrative { font-size: 14px; color: #1e293b; line-height: 1.8; margin-bottom: 16px; }
-  .adjustments { padding-left: 22px; margin-bottom: 16px; }
-  .adjustments li { font-size: 13.5px; color: #1e293b; margin-bottom: 6px; }
-  .watchout { background: #fef2f2; border-left: 3px solid #dc2626; padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13.5px; color: #7f1d1d; }
-  .footer { margin-top: 48px; padding-top: 14px; border-top: 1px solid #cbd5e1; font-size: 11.5px; color: #475569; font-family: 'Courier New', monospace; display: flex; justify-content: space-between; }
-  @media print { body { padding: 0; } @page { margin: 40px 48px; } }
-</style>
-</head>
-<body>
-<div class="cover">
-  <div class="app-name">Econometric Advisor</div>
-  <h1>Audit Trail &amp; Reproducibility Log</h1>
-  <div class="meta">Generated ${dateStr} at ${timeStr} &nbsp;·&nbsp; For review and reproducibility purposes</div>
-</div>
-
-<h2>Assessment Responses</h2>
-<table>${answersHtml}</table>
-
-<h2>Recommended Toolkit</h2>
-${toolkitHtml}
-
-${narrativeHtml ? `<h2>AI-Calibrated Analysis</h2>${narrativeHtml}` : ''}
-
-<div class="footer">
-  <span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span>
-  <span>${dateStr}</span>
-</div>
-</body>
-</html>`;
-
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 400);
 }
 
 // ── Trainer Guide Modal ───────────────────────────────────────────────────────
