@@ -425,6 +425,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .code-pre{margin:0;padding:14px 16px;color:var(--muted);font-size:12.5px;font-family:'Courier New',monospace;line-height:1.85;white-space:pre-wrap}
 /* CONF BADGES */
 .conf{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:5px;padding:2px 8px}
+.conf-critical{color:#fbbf24;background:#1c1200;border:.5px solid #fbbf2444}
 .conf-high{color:#7eb8a0;background:#0d2920;border:.5px solid #7eb8a044}
 .conf-med{color:var(--amber);background:#2a1e0a;border:.5px solid #c9a96e44}
 .conf-low{color:var(--hint);background:var(--bg2);border:.5px solid var(--border)}
@@ -3530,7 +3531,7 @@ function buildToolkit(a){
 
   if(hasNatExp&&treatment&&!['none','unsure'].includes(treatment)){
     if(fewTreated){
-      idC='high';idM='Synthetic Control / Synthetic DiD';idTags=['t_scm','d_placebo'];
+      idC='critical';idM='Synthetic Control / Synthetic DiD';idTags=['t_scm','d_placebo'];
       idD='With 1-10 treated units, SCM constructs a weighted combination of untreated donor units whose pre-treatment characteristics match the treated unit. Synthetic DiD (Arkhangelsky 2021) combines SCM unit weights with DiD time weights and is doubly robust. Inference via placebo-in-space permutation.';
       idW='Donor pool must be large (at least 10x donors than treated). Pre-treatment fit quality is the key diagnostic.';
       idEq='SCM:\\hat{Y}_{1t}(0) = \\sum_j w_j^* \\, Y_{jt}\nInference:\\;p\\text{-val} = \\dfrac{\\operatorname{rank}(|\\hat{\\tau}_{\\text{treated}}|)}{N_{\\text{donors}} + 1}';
@@ -3538,7 +3539,7 @@ function buildToolkit(a){
       idSta=`* Stata -- Synthetic Control\n* ssc install synth\nsynth log_price log_income log_density, ///\n    trunit(treated_id) trperiod(2020) ///\n    xperiod(2015(1)2019) counit(1 2 3 4 5)`;
       idPy=`# Python -- Synthetic Control\n# pip install SyntheticControlMethods\nfrom SyntheticControlMethods import Synth\nsc = Synth(df, "log_price", "unit_id", "year",\n           treatment_period=2020, treated_unit="county_A")\nsc.fit()\nsc.plot()`;
     } else if(isPanel){
-      idC='high';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
+      idC='critical';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
       idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-SantAnna (2021) rather than standard TWFE -- staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
       idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition.';
       idEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,(\\text{Treated}_i \\times \\text{Post}_t) + X_{it}\\,\\delta + \\varepsilon_{it}\nCS\\;ATT(g,t):\\;\\mathbb{E}[\\,Y_t(g) - Y_t(\\infty)\\mid G = g\\,]';
@@ -3546,7 +3547,7 @@ function buildToolkit(a){
       idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
       idPy=`# Python -- DiD\nimport pyfixest as pf\n\n# TWFE\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
     } else if(isGeo){
-      idC='high';idM='Instrumental Variables (2SLS) / Control Function';idTags=['t_iv','l_exclusion','d_firststage','d_sargan'];
+      idC='critical';idM='Instrumental Variables (2SLS) / Control Function';idTags=['t_iv','l_exclusion','d_firststage','d_sargan'];
       idD='Your cross-sectional spatial design calls for an IV strategy. Use a geographic or administrative feature (ZCTA land area, elevation, watershed boundaries) as an instrument for the endogenous variable. The control function approach includes first-stage residuals in the second stage to simultaneously correct for endogeneity and test its presence.';
       idW='First-stage F must exceed Stock-Yogo threshold (~10). Exclusion restriction is untestable -- defend on economic grounds.';
       idEq='Stage\\;1:D_i = \\pi_0 + \\pi_1 Z_i + X_i\\,\\gamma + v_i\nStage\\;2:Y_i = \\beta_0 + \\beta_1 \\hat{D}_i + \\beta_2 d_i + \\beta_3 d_i^2 + X_i\\,\\delta + \\varepsilon_i\nEndogeneity\\;test:t\\text{-stat on } \\hat{v}_i \\text{ in Stage 2}';
@@ -3554,7 +3555,7 @@ function buildToolkit(a){
       idSta=`* Stata -- IV / Control Function\n* ssc install ivreg2\nivreg2 log_price (log_pop_density = log_land_area) ///\n        dist_mi dist_sq log_income log_rooms, robust\nestat firststage\n\n* Control function\nreg log_pop_density log_land_area dist_mi dist_sq log_income log_rooms\npredict vhat, resid\nreg log_price log_pop_density vhat dist_mi dist_sq log_income log_rooms, robust`;
       idPy=`# Python -- IV / Control Function\nfrom linearmodels.iv import IV2SLS\nimport statsmodels.formula.api as smf\n\n# 2SLS\nmod = IV2SLS.from_formula(\n    'log_price ~ 1 + dist_mi + dist_sq + log_income + log_rooms'\n    ' + [log_pop_density ~ log_land_area]', data=df)\nres = mod.fit(cov_type='robust')\nprint(res.summary)\n\n# Turning point\nb1=res.params['dist_mi']; b2=res.params['dist_sq']\nprint(f"d* = {-b1/(2*b2):.2f} miles")`;
     } else {
-      idC='high';idM='Instrumental Variables (2SLS)';idTags=['t_iv','l_exclusion','d_firststage'];
+      idC='critical';idM='Instrumental Variables (2SLS)';idTags=['t_iv','l_exclusion','d_firststage'];
       idD='Build your IV around a variable strongly correlated with the endogenous regressor but plausibly exogenous to the outcome. Report first-stage F and Sargan-Hansen J-test if overidentified.';
       idW='A strong but invalid instrument is worse than OLS. The exclusion restriction must be argued on economic grounds.';
       idEq='Stage\\;1:D_i = \\pi_0 + \\pi_1 Z_i + X_i\\,\\gamma + v_i\nStage\\;2:Y_i = \\beta_0 + \\beta_1 \\hat{D}_i + X_i\\,\\delta + \\varepsilon_i';
@@ -3563,7 +3564,7 @@ function buildToolkit(a){
       idPy=`# Python\nfrom linearmodels.iv import IV2SLS\nmod = IV2SLS.from_formula(\n    'outcome ~ 1 + controls + [endog ~ instrument]', data=df)\nprint(mod.fit(cov_type='robust').summary)`;
     }
   } else if(isThreshold){
-    idC='high';idM='Regression Discontinuity Design (RD)';idTags=['t_rd','l_continuity'];
+    idC='critical';idM='Regression Discontinuity Design (RD)';idTags=['t_rd','l_continuity'];
     idD='At a policy or geographic threshold, use local linear regression on each side with CCT optimal bandwidth. Fuzzy RD uses the jump in treatment probability as an IV for actual treatment.';
     idW='Never use polynomial degree > 2. Report bandwidth sensitivity. Significant McCrary test invalidates the design.';
     idEq='Sharp\\;RD:Y_i = \\alpha + \\tau \\cdot \\mathbf{1}[X_i \\geq c] + f(X_i - c) + \\varepsilon_i';
@@ -3587,11 +3588,11 @@ function buildToolkit(a){
     idSta=`reg log_price dist_mi dist_sq controls, robust\nesttab using results.rtf, replace`;
     idPy=`import statsmodels.formula.api as smf\nmod = smf.ols('log_price ~ dist_mi + dist_sq + controls',\n              data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   }
-  sections.push({icon:'O',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,codeR:idR,codeStata:idSta,codePython:idPy,conf:idC,kgTags:idTags});
+  sections.push({icon:'⊢',color:'#3b82f6',label:'Identification strategy',method:idM,detail:idD,watch:idW,equation:idEq,codeR:idR,codeStata:idSta,codePython:idPy,conf:idC,kgTags:idTags});
 
   let estM,estD,estW,estEq,estR,estSta,estPy,estC,estTags=[];
   if(isBinary){
-    estC='high';estM='Logit / Probit -- Binary Choice Model';estTags=['t_logit'];
+    estC='critical';estM='Logit / Probit -- Binary Choice Model';estTags=['t_logit'];
     estD='With a binary outcome, OLS is inconsistent. Use logit or probit. Always report Average Marginal Effects (AMEs) -- not raw coefficients.';
     estW='Interaction coefficients do not equal interaction effects in logit/probit.';
     estEq='\\Pr(Y=1\\mid X) = \\Lambda(X\\,\\beta)\\;[\\text{logit}]\\;\\;\\text{or}\\;\\;\\Phi(X\\,\\beta)\\;[\\text{probit}]\nAME_j = \\dfrac{1}{n}\\sum_i \\dfrac{\\partial\\Pr(Y_i=1\\mid X_i)}{\\partial X_{ij}}';
@@ -3599,7 +3600,7 @@ function buildToolkit(a){
     estSta=`logit outcome X1 X2 X3\nmargins, dydx(*)`;
     estPy=`from statsmodels.discrete.discrete_model import Logit\nimport numpy as np\nmod = Logit(df['outcome'], df[['const','X1','X2','X3']]).fit()\nprint(mod.get_margeff().summary())`;
   } else if(isCount){
-    estC='high';estM='Poisson / Negative Binomial -- Count Data';estTags=['t_poisson'];
+    estC='critical';estM='Poisson / Negative Binomial -- Count Data';estTags=['t_poisson'];
     estD='PPML is consistent even under distributional misspecification as long as the conditional mean is correctly specified.';
     estW='Never use OLS on count data.';
     estEq='\\mathbb{E}[\\,Y_i\\mid X_i\\,] = \\exp(X_i\\,\\beta)';
@@ -3607,7 +3608,7 @@ function buildToolkit(a){
     estSta=`poisson count X1 X2 i.unit i.year, vce(cluster cluster_var)\nglm count X1 X2, family(poisson) link(log) robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.poisson('count ~ X1 + X2', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   } else if(isCensored){
-    estC='high';estM='Tobit / Two-Part Model -- Censored Outcome';estTags=['t_tobit'];
+    estC='critical';estM='Tobit / Two-Part Model -- Censored Outcome';estTags=['t_tobit'];
     estD='If participation and intensity have different determinants, a two-part model is preferred over Tobit.';
     estW='Tobit requires normally distributed errors. Two-part models are more robust.';
     estEq='Tobit:Y_i^* = X_i\\,\\beta + \\varepsilon_i;\\;\\;Y_i = \\max(0,\\,Y_i^*)';
@@ -3615,7 +3616,7 @@ function buildToolkit(a){
     estSta=`tobit outcome X1 X2, ll(0)\n* Two-part:\nprobit I_outcome X1 X2\nreg outcome X1 X2 if I_outcome==1, robust`;
     estPy=`from statsmodels.regression.linear_model import OLS\nfrom statsmodels.discrete.discrete_model import Probit\npart1 = Probit(df['I_outcome'], df[['const','X1','X2']]).fit()\npart2 = OLS(df.loc[df['outcome']>0,'outcome'],\n            df.loc[df['outcome']>0,['const','X1','X2']]).fit(cov_type='HC3')`;
   } else if(isDuration){
-    estC='high';estM='Duration / Survival Analysis (Cox PH)';estTags=['t_cox'];
+    estC='critical';estM='Duration / Survival Analysis (Cox PH)';estTags=['t_cox'];
     estD='Cox PH estimates hazard ratios semi-parametrically without specifying the baseline hazard.';
     estW='PH assumption must be tested via Schoenfeld residuals.';
     estEq='Cox\\;PH:h(t\\mid X) = h_0(t) \\cdot \\exp(X\\,\\beta)\nHR = \\exp(\\beta_j)';
@@ -3623,7 +3624,7 @@ function buildToolkit(a){
     estSta=`stset time, failure(event)\nstcox X1 X2 X3, schoenfeld(sch*) scaledsch(sca*)\nstphtest, detail`;
     estPy=`from lifelines import CoxPHFitter\ncph = CoxPHFitter()\ncph.fit(df, duration_col='time', event_col='event')\ncph.print_summary()\ncph.check_assumptions(df)`;
   } else if(isPanel){
-    estC='high';estM='Two-Way Fixed Effects -- Panel Within Estimator';estTags=['t_fe','d_hausman'];
+    estC='critical';estM='Two-Way Fixed Effects -- Panel Within Estimator';estTags=['t_fe','d_hausman'];
     estD='FE within estimator is the appropriate default for panel continuous outcomes -- not pooled OLS. Pooled OLS ignores unit heterogeneity alpha_i; when alpha_i correlates with regressors OLS is biased.';
     estW='FE eliminates between-unit variation -- time-invariant variables cannot be estimated. With staggered adoption, use Callaway-SantAnna.';
     estEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta_1 X_{it} + X_{it}\\,\\delta + \\varepsilon_{it}\nHausman\\;test:compare\\;FE\\;vs\\;RE\\;estimates';
@@ -3631,7 +3632,7 @@ function buildToolkit(a){
     estSta=`* ssc install reghdfe\nreghdfe outcome X_tv, absorb(unit_id year) vce(cluster unit_id)\n\n* Hausman test\nxtreg outcome X_tv, fe\nestimates store fe\nxtreg outcome X_tv, re\nestimates store re\nhausman fe re`;
     estPy=`import pyfixest as pf\nfit = pf.feols("outcome ~ X_tv | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\nfit.summary()`;
   } else if(isHedonic){
-    estC='high';estM='Semi-Log Hedonic Pricing Model';estTags=['t_ols','p_ovb'];
+    estC='critical';estM='Semi-Log Hedonic Pricing Model';estTags=['t_ols','p_ovb'];
     estD='Log-transform the dependent variable so coefficients are semi-elasticities. The implicit price of any attribute represents marginal WTP in competitive equilibrium.';
     estW='OVB is endemic in hedonic models. Quasi-experimental variation is needed for causal claims.';
     estEq='\\ln(P_i) = \\beta_0 + \\beta_1 d_i + \\beta_2 d_i^2 + \\beta_3 \\ln(\\text{Inc}_i) + \\beta_4 \\ln(\\text{Den}_i) + \\beta_5\\,\\text{Rooms}_i + \\varepsilon_i\nMWTP_d = \\dfrac{\\partial P}{\\partial d} = P \\cdot (\\beta_1 + 2\\beta_2 d_i)';
@@ -3650,7 +3651,7 @@ function buildToolkit(a){
   sections.push({icon:'f',color:'#10b981',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC,kgTags:estTags});
 
   if(isNonLinear){
-    sections.push({icon:'~',color:'#7a96ae',label:'Functional form',conf:'high',kgTags:['d_ftest'],
+    sections.push({icon:'∿',color:'#7a96ae',label:'Functional form',conf:(isNonLinear||isThreshold)?'high':'medium',kgTags:['d_ftest'],
       method:'Quadratic Specification / Spline -- Non-Linear Gradient',
       detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test -- individual t-statistics are unreliable due to structural collinearity. Turning point d* = -beta1/(2*beta2).',
       watch:'Quadratic forces symmetry. Report spline as a robustness check.',
@@ -3661,7 +3662,7 @@ function buildToolkit(a){
   }
 
   if(isPanel&&!isDynamic){
-    sections.push({icon:'#',color:'#7a96ae',label:'Panel data structure',conf:'high',kgTags:['t_fe','t_did','d_pretrend'],
+    sections.push({icon:'⊞',color:'#7a96ae',label:'Panel data structure',conf:'high',kgTags:['t_fe','t_did','d_pretrend'],
       method:"Two-Way Fixed Effects / Callaway-SantAnna / Mundlak CRE",
       detail:'TWFE absorbs time-invariant unit confounders and common time shocks. For staggered treatment, run Bacon decomposition to diagnose TWFE estimand composition.',
       watch:'With staggered adoption, TWFE includes forbidden already-treated comparisons.',
@@ -3672,7 +3673,7 @@ function buildToolkit(a){
   }
 
   if(isGeo||isSpatial){
-    sections.push({icon:'@',color:'#7a96ae',label:'Spatial econometrics',conf:isGeo?'high':'medium',kgTags:['t_sar','d_moran','p_spatial_dep'],
+    sections.push({icon:'⬡',color:'#7a96ae',label:'Spatial econometrics',conf:(isGeo&&isSpatial)?'critical':((isGeo||isSpatial)?'high':'medium'),kgTags:['t_sar','d_moran','p_spatial_dep'],
       method:"Moran's I -- SAR / SEM / SDM",
       detail:"Test OLS residuals with Moran's I. Robust LM-lag favors SAR; robust LM-error favors SEM. Decompose into direct and indirect spillover effects via LeSage-Pace.",
       watch:"W specification is a modeling assumption -- report sensitivity to alternative W matrices.",
@@ -3961,13 +3962,14 @@ function renderResults(tk,ai){
     ${tk.sections.map((s,i)=>`<div class="method-pill" onclick="togSec(${i});document.getElementById('sec-${i}').scrollIntoView({behavior:'smooth',block:'start'})" style="border-color:${s.color}40">
       <span class="method-pill-icon" style="color:${s.color}">${s.icon}</span>
       <span class="method-pill-text">${esc(s.method)}</span>
-      <span class="method-pill-conf">${s.conf==='high'?'●':s.conf==='medium'?'◐':'○'}</span>
+      <span class="method-pill-conf">${s.conf==='critical'?'▰▰▰▰':s.conf==='high'?'▰▰▰▱':s.conf==='medium'?'▰▰▱▱':'▰▱▱▱'}</span>
     </div>`).join('')}
   </div>`;
 
+  html+='<div style="text-align:right;margin:-8px 0 18px"><a href="#methods-legend" onclick="document.getElementById(\'methods-legend\').scrollIntoView({behavior:\'smooth\'});return false;" style="font-size:11px;color:var(--hint);text-decoration:none;letter-spacing:.04em;font-family:inherit;transition:color .15s" onmouseover="this.style.color=\'var(--muted)\'" onmouseout="this.style.color=\'var(--hint)\'">What do these tags mean? ↓</a></div>';
   tk.sections.forEach((s,i)=>{
-    const cc=s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
-    const cl=s.conf==='high'?'Core recommendation':s.conf==='medium'?'Likely relevant':'Worth considering';
+    const cc=s.conf==='critical'?'conf-critical':s.conf==='high'?'conf-high':s.conf==='medium'?'conf-med':'conf-low';
+    const cl=s.conf==='critical'?'Essential to your design':s.conf==='high'?'Strongly recommended':s.conf==='medium'?'Relevant to your design':'Worth being aware of';
     const whyThis=ai?.section_reasons?.[s.label];
     const hasCode=s.codeR||s.codeStata||s.codePython;
     html+=`<div class="section" id="sec-${i}" style="--sec-color:${s.color}">
