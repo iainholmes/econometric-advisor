@@ -6820,50 +6820,92 @@ function _renderExportModal() {
   if (_exportModalStep === 1) {
     title.textContent = 'Export Research Log';
     var formats = [
-      { id:'brief', icon:'◈', label:'Research Design Brief', desc:'A structured decision log for advisor meetings. Covers identification strategy, key assumptions, open questions, and implications of each design choice. 2–3 pages.', audience:'For: Advisor & committee meetings' },
-      { id:'appendix', icon:'≡', label:'Methods Appendix', desc:'Full technical specification of your econometric architecture. Covers estimators, diagnostics, confidence levels, AI-calibrated narrative, and complete assumption inventory. For thesis appendix.', audience:'For: Thesis appendix / replication package' },
+      { id:'brief', icon:'◈', label:'Research Design Brief', desc:'A structured decision log for advisor meetings. Covers identification strategy, key assumptions, open questions, and implications of each design choice. 2-3 pages.', audience:'For: Advisor & committee meetings' },
+      { id:'appendix', icon:'≡', label:'Methods Appendix', desc:'Full technical specification of your econometric architecture. Covers estimators, diagnostics, confidence levels, and complete assumption inventory. For thesis appendix.', audience:'For: Thesis appendix / replication package' },
       { id:'reviewer', icon:'⊡', label:'Reviewer Reference Card', desc:'A compact methodological reference for committee members. Covers identification strategy, estimator, key assumptions to verify, and required diagnostics.', audience:'For: Committee reviewers' }
     ];
-    body.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px;padding:24px 28px;">' +
-      formats.map(function(f) {
-        return '<button onclick="_selectExportFormat('' + f.id + '')" style="background:#0d2035;border:.5px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;cursor:pointer;transition:border-color .15s,background .15s;font-family:inherit;" onmouseover="this.style.borderColor='var(--surface)';this.style.background='#0f2540'" onmouseout="this.style.borderColor='var(--border)';this.style.background='#0d2035'">' +
-          '<div style="display:flex;align-items:flex-start;gap:14px;">' +
-          '<span style="font-size:18px;color:var(--text2);flex-shrink:0;margin-top:2px">' + f.icon + '</span>' +
-          '<div style="flex:1">' +
-          '<div style="font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:5px;font-family:'Instrument Sans',-apple-system,sans-serif">' + f.label + '</div>' +
-          '<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;font-family:'Instrument Sans',-apple-system,sans-serif">' + f.desc + '</div>' +
-          '<div style="font-size:11px;color:#7eb6ff;font-family:var(--mono);letter-spacing:.03em">' + f.audience + '</div>' +
-          '</div>' +
-          '<span style="color:var(--hint);font-size:16px;align-self:center;flex-shrink:0">→</span>' +
-          '</div></button>';
-      }).join('') + '</div>';
+    var rows = formats.map(function(f) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'background:#0d2035;border:.5px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;cursor:pointer;font-family:inherit;width:100%;display:block;';
+      btn.onmouseover = function(){ this.style.borderColor='var(--surface)'; this.style.background='#0f2540'; };
+      btn.onmouseout  = function(){ this.style.borderColor='var(--border)';  this.style.background='#0d2035'; };
+      btn.onclick = function(){ _selectExportFormat(f.id); };
+      btn.innerHTML =
+        '<div style="display:flex;align-items:flex-start;gap:14px;">' +
+        '<span style="font-size:18px;color:var(--text2);flex-shrink:0;margin-top:2px">' + f.icon + '</span>' +
+        '<div style="flex:1">' +
+        '<div style="font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:5px;font-family:var(--sans)">' + f.label + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;font-family:var(--sans)">' + f.desc + '</div>' +
+        '<div style="font-size:11px;color:#7eb6ff;font-family:var(--mono);letter-spacing:.03em">' + f.audience + '</div>' +
+        '</div>' +
+        '<span style="color:var(--hint);font-size:16px;align-self:center;flex-shrink:0">→</span>' +
+        '</div>';
+      return btn;
+    });
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;padding:24px 28px;';
+    rows.forEach(function(btn){ wrap.appendChild(btn); });
+    body.innerHTML = '';
+    body.appendChild(wrap);
   } else {
     var fmtMeta = {
-      brief: { label:'Research Design Brief', desc:'Confirm details for your advisor meeting document.' },
-      appendix: { label:'Methods Appendix', desc:'Confirm details for your thesis appendix.' },
-      reviewer: { label:'Reviewer Reference Card', desc:'Confirm details for your committee reviewer document.' }
+      brief:    { label:'Research Design Brief',    desc:'Confirm details for your advisor meeting document.' },
+      appendix: { label:'Methods Appendix',         desc:'Confirm details for your thesis appendix.' },
+      reviewer: { label:'Reviewer Reference Card',  desc:'Confirm details for your committee reviewer document.' }
     };
     var meta = fmtMeta[_exportModalFormat];
     title.textContent = meta.label;
     var fields = _getExportFields(_exportModalFormat);
-    body.innerHTML = '<div style="padding:24px 28px;">' +
-      '<p style="font-size:12.5px;color:var(--muted);margin-bottom:20px;line-height:1.6;font-family:'Instrument Sans',-apple-system,sans-serif">' + meta.desc + ' Fields left blank will be omitted.</p>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">' +
-      fields.map(function(f) {
-        return '<div style="' + (f.full ? 'grid-column:1/-1;' : '') + '">' +
-          '<label style="display:block;font-size:10.5px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;font-family:var(--mono)">' + f.label + '</label>' +
-          (f.type === 'textarea'
-            ? '<textarea id="ef-' + f.id + '" rows="2" placeholder="' + (f.placeholder||'') + '" style="width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:'Instrument Sans',-apple-system,sans-serif;resize:none;box-sizing:border-box"></textarea>'
-            : '<input id="ef-' + f.id + '" type="text" placeholder="' + (f.placeholder||'') + '" value="' + (f.value||'') + '" style="width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:'Instrument Sans',-apple-system,sans-serif;box-sizing:border-box">') +
-          '</div>';
-      }).join('') +
-      '</div>' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:.5px solid var(--border)">' +
-      '<button onclick="_exportModalBack()" style="background:transparent;border:.5px solid var(--border);border-radius:6px;padding:8px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono)">← Back</button>' +
-      '<button onclick="_generateFromModal()" style="background:#1e40af;border:none;border-radius:6px;padding:9px 22px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;letter-spacing:.01em">Generate PDF →</button>' +
-      '</div></div>';
+    var gridDiv = document.createElement('div');
+    gridDiv.style.cssText = 'padding:24px 28px;';
+    var descP = document.createElement('p');
+    descP.style.cssText = 'font-size:12.5px;color:var(--muted);margin-bottom:20px;line-height:1.6;font-family:var(--sans)';
+    descP.textContent = meta.desc + ' Fields left blank will be omitted.';
+    gridDiv.appendChild(descP);
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px';
+    fields.forEach(function(f) {
+      var cell = document.createElement('div');
+      if (f.full) cell.style.gridColumn = '1 / -1';
+      var lbl = document.createElement('label');
+      lbl.style.cssText = 'display:block;font-size:10.5px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;font-family:var(--mono)';
+      lbl.textContent = f.label;
+      cell.appendChild(lbl);
+      var inp;
+      if (f.type === 'textarea') {
+        inp = document.createElement('textarea');
+        inp.rows = 2;
+        inp.style.resize = 'none';
+      } else {
+        inp = document.createElement('input');
+        inp.type = 'text';
+      }
+      inp.id = 'ef-' + f.id;
+      inp.placeholder = f.placeholder || '';
+      inp.value = f.value || '';
+      inp.style.cssText = 'width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:var(--sans);box-sizing:border-box';
+      cell.appendChild(inp);
+      grid.appendChild(cell);
+    });
+    gridDiv.appendChild(grid);
+    var footer = document.createElement('div');
+    footer.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:.5px solid var(--border)';
+    var backBtn = document.createElement('button');
+    backBtn.style.cssText = 'background:transparent;border:.5px solid var(--border);border-radius:6px;padding:8px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono)';
+    backBtn.textContent = '← Back';
+    backBtn.onclick = _exportModalBack;
+    var genBtn = document.createElement('button');
+    genBtn.style.cssText = 'background:#1e40af;border:none;border-radius:6px;padding:9px 22px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);letter-spacing:.01em';
+    genBtn.textContent = 'Generate PDF →';
+    genBtn.onclick = _generateFromModal;
+    footer.appendChild(backBtn);
+    footer.appendChild(genBtn);
+    gridDiv.appendChild(footer);
+    body.innerHTML = '';
+    body.appendChild(gridDiv);
   }
 }
+
 function _getExportFields(fmt) {
   var today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   var common = [
