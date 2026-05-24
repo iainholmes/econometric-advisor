@@ -448,6 +448,32 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-reveal-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#0a1d33;border:.5px solid var(--surface);border-radius:11px;padding:14px 18px;margin-bottom:14px;flex-wrap:wrap}
 .kg-reveal-text{flex:1;min-width:240px;color:var(--muted);font-size:13.5px;line-height:1.6}
 .kg-reveal-text strong{color:var(--text);font-weight:500}
+.paper-upload-card{background:#0a1d33;border:.5px solid var(--border);border-radius:12px;padding:24px;margin-top:32px;}
+.paper-upload-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;font-family:'Instrument Sans',-apple-system,sans-serif;letter-spacing:-.01em;}
+.paper-upload-card-sub{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:18px;font-family:'Instrument Sans',-apple-system,sans-serif;max-width:600px;}
+.paper-node-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:700px){.paper-node-grid{grid-template-columns:1fr;}}
+.paper-node-group{background:#020e1f;border:.5px solid var(--border);border-radius:8px;padding:12px;}
+.paper-node-group-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:var(--mono);display:block;}
+.paper-node-check{display:flex;align-items:center;gap:7px;margin-bottom:5px;cursor:pointer;}
+.paper-node-check input{accent-color:#f59e0b;width:13px;height:13px;flex-shrink:0;cursor:pointer;}
+.paper-node-check label{font-size:11.5px;color:var(--text2);cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;line-height:1.4;}
+.paper-cite-input{width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:'Instrument Sans',-apple-system,sans-serif;box-sizing:border-box;margin-bottom:12px;}
+.paper-cite-input::placeholder{color:var(--hint);}
+.paper-trace-btn{background:#f59e0b;color:#0a0a0a;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;transition:background .15s;letter-spacing:.01em;}
+.paper-trace-btn:hover{background:#fbbf24;}
+.paper-trace-btn:disabled{background:var(--bg3);color:var(--muted);cursor:default;}
+.paper-trace-active{background:#f59e0b18;border:.5px solid #f59e0b44;border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.paper-trace-active-label{font-size:12px;color:#f59e0b;font-family:var(--mono);letter-spacing:.04em;}
+.paper-trace-clear{background:transparent;border:.5px solid var(--border);border-radius:5px;padding:4px 10px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--mono);}
+.kg-trace-toggle{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.kg-trace-mode-btn{background:transparent;border:.5px solid var(--border);border-radius:6px;padding:6px 14px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:var(--mono);letter-spacing:.03em;transition:all .15s;white-space:nowrap;}
+.kg-trace-mode-btn:hover{border-color:var(--surface);color:var(--text2);}
+.kg-trace-mode-btn.active-mydesign{background:#3d6b8522;border-color:var(--surface);color:var(--text);}
+.kg-trace-mode-btn.active-paper{background:#f59e0b22;border-color:#f59e0b;color:#f59e0b;}
+.kg-trace-mode-btn.active-diff{background:#8b5cf622;border-color:#8b5cf6;color:#8b5cf6;}
+.kg-node-paper-ring{fill:none;stroke:#f59e0b;stroke-width:3;opacity:0;pointer-events:none;}
+.kg-node-diff-ring{fill:none;stroke:#8b5cf6;stroke-width:3;opacity:0;pointer-events:none;}
 .kg-reveal-btn{background:var(--surface);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;letter-spacing:.02em;white-space:nowrap;transition:background .15s}
 .kg-reveal-btn:hover{background:#6d8d9a}
 .kg-reveal-btn:disabled{background:var(--bg3);color:var(--muted);cursor:default}
@@ -4075,12 +4101,29 @@ function renderResults(tk,ai){
 </div>`;
 
   // KNOWLEDGE GRAPH (replaces tree)
+  // Paper profile card
+  html+=`<div class="paper-upload-card" id="paper-profile-card">
+    <div class="paper-upload-card-title">▲ Map a paper to this architecture</div>
+    <div class="paper-upload-card-sub">Select the methods used in a specific paper. The Advisor will trace that paper's identification architecture on the Knowledge Graph — filtered through your research design — so you can compare approaches.</div>
+    <input class="paper-cite-input" id="paper-cite-input" type="text" placeholder="Citation — e.g. Marcus & Mueller (2024), JEEM — PFAS NJ Hedonics">
+    <div class="paper-node-grid" id="paper-node-grid"></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <button class="paper-trace-btn" id="paper-trace-btn" onclick="applyPaperTrace()" disabled>Trace this paper on the KG →</button>
+      <span id="paper-trace-status" style="font-size:11.5px;color:var(--muted);font-family:var(--mono)"></span>
+    </div>
+    <div id="paper-trace-active-bar" style="display:none" class="paper-trace-active">
+      <span class="paper-trace-active-label" id="paper-trace-active-label"></span>
+      <button class="paper-trace-clear" onclick="clearPaperTrace()">Clear</button>
+    </div>
+  </div>`;
   html+=`</div>`; // close methods tab panel
   html+=renderKnowledgeGraph(tk);
 
   // Init D3 graph after DOM is in place
   el.innerHTML=html;
   setTimeout(()=>initKnowledgeGraph(tk.active),50);
+  setTimeout(initPaperNodeGrid, 100);
+  setTimeout(restorePaperProfile, 200);
   // Render KaTeX equations after DOM insertion
   renderEquations();
   // Set up sticky jump nav observer (toggles visibility + active chip on scroll)
@@ -4299,7 +4342,14 @@ function renderKnowledgeGraph(tk){
     </div>
     <div class="kg-reveal-bar">
       <div class="kg-reveal-text">The graph below shows all four pillars of applied econometrics. <strong>Click the button</strong> to light up the path your research design takes through this architecture.</div>
-      <button id="kg-reveal-btn" class="kg-reveal-btn" onclick="revealKgPath()">Trace my study through the architecture</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <button id="kg-reveal-btn" class="kg-reveal-btn" onclick="revealKgPath()">Trace my study through the architecture</button>
+        <div class="kg-trace-toggle" id="kg-trace-toggle" style="display:none;">
+          <button class="kg-trace-mode-btn active-mydesign" id="kg-mode-mydesign" onclick="setKgTraceMode('mydesign')">My Design</button>
+          <button class="kg-trace-mode-btn" id="kg-mode-paper" onclick="setKgTraceMode('paper')">Paper</button>
+          <button class="kg-trace-mode-btn" id="kg-mode-diff" onclick="setKgTraceMode('diff')">Diff</button>
+        </div>
+      </div>
     </div>
     <div class="kg-expand-backdrop" id="kg-expand-backdrop" onclick="kgToggleExpand()"></div>
     <div class="kg-wrap" id="kg-wrap">
@@ -4333,6 +4383,7 @@ let _kgZoom=null,_kgZoomLayer=null,_kgNeighbors={},_kgEdgesByEndpoint={};
 
 function initKnowledgeGraph(activeSet){
   _kgActive=activeSet||new Set();
+  setTimeout(addNodeRings, 300);
   _kgRevealed=false;
   const svg=d3.select('#kg-canvas');
   if(svg.empty())return;
@@ -5266,6 +5317,23 @@ function onKgNodeClick(nodeId){
   document.getElementById('kg-drawer').classList.add('open');
 }
 
+function addNodeRings() {
+  KG_BLUEPRINT.nodes.forEach(function(n) {
+    var g = d3.select('#kgn-' + n.id);
+    if (g.select('.kg-node-paper-ring').empty()) {
+      g.append('rect')
+        .attr('class', 'kg-node-paper-ring')
+        .attr('width', 124).attr('height', 44)
+        .attr('x', -62).attr('y', -22)
+        .attr('rx', 10).attr('ry', 10)
+        .attr('fill', 'none')
+        .attr('stroke', '#f59e0b')
+        .attr('stroke-width', 3)
+        .attr('opacity', 0)
+        .attr('pointer-events', 'none');
+    }
+  });
+}
 function closeKgDrawer(){
   document.getElementById('kg-drawer-overlay').classList.remove('open');
   document.getElementById('kg-drawer').classList.remove('open');
