@@ -1440,7 +1440,7 @@ function _ensureToolsMenu(){
   const m=document.createElement('div');
   m.id='hdr-tools-menu';
   m.className='hdr-tools-menu';
-  m.innerHTML=`<button class="hdr-tools-item has-sub" onmouseenter="openExportSubmenu(event)" onclick="openExportSubmenu(event)"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
+  m.innerHTML=`<button class="hdr-tools-item" onclick="closeToolsMenu();document.querySelector('.ov-impl-item.export')?.scrollIntoView({behavior:'smooth',block:'center'});"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
   document.body.appendChild(m);
 }
 function toggleToolsMenu(e){
