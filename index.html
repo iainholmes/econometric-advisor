@@ -4122,8 +4122,8 @@ function renderResults(tk,ai){
   // Init D3 graph after DOM is in place
   el.innerHTML=html;
   setTimeout(()=>initKnowledgeGraph(tk.active),50);
-  setTimeout(initPaperNodeGrid, 100);
-  setTimeout(restorePaperProfile, 200);
+  setTimeout(function(){ if(typeof initPaperNodeGrid==='function') initPaperNodeGrid(); }, 300);
+  setTimeout(function(){ if(typeof restorePaperProfile==='function') restorePaperProfile(); }, 500);
   // Render KaTeX equations after DOM insertion
   renderEquations();
   // Set up sticky jump nav observer (toggles visibility + active chip on scroll)
