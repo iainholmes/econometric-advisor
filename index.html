@@ -1463,7 +1463,7 @@ function closeToolsMenu(){
   document.getElementById('hdr-tools-btn')?.classList.remove('open');
   document.getElementById('hdr-tools-menu')?.classList.remove('open');
 }
-document.addEventListener('click',function(){closeToolsMenu();});
+document.addEventListener('click',function(ev){if(!document.getElementById('export-submenu'))closeToolsMenu();});
 
 /* ── OVERVIEW POPULATION ── */
 function buildOverviewSections(tk, ai){
@@ -6307,7 +6307,7 @@ function _buildExportSubmenu(x, y) {
   sub.style.position = 'fixed';
   sub.style.top = y + 'px';
   sub.style.left = Math.max(4, x) + 'px';
-  setTimeout(() => sub.classList.add('open'), 10);
+  sub.classList.add('open');
   document.addEventListener('click', function closeSub(ev) {
     if (!sub.contains(ev.target)) { _removeExportSubmenu(); document.removeEventListener('click', closeSub); }
   });
