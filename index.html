@@ -1524,11 +1524,11 @@ function buildOverviewSections(tk, ai){
     if(!litEl) return;
     if(typeof _litFoundational !== 'undefined' && _litFoundational.length){
       litEl.innerHTML = _litFoundational.slice(0,3).map(p=>`
-        <div class="ov-teaser-item" style="display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.1)">
-          <span style="color:var(--hint);flex-shrink:0">·</span>
+        <div style="display:flex;flex-direction:row;gap:10px;align-items:baseline;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.1)">
+          <span style="color:var(--hint);flex-shrink:0;font-size:14px">·</span>
           <div style="flex:1">
-            <div class="ov-teaser-title">${esc(p.title||p.t||'Untitled')}</div>
-            <div class="ov-teaser-sub">${esc(p.authors||p.a||'')}${(p.year||p.y)?' · '+(p.year||p.y):''}</div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;line-height:1.45">${esc(p.title||p.t||'Untitled')}</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:2px">${esc(p.authors||p.a||'')}${(p.year||p.y)?' · '+(p.year||p.y):''}</div>
           </div>
         </div>`).join('');
     } else {
@@ -1545,11 +1545,11 @@ function buildOverviewSections(tk, ai){
     if(!dataEl) return;
     if(typeof _drawerSources !== 'undefined' && _drawerSources.length){
       dataEl.innerHTML = _drawerSources.slice(0,3).map(s=>`
-        <div class="ov-teaser-item" style="display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.1)">
-          <span style="color:var(--hint);flex-shrink:0">·</span>
+        <div style="display:flex;flex-direction:row;gap:10px;align-items:baseline;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.1)">
+          <span style="color:var(--hint);flex-shrink:0;font-size:14px">·</span>
           <div style="flex:1">
-            <div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
-            <div class="ov-teaser-sub">${esc(s.d||s.desc||s.tagline||'')}</div>
+            <div style="font-size:13px;color:var(--text);font-weight:500;line-height:1.45">${esc(s.n||s.name||'')}</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:2px">${esc(s.d||s.desc||s.tagline||'')}</div>
           </div>
         </div>`).join('');
     } else {
