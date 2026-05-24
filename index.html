@@ -3921,24 +3921,24 @@ function renderResults(tk,ai){
           <div class="ov-impl-label-new">Execution & Deliverables</div><div class="ov-impl-super">WHEN READY TO IMPLEMENT</div>
           <div class="ov-impl-intro">Once your research design is set, three tools help you move from strategy to execution — practice the methods, verify your code, and document your decisions.</div>
           <div class="ov-impl-row">
-            <a class="ov-impl-item practice" href="#" onclick="openTrainerGuide();return false;">
+            <div class="ov-impl-item practice" onclick="openTrainerGuide()">
               <span class="ov-impl-item-icon">⟳</span>
               <div class="ov-impl-item-title">Practice your methods</div>
               <div class="ov-impl-item-desc">The Quant Skills Trainer includes structured modules for every method in your toolkit — in R, Python, or Stata. Each module covers the key concepts, worked code, and common misspecification risks specific to your design.</div>
               <span class="ov-impl-item-cta">How it works →</span>
-            </a>
-            <a class="ov-impl-item audit" href="#" onclick="openAuditTool();return false;">
+            </div>
+            <div class="ov-impl-item audit" onclick="openAuditTool()">
               <span class="ov-impl-item-icon">△</span>
               <div class="ov-impl-item-title">Audit your code</div>
               <div class="ov-impl-item-desc">Upload a .py, .R, or .do script and the Advisor maps what you have implemented, flags standard error misspecifications by severity, and identifies gaps between your code and your recommended toolkit.</div>
               <span class="ov-impl-item-cta">Open code audit →</span>
-            </a>
-            <a class="ov-impl-item export" href="#" onclick="openExportSubmenuCard(event);return false;">
+            </div>
+            <div class="ov-impl-item export" onclick="openExportSubmenuCard(event)">
               <span class="ov-impl-item-icon">↓</span>
               <div class="ov-impl-item-title">Export your log</div>
               <div class="ov-impl-item-desc">Three document formats: Research Design Brief for advisor meetings, Methods Appendix for your thesis, and a one-page Reviewer Reference Card for committee members.</div>
               <span class="ov-impl-item-cta">Choose format →</span>
-            </a>
+            </div>
           </div>
         </div>
       </div>
@@ -6273,14 +6273,46 @@ function openExportSubmenuCard(e) {
   e.stopPropagation();
   _removeExportSubmenu();
   var rect = e.currentTarget.getBoundingClientRect();
-  _buildExportSubmenu(rect.left + rect.width/2, rect.top);
+  // Position will be adjusted after build based on submenu height
+  _buildExportSubmenuAbove(rect);
 }
 function openExportSubmenu(e) {
   e.stopPropagation();
   var existing = document.getElementById('export-submenu');
   if (existing) { existing.remove(); return; }
   var btn = e.currentTarget.getBoundingClientRect();
-  _buildExportSubmenu(btn.left - 210, btn.top);
+  _buildExportSubmenu(btn.left - 210, btn.bottom + 4);
+}
+function _buildExportSubmenuAbove(rect) {
+  _removeExportSubmenu();
+  var sub = document.createElement('div');
+  sub.id = 'export-submenu';
+  sub.className = 'hdr-tools-submenu';
+  sub.innerHTML = `
+    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
+      <span>Research Design Brief</span>
+      <span class="hdr-tools-sub-desc">2–3 pages · For advisor meetings</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportAppendix();_removeExportSubmenu();closeToolsMenu()">
+      <span>Methods Appendix</span>
+      <span class="hdr-tools-sub-desc">Full technical reference · For thesis appendix</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportReviewerCard();_removeExportSubmenu();closeToolsMenu()">
+      <span>Reviewer Reference Card</span>
+      <span class="hdr-tools-sub-desc">1 page · For committee reviewers</span>
+    </button>`;
+  document.body.appendChild(sub);
+  // Measure submenu then position above the card
+  var subH = sub.offsetHeight || 140;
+  var x = rect.left + rect.width/2 - 100;
+  var y = rect.top - subH - 8;
+  if (y < 8) y = rect.bottom + 8; // flip below if not enough space above
+  sub.style.top = y + 'px';
+  sub.style.left = Math.max(8, x) + 'px';
+  setTimeout(() => sub.classList.add('open'), 10);
+  document.addEventListener('click', function closeSub(ev) {
+    if (!sub.contains(ev.target)) { _removeExportSubmenu(); document.removeEventListener('click', closeSub); }
+  });
 }
 function _buildExportSubmenu(x, y) {
   _removeExportSubmenu();
