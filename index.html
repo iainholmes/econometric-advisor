@@ -1508,7 +1508,7 @@ function buildOverviewSections(tk, ai){
         <div class="ov-node-label">${esc(methodName)}</div>
         <div class="ov-node-def">${esc(methodDetail)}</div>
         <div class="ov-node-links">
-          <a class="ov-node-link" href="#" onclick="switchTab('methods');return false;">Deep dive →</a>
+          <a class="ov-node-link" href="#" onclick="switchTab('methods');setTimeout(()=>{const all=document.querySelectorAll('.section');all.forEach(el=>el.classList.remove('open'));const el=document.getElementById('sec-'+sidx);if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'start'});}},120);return false;">Deep dive →</a>
           ${trainerUrl?`<a class="ov-node-link" href="${trainerUrl}" target="_blank" rel="noreferrer">Practice →</a>`:''}
         </div>
       </div>`;
