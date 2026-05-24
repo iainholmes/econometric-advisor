@@ -5986,7 +5986,7 @@ function renderAuditResults(lang,filename,detected,gaps,detectedNodes,code,seFla
     detEl.innerHTML=detected.map(function(p){
       var nd=typeof KG_BLUEPRINT!=='undefined'?KG_BLUEPRINT.nodes.find(function(n){return n.id===p.node;}):null;
       var color=KG_COLORS[nd?nd.cat:'tool'];
-      var trUrl=p.trainer?'https://iainholmes.github.io/quant-skills-trainer/?lang='+p.trainer.lang+'&module='+p.trainer.mod+'&from=advisor':'';
+      var trUrl=p.trainer?'https://iainholmes.github.io/quant-skills-trainer/?lang='+p.trainer.lang+'&module='+p.trainer.mod+'&from=advisor&focus='+p.node:'';
       return '<div class="audit-method-item"><div class="audit-method-dot" style="background:'+color+'"></div><div class="audit-method-name">'+p.label+'</div>'+(trUrl?'<a class="audit-method-link" href="'+trUrl+'" target="_blank">Practice &rarr;</a>':'')+'</div>';
     }).join('');
   }
