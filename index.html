@@ -1489,7 +1489,7 @@ function buildOverviewSections(tk, ai){
   const gridEl = document.getElementById('ov-node-grid');
   if(gridEl && tk.sections){
     let cards = '';
-    tk.sections.forEach(s => {
+    tk.sections.forEach((s, sidx) => {
       const cat = sectionCatMap[s.label] || null;
       const meta = cat ? catMeta[cat] : null;
       const catColor = meta ? meta.color : 'var(--hint)';
