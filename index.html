@@ -3198,6 +3198,15 @@ function openFoundationalDrawer(idx) {
 // Shows after user scrolls past the top; tracks which section is in view.
 // ============================================================
 function switchTab(tab) {
+  if (tab === 'methods') {
+    setTimeout(function() {
+      if (typeof initPaperNodeGrid === 'function') {
+        var grid = document.getElementById('paper-node-grid');
+        if (grid && grid.innerHTML === '') initPaperNodeGrid();
+      }
+      if (typeof restorePaperProfile === 'function') restorePaperProfile();
+    }, 50);
+  }
   document.querySelectorAll('.tk-jump-chip').forEach(function(btn){
     btn.classList.toggle('active', btn.dataset.tab === tab);
   });
