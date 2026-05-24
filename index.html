@@ -1524,10 +1524,10 @@ function buildOverviewSections(tk, ai){
     if(!litEl) return;
     if(typeof _litFoundational !== 'undefined' && _litFoundational.length){
       litEl.innerHTML = _litFoundational.slice(0,3).map(p=>`
-        <div class="ov-teaser-item">
-          <div class="ov-teaser-title">${esc(p.title||p.t||'Untitled')}</div>
+        <div class="ov-teaser-item" style="display:flex;gap:8px;align-items:flex-start">
+          <span style="color:var(--hint);margin-top:2px;flex-shrink:0">·</span><div><div class="ov-teaser-title">${esc(p.title||p.t||'Untitled')}</div>
           <div class="ov-teaser-sub">${esc(p.authors||p.a||'')}${(p.year||p.y)?' · '+(p.year||p.y):''}</div>
-        </div>`).join('');
+          </div></div>`).join('');
     } else {
       litEl.innerHTML = '<div class="ov-teaser-item"><div class="ov-teaser-sub" style="opacity:.5">Loading recommendations...</div></div>';
       setTimeout(renderLitTeaser, 1200);
@@ -1542,10 +1542,10 @@ function buildOverviewSections(tk, ai){
     if(!dataEl) return;
     if(typeof _drawerSources !== 'undefined' && _drawerSources.length){
       dataEl.innerHTML = _drawerSources.slice(0,3).map(s=>`
-        <div class="ov-teaser-item">
-          <div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
+        <div class="ov-teaser-item" style="display:flex;gap:8px;align-items:flex-start">
+          <span style="color:var(--hint);margin-top:2px;flex-shrink:0">·</span><div><div class="ov-teaser-title">${esc(s.n||s.name||'')}</div>
           <div class="ov-teaser-sub">${esc(s.d||s.desc||s.tagline||'')}</div>
-        </div>`).join('');
+          </div></div>`).join('');
     } else {
       // Scrape from rendered source cards in the data tab
       const cards = document.querySelectorAll('.source-card');
@@ -3885,13 +3885,13 @@ function renderResults(tk,ai){
         <div class="ov-research-inner">
           <div>
             <div class="ov-research-col-label">Literature</div>
-            <div class="ov-research-col-title">Foundational Reading for Your Design</div>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);font-weight:700;margin-bottom:6px;margin-top:14px;border-top:.5px solid rgba(255,255,255,.08);padding-top:14px;">Foundational Reading</div>
             <div id="ov-lit-teaser"></div>
             <button class="ov-see-all" onclick="switchTab('literature')">See all recommendations →</button>
           </div>
           <div>
             <div class="ov-research-col-label">Open-Access Data</div>
-            <div class="ov-research-col-title">Curated Sources for Your Research Design</div>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);font-weight:700;margin-bottom:6px;margin-top:14px;border-top:.5px solid rgba(255,255,255,.08);padding-top:14px;">Curated Sources</div>
             <div id="ov-data-teaser"></div>
             <button class="ov-see-all" onclick="switchTab('data')">Browse all sources →</button>
           </div>
@@ -4011,46 +4011,46 @@ function renderResults(tk,ai){
   });
   html+=`</div></div></div>`;
 
-  html+=`<div id="methods-legend" style="margin-top:3rem;padding:24px 28px;background:#0a1d33;border:.5px solid var(--border);border-radius:12px;">
-  <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);font-weight:600;margin-bottom:16px;">How to read recommendation tags</div>
-  <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Each section carries a tag reflecting how central it is to your specific research design — based on your intake answers. These are not generic quality ratings. A "Worth being aware of" tag means the section is less critical for your particular study, not that the method is less rigorous.</p>
+  html+=`<div id="methods-legend" style="margin-top:3rem;padding:28px 32px;background:#1a1200;border:.5px solid #4a3500;border-radius:12px;">
+  <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#a07830;font-weight:600;margin-bottom:16px;">How to read recommendation tags</div>
+  <p style="font-size:14px;color:#c8a86a;line-height:1.7;margin-bottom:20px;">Each section carries a tag reflecting how central it is to your specific research design — based on your intake answers. These are not generic quality ratings. A "Worth being aware of" tag means the section is less critical for your particular study, not that the method is less rigorous.</p>
   <table style="width:100%;border-collapse:collapse;font-size:13px;">
     <thead>
       <tr style="border-bottom:.5px solid var(--border)">
-        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600;width:190px">Tag</th>
-        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600;width:110px">Signal</th>
-        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600">What it means for your study</th>
-        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600">Typical sections</th>
+        <th style="text-align:left;padding:8px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a07830;font-weight:600;width:210px;white-space:nowrap">Tag</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600;width:110px;color:#a07830">Signal</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600;color:#a07830">What it means for your study</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--hint);font-weight:600;color:#a07830">Typical sections</th>
       </tr>
     </thead>
     <tbody>
       <tr style="border-bottom:.5px solid rgba(255,255,255,.05)">
-        <td style="padding:12px"><span class="conf conf-critical" style="font-size:11px;padding:3px 10px;border-radius:4px;font-weight:500">Essential to your design</span></td>
+        <td style="padding:12px"><span class="conf conf-critical" style="font-size:12px;padding:4px 12px;border-radius:4px;font-weight:600;white-space:nowrap">Essential to your design</span></td>
         <td style="padding:12px;font-family:monospace;color:#fbbf24;letter-spacing:2px">&#x25B0;&#x25B0;&#x25B0;&#x25B0;</td>
-        <td style="padding:12px;color:var(--muted);line-height:1.6">This section is the backbone of your identification strategy. Skipping or misspecifying it would directly undermine your causal claim. Non-negotiable given your study design.</td>
-        <td style="padding:12px;color:var(--hint);font-size:12px">Identification strategy, Estimator, Inference checklist</td>
+        <td style="padding:12px;color:#c8a86a;font-size:13px;line-height:1.6">This section is the backbone of your identification strategy. Skipping or misspecifying it would directly undermine your causal claim. Non-negotiable given your study design.</td>
+        <td style="padding:12px;color:#8a6a30;font-size:12px">Identification strategy, Estimator, Inference checklist</td>
       </tr>
       <tr style="border-bottom:.5px solid rgba(255,255,255,.05)">
-        <td style="padding:12px"><span class="conf conf-high" style="font-size:11px;padding:3px 10px;border-radius:4px;font-weight:500">Strongly recommended</span></td>
+        <td style="padding:12px"><span class="conf conf-high" style="font-size:12px;padding:4px 12px;border-radius:4px;font-weight:600;white-space:nowrap">Strongly recommended</span></td>
         <td style="padding:12px;font-family:monospace;color:#7eb8a0;letter-spacing:2px">&#x25B0;&#x25B0;&#x25B0;&#x25B1;</td>
-        <td style="padding:12px;color:var(--muted);line-height:1.6">Your intake answers directly indicate this applies to your study. Not the primary method, but important enough that omitting it would raise questions in peer review.</td>
-        <td style="padding:12px;color:var(--hint);font-size:12px">Spatial (when confirmed), Functional form (when nonlinearity flagged), Panel structure</td>
+        <td style="padding:12px;color:#c8a86a;font-size:13px;line-height:1.6">Your intake answers directly indicate this applies to your study. Not the primary method, but important enough that omitting it would raise questions in peer review.</td>
+        <td style="padding:12px;color:#8a6a30;font-size:12px">Spatial (when confirmed), Functional form (when nonlinearity flagged), Panel structure</td>
       </tr>
       <tr style="border-bottom:.5px solid rgba(255,255,255,.05)">
-        <td style="padding:12px"><span class="conf conf-med" style="font-size:11px;padding:3px 10px;border-radius:4px;font-weight:500">Relevant to your design</span></td>
+        <td style="padding:12px"><span class="conf conf-med" style="font-size:12px;padding:4px 12px;border-radius:4px;font-weight:600;white-space:nowrap">Relevant to your design</span></td>
         <td style="padding:12px;font-family:monospace;color:#7a96ae;letter-spacing:2px">&#x25B0;&#x25B0;&#x25B1;&#x25B1;</td>
-        <td style="padding:12px;color:var(--muted);line-height:1.6">Plausibly relevant given your setup but not definitively indicated by your answers. Worth reviewing and deciding whether it applies to your specific case.</td>
-        <td style="padding:12px;color:var(--hint);font-size:12px">Functional form (when unsure), Spatial (partial signals), OLS baseline</td>
+        <td style="padding:12px;color:#c8a86a;font-size:13px;line-height:1.6">Plausibly relevant given your setup but not definitively indicated by your answers. Worth reviewing and deciding whether it applies to your specific case.</td>
+        <td style="padding:12px;color:#8a6a30;font-size:12px">Functional form (when unsure), Spatial (partial signals), OLS baseline</td>
       </tr>
       <tr>
-        <td style="padding:12px"><span class="conf conf-low" style="font-size:11px;padding:3px 10px;border-radius:4px;font-weight:500">Worth being aware of</span></td>
+        <td style="padding:12px"><span class="conf conf-low" style="font-size:12px;padding:4px 12px;border-radius:4px;font-weight:600;white-space:nowrap">Worth being aware of</span></td>
         <td style="padding:12px;font-family:monospace;color:var(--hint);letter-spacing:2px">&#x25B0;&#x25B1;&#x25B1;&#x25B1;</td>
-        <td style="padding:12px;color:var(--muted);line-height:1.6">Your intake did not strongly indicate this section, but it appears as a reference. It may become more relevant as your study develops or if your data structure changes.</td>
-        <td style="padding:12px;color:var(--hint);font-size:12px">Descriptive OLS baseline, supplementary diagnostics</td>
+        <td style="padding:12px;color:#c8a86a;font-size:13px;line-height:1.6">Your intake did not strongly indicate this section, but it appears as a reference. It may become more relevant as your study develops or if your data structure changes.</td>
+        <td style="padding:12px;color:#8a6a30;font-size:12px">Descriptive OLS baseline, supplementary diagnostics</td>
       </tr>
     </tbody>
   </table>
-  <div style="margin-top:20px;padding-top:16px;border-top:.5px solid var(--border);font-size:12px;color:var(--hint);line-height:1.7">
+  <div style="margin-top:20px;padding-top:16px;border-top:.5px solid #4a3500;font-size:13px;color:#8a6a30;line-height:1.7">
     <strong style="color:var(--muted)">Section icons:</strong> &#x22A2; identification logic &nbsp;&middot;&nbsp; &beta; estimator specification &nbsp;&middot;&nbsp; &#x223F; functional form &nbsp;&middot;&nbsp; &#x229E; panel structure &nbsp;&middot;&nbsp; &#x2B21; spatial structure &nbsp;&middot;&nbsp; &#x2713; inference validation
   </div>
 </div>`;
