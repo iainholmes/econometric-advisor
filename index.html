@@ -4122,8 +4122,7 @@ function renderResults(tk,ai){
   // Init D3 graph after DOM is in place
   el.innerHTML=html;
   setTimeout(()=>initKnowledgeGraph(tk.active),50);
-  setTimeout(function(){ if(typeof initPaperNodeGrid==='function') initPaperNodeGrid(); }, 300);
-  setTimeout(function(){ if(typeof restorePaperProfile==='function') restorePaperProfile(); }, 500);
+  window._paperProfilePending = true;
   // Render KaTeX equations after DOM insertion
   renderEquations();
   // Set up sticky jump nav observer (toggles visibility + active chip on scroll)
@@ -6874,6 +6873,250 @@ function exportReviewerCard(u) {
   w.document.write(html);
   w.document.close();
   setTimeout(() => w.print(), 600);
+}
+
+// ── Paper Profile & KG Trace ─────────────────────────────────────────────────
+var _paperProfile = null;
+var _kgTraceMode = 'mydesign';
+
+var _PAPER_NODES = {
+  problem: [
+    {id:'p_endogeneity',label:'Endogeneity'},
+    {id:'p_ovb',label:'Omitted Variable Bias'},
+    {id:'p_simultaneity',label:'Simultaneity'},
+    {id:'p_selection',label:'Selection Bias'},
+    {id:'p_spatial_dep',label:'Spatial Dependence'},
+    {id:'p_heterosked',label:'Heteroskedasticity'},
+    {id:'p_serial_corr',label:'Serial Correlation'},
+    {id:'p_multicollin',label:'Multicollinearity'}
+  ],
+  logic: [
+    {id:'l_natexp',label:'Natural Experiment'},
+    {id:'l_obs',label:'Selection on Observables'},
+    {id:'l_parallel',label:'Parallel Trends'},
+    {id:'l_exclusion',label:'Exclusion Restriction'},
+    {id:'l_continuity',label:'Continuity at Cutoff'},
+    {id:'l_late',label:'LATE'}
+  ],
+  tool: [
+    {id:'t_ols',label:'OLS'},
+    {id:'t_fe',label:'Fixed Effects'},
+    {id:'t_did',label:'Diff-in-Diff'},
+    {id:'t_iv',label:'2SLS / IV'},
+    {id:'t_rd',label:'Regression Discontinuity'},
+    {id:'t_scm',label:'Synthetic Control'},
+    {id:'t_matching',label:'Matching / PSM'},
+    {id:'t_sar',label:'SAR / SEM'},
+    {id:'t_logit',label:'Logit / Probit'},
+    {id:'t_poisson',label:'Poisson / PPML'},
+    {id:'t_tobit',label:'Tobit'},
+    {id:'t_dml',label:'Double ML'},
+    {id:'t_cf',label:'Causal Forests'}
+  ],
+  diag: [
+    {id:'d_hausman',label:'Hausman Test'},
+    {id:'d_firststage',label:'First-Stage F'},
+    {id:'d_sargan',label:'Sargan / J-Test'},
+    {id:'d_pretrend',label:'Pre-Trend Test'},
+    {id:'d_moran',label:"Moran's I"},
+    {id:'d_ftest',label:'Joint F-Test'},
+    {id:'d_placebo',label:'Placebo Test'},
+    {id:'d_wildboot',label:'Wild Cluster Bootstrap'},
+    {id:'d_robust',label:'HC3 / Cluster SE'}
+  ]
+};
+
+var _catLabels = {problem:'Problems',logic:'Strategic Logic',tool:'Tools / Estimators',diag:'Diagnostics'};
+var _catColors = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+
+function initPaperNodeGrid() {
+  var grid = document.getElementById('paper-node-grid');
+  if (!grid) return;
+  var h = '';
+  Object.entries(_PAPER_NODES).forEach(function(entry) {
+    var cat = entry[0], nodes = entry[1];
+    h += '<div class="paper-node-group">';
+    h += '<span class="paper-node-group-label" style="color:' + _catColors[cat] + '">' + _catLabels[cat] + '</span>';
+    nodes.forEach(function(n) {
+      h += '<div class="paper-node-check"><input type="checkbox" id="pn-' + n.id + '" value="' + n.id + '" onchange="onPaperNodeChange()"><label for="pn-' + n.id + '">' + n.label + '</label></div>';
+    });
+    h += '</div>';
+  });
+  grid.innerHTML = h;
+}
+
+function onPaperNodeChange() {
+  var checked = document.querySelectorAll('#paper-node-grid input:checked');
+  var btn = document.getElementById('paper-trace-btn');
+  if (btn) btn.disabled = checked.length === 0;
+}
+
+function applyPaperTrace() {
+  var cite = document.getElementById('paper-cite-input');
+  var citeVal = cite ? cite.value.trim() : '';
+  if (!citeVal) { if (cite) cite.focus(); return; }
+  var checked = document.querySelectorAll('#paper-node-grid input:checked');
+  var nodes = [];
+  checked.forEach(function(cb) { nodes.push(cb.value); });
+  if (nodes.length === 0) return;
+  _paperProfile = { cite: citeVal, nodes: new Set(nodes) };
+  try {
+    localStorage.setItem('qst_paper_profile_v1', JSON.stringify({cite: citeVal, nodes: nodes, timestamp: Date.now()}));
+  } catch(e) {}
+  switchTab('graph');
+  setTimeout(function() {
+    var toggle = document.getElementById('kg-trace-toggle');
+    if (toggle) toggle.style.display = 'flex';
+    setKgTraceMode('paper');
+    var bar = document.getElementById('paper-trace-active-bar');
+    var lbl = document.getElementById('paper-trace-active-label');
+    if (bar) bar.style.display = 'flex';
+    if (lbl) lbl.textContent = citeVal;
+  }, 100);
+}
+
+function clearPaperTrace() {
+  _paperProfile = null;
+  _kgTraceMode = 'mydesign';
+  try { localStorage.removeItem('qst_paper_profile_v1'); } catch(e) {}
+  var bar = document.getElementById('paper-trace-active-bar');
+  if (bar) bar.style.display = 'none';
+  var toggle = document.getElementById('kg-trace-toggle');
+  if (toggle) toggle.style.display = 'none';
+  if (_kgRevealed) { resetKgColors(); revealKgPathColors(_kgActive); }
+  setKgTraceModeBtn('mydesign');
+}
+
+function setKgTraceMode(mode) {
+  _kgTraceMode = mode;
+  setKgTraceModeBtn(mode);
+  if (!_kgRevealed) { revealKgPath(); return; }
+  resetKgColors();
+  if (mode === 'mydesign') {
+    revealKgPathColors(_kgActive);
+  } else if (mode === 'paper' && _paperProfile) {
+    revealKgPathColors(_paperProfile.nodes, true);
+  } else if (mode === 'diff' && _paperProfile) {
+    applyDiffColors();
+  }
+}
+
+function setKgTraceModeBtn(mode) {
+  ['mydesign','paper','diff'].forEach(function(m) {
+    var btn = document.getElementById('kg-mode-' + m);
+    if (!btn) return;
+    btn.className = 'kg-trace-mode-btn';
+    if (m === mode) btn.classList.add('active-' + m);
+  });
+}
+
+function resetKgColors() {
+  KG_BLUEPRINT.nodes.forEach(function(n) {
+    var g = d3.select('#kgn-' + n.id);
+    g.select('rect').transition().duration(300)
+      .attr('fill','#0a1d33').attr('stroke','#1e3a5a').attr('stroke-width',1);
+    g.select('.kg-node-text').transition().duration(300)
+      .attr('fill','#94a3b8').attr('font-weight',400);
+    g.select('.kg-node-paper-ring').attr('opacity',0);
+  });
+  KG_BLUEPRINT.edges.forEach(function(e,idx) {
+    d3.select('#kge-'+idx).transition().duration(300)
+      .attr('stroke','#1e3a5a').attr('stroke-width',0.5).attr('opacity',0);
+  });
+}
+
+function revealKgPathColors(activeSet, isPaper) {
+  var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  var paperColor = '#f59e0b';
+  KG_BLUEPRINT.nodes.forEach(function(n) {
+    if (!activeSet.has(n.id)) return;
+    var g = d3.select('#kgn-' + n.id);
+    var color = isPaper ? paperColor : colorMap[n.cat];
+    g.select('rect').transition().duration(500)
+      .attr('fill', color+'22').attr('stroke', color).attr('stroke-width',2);
+    g.select('.kg-node-text').transition().duration(500)
+      .attr('fill','#ffffff').attr('font-weight',700);
+    if (isPaper) g.select('.kg-node-paper-ring').attr('opacity',0.7);
+  });
+  KG_BLUEPRINT.edges.forEach(function(e,idx) {
+    if (!activeSet.has(e.s) || !activeSet.has(e.t)) return;
+    var sNode = KG_BLUEPRINT.nodes.find(function(n){ return n.id===e.s; });
+    var edgeColor = isPaper ? paperColor : (sNode ? colorMap[sNode.cat] : '#cbd5e1');
+    d3.select('#kge-'+idx).transition().duration(500)
+      .attr('stroke',edgeColor).attr('stroke-width',1.5).attr('opacity',0.8)
+      .attr('marker-end','url(#arrow-lit)');
+  });
+}
+
+function applyDiffColors() {
+  if (!_paperProfile) return;
+  var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
+  KG_BLUEPRINT.nodes.forEach(function(n) {
+    var inMy = _kgActive && _kgActive.has(n.id);
+    var inPaper = _paperProfile.nodes.has(n.id);
+    var g = d3.select('#kgn-' + n.id);
+    if (inMy && inPaper) {
+      g.select('rect').transition().duration(500)
+        .attr('fill','#10b98122').attr('stroke','#10b981').attr('stroke-width',2.5);
+      g.select('.kg-node-text').transition().duration(500)
+        .attr('fill','#ffffff').attr('font-weight',700);
+    } else if (inPaper && !inMy) {
+      g.select('rect').transition().duration(500)
+        .attr('fill','#f59e0b22').attr('stroke','#f59e0b').attr('stroke-width',2);
+      g.select('.kg-node-text').transition().duration(500)
+        .attr('fill','#f59e0b').attr('font-weight',600);
+      g.select('.kg-node-paper-ring').attr('opacity',0.8);
+    } else if (inMy && !inPaper) {
+      g.select('rect').transition().duration(500)
+        .attr('fill',colorMap[n.cat]+'11').attr('stroke',colorMap[n.cat]+'66').attr('stroke-width',1);
+      g.select('.kg-node-text').transition().duration(500)
+        .attr('fill','#64748b').attr('font-weight',400);
+    }
+  });
+}
+
+function addNodeRings() {
+  KG_BLUEPRINT.nodes.forEach(function(n) {
+    var g = d3.select('#kgn-' + n.id);
+    if (g.select('.kg-node-paper-ring').empty()) {
+      g.append('rect').attr('class','kg-node-paper-ring')
+        .attr('width',124).attr('height',44).attr('x',-62).attr('y',-22)
+        .attr('rx',10).attr('ry',10).attr('fill','none')
+        .attr('stroke','#f59e0b').attr('stroke-width',3)
+        .attr('opacity',0).attr('pointer-events','none');
+    }
+  });
+}
+
+function restorePaperProfile() {
+  try {
+    var saved = localStorage.getItem('qst_paper_profile_v1');
+    if (!saved) return;
+    var p = JSON.parse(saved);
+    if (!p || !p.nodes || !p.cite) return;
+    _paperProfile = { cite: p.cite, nodes: new Set(p.nodes) };
+    p.nodes.forEach(function(id) {
+      var cb = document.getElementById('pn-' + id);
+      if (cb) cb.checked = true;
+    });
+    var cite = document.getElementById('paper-cite-input');
+    if (cite) cite.value = p.cite;
+    var btn = document.getElementById('paper-trace-btn');
+    if (btn) btn.disabled = false;
+    var bar = document.getElementById('paper-trace-active-bar');
+    var lbl = document.getElementById('paper-trace-active-label');
+    if (bar) bar.style.display = 'flex';
+    if (lbl) lbl.textContent = p.cite;
+    var toggle = document.getElementById('kg-trace-toggle');
+    if (toggle) toggle.style.display = 'flex';
+  } catch(e) {}
+}
+
+// Auto-init if renderResults already ran
+if (window._paperProfilePending) {
+  window._paperProfilePending = false;
+  initPaperNodeGrid();
+  restorePaperProfile();
 }
 
 // ── Export Modal ─────────────────────────────────────────────────────────────
