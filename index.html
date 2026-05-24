@@ -6446,7 +6446,7 @@ function exportAppendix() {
   };
   if (_toolkit && _toolkit.active) {
     Object.entries(diagMap).forEach(([tag, desc]) => {
-      if ((_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag))) {
+      if ((_toolkit.active.has ? _toolkit.active.has(tag) : (_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag)))) {
         checklistHtml += `<tr><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;width:20px;text-align:center">☐</td><td style="padding:6px 10px;border-bottom:.5px solid #e2e8f0;font-size:13px">${desc}</td></tr>`;
       }
     });
@@ -6501,14 +6501,14 @@ function exportReviewerCard() {
   let assumptions = [];
   if (_toolkit && _toolkit.active) {
     Object.entries(assumptionMap).forEach(([tag, list]) => {
-      if ((_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag))) assumptions = assumptions.concat(list);
+      if ((_toolkit.active.has ? _toolkit.active.has(tag) : (_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag)))) assumptions = assumptions.concat(list);
     });
   }
   assumptions = [...new Set(assumptions)];
   const diagMap = {'d_firststage':'First-stage F-statistic','d_pretrend':'Pre-trend test','d_hausman':'Hausman test','d_moran':"Moran's I",'d_robust':'Robust SEs','d_sargan':'Sargan-Hansen test','d_ftest':'F-test for functional form'};
   let diags = [];
   if (_toolkit && _toolkit.active) {
-    Object.entries(diagMap).forEach(([tag, label]) => { if ((_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag))) diags.push(label); });
+    Object.entries(diagMap).forEach(([tag, label]) => { if ((_toolkit.active.has ? _toolkit.active.has(tag) : (_toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag)))) diags.push(label); });
   }
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviewer Reference Card</title><style>
   ${_basePrintCSS()}
