@@ -1,135 +1,77 @@
 
-<div id="export-format-modal" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;">
-    <div class="tour-backdrop" onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.82);backdrop-filter:blur(2px);"></div>
-    <div class="tour-card" style="position:relative;background:#0d2240;border:.5px solid rgba(126,182,255,.3);border-radius:14px;padding:24px;width:90%;max-width:450px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:1001;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h4 style="font-size:16px;font-weight:600;color:#fff;margin:0;">Export your log</h4>
-            <button onclick="closeExportModal()" style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:16px;">✕</button>
-        </div>
-        
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <button onclick="exportBrief(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Research Design Brief</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For advisor meetings. Summarizes your strategy, toolkit, and key literature.</div>
-            </button>
-            <button onclick="exportAppendix(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Methods Appendix</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For your thesis. Technical reference of your estimators, functional forms, and diagnostics.</div>
-            </button>
-            <button onclick="exportReviewerCard(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Reviewer Reference Card</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">One-page cheat sheet mapping your method assumptions to diagnostic tests.</div>
-            </button>
-        </div>
-    </div>
-</div>
 
-<script>
-function openExportModal() {
-    document.getElementById('export-format-modal').style.display = 'flex';
-}
-function closeExportModal() {
-    document.getElementById('export-format-modal').style.display = 'none';
-}
+
+// ── UI Logic ── //
+function openExportModal() { document.getElementById('export-format-modal').style.display = 'flex'; }
+function closeExportModal() { document.getElementById('export-format-modal').style.display = 'none'; }
 
 function openExportSubmenuLeft(e) {
     e.stopPropagation();
     e.preventDefault();
-    
     let existing = document.getElementById('export-submenu');
-    if (existing) {
-        existing.remove();
-        return;
-    }
+    if (existing) { existing.remove(); return; }
     
     let sub = document.createElement('div');
     sub.id = 'export-submenu';
     sub.style.cssText = 'position: absolute; right: 100%; top: 0; background: #0a1d33; border: .5px solid var(--border); border-radius: 10px; padding: 6px; min-width: 180px; z-index: 201; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 4px;';
-    
     sub.innerHTML = `
         <button class="hdr-tools-item" onclick="exportBrief()">Research Design Brief</button>
         <button class="hdr-tools-item" onclick="exportAppendix()">Methods Appendix</button>
         <button class="hdr-tools-item" onclick="exportReviewerCard()">Reviewer Reference Card</button>
     `;
-    
     e.currentTarget.parentElement.appendChild(sub);
 }
 
-// Close dropdowns cleanly
 document.addEventListener('click', function(e) {
     let sub = document.getElementById('export-submenu');
-    if (sub && !e.target.closest('#export-submenu')) {
-        sub.remove();
-    }
+    if (sub && !e.target.closest('#export-submenu')) { sub.remove(); }
 });
-</script>
-</body>
 
-<div id="export-format-modal" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;">
-    <div class="tour-backdrop" onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.82);backdrop-filter:blur(2px);"></div>
-    <div class="tour-card" style="position:relative;background:#0d2240;border:.5px solid rgba(126,182,255,.3);border-radius:14px;padding:24px;width:90%;max-width:450px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:1001;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h4 style="font-size:16px;font-weight:600;color:#fff;margin:0;">Export your log</h4>
-            <button onclick="closeExportModal()" style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:16px;">✕</button>
-        </div>
-        
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <button onclick="exportBrief(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Research Design Brief</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For advisor meetings. Summarizes your strategy, toolkit, and key literature.</div>
-            </button>
-            <button onclick="exportAppendix(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Methods Appendix</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For your thesis. Technical reference of your estimators, functional forms, and diagnostics.</div>
-            </button>
-            <button onclick="exportReviewerCard(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Reviewer Reference Card</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">One-page cheat sheet mapping your method assumptions to diagnostic tests.</div>
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-function openExportModal() {
-    document.getElementById('export-format-modal').style.display = 'flex';
-}
-function closeExportModal() {
-    document.getElementById('export-format-modal').style.display = 'none';
+// ── PDF Export Logic ── //
+function _basePrintCSS() {
+    return `<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Georgia', serif; font-size: 11.5pt; line-height: 1.8; color: #000; background: #fff; padding: 54pt 72pt 54pt 100pt; }
+        h1 { font-size: 16pt; font-weight: normal; color: #000; margin-bottom: 4pt; font-style: italic; }
+        h2 { font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; color: #000; font-family: 'Courier New', monospace; font-weight: bold; margin: 22pt 0 8pt; padding-bottom: 3pt; border-bottom: 1pt solid #000; }
+        .meta { font-size: 8.5pt; color: #444; font-family: 'Courier New', monospace; margin-top: 4pt; }
+        .doc-type { font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; font-family: 'Courier New', monospace; color: #000; border: 1pt solid #000; padding: 2pt 8pt; display: inline-block; margin-bottom: 8pt; }
+        @media print { body { padding: 0; } @page { margin: 54pt 72pt 54pt 100pt; size: A4; } }
+    </style>`;
 }
 
-function openExportSubmenuLeft(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    let existing = document.getElementById('export-submenu');
-    if (existing) {
-        existing.remove();
-        return;
+function exportBrief() {
+    const dateStr = new Date().toLocaleDateString('en-US');
+    const html = `<!DOCTYPE html><html><head><title>Research Design Brief</title>${_basePrintCSS()}</head><body>
+        <div class="doc-type">Research Design Brief</div><h1>Econometric Advisor</h1><h2>Strategy & Toolkit Summary</h2>
+        <div class="meta">Generated ${dateStr}</div></body></html>`;
+    const w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(() => w.print(), 400);
+}
+
+function exportAppendix() {
+    const dateStr = new Date().toLocaleDateString('en-US');
+    let checklistHtml = "";
+    const diagMap = { 'd_firststage': 'Report first-stage F-statistic (threshold: F > 10)', 'd_robust': 'Report heteroskedasticity-robust standard errors' };
+    if (typeof _toolkit !== 'undefined' && _toolkit.active) {
+        Object.entries(diagMap).forEach(([tag, desc]) => {
+            const hasTag = _toolkit.active.has ? _toolkit.active.has(tag) : _toolkit.active.includes(tag);
+            if (hasTag) checklistHtml += `<li>${desc}</li>`;
+        });
     }
-    
-    let sub = document.createElement('div');
-    sub.id = 'export-submenu';
-    sub.style.cssText = 'position: absolute; right: 100%; top: 0; background: #0a1d33; border: .5px solid var(--border); border-radius: 10px; padding: 6px; min-width: 180px; z-index: 201; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 4px;';
-    
-    sub.innerHTML = `
-        <button class="hdr-tools-item" onclick="exportBrief()">Research Design Brief</button>
-        <button class="hdr-tools-item" onclick="exportAppendix()">Methods Appendix</button>
-        <button class="hdr-tools-item" onclick="exportReviewerCard()">Reviewer Reference Card</button>
-    `;
-    
-    e.currentTarget.parentElement.appendChild(sub);
+    const html = `<!DOCTYPE html><html><head><title>Methods Appendix</title>${_basePrintCSS()}</head><body>
+        <div class="doc-type">Methods Appendix</div><h1>Econometric Advisor</h1><h2>Methodological Specification</h2>
+        <div class="meta">Generated ${dateStr}</div><ul>${checklistHtml || "<li>No specific diagnostics mapped.</li>"}</ul></body></html>`;
+    const w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(() => w.print(), 400);
 }
 
-// Close dropdowns cleanly
-document.addEventListener('click', function(e) {
-    let sub = document.getElementById('export-submenu');
-    if (sub && !e.target.closest('#export-submenu')) {
-        sub.remove();
-    }
-});
+function exportReviewerCard() {
+    const dateStr = new Date().toLocaleDateString('en-US');
+    const html = `<!DOCTYPE html><html><head><title>Reviewer Reference Card</title>${_basePrintCSS()}</head><body>
+        <div class="doc-type">Reviewer Reference Card</div><h1>Econometric Advisor</h1><h2>Assumptions to Tests Mapping</h2>
+        <div class="meta">Generated ${dateStr}</div></body></html>`;
+    const w = window.open('', '_blank'); w.document.write(html); w.document.close(); setTimeout(() => w.print(), 400);
+}
 </script>
-</body>
 
 <div id="export-format-modal" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;">
     <div class="tour-backdrop" onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.82);backdrop-filter:blur(2px);"></div>
@@ -138,129 +80,21 @@ document.addEventListener('click', function(e) {
             <h4 style="font-size:16px;font-weight:600;color:#fff;margin:0;">Export your log</h4>
             <button onclick="closeExportModal()" style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:16px;">✕</button>
         </div>
-        
         <div style="display:flex;flex-direction:column;gap:12px;">
             <button onclick="exportBrief(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
                 <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Research Design Brief</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For advisor meetings. Summarizes your strategy, toolkit, and key literature.</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For advisor meetings. Summarizes strategy & toolkit.</div>
             </button>
             <button onclick="exportAppendix(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
                 <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Methods Appendix</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For your thesis. Technical reference of your estimators, functional forms, and diagnostics.</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For your thesis. Technical reference of estimators.</div>
             </button>
             <button onclick="exportReviewerCard(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
                 <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Reviewer Reference Card</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">One-page cheat sheet mapping your method assumptions to diagnostic tests.</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.4;">One-page cheat sheet mapping assumptions to tests.</div>
             </button>
         </div>
     </div>
 </div>
-
-<script>
-function openExportModal() {
-    document.getElementById('export-format-modal').style.display = 'flex';
-}
-function closeExportModal() {
-    document.getElementById('export-format-modal').style.display = 'none';
-}
-
-function openExportSubmenuLeft(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    let existing = document.getElementById('export-submenu');
-    if (existing) {
-        existing.remove();
-        return;
-    }
-    
-    let sub = document.createElement('div');
-    sub.id = 'export-submenu';
-    sub.style.cssText = 'position: absolute; right: 100%; top: 0; background: #0a1d33; border: .5px solid var(--border); border-radius: 10px; padding: 6px; min-width: 180px; z-index: 201; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 4px;';
-    
-    sub.innerHTML = `
-        <button class="hdr-tools-item" onclick="exportBrief()">Research Design Brief</button>
-        <button class="hdr-tools-item" onclick="exportAppendix()">Methods Appendix</button>
-        <button class="hdr-tools-item" onclick="exportReviewerCard()">Reviewer Reference Card</button>
-    `;
-    
-    e.currentTarget.parentElement.appendChild(sub);
-}
-
-// Close dropdowns cleanly
-document.addEventListener('click', function(e) {
-    let sub = document.getElementById('export-submenu');
-    if (sub && !e.target.closest('#export-submenu')) {
-        sub.remove();
-    }
-});
-</script>
 </body>
-
-<div id="export-format-modal" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;">
-    <div class="tour-backdrop" onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.82);backdrop-filter:blur(2px);"></div>
-    <div class="tour-card" style="position:relative;background:#0d2240;border:.5px solid rgba(126,182,255,.3);border-radius:14px;padding:24px;width:90%;max-width:450px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:1001;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h4 style="font-size:16px;font-weight:600;color:#fff;margin:0;">Export your log</h4>
-            <button onclick="closeExportModal()" style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:16px;">✕</button>
-        </div>
-        
-        <div style="display:flex;flex-direction:column;gap:12px;">
-            <button onclick="exportBrief(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Research Design Brief</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For advisor meetings. Summarizes your strategy, toolkit, and key literature.</div>
-            </button>
-            <button onclick="exportAppendix(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Methods Appendix</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">For your thesis. Technical reference of your estimators, functional forms, and diagnostics.</div>
-            </button>
-            <button onclick="exportReviewerCard(); closeExportModal();" style="text-align:left;background:#0a1d33;border:.5px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;color:var(--text);transition:border-color .15s;">
-                <div style="font-weight:600;font-size:14px;margin-bottom:4px;">Reviewer Reference Card</div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.4;">One-page cheat sheet mapping your method assumptions to diagnostic tests.</div>
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-function openExportModal() {
-    document.getElementById('export-format-modal').style.display = 'flex';
-}
-function closeExportModal() {
-    document.getElementById('export-format-modal').style.display = 'none';
-}
-
-function openExportSubmenuLeft(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    let existing = document.getElementById('export-submenu');
-    if (existing) {
-        existing.remove();
-        return;
-    }
-    
-    let sub = document.createElement('div');
-    sub.id = 'export-submenu';
-    sub.style.cssText = 'position: absolute; right: 100%; top: 0; background: #0a1d33; border: .5px solid var(--border); border-radius: 10px; padding: 6px; min-width: 180px; z-index: 201; box-shadow: 0 8px 32px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 4px;';
-    
-    sub.innerHTML = `
-        <button class="hdr-tools-item" onclick="exportBrief()">Research Design Brief</button>
-        <button class="hdr-tools-item" onclick="exportAppendix()">Methods Appendix</button>
-        <button class="hdr-tools-item" onclick="exportReviewerCard()">Reviewer Reference Card</button>
-    `;
-    
-    e.currentTarget.parentElement.appendChild(sub);
-}
-
-// Close dropdowns cleanly
-document.addEventListener('click', function(e) {
-    let sub = document.getElementById('export-submenu');
-    if (sub && !e.target.closest('#export-submenu')) {
-        sub.remove();
-    }
-});
-</script>
-</body>
-
 </html>
