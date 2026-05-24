@@ -3485,6 +3485,8 @@ function buildToolkit(a){
   if(isGeo||isSpatial)active.add('p_spatial_dep');
   if(question_type==='causal'||hasNatExp)active.add('p_selection');
   active.add('p_heterosked');
+  if(isPanel||ans.data_structure&&[].concat(ans.data_structure).includes('ts'))active.add('p_serial_corr');
+  if(['env','urban','health','labor'].includes(field)||isPanel)active.add('p_multicollin');
   // Strategic logic nodes (blue)
   if(hasNatExp)active.add('l_natexp');
   if(isPanel||hasNatExp)active.add('l_parallel');
@@ -4127,6 +4129,12 @@ const KG_BLUEPRINT={
     {id:'p_heterosked',label:'Heteroskedasticity',cat:'problem',
      def:'The variance of the error term changes systematically with X or with predicted Y. OLS coefficients remain unbiased and consistent, but the conventional standard errors are wrong — usually too small, leading to over-rejection. Robust (HC) standard errors are the standard fix.',
      example:'Regressing household consumption on income. Wealthier households have much more variable consumption than poor households, so error variance grows with income.'},
+    {id:'p_serial_corr',label:'Serial Correlation',cat:'problem',
+     def:'Error terms are correlated across observations ordered in time or space — u_t is correlated with u_{t-1}. OLS coefficients remain consistent but standard errors are biased downward, often severely, leading to over-rejection. Especially acute in panel data, time series, and repeated cross-sections. Clustered standard errors and wild cluster bootstrap are the standard corrections.',
+     example:'A panel of property transactions across water systems over time. Prices within the same water system are correlated across years because of shared local shocks — school quality changes, infrastructure investment — that persist. Ignoring this leads to spuriously precise estimates of contamination effects.'},
+    {id:'p_multicollin',label:'Multicollinearity',cat:'problem',
+     def:'High correlation among regressors inflates standard errors and makes individual coefficient estimates unstable, even when OLS remains unbiased. In the extreme case of perfect multicollinearity — such as including all categories of a dummy variable alongside a constant (the dummy variable trap) — OLS cannot be estimated at all because the design matrix is singular. The fix is dropping one reference category.',
+     example:'Including dummy variables for all four seasons plus an intercept in a regression. The four dummies sum to 1 in every row, which is identical to the constant column — the matrix is rank-deficient and OLS fails. Dropping one season dummy restores identification.'},
     // STRATEGIC LOGIC (blue)
     {id:'l_natexp',label:'Natural Experiment',cat:'logic',
      def:'A real-world event — policy change, weather shock, lottery — generates as-if-random variation in treatment that the researcher exploits for identification. The randomness substitutes for lab control, providing exogenous variation in conditions where deliberate experimentation is impossible.',
@@ -4231,6 +4239,10 @@ const KG_BLUEPRINT={
     {s:'p_selection',t:'t_rd',label:'is solved by'},
     {s:'p_spatial_dep',t:'t_sar',label:'is solved by'},
     {s:'p_heterosked',t:'d_robust',label:'is corrected by'},
+    {s:'p_serial_corr',t:'d_robust',label:'is corrected by'},
+    {s:'p_serial_corr',t:'d_wildboot',label:'is corrected by'},
+    {s:'p_serial_corr',t:'t_fe',label:'is solved by'},
+    {s:'p_multicollin',t:'t_ols',label:'is corrected by'},
     // Logic → Tools (enables)
     {s:'l_natexp',t:'t_iv',label:'enables'},
     {s:'l_natexp',t:'t_did',label:'enables'},
