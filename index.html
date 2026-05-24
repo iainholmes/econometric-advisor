@@ -5242,7 +5242,7 @@ function onKgNodeClick(nodeId){
   }
 
   // Build trainer URL for this node
-  const _kgMap = { "t_dml": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_cf": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}};
+  const _kgMap = { "t_dml": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_cf": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}, "p_serial_corr": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_multicollin": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "p_heterosked": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "p_endogeneity": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "p_spatial_dep": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_selection": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "p_ovb": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_simultaneity": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}};
   const _trainerMods = _kgMap[nodeId];
   const _trainerLang = codeLang || 'r';
   const _trainerMod = _trainerMods ? (_trainerMods[_trainerLang] || _trainerMods['r']) : null;
@@ -5255,7 +5255,9 @@ function onKgNodeClick(nodeId){
     html+=`<button class="kg-drawer-btn" onclick="closeKgDrawer();scrollAndFlash(${secIdx})">Jump to section in toolkit →</button>`;
   }
   if(_trainerURL){
-    html+=`<a class="kg-drawer-btn" href="${_trainerURL}" target="_blank" rel="noreferrer" style="text-align:center;text-decoration:none;">Practice this in the Trainer →</a>`;
+    var _isProblem = n.cat === 'problem';
+    var _trainerLabel = _isProblem ? 'Practice the correction in the Trainer →' : 'Practice this in the Trainer →';
+    html+=`<a class="kg-drawer-btn" href="${_trainerURL}" target="_blank" rel="noreferrer" style="text-align:center;text-decoration:none;">${_trainerLabel}</a>`;
   }
   html+=`<button class="kg-drawer-btn secondary" onclick="closeKgDrawer()">Close</button></div></div>`;
 
