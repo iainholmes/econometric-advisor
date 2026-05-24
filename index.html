@@ -1440,7 +1440,7 @@ function _ensureToolsMenu(){
   const m=document.createElement('div');
   m.id='hdr-tools-menu';
   m.className='hdr-tools-menu';
-  m.innerHTML=`<button class="hdr-tools-item has-sub" onmouseenter="openExportSubmenu(event)" onclick="openExportSubmenu(event)"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
+  m.innerHTML=`<button class="hdr-tools-item has-sub" onmouseenter="openExportSubmenu(event)" onclick="openExportSubmenu(event);event.stopPropagation()"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
   document.body.appendChild(m);
 }
 function toggleToolsMenu(e){
@@ -6271,9 +6271,13 @@ function _removeExportSubmenu() {
 }
 function openExportSubmenuCard(e) {
   e.stopPropagation();
+  e.preventDefault();
   _removeExportSubmenu();
   var rect = e.currentTarget.getBoundingClientRect();
-  _buildExportSubmenu(rect.left + rect.width/2, rect.top);
+  var x = Math.min(rect.left, window.innerWidth - 220);
+  var y = rect.top - 130;
+  if (y < 10) y = rect.bottom + 8;
+  _buildExportSubmenu(x, y);
 }
 function openExportSubmenu(e) {
   e.stopPropagation();
@@ -6301,8 +6305,9 @@ function _buildExportSubmenu(x, y) {
       <span class="hdr-tools-sub-desc">1 page · For committee reviewers</span>
     </button>`;
   document.body.appendChild(sub);
+  sub.style.position = 'fixed';
   sub.style.top = y + 'px';
-  sub.style.left = x + 'px';
+  sub.style.left = Math.max(4, x) + 'px';
   setTimeout(() => sub.classList.add('open'), 10);
   document.addEventListener('click', function closeSub(ev) {
     if (!sub.contains(ev.target)) { _removeExportSubmenu(); document.removeEventListener('click', closeSub); }
