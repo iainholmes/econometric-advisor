@@ -3647,10 +3647,10 @@ function buildToolkit(a){
     estSta=`reg outcome X1 X2 X3, robust`;
     estPy=`import statsmodels.formula.api as smf\nmod = smf.ols('outcome ~ X1 + X2 + X3', data=df).fit(cov_type='HC3')\nprint(mod.summary())`;
   }
-  sections.push({icon:'f',color:'#7c3aed',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC,kgTags:estTags});
+  sections.push({icon:'f',color:'#7a96ae',label:'Estimator & model specification',method:estM,detail:estD,watch:estW,equation:estEq,codeR:estR,codeStata:estSta,codePython:estPy,conf:estC,kgTags:estTags});
 
   if(isNonLinear){
-    sections.push({icon:'~',color:'#b45309',label:'Functional form',conf:'high',kgTags:['d_ftest'],
+    sections.push({icon:'~',color:'#7a96ae',label:'Functional form',conf:'high',kgTags:['d_ftest'],
       method:'Quadratic Specification / Spline -- Non-Linear Gradient',
       detail:'Include both linear and squared distance terms simultaneously. Test jointly via F-test -- individual t-statistics are unreliable due to structural collinearity. Turning point d* = -beta1/(2*beta2).',
       watch:'Quadratic forces symmetry. Report spline as a robustness check.',
@@ -3661,7 +3661,7 @@ function buildToolkit(a){
   }
 
   if(isPanel&&!isDynamic){
-    sections.push({icon:'#',color:'#0e7490',label:'Panel data structure',conf:'high',kgTags:['t_fe','t_did','d_pretrend'],
+    sections.push({icon:'#',color:'#7a96ae',label:'Panel data structure',conf:'high',kgTags:['t_fe','t_did','d_pretrend'],
       method:"Two-Way Fixed Effects / Callaway-SantAnna / Mundlak CRE",
       detail:'TWFE absorbs time-invariant unit confounders and common time shocks. For staggered treatment, run Bacon decomposition to diagnose TWFE estimand composition.',
       watch:'With staggered adoption, TWFE includes forbidden already-treated comparisons.',
@@ -3672,7 +3672,7 @@ function buildToolkit(a){
   }
 
   if(isGeo||isSpatial){
-    sections.push({icon:'@',color:'#059669',label:'Spatial econometrics',conf:isGeo?'high':'medium',kgTags:['t_sar','d_moran','p_spatial_dep'],
+    sections.push({icon:'@',color:'#7a96ae',label:'Spatial econometrics',conf:isGeo?'high':'medium',kgTags:['t_sar','d_moran','p_spatial_dep'],
       method:"Moran's I -- SAR / SEM / SDM",
       detail:"Test OLS residuals with Moran's I. Robust LM-lag favors SAR; robust LM-error favors SEM. Decompose into direct and indirect spillover effects via LeSage-Pace.",
       watch:"W specification is a modeling assumption -- report sensitivity to alternative W matrices.",
