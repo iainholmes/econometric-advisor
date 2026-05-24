@@ -6398,7 +6398,83 @@ function exportBrief() {
   <h2>Open Questions</h2>
   ${openQHtml}
   <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
-  </body></html>`;
+  
+<div id="master-override-start" style="display:none;"></div>
+<div id="export-format-modal" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;">
+    <div onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.8);backdrop-filter:blur(4px);"></div>
+    <div style="position:relative;background:linear-gradient(135deg,#08192e 0%,#0d2240 100%);border:1px solid rgba(126,182,255,.3);border-radius:12px;padding:24px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:10000;color:white;font-family:sans-serif;">
+        <h3 style="margin-top:0;font-size:14px;color:#7eb6ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Export Options</h3>
+
+        <button onclick="safeExport(exportBrief)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Research Design Brief</strong><br>
+            <span style="font-size:12px;color:#aaa;">For advisor meetings. Summarizes strategy & toolkit.</span>
+        </button>
+
+        <button onclick="safeExport(exportAppendix)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Methods Appendix</strong><br>
+            <span style="font-size:12px;color:#aaa;">For your thesis. Technical reference of estimators.</span>
+        </button>
+
+        <button onclick="safeExport(exportReviewerCard)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:20px;cursor:pointer;color:#fff;">
+            <strong>Reviewer Reference Card</strong><br>
+            <span style="font-size:12px;color:#aaa;">One-page cheat sheet mapping assumptions to tests.</span>
+        </button>
+
+        <button onclick="closeExportModal()" style="width:100%;padding:10px;background:none;border:none;color:#888;cursor:pointer;">Cancel</button>
+    </div>
+</div>
+
+<script>
+// 1. Modal Toggle Logic
+window.openExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'flex';
+};
+window.closeExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'none';
+};
+
+// 2. DOM Hijack: Find the broken buttons and reroute them
+document.addEventListener('DOMContentLoaded', () => {
+    const triggers = document.querySelectorAll('[onclick*="openExportSubmenu"], [onclick*="openExportSubmenuCard"]');
+    triggers.forEach(trigger => {
+        trigger.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof closeToolsMenu === 'function') closeToolsMenu(); 
+            openExportModal();
+        };
+    });
+});
+
+// 3. Fix the Set.includes() Bug Dynamically
+window.safeExport = function(exportFunc) {
+    if (typeof Set !== 'undefined' && !Set.prototype.includes) {
+        Set.prototype.includes = function(val) { return this.has(val); };
+    }
+    try {
+        exportFunc();
+    } catch(e) {
+        console.error("Export failed:", e);
+        alert("Export encountered an error. Please check the developer console.");
+    }
+    closeExportModal();
+};
+
+// 4. Overwrite Print CSS Globally
+window._basePrintCSS = function() {
+    return `
+      @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Georgia', 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.8; color: #000; background: #fff; padding: 54pt 72pt 54pt 100pt; }
+      h1 { font-size: 16pt; font-weight: normal; font-style: italic; margin-bottom: 4pt; }
+      h2 { font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; font-family: 'Courier New', monospace; font-weight: bold; margin: 22pt 0 8pt; border-bottom: 1pt solid #000; }
+      @media print { body { padding: 0; } @page { margin: 54pt 72pt 54pt 100pt; size: A4; } }
+    `;
+};
+</script>
+<div id="master-override-end" style="display:none;"></div>
+
+</body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
@@ -6475,7 +6551,83 @@ function exportAppendix() {
   <table>${checklistHtml || '<tr><td colspan="2" style="padding:10px;color:#64748b;font-style:italic;font-size:13px">No specific diagnostics mapped for current toolkit.</td></tr>'}</table>
   ${narrativeHtml ? `<h2>AI-Calibrated Analysis</h2>${narrativeHtml}` : ''}
   <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
-  </body></html>`;
+  
+<div id="master-override-start" style="display:none;"></div>
+<div id="export-format-modal" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;">
+    <div onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.8);backdrop-filter:blur(4px);"></div>
+    <div style="position:relative;background:linear-gradient(135deg,#08192e 0%,#0d2240 100%);border:1px solid rgba(126,182,255,.3);border-radius:12px;padding:24px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:10000;color:white;font-family:sans-serif;">
+        <h3 style="margin-top:0;font-size:14px;color:#7eb6ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Export Options</h3>
+
+        <button onclick="safeExport(exportBrief)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Research Design Brief</strong><br>
+            <span style="font-size:12px;color:#aaa;">For advisor meetings. Summarizes strategy & toolkit.</span>
+        </button>
+
+        <button onclick="safeExport(exportAppendix)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Methods Appendix</strong><br>
+            <span style="font-size:12px;color:#aaa;">For your thesis. Technical reference of estimators.</span>
+        </button>
+
+        <button onclick="safeExport(exportReviewerCard)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:20px;cursor:pointer;color:#fff;">
+            <strong>Reviewer Reference Card</strong><br>
+            <span style="font-size:12px;color:#aaa;">One-page cheat sheet mapping assumptions to tests.</span>
+        </button>
+
+        <button onclick="closeExportModal()" style="width:100%;padding:10px;background:none;border:none;color:#888;cursor:pointer;">Cancel</button>
+    </div>
+</div>
+
+<script>
+// 1. Modal Toggle Logic
+window.openExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'flex';
+};
+window.closeExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'none';
+};
+
+// 2. DOM Hijack: Find the broken buttons and reroute them
+document.addEventListener('DOMContentLoaded', () => {
+    const triggers = document.querySelectorAll('[onclick*="openExportSubmenu"], [onclick*="openExportSubmenuCard"]');
+    triggers.forEach(trigger => {
+        trigger.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof closeToolsMenu === 'function') closeToolsMenu(); 
+            openExportModal();
+        };
+    });
+});
+
+// 3. Fix the Set.includes() Bug Dynamically
+window.safeExport = function(exportFunc) {
+    if (typeof Set !== 'undefined' && !Set.prototype.includes) {
+        Set.prototype.includes = function(val) { return this.has(val); };
+    }
+    try {
+        exportFunc();
+    } catch(e) {
+        console.error("Export failed:", e);
+        alert("Export encountered an error. Please check the developer console.");
+    }
+    closeExportModal();
+};
+
+// 4. Overwrite Print CSS Globally
+window._basePrintCSS = function() {
+    return `
+      @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Georgia', 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.8; color: #000; background: #fff; padding: 54pt 72pt 54pt 100pt; }
+      h1 { font-size: 16pt; font-weight: normal; font-style: italic; margin-bottom: 4pt; }
+      h2 { font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; font-family: 'Courier New', monospace; font-weight: bold; margin: 22pt 0 8pt; border-bottom: 1pt solid #000; }
+      @media print { body { padding: 0; } @page { margin: 54pt 72pt 54pt 100pt; size: A4; } }
+    `;
+};
+</script>
+<div id="master-override-end" style="display:none;"></div>
+
+</body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
@@ -6554,7 +6706,83 @@ function exportReviewerCard() {
   <p style="font-size:12.5px;color:#334155;line-height:1.8">${allMethods}</p>
   ${ans.context ? `<h2>Study Description</h2><p style="font-size:13px;color:#1e293b;line-height:1.7">${ans.context}</p>` : ''}
   <div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>${dateStr}</span></div>
-  </body></html>`;
+  
+<div id="master-override-start" style="display:none;"></div>
+<div id="export-format-modal" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;">
+    <div onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.8);backdrop-filter:blur(4px);"></div>
+    <div style="position:relative;background:linear-gradient(135deg,#08192e 0%,#0d2240 100%);border:1px solid rgba(126,182,255,.3);border-radius:12px;padding:24px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:10000;color:white;font-family:sans-serif;">
+        <h3 style="margin-top:0;font-size:14px;color:#7eb6ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Export Options</h3>
+
+        <button onclick="safeExport(exportBrief)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Research Design Brief</strong><br>
+            <span style="font-size:12px;color:#aaa;">For advisor meetings. Summarizes strategy & toolkit.</span>
+        </button>
+
+        <button onclick="safeExport(exportAppendix)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Methods Appendix</strong><br>
+            <span style="font-size:12px;color:#aaa;">For your thesis. Technical reference of estimators.</span>
+        </button>
+
+        <button onclick="safeExport(exportReviewerCard)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:20px;cursor:pointer;color:#fff;">
+            <strong>Reviewer Reference Card</strong><br>
+            <span style="font-size:12px;color:#aaa;">One-page cheat sheet mapping assumptions to tests.</span>
+        </button>
+
+        <button onclick="closeExportModal()" style="width:100%;padding:10px;background:none;border:none;color:#888;cursor:pointer;">Cancel</button>
+    </div>
+</div>
+
+<script>
+// 1. Modal Toggle Logic
+window.openExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'flex';
+};
+window.closeExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'none';
+};
+
+// 2. DOM Hijack: Find the broken buttons and reroute them
+document.addEventListener('DOMContentLoaded', () => {
+    const triggers = document.querySelectorAll('[onclick*="openExportSubmenu"], [onclick*="openExportSubmenuCard"]');
+    triggers.forEach(trigger => {
+        trigger.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof closeToolsMenu === 'function') closeToolsMenu(); 
+            openExportModal();
+        };
+    });
+});
+
+// 3. Fix the Set.includes() Bug Dynamically
+window.safeExport = function(exportFunc) {
+    if (typeof Set !== 'undefined' && !Set.prototype.includes) {
+        Set.prototype.includes = function(val) { return this.has(val); };
+    }
+    try {
+        exportFunc();
+    } catch(e) {
+        console.error("Export failed:", e);
+        alert("Export encountered an error. Please check the developer console.");
+    }
+    closeExportModal();
+};
+
+// 4. Overwrite Print CSS Globally
+window._basePrintCSS = function() {
+    return `
+      @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Georgia', 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.8; color: #000; background: #fff; padding: 54pt 72pt 54pt 100pt; }
+      h1 { font-size: 16pt; font-weight: normal; font-style: italic; margin-bottom: 4pt; }
+      h2 { font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; font-family: 'Courier New', monospace; font-weight: bold; margin: 22pt 0 8pt; border-bottom: 1pt solid #000; }
+      @media print { body { padding: 0; } @page { margin: 54pt 72pt 54pt 100pt; size: A4; } }
+    `;
+};
+</script>
+<div id="master-override-end" style="display:none;"></div>
+
+</body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
@@ -6919,5 +7147,81 @@ document.addEventListener('keydown', function(e) {
     </div>
   </div>
 </div>
+
+<div id="master-override-start" style="display:none;"></div>
+<div id="export-format-modal" style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;">
+    <div onclick="closeExportModal()" style="position:absolute;inset:0;background:rgba(2,14,31,.8);backdrop-filter:blur(4px);"></div>
+    <div style="position:relative;background:linear-gradient(135deg,#08192e 0%,#0d2240 100%);border:1px solid rgba(126,182,255,.3);border-radius:12px;padding:24px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:10000;color:white;font-family:sans-serif;">
+        <h3 style="margin-top:0;font-size:14px;color:#7eb6ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Export Options</h3>
+
+        <button onclick="safeExport(exportBrief)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Research Design Brief</strong><br>
+            <span style="font-size:12px;color:#aaa;">For advisor meetings. Summarizes strategy & toolkit.</span>
+        </button>
+
+        <button onclick="safeExport(exportAppendix)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;color:#fff;">
+            <strong>Methods Appendix</strong><br>
+            <span style="font-size:12px;color:#aaa;">For your thesis. Technical reference of estimators.</span>
+        </button>
+
+        <button onclick="safeExport(exportReviewerCard)" style="display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px;border-radius:8px;margin-bottom:20px;cursor:pointer;color:#fff;">
+            <strong>Reviewer Reference Card</strong><br>
+            <span style="font-size:12px;color:#aaa;">One-page cheat sheet mapping assumptions to tests.</span>
+        </button>
+
+        <button onclick="closeExportModal()" style="width:100%;padding:10px;background:none;border:none;color:#888;cursor:pointer;">Cancel</button>
+    </div>
+</div>
+
+<script>
+// 1. Modal Toggle Logic
+window.openExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'flex';
+};
+window.closeExportModal = function() {
+    document.getElementById('export-format-modal').style.display = 'none';
+};
+
+// 2. DOM Hijack: Find the broken buttons and reroute them
+document.addEventListener('DOMContentLoaded', () => {
+    const triggers = document.querySelectorAll('[onclick*="openExportSubmenu"], [onclick*="openExportSubmenuCard"]');
+    triggers.forEach(trigger => {
+        trigger.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof closeToolsMenu === 'function') closeToolsMenu(); 
+            openExportModal();
+        };
+    });
+});
+
+// 3. Fix the Set.includes() Bug Dynamically
+window.safeExport = function(exportFunc) {
+    if (typeof Set !== 'undefined' && !Set.prototype.includes) {
+        Set.prototype.includes = function(val) { return this.has(val); };
+    }
+    try {
+        exportFunc();
+    } catch(e) {
+        console.error("Export failed:", e);
+        alert("Export encountered an error. Please check the developer console.");
+    }
+    closeExportModal();
+};
+
+// 4. Overwrite Print CSS Globally
+window._basePrintCSS = function() {
+    return `
+      @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Georgia', 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.8; color: #000; background: #fff; padding: 54pt 72pt 54pt 100pt; }
+      h1 { font-size: 16pt; font-weight: normal; font-style: italic; margin-bottom: 4pt; }
+      h2 { font-size: 8.5pt; letter-spacing: .22em; text-transform: uppercase; font-family: 'Courier New', monospace; font-weight: bold; margin: 22pt 0 8pt; border-bottom: 1pt solid #000; }
+      @media print { body { padding: 0; } @page { margin: 54pt 72pt 54pt 100pt; size: A4; } }
+    `;
+};
+</script>
+<div id="master-override-end" style="display:none;"></div>
+
 </body>
 </html>
