@@ -6205,9 +6205,9 @@ function qstOpenSection(e, kgTag, secIdx) {
   e.preventDefault();
   var lang = codeLang || 'r';
   var map = {
-    'r':      {'t_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd','t_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts'},
-    'python': {'t_ols':'py_ols','t_iv':'py_iv','t_did':'py_did','t_rd':'py_rd','t_fe':'py_panel','t_sar':'py_panel','t_scm':'py_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'py_ts'},
-    'stata':  {'t_ols':'st_ols','t_iv':'st_iv','t_did':'st_did','t_rd':'st_rd','t_fe':'st_panel','t_sar':'st_panel','t_scm':'st_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'st_ts'}
+    'r':      {'t_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd','t_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts','p_serial_corr':'r_panel','p_multicollin':'r_ols'},
+    'python': {'t_ols':'py_ols','t_iv':'py_iv','t_did':'py_did','t_rd':'py_rd','t_fe':'py_panel','t_sar':'py_panel','t_scm':'py_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'py_ts','p_serial_corr':'py_panel','p_multicollin':'py_ols'},
+    'stata':  {'t_ols':'st_ols','t_iv':'st_iv','t_did':'st_did','t_rd':'st_rd','t_fe':'st_panel','t_sar':'st_panel','t_scm':'st_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'st_ts','p_serial_corr':'st_panel','p_multicollin':'st_ols'}
   };
   var langMap = map[lang] || map['r'];
   var mod = langMap[kgTag] || 'r_ols';
@@ -6227,7 +6227,9 @@ function qstOpenLang(e, lang) {
     't_logit':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
     't_poisson':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
     't_tobit':{'r':'glm_bridge','python':'glm_bridge','stata':'glm_bridge'},
-    't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'}
+    't_cox':{'r':'r_ts','python':'py_ts','stata':'st_ts'},
+    'p_serial_corr':{'r':'r_panel','python':'py_panel','stata':'st_panel'},
+    'p_multicollin':{'r':'r_ols','python':'py_ols','stata':'st_ols'}
   };
   // Find best tag — prioritize GLM tags since they need special routing
   var firstTag = 't_ols';
