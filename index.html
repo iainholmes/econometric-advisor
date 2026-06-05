@@ -4070,17 +4070,24 @@ function renderResults(tk,ai){
     // KNOWLEDGE GRAPH (replaces tree)  // KNOWLEDGE GRAPH (replaces tree)
   // Paper profile card
   html+=`<div class="paper-upload-card" id="paper-profile-card">
-    <div class="paper-upload-card-title">▲ Map a paper to this architecture</div>
-    <div class="paper-upload-card-sub">Select the methods used in a specific paper. The Advisor will trace that paper's identification architecture on the Knowledge Graph — filtered through your research design — so you can compare approaches.</div>
-    <input class="paper-cite-input" id="paper-cite-input" type="text" placeholder="Citation — e.g. Marcus & Mueller (2024), JEEM — PFAS NJ Hedonics">
-    <div class="paper-node-grid" id="paper-node-grid"></div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <button class="paper-trace-btn" id="paper-trace-btn" onclick="applyPaperTrace()" disabled>Trace this paper on the KG →</button>
-      <span id="paper-trace-status" style="font-size:11.5px;color:var(--muted);font-family:var(--mono)"></span>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+      <div class="paper-upload-card-title">▲ Map papers to this architecture</div>
+      <button onclick="openAddPaperForm()" id="add-paper-btn" style="background:#f59e0b;color:#0a0a0a;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;white-space:nowrap;flex-shrink:0;">+ Add paper</button>
+    </div>
+    <div class="paper-upload-card-sub">Map one or more papers to the Knowledge Graph and compare their identification architectures against your design. Use the Diff view on the KG to see where each paper overlaps with or diverges from your approach.</div>
+    <div id="paper-library-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <div id="add-paper-form" style="display:none;background:#020e1f;border:.5px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">New paper</div>
+      <input class="paper-cite-input" id="paper-cite-input" type="text" placeholder="Citation — e.g. Marcus &amp; Mueller (2024), JEEM — PFAS NJ Hedonics">
+      <div class="paper-node-grid" id="paper-node-grid"></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px;">
+        <button class="paper-trace-btn" id="paper-trace-btn" onclick="applyPaperTrace()" disabled>Save &amp; trace on KG →</button>
+        <button onclick="closeAddPaperForm()" style="background:transparent;border:.5px solid var(--border);border-radius:6px;padding:9px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);">Cancel</button>
+      </div>
     </div>
     <div id="paper-trace-active-bar" style="display:none" class="paper-trace-active">
-      <span class="paper-trace-active-label" id="paper-trace-active-label"></span>
-      <button class="paper-trace-clear" onclick="clearPaperTrace()">Clear</button>
+      <span class="paper-trace-active-label" id="paper-trace-active-label">Viewing: </span>
+      <button class="paper-trace-clear" onclick="clearActivePaperTrace()">Reset to My Design</button>
     </div>
   </div>`;
   html+=`</div>`; // close methods tab panel
@@ -6596,6 +6603,114 @@ li { margin-bottom: 4px; font-size: 12.5px; }
 }
 
 
+function exportComparative(u) {
+  u = u || {};
+  var { dateStr, _decode } = _exportBase();
+  if (_paperLibrary.length === 0) { alert('No papers in library. Add papers in the Methods tab first.'); return; }
+
+  // Node label lookup
+  var nodeLabels = {};
+  Object.values(_PAPER_NODES).forEach(function(arr) {
+    arr.forEach(function(n) { nodeLabels[n.id] = n.label; });
+  });
+  var catLabels = {problem:'Problems',logic:'Strategic Logic',tool:'Tools / Estimators',diag:'Diagnostics'};
+  var catColors = {problem:'#b91c1c',logic:'#1d4ed8',tool:'#047857',diag:'#b45309'};
+
+  function getNodeCat(id) {
+    var found = null;
+    Object.entries(_PAPER_NODES).forEach(function(entry) {
+      entry[1].forEach(function(n) { if (n.id === id) found = entry[0]; });
+    });
+    return found;
+  }
+
+  function diffSection(paper, overlapNote, gapNote, beyondNote) {
+    var overlap = [], paperOnly = [], myOnly = [];
+    var allIds = new Set([...Array.from(_kgActive || new Set()), ...Array.from(paper.nodes)]);
+    allIds.forEach(function(id) {
+      var inMy = _kgActive && _kgActive.has(id);
+      var inPaper = paper.nodes.has(id);
+      if (inMy && inPaper) overlap.push(id);
+      else if (inPaper) paperOnly.push(id);
+      else if (inMy) myOnly.push(id);
+    });
+
+    function nodeRow(id, color) {
+      var cat = getNodeCat(id);
+      var mono = "Courier New, monospace";
+      return '<tr><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;font-size:11px;color:' + (catColors[cat]||'#555') + ';font-family:' + mono + ';white-space:nowrap">' + (catLabels[cat]||cat) + '</td><td style="padding:5px 8px;border-bottom:.5px solid #e8e8e8;font-size:12.5px;font-weight:500;color:#111">' + (nodeLabels[id]||id) + '</td></tr>';
+    }
+
+    var html = '<div class="method-block" style="margin-bottom:24px;">';
+    html += '<div class="method-label">Compared against</div>';
+    html += '<div class="method-name">' + paper.cite + '</div>';
+
+    if (overlap.length) {
+      html += '<h2 style="color:#047857;border-bottom-color:#047857;">Methodological common ground</h2>';
+      html += '<table><thead><tr><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Category</th><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Element</th></tr></thead><tbody>' + overlap.map(function(id){ return nodeRow(id,'#047857'); }).join('') + '</tbody></table>';
+      if (overlapNote) html += '<p style="margin-top:10px;font-style:italic;color:#333;border-left:2px solid #10b981;padding-left:10px;font-size:12px">' + overlapNote + '</p>';
+    }
+
+    if (paperOnly.length) {
+      html += '<h2 style="color:#b45309;border-bottom-color:#b45309;margin-top:20px;">Paper uses — your design does not yet</h2>';
+      html += '<table><thead><tr><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Category</th><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Element</th></tr></thead><tbody>' + paperOnly.map(function(id){ return nodeRow(id,'#b45309'); }).join('') + '</tbody></table>';
+      if (gapNote) html += '<p style="margin-top:10px;font-style:italic;color:#333;border-left:2px solid #f59e0b;padding-left:10px;font-size:12px">' + gapNote + '</p>';
+    }
+
+    if (myOnly.length) {
+      html += '<h2 style="color:#1d4ed8;border-bottom-color:#1d4ed8;margin-top:20px;">Your design goes further</h2>';
+      html += '<table><thead><tr><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Category</th><th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Element</th></tr></thead><tbody>' + myOnly.map(function(id){ return nodeRow(id,'#1d4ed8'); }).join('') + '</tbody></table>';
+      if (beyondNote) html += '<p style="margin-top:10px;font-style:italic;color:#333;border-left:2px solid #3b82f6;padding-left:10px;font-size:12px">' + beyondNote + '</p>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  var comparisonSections = _paperLibrary.map(function(paper, i) {
+    return diffSection(
+      paper,
+      u['overlap_' + i] || '',
+      u['gap_' + i] || '',
+      u['beyond_' + i] || ''
+    );
+  }).join('');
+
+  // Sidebar — paper list
+  var sidebarPapers = _paperLibrary.map(function(p) {
+    return '<div class="sidebar-section"><span class="sidebar-label">Paper ' + (_paperLibrary.indexOf(p)+1) + '</span><span class="sidebar-value">' + p.cite + '</span></div>';
+  }).join('<hr class="sidebar-rule">');
+
+  var sidebar = '<span class="sidebar-logo">Econometric Advisor</span>' +
+    (u.studytitle ? '<div class="sidebar-section"><span class="sidebar-label">Study</span><span class="sidebar-value">' + u.studytitle + '</span></div><hr class="sidebar-rule">' : '') +
+    (u.author ? '<div class="sidebar-section"><span class="sidebar-label">Researcher</span><span class="sidebar-value">' + u.author + (u.institution ? '<br><span style="color:#888">' + u.institution + '</span>' : '') + '</span></div>' : '') +
+    (u.advisor ? '<div class="sidebar-section"><span class="sidebar-label">Advisor</span><span class="sidebar-value">' + u.advisor + '</span></div>' : '') +
+    '<hr class="sidebar-rule"><div class="sidebar-section"><span class="sidebar-label">Papers compared</span></div>' +
+    sidebarPapers +
+    '<hr class="sidebar-rule"><div class="sidebar-section"><span class="sidebar-label">Legend</span>' +
+    '<span class="sidebar-value" style="line-height:2">' +
+    '<span style="color:#047857">&#9632;</span> Both designs<br>' +
+    '<span style="color:#b45309">&#9632;</span> Paper only<br>' +
+    '<span style="color:#1d4ed8">&#9632;</span> Your design only</span></div></div>';
+
+  var docHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Comparative Design Analysis</title><style>' + _basePrintCSS() + '</style></head><body>' +
+    '<div class="sidebar">' + sidebar + '</div>' +
+    '<div class="main">' +
+    '<span class="doc-eyebrow">Comparative Design Analysis</span>' +
+    '<h1>' + (u.studytitle || 'Comparative Design Analysis') + '</h1>' +
+    '<div class="doc-meta">Generated ' + (u.date || dateStr) + ' &nbsp;·&nbsp; ' + _paperLibrary.length + ' paper' + (_paperLibrary.length > 1 ? 's' : '') + ' compared</div>' +
+    comparisonSections +
+    (u.synthesis ? '<h2 style="margin-top:28px;">Cross-paper synthesis</h2><p style="border-left:2px solid #333;padding-left:14px;font-style:italic;color:#222;line-height:1.8">' + u.synthesis + '</p>' : '') +
+    '</div>' +
+    '<div class="footer"><span>Econometric Advisor — iainholmes.github.io/econometric-advisor</span><span>' + (u.date || dateStr) + '</span></div>' +
+    '</body></html>';
+
+  var w = window.open('', '_blank');
+  w.document.write(docHtml);
+  w.document.close();
+  setTimeout(function() { w.print(); }, 600);
+}
+
 function exportBrief(u) {
   u = u || {};
   const { dateStr, _decode } = _exportBase();
@@ -6669,15 +6784,15 @@ function exportBrief(u) {
     <div class="doc-meta">Generated ${u.date || dateStr}${u.meeting ? ' &nbsp;·&nbsp; ' + u.meeting : ''}</div>
     <h2>Research Design Decisions</h2>
     <table><thead><tr>
-      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Question</th>
-      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Answer</th>
-      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Implication</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Question</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Answer</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Implication</th>
     </tr></thead><tbody>${decisionRows}</tbody></table>
     <h2>Key Assumptions to Justify</h2>
     <table><thead><tr>
       <th style="padding:5px 8px;border-bottom:1px solid #bbb;width:20px"></th>
-      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Assumption</th>
-      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:'Courier New',monospace">Method</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Assumption</th>
+      <th style="text-align:left;padding:5px 8px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#777;border-bottom:1px solid #bbb;font-family:monospace">Method</th>
     </tr></thead><tbody>${assumptionRows || '<tr><td colspan="3" style="padding:8px;font-style:italic;color:#777;font-size:12px">No specific assumptions mapped for current toolkit.</td></tr>'}</tbody></table>
     <h2>Open Questions</h2>
     ${openQHtml}
@@ -6843,8 +6958,11 @@ function exportReviewerCard(u) {
 }
 
 // ── Paper Profile & KG Trace ─────────────────────────────────────────────────
-var _paperProfile = null;
+// Multi-paper library — replaces single _paperProfile
+var _paperLibrary = []; // array of {id, cite, nodes: Set}
+var _activePaperId = null; // which paper is currently traced on KG
 var _kgTraceMode = 'mydesign';
+var _kgActive = _kgActive || new Set();
 
 var _PAPER_NODES = {
   problem: [
@@ -6896,6 +7014,64 @@ var _PAPER_NODES = {
 var _catLabels = {problem:'Problems',logic:'Strategic Logic',tool:'Tools / Estimators',diag:'Diagnostics'};
 var _catColors = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
 
+// ── Library persistence ───────────────────────────────────────────────────────
+function _saveLibrary() {
+  try {
+    var serialized = _paperLibrary.map(function(p) {
+      return {id: p.id, cite: p.cite, nodes: Array.from(p.nodes)};
+    });
+    localStorage.setItem('qst_paper_library_v1', JSON.stringify(serialized));
+  } catch(e) {}
+}
+function _loadLibrary() {
+  try {
+    var saved = localStorage.getItem('qst_paper_library_v1');
+    if (!saved) return;
+    var arr = JSON.parse(saved);
+    _paperLibrary = arr.map(function(p) {
+      return {id: p.id, cite: p.cite, nodes: new Set(p.nodes)};
+    });
+  } catch(e) {}
+}
+
+// ── Library UI ────────────────────────────────────────────────────────────────
+function renderPaperLibraryList() {
+  var list = document.getElementById('paper-library-list');
+  if (!list) return;
+  if (_paperLibrary.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--hint);font-family:var(--mono);padding:4px 0;">No papers added yet. Click "+ Add paper" to map a paper to this architecture.</div>';
+    return;
+  }
+  list.innerHTML = _paperLibrary.map(function(p, i) {
+    var isActive = p.id === _activePaperId;
+    return '<div style="display:flex;align-items:center;gap:10px;background:' + (isActive ? '#f59e0b18' : '#020e1f') + ';border:.5px solid ' + (isActive ? '#f59e0b66' : 'var(--border)') + ';border-left:3px solid ' + (isActive ? '#f59e0b' : 'var(--border)') + ';border-radius:8px;padding:10px 14px;">' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="font-size:12.5px;font-weight:600;color:' + (isActive ? '#f59e0b' : 'var(--text)') + ';font-family:var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.cite + '</div>' +
+      '<div style="font-size:11px;color:var(--hint);font-family:var(--mono);margin-top:3px;">' + p.nodes.size + ' nodes mapped</div>' +
+      '</div>' +
+      '<button onclick="traceLibraryPaper(&quot;' + p.id + '&quot;)" style="background:' + (isActive ? '#f59e0b' : 'transparent') + ';color:' + (isActive ? '#0a0a0a' : 'var(--muted)') + ';border:.5px solid ' + (isActive ? '#f59e0b' : 'var(--border)') + ';border-radius:5px;padding:5px 11px;font-size:11px;cursor:pointer;font-family:var(--mono);white-space:nowrap;">' + (isActive ? 'Active' : 'Trace') + '</button>' +
+      '<button onclick="removePaperFromLibrary(&quot;' + p.id + '&quot;)" style="background:transparent;border:none;color:var(--hint);font-size:15px;cursor:pointer;padding:2px 4px;line-height:1;" title="Remove">×</button>' +
+      '</div>';
+  }).join('');
+}
+
+function openAddPaperForm() {
+  var form = document.getElementById('add-paper-form');
+  if (form) form.style.display = 'block';
+  var cite = document.getElementById('paper-cite-input');
+  if (cite) { cite.value = ''; cite.focus(); }
+  // Reset checkboxes
+  var checks = document.querySelectorAll('#paper-node-grid input[type=checkbox]');
+  checks.forEach(function(cb) { cb.checked = false; });
+  var btn = document.getElementById('paper-trace-btn');
+  if (btn) btn.disabled = true;
+}
+
+function closeAddPaperForm() {
+  var form = document.getElementById('add-paper-form');
+  if (form) form.style.display = 'none';
+}
+
 function initPaperNodeGrid() {
   var grid = document.getElementById('paper-node-grid');
   if (!grid) return;
@@ -6926,45 +7102,78 @@ function applyPaperTrace() {
   var nodes = [];
   checked.forEach(function(cb) { nodes.push(cb.value); });
   if (nodes.length === 0) return;
-  _paperProfile = { cite: citeVal, nodes: new Set(nodes) };
-  try {
-    localStorage.setItem('qst_paper_profile_v1', JSON.stringify({cite: citeVal, nodes: nodes, timestamp: Date.now()}));
-  } catch(e) {}
+  var id = 'paper_' + Date.now();
+  var paper = {id: id, cite: citeVal, nodes: new Set(nodes)};
+  _paperLibrary.push(paper);
+  _saveLibrary();
+  closeAddPaperForm();
+  renderPaperLibraryList();
+  // Auto-trace the newly added paper
+  traceLibraryPaper(id);
+  // Update export modal availability
+  _updateComparativeAvailability();
+}
+
+function removePaperFromLibrary(id) {
+  _paperLibrary = _paperLibrary.filter(function(p) { return p.id !== id; });
+  _saveLibrary();
+  if (_activePaperId === id) {
+    _activePaperId = null;
+    clearActivePaperTrace();
+  }
+  renderPaperLibraryList();
+  _updateComparativeAvailability();
+}
+
+function traceLibraryPaper(id) {
+  var paper = _paperLibrary.find(function(p) { return p.id === id; });
+  if (!paper) return;
+  _activePaperId = id;
+  renderPaperLibraryList();
+  // Show active bar
+  var bar = document.getElementById('paper-trace-active-bar');
+  var lbl = document.getElementById('paper-trace-active-label');
+  if (bar) bar.style.display = 'flex';
+  if (lbl) lbl.textContent = 'Viewing: ' + paper.cite;
+  // Switch to KG and trace
   switchTab('graph');
   setTimeout(function() {
     var toggle = document.getElementById('kg-trace-toggle');
     if (toggle) toggle.style.display = 'flex';
-    setKgTraceMode('paper');
-    var bar = document.getElementById('paper-trace-active-bar');
-    var lbl = document.getElementById('paper-trace-active-label');
-    if (bar) bar.style.display = 'flex';
-    if (lbl) lbl.textContent = citeVal;
+    _kgTraceMode = 'paper';
+    setKgTraceModeBtn('paper');
+    resetKgColors();
+    revealKgPathColors(paper.nodes, true);
   }, 100);
 }
 
-function clearPaperTrace() {
-  _paperProfile = null;
+function clearActivePaperTrace() {
+  _activePaperId = null;
   _kgTraceMode = 'mydesign';
-  try { localStorage.removeItem('qst_paper_profile_v1'); } catch(e) {}
   var bar = document.getElementById('paper-trace-active-bar');
   if (bar) bar.style.display = 'none';
   var toggle = document.getElementById('kg-trace-toggle');
-  if (toggle) toggle.style.display = 'none';
+  if (toggle) toggle.style.display = _paperLibrary.length > 0 ? 'flex' : 'none';
   if (_kgRevealed) { resetKgColors(); revealKgPathColors(_kgActive); }
   setKgTraceModeBtn('mydesign');
+  renderPaperLibraryList();
 }
+
+// Keep old name for backward compat
+function clearPaperTrace() { clearActivePaperTrace(); }
 
 function setKgTraceMode(mode) {
   _kgTraceMode = mode;
   setKgTraceModeBtn(mode);
   if (!_kgRevealed) { revealKgPath(); return; }
   resetKgColors();
+  var activePaper = _paperLibrary.find(function(p) { return p.id === _activePaperId; });
   if (mode === 'mydesign') {
     revealKgPathColors(_kgActive);
-  } else if (mode === 'paper' && _paperProfile) {
-    revealKgPathColors(_paperProfile.nodes, true);
-  } else if (mode === 'diff' && _paperProfile) {
-    applyDiffColors();
+  } else if (mode === 'paper' && activePaper) {
+    revealKgPathColors(activePaper.nodes, true);
+  } else if (mode === 'diff' && activePaper) {
+    applyDiffColors(activePaper.nodes);
   }
 }
 
@@ -6978,6 +7187,7 @@ function setKgTraceModeBtn(mode) {
 }
 
 function resetKgColors() {
+  if (typeof KG_BLUEPRINT === 'undefined') return;
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var g = d3.select('#kgn-' + n.id);
     g.select('rect').transition().duration(300)
@@ -6993,6 +7203,7 @@ function resetKgColors() {
 }
 
 function revealKgPathColors(activeSet, isPaper) {
+  if (typeof KG_BLUEPRINT === 'undefined') return;
   var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   var paperColor = '#f59e0b';
   KG_BLUEPRINT.nodes.forEach(function(n) {
@@ -7015,12 +7226,12 @@ function revealKgPathColors(activeSet, isPaper) {
   });
 }
 
-function applyDiffColors() {
-  if (!_paperProfile) return;
+function applyDiffColors(paperNodes) {
+  if (!paperNodes || typeof KG_BLUEPRINT === 'undefined') return;
   var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var inMy = _kgActive && _kgActive.has(n.id);
-    var inPaper = _paperProfile.nodes.has(n.id);
+    var inPaper = paperNodes.has(n.id);
     var g = d3.select('#kgn-' + n.id);
     if (inMy && inPaper) {
       g.select('rect').transition().duration(500)
@@ -7043,6 +7254,7 @@ function applyDiffColors() {
 }
 
 function addNodeRings() {
+  if (typeof KG_BLUEPRINT === 'undefined') return;
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var g = d3.select('#kgn-' + n.id);
     if (g.select('.kg-node-paper-ring').empty()) {
@@ -7056,27 +7268,23 @@ function addNodeRings() {
 }
 
 function restorePaperProfile() {
-  try {
-    var saved = localStorage.getItem('qst_paper_profile_v1');
-    if (!saved) return;
-    var p = JSON.parse(saved);
-    if (!p || !p.nodes || !p.cite) return;
-    _paperProfile = { cite: p.cite, nodes: new Set(p.nodes) };
-    p.nodes.forEach(function(id) {
-      var cb = document.getElementById('pn-' + id);
-      if (cb) cb.checked = true;
-    });
-    var cite = document.getElementById('paper-cite-input');
-    if (cite) cite.value = p.cite;
-    var btn = document.getElementById('paper-trace-btn');
-    if (btn) btn.disabled = false;
-    var bar = document.getElementById('paper-trace-active-bar');
-    var lbl = document.getElementById('paper-trace-active-label');
-    if (bar) bar.style.display = 'flex';
-    if (lbl) lbl.textContent = p.cite;
+  _loadLibrary();
+  renderPaperLibraryList();
+  _updateComparativeAvailability();
+  // Restore KG toggle if library has papers
+  if (_paperLibrary.length > 0) {
     var toggle = document.getElementById('kg-trace-toggle');
     if (toggle) toggle.style.display = 'flex';
-  } catch(e) {}
+  }
+}
+
+function _updateComparativeAvailability() {
+  // Called after library changes — updates the export modal if it's open
+  var btn = document.getElementById('export-comparative-btn');
+  if (!btn) return;
+  var hasPapers = _paperLibrary.length > 0;
+  btn.disabled = !hasPapers;
+  btn.title = hasPapers ? '' : 'Add at least one paper in the Methods tab first';
 }
 
 // Auto-init if renderResults already ran
@@ -7135,14 +7343,22 @@ function _renderExportModal() {
     var formats = [
       { id:'brief', icon:'◈', label:'Research Design Brief', desc:'A structured decision log for advisor meetings. Covers identification strategy, key assumptions, open questions, and implications of each design choice. 2-3 pages.', audience:'For: Advisor & committee meetings' },
       { id:'appendix', icon:'≡', label:'Methods Appendix', desc:'Full technical specification of your econometric architecture. Covers estimators, diagnostics, confidence levels, and complete assumption inventory. For thesis appendix.', audience:'For: Thesis appendix / replication package' },
-      { id:'reviewer', icon:'⊡', label:'Reviewer Reference Card', desc:'A compact methodological reference for committee members. Covers identification strategy, estimator, key assumptions to verify, and required diagnostics.', audience:'For: Committee reviewers' }
+      { id:'reviewer', icon:'⊡', label:'Reviewer Reference Card', desc:'A compact methodological reference for committee members. Covers identification strategy, estimator, key assumptions to verify, and required diagnostics.', audience:'For: Committee reviewers' },
+      { id:'comparative', icon:'⇌', label:'Comparative Design Analysis', desc:'A structured comparison of your identification architecture against one or more mapped papers. Shows methodological overlap, gaps, and your unique contributions. Available once papers are mapped in the Methods tab.', audience:'For: Literature positioning / advisor meetings' }
     ];
     var rows = formats.map(function(f) {
       var btn = document.createElement('button');
       btn.style.cssText = 'background:#0d2035;border:.5px solid var(--border);border-radius:10px;padding:16px 18px;text-align:left;cursor:pointer;font-family:inherit;width:100%;display:block;';
       btn.onmouseover = function(){ this.style.borderColor='var(--surface)'; this.style.background='#0f2540'; };
       btn.onmouseout  = function(){ this.style.borderColor='var(--border)';  this.style.background='#0d2035'; };
-      btn.onclick = function(){ _selectExportFormat(f.id); };
+      var isLocked = (f.id === 'comparative' && _paperLibrary.length === 0);
+      btn.disabled = isLocked;
+      if (isLocked) {
+        btn.style.opacity = '0.45';
+        btn.style.cursor = 'not-allowed';
+        btn.title = 'Add at least one paper in the Methods tab first';
+      }
+      btn.onclick = isLocked ? null : function(){ _selectExportFormat(f.id); };
       btn.innerHTML =
         '<div style="display:flex;align-items:flex-start;gap:14px;">' +
         '<span style="font-size:18px;color:var(--text2);flex-shrink:0;margin-top:2px">' + f.icon + '</span>' +
@@ -7164,7 +7380,8 @@ function _renderExportModal() {
     var fmtMeta = {
       brief:    { label:'Research Design Brief',    desc:'Confirm details for your advisor meeting document.' },
       appendix: { label:'Methods Appendix',         desc:'Confirm details for your thesis appendix.' },
-      reviewer: { label:'Reviewer Reference Card',  desc:'Confirm details for your committee reviewer document.' }
+      reviewer: { label:'Reviewer Reference Card',  desc:'Confirm details for your committee reviewer document.' },
+      comparative: { label:'Comparative Design Analysis', desc:'Add context for each paper comparison and a synthesis note.' }
     };
     var meta = fmtMeta[_exportModalFormat];
     title.textContent = meta.label;
@@ -7238,6 +7455,17 @@ function _getExportFields(fmt) {
     { id:'version', label:'Document version', placeholder:'e.g. Draft v1 — May 2026' },
     { id:'note', label:'Author note (optional)', placeholder:'e.g. Prepared for thesis committee review', full:true },
   ]);
+  if (fmt === 'comparative') {
+    var paperFields = [];
+    _paperLibrary.forEach(function(p, i) {
+      paperFields.push({ id:'overlap_' + i, label:'Overlap with ' + p.cite + ' — your interpretation', placeholder:'e.g. Both studies exploit a natural experiment in contamination exposure...', full:true, type:'textarea' });
+      paperFields.push({ id:'gap_' + i, label:'Where you diverge from ' + p.cite + ' — and why', placeholder:'e.g. They use DiD on NJ data; I use spatial IV because NC disclosure events are not sharp...', full:true, type:'textarea' });
+      paperFields.push({ id:'beyond_' + i, label:'What your design adds beyond ' + p.cite, placeholder:'e.g. Cross-validation with hedonic pricing provides revealed preference anchor...', full:true, type:'textarea' });
+    });
+    return common.concat(paperFields).concat([
+      { id:'synthesis', label:'Cross-paper synthesis — what the literature together implies for your design', placeholder:'e.g. Marcus & Mueller establish the housing price mechanism; Dias et al. provide the water-pathway IV logic. Together they bracket the two viable identification strategies for NC PFAS...', full:true, type:'textarea' }
+    ]);
+  }
   if (fmt === 'reviewer') return common.concat([
     { id:'advisor', label:'Thesis advisor', placeholder:'e.g. Dr. Zachery Brown' },
     { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
@@ -7267,6 +7495,7 @@ function _generateFromModal() {
   if (_exportModalFormat === 'brief') exportBrief(u);
   else if (_exportModalFormat === 'appendix') exportAppendix(u);
   else if (_exportModalFormat === 'reviewer') exportReviewerCard(u);
+  else if (_exportModalFormat === 'comparative') exportComparative(u);
 }
 document.addEventListener('keydown', function(e) {
   var modal = document.getElementById('export-modal');
