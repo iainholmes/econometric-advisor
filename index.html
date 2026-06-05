@@ -468,6 +468,17 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .paper-trace-active-label{font-size:12px;color:#f59e0b;font-family:var(--mono);letter-spacing:.04em;}
 .paper-trace-clear{background:transparent;border:.5px solid var(--border);border-radius:5px;padding:4px 10px;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--mono);}
 .kg-trace-toggle{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.kg-rail-mode-section{display:none;padding:10px 12px 12px;border-bottom:.5px solid var(--border);margin-bottom:4px;}
+.kg-rail-mode-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:8px;display:block;}
+.kg-rail-mode-btns{display:flex;flex-direction:column;gap:5px;}
+.kg-rail-mode-btn{background:transparent;border:.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:var(--mono);text-align:left;transition:all .15s;letter-spacing:.02em;}
+.kg-rail-mode-btn:hover{border-color:var(--surface);color:var(--text2);}
+.kg-rail-mode-btn.active-mydesign{background:#1e3a5a44;border-color:var(--surface);color:var(--text);}
+.kg-rail-mode-btn.active-paper{background:#451a0344;border-color:#fb923c;color:#fdba74;}
+.kg-rail-mode-btn.active-diff{background:#14532d44;border-color:#22c55e;color:#86efac;}
+.kg-rail-mode-legend{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.kg-rail-legend-row{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--muted);font-family:var(--mono);}
+.kg-rail-legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
 .kg-trace-mode-btn{background:transparent;border:.5px solid var(--border);border-radius:6px;padding:6px 14px;font-size:11.5px;color:var(--muted);cursor:pointer;font-family:var(--mono);letter-spacing:.03em;transition:all .15s;white-space:nowrap;}
 .kg-trace-mode-btn:hover{border-color:var(--surface);color:var(--text2);}
 .kg-trace-mode-btn.active-mydesign{background:#3d6b8522;border-color:var(--surface);color:var(--text);}
@@ -7139,6 +7150,7 @@ function traceLibraryPaper(id) {
   setTimeout(function() {
     var toggle = document.getElementById('kg-trace-toggle');
     if (toggle) toggle.style.display = 'flex';
+    if (typeof showKgRailModeSection === 'function') showKgRailModeSection();
     _kgTraceMode = 'paper';
     setKgTraceModeBtn('paper');
     resetKgColors();
@@ -7177,12 +7189,28 @@ function setKgTraceMode(mode) {
 }
 
 function setKgTraceModeBtn(mode) {
+  // Top toggle bar
   ['mydesign','paper','diff'].forEach(function(m) {
     var btn = document.getElementById('kg-mode-' + m);
     if (!btn) return;
     btn.className = 'kg-trace-mode-btn';
     if (m === mode) btn.classList.add('active-' + m);
   });
+  // Left rail buttons
+  ['mydesign','paper','diff'].forEach(function(m) {
+    var btn = document.getElementById('kg-rail-' + m);
+    if (!btn) return;
+    btn.className = 'kg-rail-mode-btn';
+    if (m === mode) btn.classList.add('active-' + m);
+  });
+  // Show diff legend only in diff mode
+  var legend = document.getElementById('kg-rail-legend-diff');
+  if (legend) legend.style.display = mode === 'diff' ? 'flex' : 'none';
+}
+
+function showKgRailModeSection() {
+  var sec = document.getElementById('kg-rail-mode-section');
+  if (sec) sec.style.display = 'block';
 }
 
 function resetKgColors() {
@@ -7227,27 +7255,48 @@ function revealKgPathColors(activeSet, isPaper) {
 
 function applyDiffColors(paperNodes) {
   if (!paperNodes || typeof KG_BLUEPRINT === 'undefined') return;
-  var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var inMy = _kgActive && _kgActive.has(n.id);
     var inPaper = paperNodes.has(n.id);
     var g = d3.select('#kgn-' + n.id);
     if (inMy && inPaper) {
-      g.select('rect').transition().duration(500)
-        .attr('fill','#10b98122').attr('stroke','#10b981').attr('stroke-width',2.5);
-      g.select('.kg-node-text').transition().duration(500)
-        .attr('fill','#ffffff').attr('font-weight',700);
+      // Overlap — bright green, filled, bold label
+      g.select('rect').transition().duration(400)
+        .attr('fill','#14532d').attr('stroke','#22c55e').attr('stroke-width',2.5);
+      g.select('.kg-node-text').transition().duration(400)
+        .attr('fill','#86efac').attr('font-weight',700);
     } else if (inPaper && !inMy) {
-      g.select('rect').transition().duration(500)
-        .attr('fill','#f59e0b22').attr('stroke','#f59e0b').attr('stroke-width',2);
-      g.select('.kg-node-text').transition().duration(500)
-        .attr('fill','#f59e0b').attr('font-weight',600);
-      g.select('.kg-node-paper-ring').attr('opacity',0.8);
+      // Paper only — bright amber, ring indicator
+      g.select('rect').transition().duration(400)
+        .attr('fill','#451a03').attr('stroke','#fb923c').attr('stroke-width',2.5);
+      g.select('.kg-node-text').transition().duration(400)
+        .attr('fill','#fdba74').attr('font-weight',700);
+      g.select('.kg-node-paper-ring').transition().duration(400).attr('opacity',1);
     } else if (inMy && !inPaper) {
-      g.select('rect').transition().duration(500)
-        .attr('fill',colorMap[n.cat]+'11').attr('stroke',colorMap[n.cat]+'66').attr('stroke-width',1);
-      g.select('.kg-node-text').transition().duration(500)
-        .attr('fill','#64748b').attr('font-weight',400);
+      // Your design only — muted slate, clearly dimmed
+      g.select('rect').transition().duration(400)
+        .attr('fill','#0f172a').attr('stroke','#334155').attr('stroke-width',1);
+      g.select('.kg-node-text').transition().duration(400)
+        .attr('fill','#475569').attr('font-weight',400);
+    } else {
+      // Neither — near invisible
+      g.select('rect').transition().duration(400)
+        .attr('fill','#020e1f').attr('stroke','#1e293b').attr('stroke-width',0.5);
+      g.select('.kg-node-text').transition().duration(400)
+        .attr('fill','#1e3a5a').attr('font-weight',400);
+    }
+  });
+  // Also color edges
+  KG_BLUEPRINT.edges.forEach(function(e,idx) {
+    var inMy = _kgActive && _kgActive.has(e.s) && _kgActive.has(e.t);
+    var inPaper = paperNodes.has(e.s) && paperNodes.has(e.t);
+    var edgeEl = d3.select('#kge-'+idx);
+    if (inMy && inPaper) {
+      edgeEl.transition().duration(400).attr('stroke','#22c55e').attr('stroke-width',1.5).attr('opacity',0.9).attr('marker-end','url(#arrow-lit)');
+    } else if (inPaper && !inMy) {
+      edgeEl.transition().duration(400).attr('stroke','#fb923c').attr('stroke-width',1.5).attr('opacity',0.9).attr('marker-end','url(#arrow-lit)');
+    } else {
+      edgeEl.transition().duration(400).attr('stroke','#1e293b').attr('stroke-width',0.5).attr('opacity',0);
     }
   });
 }
