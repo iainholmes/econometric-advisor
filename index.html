@@ -4338,6 +4338,19 @@ function renderKnowledgeGraph(tk){
     <div class="kg-expand-backdrop" id="kg-expand-backdrop" onclick="kgToggleExpand()"></div>
     <div class="kg-wrap" id="kg-wrap">
       <div class="kg-filter-rail">
+        <div id="kg-rail-mode-section" class="kg-rail-mode-section">
+          <span class="kg-rail-mode-label">View mode</span>
+          <div class="kg-rail-mode-btns">
+            <button class="kg-rail-mode-btn active-mydesign" id="kg-rail-mydesign" onclick="setKgTraceMode('mydesign')">⊙ My Design</button>
+            <button class="kg-rail-mode-btn" id="kg-rail-paper" onclick="setKgTraceMode('paper')">◈ Paper</button>
+            <button class="kg-rail-mode-btn" id="kg-rail-diff" onclick="setKgTraceMode('diff')">⇌ Diff</button>
+          </div>
+          <div class="kg-rail-mode-legend" id="kg-rail-legend-diff" style="display:none;">
+            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#22c55e"></span>Both designs</div>
+            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#fb923c"></span>Paper only</div>
+            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#334155"></span>Your design only</div>
+          </div>
+        </div>
         <div class="kg-filter-lbl">Focus layer</div>
         <button class="kg-filter-btn active" data-cat="all" onclick="kgSetFocus('all')"><span class="dot"></span>All four layers</button>
         <button class="kg-filter-btn" data-cat="problem" onclick="kgSetFocus('problem')"><span class="dot"></span>Problems</button>
