@@ -1389,6 +1389,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 const QS=[
   {id:"context",text:"Describe your research idea.",sub:"Strongly recommended — this single field improves every downstream recommendation more than any other answer. Even a few sentences help.",type:"textarea",skippable:true,
    placeholder:"e.g. I want to study how PFAS contamination events affected housing prices in Brunswick and Cumberland counties NC, using parcel-level transaction data and EPA monitoring records..."},
+  {id:"code_lang",text:"Which language are you working in?",sub:"Sets the default language for code examples and Trainer links below — you can switch anytime once your toolkit is built.",type:"chips",skippable:true,opts:[
+    {l:"R",v:"r"},
+    {l:"Python",v:"python"},
+    {l:"Stata",v:"stata"},
+    {l:"Not sure yet",v:"unsure"}]},
   {id:"stage",text:"Where are you in the research process?",sub:"Advice differs sharply between proposing a study and revising one with results in hand.",type:"chips",opts:[
     {l:"Proposal stage — choosing a question and design",v:"proposal"},
     {l:"Data collection / preparation underway",v:"data_prep"},
@@ -1429,6 +1434,12 @@ const QS=[
     {l:"Moderate — 11 to 50 treated units",v:"moderate"},
     {l:"Large — more than 50 treated units",v:"many"},
     {l:"Not sure yet",v:"unsure"}]},
+  {id:"treatment_timing",text:"Does everyone get treated at the same time, or at different times?",sub:"This is the single biggest fork in modern difference-in-differences methodology — staggered timing needs a different (and safer) estimator than a single treatment date.",type:"chips",
+   skipIf:(a)=>a.treatment==='none'||a.treatment==='unsure'||['one','few'].includes(a.n_treated),
+   opts:[
+    {l:"Same time — everyone treated on (or near) the same date",v:"single_wave"},
+    {l:"Staggered — different units treated at different times",v:"staggered"},
+    {l:"Not sure yet",v:"unsure"}]},
   {id:"data_structure",text:"What does your data look like?",sub:"Select all that apply — skip if undecided.",type:"multi",skippable:true,opts:[
     {l:"Cross-section (many units, one point in time)",v:"cross"},
     {l:"Panel (same units observed across multiple periods)",v:"panel"},
@@ -1453,7 +1464,7 @@ const QS=[
     {l:"Possibly — I want guidance on how to test for it",v:"maybe"},
     {l:"No — I'm confident selection on observables holds",v:"no"},
     {l:"Not sure",v:"unsure"}]},
-  {id:"geo",text:"Does geography matter structurally to your study?",sub:"Is spatial proximity, distance, or spillovers a core part of the analysis?",type:"chips",opts:[
+  {id:"geo",text:"Is location or spatial proximity part of your research design?",sub:"Determines whether spatial econometric methods (SAR/SEM, spatial clustering) belong in your toolkit.",type:"chips",opts:[
     {l:"Yes — distance / proximity is a key variable",v:"distance"},
     {l:"Yes — I expect spatial autocorrelation in residuals",v:"autocorr"},
     {l:"Yes — both proximity effects and neighborhood spillovers",v:"both"},
@@ -1466,7 +1477,7 @@ const QS=[
     {l:"Dynamic — lagged outcome or adjustment over time matters",v:"dynamic"},
     {l:"Linear is fine for my purposes (effects approximately constant)",v:"linear"},
     {l:"Not sure — I want guidance",v:"unsure"}]},
-  {id:"inference_concerns",text:"Do you have specific inference or validation concerns?",sub:"Select all that apply.",type:"multi",skippable:true,opts:[
+  {id:"inference_concerns",text:"Do you have concerns about your standard errors or statistical tests?",sub:"Select all that apply.",type:"multi",skippable:true,opts:[
     {l:"Small number of clusters (fewer than 30)",v:"small_cluster"},
     {l:"Multiple outcomes or hypothesis tests",v:"multiple_hyp"},
     {l:"Pre-registration / power analysis needed",v:"power"},
@@ -2009,6 +2020,8 @@ let _toolkit=null,_aiPayload=null;
 async function generate(){
   show('loading');setHdr('generating toolkit',false);setProgress(100);
   document.getElementById('loading-msg').textContent='Building your toolkit...';
+  const _langMap={r:'r',python:'python',stata:'stata'};
+  if(ans.code_lang&&_langMap[ans.code_lang])codeLang=_langMap[ans.code_lang];
   const tk=buildToolkit(ans);
   _toolkit=tk;
   // Always build the local (deterministic) payload first.
@@ -2031,6 +2044,7 @@ async function generate(){
   }
   _aiPayload=payload;
   renderResults(tk,payload);
+  if(typeof setLang==='function')setLang(codeLang);
   // Literature is the only piece that REQUIRES AI — render placeholder otherwise
   fetchLiterature(ans,tk);
   // fetchSectionRationales overwrites with richer AI text when key is present
@@ -3649,13 +3663,31 @@ function buildToolkit(a){
       idSta=`* Stata -- Synthetic Control\n* ssc install synth\nsynth log_price log_income log_density, ///\n    trunit(treated_id) trperiod(2020) ///\n    xperiod(2015(1)2019) counit(1 2 3 4 5)`;
       idPy=`# Python -- Synthetic Control\n# pip install SyntheticControlMethods\nfrom SyntheticControlMethods import Synth\nsc = Synth(df, "log_price", "unit_id", "year",\n           treatment_period=2020, treated_unit="county_A")\nsc.fit()\nsc.plot()`;
     } else if(isPanel){
-      idC='critical';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
-      idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-SantAnna (2021) rather than standard TWFE -- staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
-      idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition.';
-      idEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,(\\text{Treated}_i \\times \\text{Post}_t) + X_{it}\\,\\delta + \\varepsilon_{it}\nCS\\;ATT(g,t):\\;\\mathbb{E}[\\,Y_t(g) - Y_t(\\infty)\\mid G = g\\,]';
-      idR=`library(did)\ncs <- att_gt(yname="outcome", tname="year",\n             idname="unit_id", gname="first_treat",\n             xformla=~X1+X2, data=df)\naggte(cs, type="simple") |> summary()\naggte(cs, type="dynamic") |> ggdid()`;
-      idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
-      idPy=`# Python -- DiD\nimport pyfixest as pf\n\n# TWFE\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
+      if(a.treatment_timing==='staggered'){
+        idC='critical';idM='Staggered Difference-in-Differences (Callaway-SantAnna)';idTags=['t_did','l_parallel','d_pretrend'];
+        idD='Your treatment rolls out at different times across units -- exactly the setting where standard two-way fixed effects (TWFE) is biased, since already-treated units end up acting as controls for later-treated units. Use Callaway-SantAnna (2021) or Sun-Abraham (2021) instead of plain TWFE.';
+        idW='Run a Goodman-Bacon decomposition on any TWFE estimate to see how much of it comes from these forbidden comparisons. Never report plain TWFE as your headline estimate with staggered timing.';
+        idEq='CS\\;ATT(g,t):\\;\\mathbb{E}[\\,Y_t(g) - Y_t(\\infty)\\mid G = g\\,]\nAggregated:\\;\\theta = \\sum_g \\sum_t w_{g,t}\\,ATT(g,t)';
+        idR=`library(did)\ncs <- att_gt(yname="outcome", tname="year",\n             idname="unit_id", gname="first_treat",\n             xformla=~X1+X2, data=df)\naggte(cs, type="simple") |> summary()\naggte(cs, type="dynamic") |> ggdid()`;
+        idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
+        idPy=`# Python -- Staggered DiD\n# pip install differences\nfrom differences import ATTgt\natt = ATTgt(data=df, cohort_name="first_treat")\natt.fit(formula="outcome ~ X1 + X2")\natt.aggregate("simple")`;
+      } else if(a.treatment_timing==='single_wave'){
+        idC='critical';idM='Difference-in-Differences (single treatment date)';idTags=['t_did','l_parallel','d_pretrend'];
+        idD='With everyone treated on the same date, standard two-way fixed effects DiD is unbiased and the right default here -- the staggered-timing bias that affects TWFE with multiple treatment dates does not apply in a single-cohort design.';
+        idW='Still plot pre-period event-study coefficients and run a joint F-test on the pre-trends before reporting your estimate.';
+        idEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,(\\text{Treated}_i \\times \\text{Post}_t) + X_{it}\\,\\delta + \\varepsilon_{it}';
+        idR=`library(fixest)\ntwfe <- feols(outcome ~ i(year, treat, ref=-1) | unit_id + year,\n              data=df, vcov=~unit_id)\niplot(twfe)`;
+        idSta=`reghdfe outcome i.treat##i.post, absorb(unit_id year) vce(cluster unit_id)`;
+        idPy=`# Python -- DiD (single treatment date)\nimport pyfixest as pf\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
+      } else {
+        idC='critical';idM='Difference-in-Differences / Staggered DiD';idTags=['t_did','l_parallel','d_pretrend'];
+        idD='Your panel structure and discrete treatment event make DiD the natural identification strategy. For staggered rollout, use Callaway-SantAnna (2021) rather than standard TWFE -- staggered TWFE is biased when treatment effects are heterogeneous across cohorts.';
+        idW='Always plot pre-period event study coefficients and run a joint F-test. Run Bacon decomposition to diagnose TWFE estimand composition.';
+        idEq='TWFE:Y_{it} = \\alpha_i + \\gamma_t + \\beta\\,(\\text{Treated}_i \\times \\text{Post}_t) + X_{it}\\,\\delta + \\varepsilon_{it}\nCS\\;ATT(g,t):\\;\\mathbb{E}[\\,Y_t(g) - Y_t(\\infty)\\mid G = g\\,]';
+        idR=`library(did)\ncs <- att_gt(yname="outcome", tname="year",\n             idname="unit_id", gname="first_treat",\n             xformla=~X1+X2, data=df)\naggte(cs, type="simple") |> summary()\naggte(cs, type="dynamic") |> ggdid()`;
+        idSta=`* Stata -- Staggered DiD\n* ssc install csdid, ssc install drdid\ncsdid outcome X1 X2, ivar(unit_id) time(year) ///\n    gvar(first_treat) method(dripw)\ncsdid_plot`;
+        idPy=`# Python -- DiD\nimport pyfixest as pf\n\n# TWFE\nfit = pf.feols("outcome ~ i(year, treat, ref=-1) | unit_id + year",\n               data=df, vcov={"CRV1": "unit_id"})\npf.iplot(fit)`;
+      }
     } else if(isGeo){
       idC='critical';idM='Instrumental Variables (2SLS) / Control Function';idTags=['t_iv','l_exclusion','d_firststage','d_sargan'];
       idD='Your cross-sectional spatial design calls for an IV strategy. Use a geographic or administrative feature (ZCTA land area, elevation, watershed boundaries) as an instrument for the endogenous variable. The control function approach includes first-stage residuals in the second stage to simultaneously correct for endogeneity and test its presence.';
