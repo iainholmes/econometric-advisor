@@ -2,30 +2,38 @@
 const QST_TRAINER_URL = 'https://iainholmes.github.io/quant-skills-trainer/';
 const QST_ADVISOR_KEY = 'qst_advisor_session_v1';
 
+// Maps a free-text method description to a canonical Advisor tag. The actual
+// language + module id are resolved via the shared TRAINER_TAG_MAP /
+// trainerModuleFor() in index.html, using whatever language the student
+// actually has selected — not a value hardcoded per method. (Previously this
+// map hardcoded module ids like 'r_ols' regardless of language, so a Stata
+// or Python student would get sent to the Trainer with their correct
+// language selected but an R module id that doesn't exist under that
+// language — the module silently failed to open.)
 const QST_METHOD_MAP = {
-  'logit': {lang:'r', mod:'glm_bridge'}, 'probit': {lang:'r', mod:'glm_bridge'},
-  'binary choice': {lang:'r', mod:'glm_bridge'}, 'logit / probit': {lang:'r', mod:'glm_bridge'},
-  'poisson': {lang:'r', mod:'glm_bridge'}, 'negative binomial': {lang:'r', mod:'glm_bridge'},
-  'tobit': {lang:'r', mod:'glm_bridge'}, 'censored': {lang:'r', mod:'glm_bridge'},
-  'glm': {lang:'r', mod:'glm_bridge'},
-  'ols': {lang:'r', mod:'r_ols'}, 'ordinary least squares': {lang:'r', mod:'r_ols'},
-  'semi-log hedonic': {lang:'r', mod:'r_ols'}, 'hedonic': {lang:'r', mod:'r_ols'},
-  'descriptive ols': {lang:'r', mod:'r_ols'},
-  '2sls': {lang:'r', mod:'r_iv'}, 'two-stage least squares': {lang:'r', mod:'r_iv'},
-  'instrumental variables': {lang:'r', mod:'r_iv'}, 'iv': {lang:'r', mod:'r_iv'},
-  'control function': {lang:'r', mod:'r_iv'},
-  'difference-in-differences': {lang:'r', mod:'r_did'}, 'did': {lang:'r', mod:'r_did'},
-  'staggered': {lang:'r', mod:'r_did'}, 'callaway': {lang:'r', mod:'r_did'},
-  'twfe': {lang:'r', mod:'r_did'}, 'synthetic control': {lang:'r', mod:'r_did'},
-  'regression discontinuity': {lang:'r', mod:'r_rd'}, 'rd': {lang:'r', mod:'r_rd'},
-  'fixed effects': {lang:'r', mod:'r_panel'}, 'panel': {lang:'r', mod:'r_panel'},
-  'double ml': {lang:'python', mod:'py_ml'}, 'causal forest': {lang:'python', mod:'py_ml'},
-  'time series': {lang:'r', mod:'r_ts'}, 'arima': {lang:'r', mod:'r_ts'},
+  'logit': 't_logit', 'probit': 't_logit',
+  'binary choice': 't_logit', 'logit / probit': 't_logit',
+  'poisson': 't_poisson', 'negative binomial': 't_poisson',
+  'tobit': 't_tobit', 'censored': 't_tobit',
+  'glm': 't_logit',
+  'ols': 't_ols', 'ordinary least squares': 't_ols',
+  'semi-log hedonic': 't_ols', 'hedonic': 't_ols',
+  'descriptive ols': 't_ols',
+  '2sls': 't_iv', 'two-stage least squares': 't_iv',
+  'instrumental variables': 't_iv', 'iv': 't_iv',
+  'control function': 't_iv',
+  'difference-in-differences': 't_did', 'did': 't_did',
+  'staggered': 't_did', 'callaway': 't_did', 'twfe': 't_did',
+  'synthetic control': 't_scm',
+  'regression discontinuity': 't_rd', 'rd': 't_rd',
+  'fixed effects': 't_fe', 'panel': 't_fe',
+  'double ml': 't_dml', 'causal forest': 't_cf',
+  'time series': 't_cox', 'arima': 't_cox',
 };
 
 function qstFindMapping(method) {
   const m = (method||'').toLowerCase();
-  for (const [k,v] of Object.entries(QST_METHOD_MAP)) { if (m.includes(k)) return v; }
+  for (const [k,tag] of Object.entries(QST_METHOD_MAP)) { if (m.includes(k)) return tag; }
   return null;
 }
 
@@ -53,9 +61,9 @@ function qstSaveSession(session) {
 function qstRenderButton(session) {
   const wrap = document.getElementById('qst-trainer-btn-wrap');
   if (!wrap) return;
-  const mapping = qstFindMapping(session.method||'');
-  const lang = session.lang || (mapping?mapping.lang:'r');
-  const mod  = mapping ? mapping.mod : null;
+  const tag  = qstFindMapping(session.method||'');
+  const lang = session.lang || 'r';
+  const mod  = (tag && typeof trainerModuleFor === 'function') ? trainerModuleFor(tag, lang) : null;
   const url  = new URL(QST_TRAINER_URL);
   url.searchParams.set('lang', lang);
   if (mod) url.searchParams.set('module', mod);
