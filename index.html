@@ -1618,10 +1618,45 @@ function buildOverviewSections(tk, ai){
   renderDataTeaser();
 }
 
+// ── SINGLE SOURCE OF TRUTH: Advisor tag -> Trainer module, per language ──
+// Used by buildTrainerUrl(), the Knowledge Graph drawer, qstOpenSection(),
+// and advisor-patch.js's qstFindMapping(). Previously this table was
+// duplicated in four places (one of which was missing Stata entirely and
+// another which had Stata users' module ids resolve to the wrong language) —
+// keep it here and reference it everywhere instead of re-declaring it.
+const TRAINER_TAG_MAP = {
+  t_dml:{r:"r_ml",python:"py_ml",stata:"st_ols"},
+  t_cf:{r:"r_ml",python:"py_ml",stata:"st_ols"},
+  t_ols:{r:"r_ols",python:"py_ols",stata:"st_ols"},
+  t_iv:{r:"r_iv",python:"py_iv",stata:"st_iv"},
+  t_did:{r:"r_did",python:"py_did",stata:"st_did"},
+  t_rd:{r:"r_rd",python:"py_rd",stata:"st_rd"},
+  t_fe:{r:"r_panel",python:"py_panel",stata:"st_panel"},
+  t_scm:{r:"r_did",python:"py_did",stata:"st_did"},
+  t_matching:{r:"glm_bridge",python:"glm_bridge",stata:"glm_bridge"},
+  t_sar:{r:"r_panel",python:"py_panel",stata:"st_panel"},
+  t_logit:{r:"glm_bridge",python:"glm_bridge",stata:"glm_bridge"},
+  t_poisson:{r:"glm_bridge",python:"glm_bridge",stata:"glm_bridge"},
+  t_tobit:{r:"glm_bridge",python:"glm_bridge",stata:"glm_bridge"},
+  t_cox:{r:"r_ts",python:"py_ts",stata:"st_ts"},
+  p_serial_corr:{r:"r_panel",python:"py_panel",stata:"st_panel"},
+  p_multicollin:{r:"r_ols",python:"py_ols",stata:"st_ols"},
+  p_heterosked:{r:"r_ols",python:"py_ols",stata:"st_ols"},
+  p_endogeneity:{r:"r_iv",python:"py_iv",stata:"st_iv"},
+  p_spatial_dep:{r:"r_panel",python:"py_panel",stata:"st_panel"},
+  p_selection:{r:"r_did",python:"py_did",stata:"st_did"},
+  p_ovb:{r:"r_panel",python:"py_panel",stata:"st_panel"},
+  p_simultaneity:{r:"r_iv",python:"py_iv",stata:"st_iv"}
+};
+function trainerModuleFor(tag, lang){
+  const row = TRAINER_TAG_MAP[tag];
+  if(!row) return null;
+  return row[lang] || row.r || null;
+}
+
 function buildTrainerUrl(kgTag){
-  const kgMap = {"t_dml":{"r":"r_ml","python":"py_ml"},"t_cf":{"r":"r_ml","python":"py_ml"},"t_ols":{"r":"r_ols","python":"py_ols"},"t_iv":{"r":"r_iv","python":"py_iv"},"t_did":{"r":"r_did","python":"py_did"},"t_rd":{"r":"r_rd","python":"py_rd"},"t_fe":{"r":"r_panel","python":"py_panel"},"t_logit":{"r":"glm_bridge","python":"glm_bridge"},"t_sar":{"r":"r_panel","python":"py_panel"}};
   const lang = (typeof codeLang !== 'undefined' && codeLang) ? codeLang : 'r';
-  const mod = kgMap[kgTag]?.[lang] || kgMap[kgTag]?.['r'];
+  const mod = trainerModuleFor(kgTag, lang);
   if(!mod) return '';
   return 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+kgTag;
 }
@@ -2415,7 +2450,7 @@ async function enrichWithAI(_a,tk){
 Only valid JSON, no markdown.
 ANSWERS:\n${answerSummary}\nSECTIONS: ${tk.sections.map(s=>s.label+': '+s.method).join(', ')}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-5',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
     const d=await r.json();
     const t=d.content?.find(b=>b.type==='text')?.text||'';
     return JSON.parse(t.replace(/```json|```/g,'').trim());
@@ -2450,7 +2485,7 @@ STUDENT CONTEXT: ${answerSummary}
 SECTIONS:
 ${sectionList}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-opus-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
     const d=await r.json();
     const t=d.content?.find(b=>b.type==='text')?.text||'';
     const result=JSON.parse(t.replace(/```json|```/g,'').trim());
@@ -2946,7 +2981,7 @@ Be concrete and specific to their study. Write in plain English at a graduate-re
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:500,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-5',max_tokens:500,messages:[{role:'user',content:prompt}]})
     });
     const d=await r.json();
     const text=(d.content?.find(b=>b.type==='text')?.text||'').trim();
@@ -3046,7 +3081,7 @@ STUDENT RESEARCH CONTEXT: ${context}`;
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
     });
     const d=await r.json();
     const t=d.content?.find(b=>b.type==='text')?.text||'';
@@ -3434,7 +3469,7 @@ TOOLKIT: ${tk.sections.map(s => s.label+': '+s.method).join(', ')}`;
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:'claude-opus-4-5', max_tokens:2000, messages:[{role:'user', content:prompt}]})
+      body: JSON.stringify({model:'claude-sonnet-5', max_tokens:2000, messages:[{role:'user', content:prompt}]})
     });
     const d = await r.json();
     const t = d.content?.find(b => b.type === 'text')?.text || '';
@@ -5289,11 +5324,9 @@ function onKgNodeClick(nodeId){
     html+=`</div>`;
   }
 
-  // Build trainer URL for this node
-  const _kgMap = { "t_dml": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_cf": {"r": "r_ml", "python": "py_ml", "stata": "st_ols"}, "t_ols": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "t_iv": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "t_did": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_rd": {"r": "r_rd", "python": "py_rd", "stata": "st_rd"}, "t_fe": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_scm": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "t_matching": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_sar": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "t_logit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_poisson": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_tobit": {"r": "glm_bridge", "python": "glm_bridge", "stata": "glm_bridge"}, "t_cox": {"r": "r_ts", "python": "py_ts", "stata": "st_ts"}, "p_serial_corr": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_multicollin": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "p_heterosked": {"r": "r_ols", "python": "py_ols", "stata": "st_ols"}, "p_endogeneity": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}, "p_spatial_dep": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_selection": {"r": "r_did", "python": "py_did", "stata": "st_did"}, "p_ovb": {"r": "r_panel", "python": "py_panel", "stata": "st_panel"}, "p_simultaneity": {"r": "r_iv", "python": "py_iv", "stata": "st_iv"}};
-  const _trainerMods = _kgMap[nodeId];
+  // Build trainer URL for this node (shared lookup — see TRAINER_TAG_MAP)
   const _trainerLang = codeLang || 'r';
-  const _trainerMod = _trainerMods ? (_trainerMods[_trainerLang] || _trainerMods['r']) : null;
+  const _trainerMod = trainerModuleFor(nodeId, _trainerLang);
   const _trainerURL = _trainerMod
     ? 'https://iainholmes.github.io/quant-skills-trainer/?lang='+_trainerLang+'&module='+_trainerMod+'&from=advisor&focus='+n.id
     : null;
@@ -5314,23 +5347,6 @@ function onKgNodeClick(nodeId){
   document.getElementById('kg-drawer').classList.add('open');
 }
 
-function addNodeRings() {
-  KG_BLUEPRINT.nodes.forEach(function(n) {
-    var g = d3.select('#kgn-' + n.id);
-    if (g.select('.kg-node-paper-ring').empty()) {
-      g.append('rect')
-        .attr('class', 'kg-node-paper-ring')
-        .attr('width', 124).attr('height', 44)
-        .attr('x', -62).attr('y', -22)
-        .attr('rx', 10).attr('ry', 10)
-        .attr('fill', 'none')
-        .attr('stroke', '#f59e0b')
-        .attr('stroke-width', 3)
-        .attr('opacity', 0)
-        .attr('pointer-events', 'none');
-    }
-  });
-}
 function closeKgDrawer(){
   document.getElementById('kg-drawer-overlay').classList.remove('open');
   document.getElementById('kg-drawer').classList.remove('open');
@@ -6092,7 +6108,7 @@ Return only the JSON object, no other text.`;
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-opus-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
+    body: JSON.stringify({model:'claude-sonnet-5',max_tokens:400,messages:[{role:'user',content:prompt}]})
   }).then(function(res){return res.json();}).then(function(data){
     if (data.error) throw new Error(data.error.message || 'API Error');
     var text = (data.content&&data.content[0]&&data.content[0].text)||'{}';
@@ -6271,13 +6287,7 @@ window.addEventListener('load',function(){
 function qstOpenSection(e, kgTag, secIdx) {
   e.preventDefault();
   var lang = codeLang || 'r';
-  var map = {
-    'r':      {'t_ols':'r_ols','t_iv':'r_iv','t_did':'r_did','t_rd':'r_rd','t_fe':'r_panel','t_sar':'r_panel','t_scm':'r_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'r_ts','p_serial_corr':'r_panel','p_multicollin':'r_ols'},
-    'python': {'t_ols':'py_ols','t_iv':'py_iv','t_did':'py_did','t_rd':'py_rd','t_fe':'py_panel','t_sar':'py_panel','t_scm':'py_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'py_ts','p_serial_corr':'py_panel','p_multicollin':'py_ols'},
-    'stata':  {'t_ols':'st_ols','t_iv':'st_iv','t_did':'st_did','t_rd':'st_rd','t_fe':'st_panel','t_sar':'st_panel','t_scm':'st_did','t_logit':'glm_bridge','t_poisson':'glm_bridge','t_tobit':'glm_bridge','t_cox':'st_ts','p_serial_corr':'st_panel','p_multicollin':'st_ols'}
-  };
-  var langMap = map[lang] || map['r'];
-  var mod = langMap[kgTag] || 'r_ols';
+  var mod = trainerModuleFor(kgTag, lang) || 'r_ols';
   var url = 'https://iainholmes.github.io/quant-skills-trainer/?lang='+lang+'&module='+mod+'&from=advisor&focus='+kgTag;
   window.open(url, '_blank');
 }
@@ -7707,13 +7717,13 @@ document.addEventListener('keydown', function(e) {
             <!-- Language cards -->
             <rect x="40" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="1.5"/>
             <text x="110" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#10b981">Python</text>
-            <text x="110" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">16 modules</text>
+            <text x="110" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">15 modules</text>
             <rect x="210" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="1"/>
             <text x="280" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#3b82f6">R</text>
-            <text x="280" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">16 modules</text>
+            <text x="280" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">15 modules</text>
             <rect x="380" y="116" width="140" height="44" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1"/>
             <text x="450" y="134" text-anchor="middle" font-size="9" font-weight="600" fill="#6366f1">Stata</text>
-            <text x="450" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">15 modules</text>
+            <text x="450" y="148" text-anchor="middle" font-size="8" fill="#94a3b8">14 modules</text>
             <!-- Steps -->
             <text x="40" y="178" font-size="7" fill="#10b981" font-weight="700">01</text>
             <text x="54" y="178" font-size="7" fill="#64748b">Choose a language and module</text>
@@ -7725,7 +7735,7 @@ document.addEventListener('keydown', function(e) {
             <text x="280" y="205" text-anchor="middle" font-size="7" fill="#94a3b8">Quant Skills Trainer — built for econometrics practice</text>
           </svg>
           <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">A structured curriculum for econometric practice</div>
-          <div style="font-size:14px;color:var(--muted);line-height:1.7">The Quant Skills Trainer is a companion app with 47 structured modules across Python, R, and Stata. Each module covers a specific econometric method — the same ones in your Advisor toolkit. You work locally in your editor, paste your code, and receive structured feedback.</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7">The Quant Skills Trainer is a companion app with 44 structured modules across Python, R, and Stata. Each module covers a specific econometric method — the same ones in your Advisor toolkit. You work locally in your editor, paste your code, and receive structured feedback.</div>
         </div>
 
         <div class="tg-slide" style="min-width:100%;padding:32px 36px;box-sizing:border-box;">
