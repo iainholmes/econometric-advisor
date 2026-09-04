@@ -7751,6 +7751,231 @@ function updateEmptyState() {
   const list = document.getElementById('paper-library-list');
   if (empty) empty.style.display = list.children.length > 1 ? 'none' : 'block';
 }
+// --- ADD PAPER & TRACE LOGIC ---
+function initPaperNodeGrid() {
+  const cats = { problem: [], logic: [], tool: [], diag: [] };
+  KG_BLUEPRINT.nodes.forEach(n => cats[n.cat].push(n));
+  
+  const buildGroup = (title, color, nodes) => {
+    return `<div style="margin-bottom:10px;">
+      <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:${color};font-weight:700;margin-bottom:6px;border-bottom:.5px solid ${color}40;padding-bottom:4px;">${title}</div>
+      ${nodes.map(n => `<label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text);margin-bottom:4px;cursor:pointer;">
+        <input type="checkbox" class="paper-node-chk" value="${n.id}" onchange="checkTraceReady()"> ${n.label}
+      </label>`).join('')}
+    </div>`;
+  };
+
+  const pCol = document.getElementById('grid-col-problems');
+  if (pCol) {
+      pCol.innerHTML = buildGroup('Problems', 'var(--kg-problem)', cats.problem);
+      document.getElementById('grid-col-logic').innerHTML = buildGroup('Logic', 'var(--kg-logic)', cats.logic);
+      document.getElementById('grid-col-tools').innerHTML = buildGroup('Tools', 'var(--kg-tool)', cats.tool);
+      document.getElementById('grid-col-diags').innerHTML = buildGroup('Diagnostics', 'var(--kg-diag)', cats.diag);
+  }
+  
+  const sel = document.getElementById('paper-preset-select');
+  if (sel && sel.options.length === 1 && typeof FOUNDATIONAL_PAPERS !== 'undefined') {
+    FOUNDATIONAL_PAPERS.forEach((p, i) => {
+      sel.innerHTML += `<option value="${i}">${p.title.substring(0, 50)}...</option>`;
+    });
+  }
+}
+
+function autoFillPaper(idx) {
+  if (idx === "") return;
+  const paper = FOUNDATIONAL_PAPERS[idx];
+  document.getElementById('paper-cite-input').value = `${paper.authors} (${paper.year}) — ${paper.title}`;
+  
+  const tagToNode = { 'hedonic':'t_ols', 'did':'t_did', 'iv':'t_iv', 'rd':'t_rd', 'spatial':'t_sar', 'panel':'t_fe', 'inference':'d_robust' };
+  const nodesToSelect = (paper.tags || []).map(t => tagToNode[t]).filter(Boolean);
+  
+  document.querySelectorAll('.paper-node-chk').forEach(chk => {
+    chk.checked = nodesToSelect.includes(chk.value);
+  });
+  checkTraceReady();
+}
+
+function getMatchScoreHTML(selectedNodes) {
+  if (!window._kgActive || _kgActive.size === 0) return '';
+  const overlap = selectedNodes.filter(n => _kgActive.has(n)).length;
+  const pct = Math.round((overlap / _kgActive.size) * 100);
+  
+  let color = 'var(--hint)';
+  if (pct >= 60) color = 'var(--kg-tool)';
+  else if (pct >= 30) color = 'var(--kg-diag)';
+  
+  return `<span style="margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;border:.5px solid ${color}40;color:${color};background:${color}15;">${pct}% Match</span>`;
+}
+
+function updateEmptyState() {
+  const empty = document.getElementById('paper-empty-state');
+  const list = document.getElementById('paper-library-list');
+  if (empty && list) empty.style.display = list.children.length > 1 ? 'none' : 'block';
+}
+
+function openAddPaperForm() {
+  document.getElementById('add-paper-form').style.display = 'block';
+  document.getElementById('add-paper-btn').style.display = 'none';
+  const col = document.getElementById('grid-col-problems');
+  if (col && col.innerHTML.trim() === '') initPaperNodeGrid();
+}
+
+function closeAddPaperForm() {
+  document.getElementById('add-paper-form').style.display = 'none';
+  document.getElementById('add-paper-btn').style.display = 'inline-flex';
+  document.getElementById('paper-cite-input').value = '';
+  document.getElementById('paper-preset-select').value = '';
+  document.querySelectorAll('.paper-node-chk').forEach(c => c.checked = false);
+  checkTraceReady();
+}
+
+function checkTraceReady() {
+  const btn = document.getElementById('paper-trace-btn');
+  const cite = document.getElementById('paper-cite-input');
+  if (!btn || !cite) return;
+  const hasText = cite.value.trim().length > 0;
+  const hasChecked = document.querySelectorAll('.paper-node-chk:checked').length > 0;
+  btn.disabled = !(hasText && hasChecked);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const citeInput = document.getElementById('paper-cite-input');
+  if (citeInput) citeInput.addEventListener('input', checkTraceReady);
+});
+
+let _mappedPapers = [];
+let _currentTraceMode = 'mydesign';
+let _activePaperNodes = [];
+
+function applyPaperTrace() {
+  const cite = document.getElementById('paper-cite-input').value.trim();
+  const checkedNodes = Array.from(document.querySelectorAll('.paper-node-chk:checked')).map(c => c.value);
+  
+  _mappedPapers.push({ title: cite, nodes: checkedNodes });
+  renderMappedPapers();
+  closeAddPaperForm();
+  updateEmptyState();
+  viewPaperOnKG(_mappedPapers.length - 1);
+}
+
+function renderMappedPapers() {
+  const list = document.getElementById('paper-library-list');
+  if (!list) return;
+  if (_mappedPapers.length === 0) {
+     list.innerHTML = `<div id="paper-empty-state" style="color:var(--hint);font-size:12.5px;font-style:italic;padding:8px 0;">No papers mapped yet.</div>`;
+     return;
+  }
+  list.innerHTML = _mappedPapers.map((p, i) => {
+    const scoreHTML = typeof getMatchScoreHTML === 'function' ? getMatchScoreHTML(p.nodes) : '';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:.5px solid var(--border);border-radius:8px;">
+      <div style="flex:1;font-size:13px;color:var(--text);font-weight:500;">${esc(p.title)}</div>
+      ${scoreHTML}
+      <button onclick="viewPaperOnKG(${i})" style="background:var(--surface);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;">View on KG →</button>
+    </div>`;
+  }).join('');
+}
+
+function viewPaperOnKG(idx) {
+  const p = _mappedPapers[idx];
+  if (!p) return;
+  switchTab('graph');
+  const bar = document.getElementById('paper-trace-active-bar');
+  const lbl = document.getElementById('paper-trace-active-label');
+  if (bar) bar.style.display = 'flex';
+  if (lbl) lbl.textContent = `Viewing diff: ${p.title}`;
+  const traceToggle = document.getElementById('kg-trace-toggle');
+  if(traceToggle) traceToggle.style.display = 'flex';
+  _activePaperNodes = p.nodes;
+  if (!_kgRevealed) revealKgPath();
+  setTimeout(() => setKgTraceMode('diff'), _kgRevealed ? 0 : 1200);
+}
+
+function clearActivePaperTrace() {
+  const bar = document.getElementById('paper-trace-active-bar');
+  if (bar) bar.style.display = 'none';
+  const traceToggle = document.getElementById('kg-trace-toggle');
+  if(traceToggle) traceToggle.style.display = 'none';
+  _activePaperNodes = [];
+  setKgTraceMode('mydesign');
+}
+
+function setKgTraceMode(mode) {
+  _currentTraceMode = mode;
+  document.querySelectorAll('.kg-trace-mode-btn').forEach(btn => {
+    btn.classList.remove('active-mydesign', 'active-paper', 'active-diff');
+    const btnMode = btn.id.replace('kg-mode-', '');
+    if (btnMode === mode) btn.classList.add(`active-${mode}`);
+  });
+  applyGraphColors();
+}
+
+function applyGraphColors() {
+  if (!_kgRevealed) return;
+  const colorMap = { problem:'#ef4444', logic:'#3b82f6', tool:'#10b981', diag:'#f59e0b' };
+  const myDesignNodes = _kgActive || new Set();
+  const paperNodes = new Set(_activePaperNodes);
+  
+  KG_BLUEPRINT.nodes.forEach(n => {
+    const g = d3.select('#kgn-' + n.id);
+    if (g.empty()) return;
+    const rect = g.select('rect');
+    const text = g.selectAll('text');
+    const color = colorMap[n.cat];
+    const inMyDesign = myDesignNodes.has(n.id);
+    const inPaper = paperNodes.has(n.id);
+    
+    let fill = 'rgba(51,65,85,0.3)';
+    let stroke = '#334155';
+    let strokeW = 1;
+    let txtColor = '#374151';
+    
+    if (_currentTraceMode === 'mydesign' && inMyDesign) {
+      fill = color + '22'; stroke = color; strokeW = 2; txtColor = '#ffffff';
+    } else if (_currentTraceMode === 'paper' && inPaper) {
+      fill = color + '22'; stroke = color; strokeW = 2; txtColor = '#ffffff';
+    } else if (_currentTraceMode === 'diff') {
+      if (inMyDesign && inPaper) {
+         fill = '#22c55e22'; stroke = '#22c55e'; strokeW = 2; txtColor = '#ffffff'; 
+      } else if (inPaper) {
+         fill = '#fb923c22'; stroke = '#fb923c'; strokeW = 2; txtColor = '#ffffff'; 
+      } else if (inMyDesign) {
+         fill = '#33415555'; stroke = '#475569'; strokeW = 1.5; txtColor = '#94a3b8'; 
+      }
+    }
+    
+    rect.transition().duration(400).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', strokeW);
+    text.transition().duration(400).attr('fill', txtColor);
+  });
+  
+  KG_BLUEPRINT.edges.forEach((e, idx) => {
+    const line = d3.select('#kge-' + idx);
+    const lbl = d3.select('#kgel-' + idx);
+    if (line.empty()) return;
+    
+    const sInMyDesign = myDesignNodes.has(e.s);
+    const tInMyDesign = myDesignNodes.has(e.t);
+    const sInPaper = paperNodes.has(e.s);
+    const tInPaper = paperNodes.has(e.t);
+    
+    let showLine = false;
+    let lineColor = '#cbd5e1';
+    
+    if (_currentTraceMode === 'mydesign' && sInMyDesign && tInMyDesign) {
+      showLine = true; lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'paper' && sInPaper && tInPaper) {
+      showLine = true; lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'diff') {
+      if (sInMyDesign && tInMyDesign && sInPaper && tInPaper) {
+        showLine = true; lineColor = '#22c55e'; 
+      } else if (sInPaper && tInPaper) {
+        showLine = true; lineColor = '#fb923c'; 
+      }
+    }
+    
+    line.transition().duration(400).attr('stroke', showLine ? lineColor : '#334155').attr('opacity', showLine ? 0.8 : 0).attr('stroke-width', showLine ? 1.5 : 0.7);
+    lbl.transition().duration(400).attr('opacity', showLine ? 0.85 : 0);
+  });
+}
 </script>
 <div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
   <div class="audit-modal-flex no-side" id="audit-modal-flex" onclick="event.stopPropagation()">
