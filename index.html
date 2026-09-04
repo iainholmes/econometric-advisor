@@ -4159,22 +4159,41 @@ function renderResults(tk,ai){
 
     // KNOWLEDGE GRAPH (replaces tree)  // KNOWLEDGE GRAPH (replaces tree)
   // Paper profile card
-  html+=`<div class="paper-upload-card" id="paper-profile-card">
+html+=`<div class="paper-upload-card" id="paper-profile-card">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
       <div class="paper-upload-card-title">▲ Map papers to this architecture</div>
-      <button onclick="openAddPaperForm()" id="add-paper-btn" style="background:#f59e0b;color:#0a0a0a;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;white-space:nowrap;flex-shrink:0;">+ Add paper</button>
+      <button onclick="openAddPaperForm()" id="add-paper-btn" style="background:rgba(126,182,255,.14);color:#7eb6ff;border:.5px solid #7eb6ff;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Instrument Sans',-apple-system,sans-serif;white-space:nowrap;flex-shrink:0;transition:all .15s;">+ Add paper</button>
     </div>
-    <div class="paper-upload-card-sub">Map one or more papers to the Knowledge Graph and compare their identification architectures against your design. Use the Diff view on the KG to see where each paper overlaps with or diverges from your approach.</div>
-    <div id="paper-library-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <div class="paper-upload-card-sub">Map papers to the Knowledge Graph to instantly calculate their structural overlap with your design.</div>
+    
+    <div id="paper-library-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+      <div id="paper-empty-state" style="color:var(--hint);font-size:12.5px;font-style:italic;padding:8px 0;">No papers mapped yet.</div>
+    </div>
+
     <div id="add-paper-form" style="display:none;background:#020e1f;border:.5px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;">
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">New paper</div>
-      <input class="paper-cite-input" id="paper-cite-input" type="text" placeholder="Citation — e.g. Marcus &amp; Mueller (2024), JEEM — PFAS NJ Hedonics">
-      <div class="paper-node-grid" id="paper-node-grid"></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px;">
+      
+      <!-- Auto-fill from Library -->
+      <select id="paper-preset-select" onchange="autoFillPaper(this.value)" style="width:100%;background:var(--bg2);border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;margin-bottom:12px;outline:none;cursor:pointer;">
+        <option value="">-- Or select a foundational paper to auto-fill --</option>
+      </select>
+
+      <input class="paper-cite-input" id="paper-cite-input" type="text" placeholder="Citation — e.g. Marcus &amp; Mueller (2024), JEEM">
+      
+      <!-- Categorized Grid -->
+      <div class="paper-node-grid" id="paper-node-grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+        <div id="grid-col-problems"></div>
+        <div id="grid-col-logic"></div>
+        <div id="grid-col-tools"></div>
+        <div id="grid-col-diags"></div>
+      </div>
+      
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;">
         <button class="paper-trace-btn" id="paper-trace-btn" onclick="applyPaperTrace()" disabled>Save &amp; trace on KG →</button>
         <button onclick="closeAddPaperForm()" style="background:transparent;border:.5px solid var(--border);border-radius:6px;padding:9px 16px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);">Cancel</button>
       </div>
     </div>
+
     <div id="paper-trace-active-bar" style="display:none" class="paper-trace-active">
       <span class="paper-trace-active-label" id="paper-trace-active-label">Viewing: </span>
       <button class="paper-trace-clear" onclick="clearActivePaperTrace()">Reset to My Design</button>
@@ -7669,6 +7688,69 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeTrainerGuide();
   }
 });
+// Initialize categorized node grid
+function initPaperNodeGrid() {
+  const cats = { problem: [], logic: [], tool: [], diag: [] };
+  KG_BLUEPRINT.nodes.forEach(n => cats[n.cat].push(n));
+  
+  const buildGroup = (title, color, nodes) => {
+    return `<div style="margin-bottom:10px;">
+      <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:${color};font-weight:700;margin-bottom:6px;border-bottom:.5px solid ${color}40;padding-bottom:4px;">${title}</div>
+      ${nodes.map(n => `<label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text);margin-bottom:4px;cursor:pointer;">
+        <input type="checkbox" class="paper-node-chk" value="${n.id}" onchange="checkTraceReady()"> ${n.label}
+      </label>`).join('')}
+    </div>`;
+  };
+
+  document.getElementById('grid-col-problems').innerHTML = buildGroup('Problems', 'var(--kg-problem)', cats.problem);
+  document.getElementById('grid-col-logic').innerHTML = buildGroup('Logic', 'var(--kg-logic)', cats.logic);
+  document.getElementById('grid-col-tools').innerHTML = buildGroup('Tools', 'var(--kg-tool)', cats.tool);
+  document.getElementById('grid-col-diags').innerHTML = buildGroup('Diagnostics', 'var(--kg-diag)', cats.diag);
+  
+  // Populate preset dropdown
+  const sel = document.getElementById('paper-preset-select');
+  if (sel && sel.options.length === 1 && typeof FOUNDATIONAL_PAPERS !== 'undefined') {
+    FOUNDATIONAL_PAPERS.forEach((p, i) => {
+      sel.innerHTML += `<option value="${i}">${p.title.substring(0, 50)}...</option>`;
+    });
+  }
+}
+
+// Auto-fill from selection
+function autoFillPaper(idx) {
+  if (idx === "") return;
+  const paper = FOUNDATIONAL_PAPERS[idx];
+  document.getElementById('paper-cite-input').value = `${paper.authors} (${paper.year}) — ${paper.title}`;
+  
+  // Map tags to node IDs and check them
+  const tagToNode = { 'hedonic':'t_ols', 'did':'t_did', 'iv':'t_iv', 'rd':'t_rd', 'spatial':'t_sar', 'panel':'t_fe', 'inference':'d_robust' };
+  const nodesToSelect = (paper.tags || []).map(t => tagToNode[t]).filter(Boolean);
+  
+  document.querySelectorAll('.paper-node-chk').forEach(chk => {
+    chk.checked = nodesToSelect.includes(chk.value);
+  });
+  checkTraceReady();
+}
+
+// Calculate deterministic match score
+function getMatchScoreHTML(selectedNodes) {
+  if (!window._kgActive || _kgActive.size === 0) return '';
+  const overlap = selectedNodes.filter(n => _kgActive.has(n)).length;
+  const pct = Math.round((overlap / _kgActive.size) * 100);
+  
+  let color = 'var(--hint)';
+  if (pct >= 60) color = 'var(--kg-tool)';
+  else if (pct >= 30) color = 'var(--kg-diag)';
+  
+  return `<span style="margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;border:.5px solid ${color}40;color:${color};background:${color}15;">${pct}% Match</span>`;
+}
+
+// Helper to hide empty state when adding items
+function updateEmptyState() {
+  const empty = document.getElementById('paper-empty-state');
+  const list = document.getElementById('paper-library-list');
+  if (empty) empty.style.display = list.children.length > 1 ? 'none' : 'block';
+}
 </script>
 <div class="audit-modal-bg" id="audit-modal-bg" style="display:none" onclick="closeAuditTool()">
   <div class="audit-modal-flex no-side" id="audit-modal-flex" onclick="event.stopPropagation()">
