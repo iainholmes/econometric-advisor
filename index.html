@@ -3276,7 +3276,9 @@ function switchTab(tab) {
     setTimeout(function() {
       if (typeof initPaperNodeGrid === 'function') {
         var grid = document.getElementById('paper-node-grid');
-        if (grid && grid.innerHTML === '') initPaperNodeGrid();
+        // The grid contains four placeholder columns in the markup, so innerHTML
+        // is never empty. Initialize based on whether controls actually exist.
+        if (grid && !grid.querySelector('input.paper-node-chk')) initPaperNodeGrid();
       }
       if (typeof restorePaperProfile === 'function') restorePaperProfile();
     }, 50);
@@ -4429,7 +4431,7 @@ function renderKnowledgeGraph(tk){
         <div class="kg-trace-toggle" id="kg-trace-toggle" style="display:none;">
           <button class="kg-trace-mode-btn active-mydesign" id="kg-mode-mydesign" onclick="setKgTraceMode('mydesign')">My Design</button>
           <button class="kg-trace-mode-btn" id="kg-mode-paper" onclick="setKgTraceMode('paper')">Paper</button>
-          <button class="kg-trace-mode-btn" id="kg-mode-diff" onclick="setKgTraceMode('diff')">Diff</button>
+          <button class="kg-trace-mode-btn" id="kg-mode-diff" title="Show methods used by the paper but not by your design" onclick="setKgTraceMode('diff')">Diff</button>
         </div>
       </div>
     </div>
@@ -4441,12 +4443,10 @@ function renderKnowledgeGraph(tk){
           <div class="kg-rail-mode-btns">
             <button class="kg-rail-mode-btn active-mydesign" id="kg-rail-mydesign" onclick="setKgTraceMode('mydesign')">⊙ My Design</button>
             <button class="kg-rail-mode-btn" id="kg-rail-paper" onclick="setKgTraceMode('paper')">◈ Paper</button>
-            <button class="kg-rail-mode-btn" id="kg-rail-diff" onclick="setKgTraceMode('diff')">⇌ Diff</button>
+            <button class="kg-rail-mode-btn" id="kg-rail-diff" title="Show paper-only additions" onclick="setKgTraceMode('diff')">⇌ Diff</button>
           </div>
           <div class="kg-rail-mode-legend" id="kg-rail-legend-diff" style="display:none;">
-            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#22c55e"></span>Both designs</div>
-            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#fb923c"></span>Paper only</div>
-            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#334155"></span>Your design only</div>
+            <div class="kg-rail-legend-row"><span class="kg-rail-legend-dot" style="background:#fb923c"></span>Additional paper only</div>
           </div>
         </div>
         <div class="kg-filter-lbl">Focus layer</div>
@@ -7162,10 +7162,17 @@ function renderPaperLibraryList() {
 }
 
 function openAddPaperForm() {
+  // Ensure the preset dropdown and node checkboxes exist even if the user opens
+  // the form before visiting/revisiting the Methods tab initialization path.
+  var grid = document.getElementById('paper-node-grid');
+  if (grid && !grid.querySelector('input.paper-node-chk')) initPaperNodeGrid();
+
   var form = document.getElementById('add-paper-form');
   if (form) form.style.display = 'block';
   var cite = document.getElementById('paper-cite-input');
   if (cite) { cite.value = ''; cite.focus(); }
+  var preset = document.getElementById('paper-preset-select');
+  if (preset) preset.value = '';
   // Reset checkboxes
   var checks = document.querySelectorAll('#paper-node-grid input[type=checkbox]');
   checks.forEach(function(cb) { cb.checked = false; });
@@ -7207,6 +7214,35 @@ function initPaperNodeGrid() {
       sel.appendChild(opt);
     });
   }
+}
+
+
+// Restore the saved paper library and migrate old foundational presets whose
+// earlier auto-mapping contained only one node per tag.
+var _paperLibraryRestored = false;
+function restorePaperProfile() {
+  if (!_paperLibraryRestored) {
+    _loadLibrary();
+    _paperLibraryRestored = true;
+
+    var changed = false;
+    if (typeof FOUNDATIONAL_PAPERS !== 'undefined') {
+      _paperLibrary.forEach(function(saved) {
+        var match = FOUNDATIONAL_PAPERS.find(function(fp) {
+          return saved.cite && saved.cite.indexOf(fp.title) !== -1;
+        });
+        if (!match) return;
+        var richer = mapFoundationalPaperToKg(match);
+        if (richer.size > saved.nodes.size) {
+          saved.nodes = richer;
+          changed = true;
+        }
+      });
+    }
+    if (changed) _saveLibrary();
+  }
+  renderPaperLibraryList();
+  _updateComparativeAvailability();
 }
 
 function onPaperNodeChange() {
@@ -7359,10 +7395,13 @@ function applyGraphColors() {
       isActive = inPaper;
       if (isActive) { fill = '#f59e0b2b'; stroke = '#f59e0b'; strokeW = 3; txt = '#fff7ed'; glow = 'url(#glow-diag)'; }
     } else if (_kgTraceMode === 'diff') {
-      isActive = inMy || inPaper;
-      if (inMy && inPaper) { fill = '#22c55e2b'; stroke = '#22c55e'; strokeW = 3.2; txt = '#f0fdf4'; glow = 'url(#glow-tool)'; }
-      else if (inPaper) { fill = '#fb923c2b'; stroke = '#fb923c'; strokeW = 3.2; txt = '#fff7ed'; glow = 'url(#glow-diag)'; }
-      else if (inMy) { fill = '#47556933'; stroke = '#64748b'; strokeW = 1.8; txt = '#cbd5e1'; }
+      // Diff means incremental content: light ONLY nodes used by the selected
+      // paper that are absent from the user's own research design.
+      isActive = inPaper && !inMy;
+      if (isActive) {
+        fill = '#fb923c2b'; stroke = '#fb923c'; strokeW = 3.2;
+        txt = '#fff7ed'; glow = 'url(#glow-diag)';
+      }
     }
 
     gNode.classList.toggle('is-active', isActive);
@@ -7385,9 +7424,10 @@ function applyGraphColors() {
       show = sPaper && tPaper;
       if (show) { lineColor = '#f59e0b'; strokeW = 2.2; }
     } else if (_kgTraceMode === 'diff') {
-      if (sMy && tMy && sPaper && tPaper) { show = true; lineColor = '#22c55e'; strokeW = 2.6; }
-      else if (sPaper && tPaper) { show = true; lineColor = '#fb923c'; strokeW = 2.6; }
-      else if (sMy && tMy) { show = true; lineColor = '#64748b'; strokeW = 1.2; }
+      // Show only paper-path edges whose endpoints are both incremental nodes.
+      // Shared/design-only structure stays dark so the visual answer is unambiguous.
+      show = sPaper && tPaper && !sMy && !tMy;
+      if (show) { lineColor = '#fb923c'; strokeW = 2.6; }
     }
 
     line.transition().duration(350).attr('stroke', lineColor).attr('opacity', show ? 0.88 : 0).attr('stroke-width', strokeW);
@@ -7646,20 +7686,91 @@ document.addEventListener('keydown', function(e) {
   }
 });
 // ── Canonical paper-library helpers ───────────────────────────────────────────
+// Foundational papers are mapped to the *architecture they substantively engage*:
+// econometric problem -> identifying logic -> estimator -> diagnostics. The old
+// implementation assigned one node per tag, which severely under-described broad
+// methodological papers such as Mostly Harmless Econometrics and modern DiD work.
+var _FOUNDATIONAL_TAG_NODES = {
+  causal:    ['p_endogeneity','p_selection','l_natexp','t_ols','d_robust'],
+  hedonic:   ['p_ovb','p_endogeneity','l_obs','t_ols','d_robust'],
+  did:       ['p_endogeneity','p_selection','p_serial_corr','l_natexp','l_parallel','t_fe','t_did','d_pretrend','d_robust','d_wildboot'],
+  iv:        ['p_endogeneity','p_ovb','p_simultaneity','l_natexp','l_exclusion','l_late','t_iv','d_firststage','d_sargan','d_hausman','d_robust'],
+  rd:        ['p_endogeneity','p_selection','l_natexp','l_continuity','l_late','t_rd','d_placebo','d_robust'],
+  spatial:   ['p_spatial_dep','p_ovb','t_sar','d_moran','d_robust'],
+  panel:     ['p_ovb','p_serial_corr','t_fe','d_hausman','d_robust'],
+  inference: ['p_heterosked','p_serial_corr','d_robust','d_wildboot']
+};
+
+// Paper-specific refinements keep focused papers focused while allowing broad
+// syntheses/texts to span the multiple strategies they actually cover.
+var _FOUNDATIONAL_TITLE_NODES = {
+  "The Credibility Revolution in Empirical Economics: How Better Research Design Is Taking the Con out of Econometrics":
+    ['p_endogeneity','p_ovb','p_selection','l_natexp','l_obs','l_parallel','l_exclusion','l_continuity','t_ols','t_fe','t_did','t_iv','t_rd','d_robust','d_pretrend','d_firststage'],
+  "Mostly Harmless Econometrics: An Empiricist's Companion":
+    ['p_endogeneity','p_ovb','p_selection','p_simultaneity','l_natexp','l_obs','l_parallel','l_exclusion','l_continuity','l_late','t_ols','t_fe','t_matching','t_did','t_iv','t_rd','d_robust','d_pretrend','d_firststage','d_sargan'],
+  "Hedonic Prices and Implicit Markets: Product Differentiation in Pure Competition":
+    ['p_ovb','p_endogeneity','l_obs','t_ols','d_robust'],
+  "On the Use of Hedonic Price Functions to Measure Welfare":
+    ['p_ovb','p_endogeneity','l_obs','t_ols','d_robust'],
+  "Valuing Disamenities Using a Locally Weighted Regression: A Hedonic Analysis of Air Quality in Los Angeles":
+    ['p_ovb','p_spatial_dep','l_obs','t_ols','t_sar','d_moran','d_robust'],
+  "Superfund Cleanups and Infant Health":
+    ['p_endogeneity','p_selection','p_spatial_dep','p_serial_corr','l_natexp','l_parallel','t_fe','t_did','d_pretrend','d_robust'],
+  "How Much Should We Trust Differences-in-Differences Estimates?":
+    ['p_serial_corr','p_heterosked','l_parallel','t_did','t_fe','d_robust','d_wildboot','d_pretrend'],
+  "Difference-in-Differences with Multiple Time Periods":
+    ['p_endogeneity','p_selection','p_serial_corr','l_parallel','t_fe','t_did','d_pretrend','d_robust'],
+  "Estimating Dynamic Treatment Effects in Event Studies with Heterogeneous Treatment Effects":
+    ['p_endogeneity','p_selection','p_serial_corr','l_parallel','t_fe','t_did','d_pretrend','d_robust'],
+  "Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects":
+    ['p_endogeneity','p_selection','p_serial_corr','l_parallel','t_fe','t_did','d_pretrend','d_robust'],
+  "Identification of Causal Effects Using Instrumental Variables":
+    ['p_endogeneity','p_selection','p_simultaneity','l_natexp','l_exclusion','l_late','t_iv','d_firststage','d_robust'],
+  "Instrumental Variables Regression with Weak Instruments":
+    ['p_endogeneity','p_simultaneity','l_exclusion','l_late','t_iv','d_firststage','d_robust'],
+  "Bartik Instruments: What, When, Why, and How":
+    ['p_endogeneity','p_ovb','l_natexp','l_exclusion','l_late','t_iv','d_firststage','d_sargan','d_robust'],
+  "Identification and Estimation of Treatment Effects with a Regression-Discontinuity Design":
+    ['p_endogeneity','p_selection','l_natexp','l_continuity','l_late','t_rd','d_placebo','d_robust'],
+  "Robust Nonparametric Confidence Intervals for Regression-Discontinuity Designs":
+    ['p_selection','l_continuity','t_rd','d_placebo','d_robust'],
+  "Manipulation of the Running Variable in the Regression Discontinuity Design: A Density Test":
+    ['p_selection','l_continuity','t_rd','d_placebo'],
+  "Spatial Econometrics: Methods and Models":
+    ['p_spatial_dep','p_ovb','p_endogeneity','t_ols','t_sar','d_moran','d_robust'],
+  "Local Indicators of Spatial Association — LISA":
+    ['p_spatial_dep','t_sar','d_moran'],
+  "Interpreting Spatial Econometric Models":
+    ['p_spatial_dep','p_endogeneity','t_sar','d_moran','d_robust'],
+  "Robust Inference With Multiway Clustering":
+    ['p_heterosked','p_serial_corr','t_fe','d_robust','d_wildboot'],
+  "A Practitioner's Guide to Cluster-Robust Inference":
+    ['p_heterosked','p_serial_corr','t_ols','t_fe','d_robust','d_wildboot'],
+  "Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California's Tobacco Control Program":
+    ['p_endogeneity','p_selection','p_serial_corr','l_natexp','l_parallel','t_scm','d_placebo','d_robust']
+};
+
+function mapFoundationalPaperToKg(paper) {
+  var exact = _FOUNDATIONAL_TITLE_NODES[paper.title];
+  if (exact) return new Set(exact);
+
+  var out = new Set();
+  (paper.tags || []).forEach(function(tag) {
+    (_FOUNDATIONAL_TAG_NODES[tag] || []).forEach(function(id){ out.add(id); });
+  });
+  return out;
+}
+
 function autoFillPaper(idx) {
   if (idx === "" || typeof FOUNDATIONAL_PAPERS === 'undefined') return;
-  var paper = FOUNDATIONAL_PAPERS[idx];
+  var paper = FOUNDATIONAL_PAPERS[Number(idx)];
   if (!paper) return;
   var cite = document.getElementById('paper-cite-input');
   if (cite) cite.value = paper.authors + ' (' + paper.year + ') — ' + paper.title;
 
-  var tagToNode = {
-    hedonic:'t_ols', did:'t_did', iv:'t_iv', rd:'t_rd', spatial:'t_sar',
-    panel:'t_fe', inference:'d_robust'
-  };
-  var nodesToSelect = (paper.tags || []).map(function(t){ return tagToNode[t]; }).filter(Boolean);
+  var nodesToSelect = mapFoundationalPaperToKg(paper);
   document.querySelectorAll('#paper-node-grid input[type=checkbox]').forEach(function(cb) {
-    cb.checked = nodesToSelect.indexOf(cb.value) !== -1;
+    cb.checked = nodesToSelect.has(cb.value);
   });
   onPaperNodeChange();
 }
