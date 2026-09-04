@@ -7179,19 +7179,34 @@ function closeAddPaperForm() {
 }
 
 function initPaperNodeGrid() {
-  var grid = document.getElementById('paper-node-grid');
-  if (!grid) return;
-  var h = '';
-  Object.entries(_PAPER_NODES).forEach(function(entry) {
-    var cat = entry[0], nodes = entry[1];
-    h += '<div class="paper-node-group">';
+  var cols = {
+    problem: document.getElementById('grid-col-problems'),
+    logic: document.getElementById('grid-col-logic'),
+    tool: document.getElementById('grid-col-tools'),
+    diag: document.getElementById('grid-col-diags')
+  };
+
+  Object.keys(cols).forEach(function(cat) {
+    var col = cols[cat];
+    if (!col) return;
+    var h = '<div class="paper-node-group">';
     h += '<span class="paper-node-group-label" style="color:' + _catColors[cat] + '">' + _catLabels[cat] + '</span>';
-    nodes.forEach(function(n) {
-      h += '<div class="paper-node-check"><input type="checkbox" id="pn-' + n.id + '" value="' + n.id + '" onchange="onPaperNodeChange()"><label for="pn-' + n.id + '">' + n.label + '</label></div>';
+    (_PAPER_NODES[cat] || []).forEach(function(n) {
+      h += '<div class="paper-node-check"><input class="paper-node-chk" type="checkbox" id="pn-' + n.id + '" value="' + n.id + '" onchange="onPaperNodeChange()"><label for="pn-' + n.id + '">' + n.label + '</label></div>';
     });
     h += '</div>';
+    col.innerHTML = h;
   });
-  grid.innerHTML = h;
+
+  var sel = document.getElementById('paper-preset-select');
+  if (sel && sel.options.length === 1 && typeof FOUNDATIONAL_PAPERS !== 'undefined') {
+    FOUNDATIONAL_PAPERS.forEach(function(p, i) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = (p.title || '').substring(0, 70);
+      sel.appendChild(opt);
+    });
+  }
 }
 
 function onPaperNodeChange() {
@@ -7236,52 +7251,43 @@ function traceLibraryPaper(id) {
   if (!paper) return;
   _activePaperId = id;
   renderPaperLibraryList();
-  // Show active bar
+
   var bar = document.getElementById('paper-trace-active-bar');
   var lbl = document.getElementById('paper-trace-active-label');
   if (bar) bar.style.display = 'flex';
   if (lbl) lbl.textContent = 'Viewing: ' + paper.cite;
-  // Switch to KG and trace
+
   switchTab('graph');
   setTimeout(function() {
     var toggle = document.getElementById('kg-trace-toggle');
     if (toggle) toggle.style.display = 'flex';
-    if (typeof showKgRailModeSection === 'function') showKgRailModeSection();
-    _kgTraceMode = 'paper';
-    setKgTraceModeBtn('paper');
-    resetKgColors();
-    revealKgPathColors(paper.nodes, true);
+    showKgRailModeSection();
+    setKgTraceMode('paper');
   }, 100);
 }
 
 function clearActivePaperTrace() {
   _activePaperId = null;
-  _kgTraceMode = 'mydesign';
   var bar = document.getElementById('paper-trace-active-bar');
   if (bar) bar.style.display = 'none';
   var toggle = document.getElementById('kg-trace-toggle');
   if (toggle) toggle.style.display = _paperLibrary.length > 0 ? 'flex' : 'none';
-  if (_kgRevealed) { resetKgColors(); revealKgPathColors(_kgActive); }
-  setKgTraceModeBtn('mydesign');
+  setKgTraceMode('mydesign');
   renderPaperLibraryList();
 }
 
-// Keep old name for backward compat
+// Keep old name for backward compatibility.
 function clearPaperTrace() { clearActivePaperTrace(); }
 
 function setKgTraceMode(mode) {
   _kgTraceMode = mode;
   setKgTraceModeBtn(mode);
-  if (!_kgRevealed) { revealKgPath(); return; }
-  resetKgColors();
-  var activePaper = _paperLibrary.find(function(p) { return p.id === _activePaperId; });
-  if (mode === 'mydesign') {
-    revealKgPathColors(_kgActive);
-  } else if (mode === 'paper' && activePaper) {
-    revealKgPathColors(activePaper.nodes, true);
-  } else if (mode === 'diff' && activePaper) {
-    applyDiffColors(activePaper.nodes);
+  if (!_kgRevealed) {
+    revealKgPath();
+    setTimeout(function(){ applyGraphColors(); }, 450);
+    return;
   }
+  applyGraphColors();
 }
 
 function setKgTraceModeBtn(mode) {
@@ -7325,117 +7331,68 @@ function resetKgColors() {
   });
 }
 
-function revealKgPathColors(activeSet, isPaper) {
-  if (typeof KG_BLUEPRINT === 'undefined') return;
-  var colorMap = {problem:'#ef4444',logic:'#3b82f6',tool:'#10b981',diag:'#f59e0b'};
-  var paperColor = '#f59e0b';
-  KG_BLUEPRINT.nodes.forEach(function(n) {
-    if (!activeSet.has(n.id)) return;
-    var g = d3.select('#kgn-' + n.id);
-    var color = isPaper ? paperColor : colorMap[n.cat];
-    g.select('rect').transition().duration(500)
-      .attr('fill', color+'22').attr('stroke', color).attr('stroke-width',2);
-    g.select('.kg-node-text').transition().duration(500)
-      .attr('fill','#ffffff').attr('font-weight',700);
-    if (isPaper) g.select('.kg-node-paper-ring').attr('opacity',0.7);
-  });
-  KG_BLUEPRINT.edges.forEach(function(e,idx) {
-    if (!activeSet.has(e.s) || !activeSet.has(e.t)) return;
-    var sNode = KG_BLUEPRINT.nodes.find(function(n){ return n.id===e.s; });
-    var edgeColor = isPaper ? paperColor : (sNode ? colorMap[sNode.cat] : '#cbd5e1');
-    d3.select('#kge-'+idx).transition().duration(500)
-      .attr('stroke',edgeColor).attr('stroke-width',1.5).attr('opacity',0.8)
-      .attr('marker-end','url(#arrow-lit)');
-  });
-}
+function applyGraphColors() {
+  if (!_kgRevealed || typeof KG_BLUEPRINT === 'undefined') return;
 
-function applyDiffColors(paperNodes) {
-  if (!paperNodes || typeof KG_BLUEPRINT === 'undefined') return;
+  var colorMap = {problem:'#ef4444', logic:'#3b82f6', tool:'#10b981', diag:'#f59e0b'};
+  var myDesignNodes = _kgActive instanceof Set ? _kgActive : new Set(_kgActive || []);
+  var activePaper = _paperLibrary.find(function(p) { return p.id === _activePaperId; });
+  var paperNodes = activePaper ? activePaper.nodes : new Set();
+
   KG_BLUEPRINT.nodes.forEach(function(n) {
-    var inMy = _kgActive && _kgActive.has(n.id);
+    var gNode = document.getElementById('kgn-' + n.id);
+    if (!gNode) return;
+    var g = d3.select(gNode);
+    var rect = g.select('rect');
+    var text = g.selectAll('text');
+    var centerDot = g.selectAll('circle').filter(function() { return d3.select(this).attr('r') == 5; });
+    var categoryColor = colorMap[n.cat] || '#94a3b8';
+    var inMy = myDesignNodes.has(n.id);
     var inPaper = paperNodes.has(n.id);
-    var g = d3.select('#kgn-' + n.id);
-    if (inMy && inPaper) {
-      // Overlap — bright green, filled, bold label
-      g.select('rect').transition().duration(400)
-        .attr('fill','#14532d').attr('stroke','#22c55e').attr('stroke-width',2.5);
-      g.select('.kg-node-text').transition().duration(400)
-        .attr('fill','#86efac').attr('font-weight',700);
-    } else if (inPaper && !inMy) {
-      // Paper only — bright amber, ring indicator
-      g.select('rect').transition().duration(400)
-        .attr('fill','#451a03').attr('stroke','#fb923c').attr('stroke-width',2.5);
-      g.select('.kg-node-text').transition().duration(400)
-        .attr('fill','#fdba74').attr('font-weight',700);
-      g.select('.kg-node-paper-ring').transition().duration(400).attr('opacity',1);
-    } else if (inMy && !inPaper) {
-      // Your design only — muted slate, clearly dimmed
-      g.select('rect').transition().duration(400)
-        .attr('fill','#0f172a').attr('stroke','#334155').attr('stroke-width',1);
-      g.select('.kg-node-text').transition().duration(400)
-        .attr('fill','#475569').attr('font-weight',400);
-    } else {
-      // Neither — near invisible
-      g.select('rect').transition().duration(400)
-        .attr('fill','#020e1f').attr('stroke','#1e293b').attr('stroke-width',0.5);
-      g.select('.kg-node-text').transition().duration(400)
-        .attr('fill','#1e3a5a').attr('font-weight',400);
+
+    var isActive = false, fill = 'rgba(51,65,85,0.22)', stroke = '#334155', strokeW = 1, txt = '#64748b', glow = null;
+
+    if (_kgTraceMode === 'mydesign') {
+      isActive = inMy;
+      if (isActive) { fill = categoryColor + '26'; stroke = categoryColor; strokeW = 2.6; txt = '#fff'; glow = 'url(#glow-' + n.cat + ')'; }
+    } else if (_kgTraceMode === 'paper') {
+      isActive = inPaper;
+      if (isActive) { fill = '#f59e0b2b'; stroke = '#f59e0b'; strokeW = 3; txt = '#fff7ed'; glow = 'url(#glow-diag)'; }
+    } else if (_kgTraceMode === 'diff') {
+      isActive = inMy || inPaper;
+      if (inMy && inPaper) { fill = '#22c55e2b'; stroke = '#22c55e'; strokeW = 3.2; txt = '#f0fdf4'; glow = 'url(#glow-tool)'; }
+      else if (inPaper) { fill = '#fb923c2b'; stroke = '#fb923c'; strokeW = 3.2; txt = '#fff7ed'; glow = 'url(#glow-diag)'; }
+      else if (inMy) { fill = '#47556933'; stroke = '#64748b'; strokeW = 1.8; txt = '#cbd5e1'; }
     }
+
+    gNode.classList.toggle('is-active', isActive);
+    rect.transition().duration(350).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', strokeW);
+    rect.attr('filter', glow);
+    text.transition().duration(350).attr('fill', txt);
+    if (!centerDot.empty()) centerDot.transition().duration(350).attr('opacity', isActive ? 0.95 : 0);
   });
-  // Also color edges
-  KG_BLUEPRINT.edges.forEach(function(e,idx) {
-    var inMy = _kgActive && _kgActive.has(e.s) && _kgActive.has(e.t);
-    var inPaper = paperNodes.has(e.s) && paperNodes.has(e.t);
-    var edgeEl = d3.select('#kge-'+idx);
-    if (inMy && inPaper) {
-      edgeEl.transition().duration(400).attr('stroke','#22c55e').attr('stroke-width',1.5).attr('opacity',0.9).attr('marker-end','url(#arrow-lit)');
-    } else if (inPaper && !inMy) {
-      edgeEl.transition().duration(400).attr('stroke','#fb923c').attr('stroke-width',1.5).attr('opacity',0.9).attr('marker-end','url(#arrow-lit)');
-    } else {
-      edgeEl.transition().duration(400).attr('stroke','#1e293b').attr('stroke-width',0.5).attr('opacity',0);
+
+  KG_BLUEPRINT.edges.forEach(function(e, idx) {
+    var line = d3.select('#kge-' + idx), lbl = d3.select('#kgel-' + idx);
+    if (line.empty()) return;
+    var sMy = myDesignNodes.has(e.s), tMy = myDesignNodes.has(e.t), sPaper = paperNodes.has(e.s), tPaper = paperNodes.has(e.t);
+    var show = false, lineColor = '#334155', strokeW = 0.7;
+
+    if (_kgTraceMode === 'mydesign') {
+      show = sMy && tMy;
+      if (show) { var sn = KG_BLUEPRINT.nodes.find(function(n){ return n.id === e.s; }); lineColor = sn ? colorMap[sn.cat] : '#7eb6ff'; strokeW = 1.8; }
+    } else if (_kgTraceMode === 'paper') {
+      show = sPaper && tPaper;
+      if (show) { lineColor = '#f59e0b'; strokeW = 2.2; }
+    } else if (_kgTraceMode === 'diff') {
+      if (sMy && tMy && sPaper && tPaper) { show = true; lineColor = '#22c55e'; strokeW = 2.6; }
+      else if (sPaper && tPaper) { show = true; lineColor = '#fb923c'; strokeW = 2.6; }
+      else if (sMy && tMy) { show = true; lineColor = '#64748b'; strokeW = 1.2; }
     }
+
+    line.transition().duration(350).attr('stroke', lineColor).attr('opacity', show ? 0.88 : 0).attr('stroke-width', strokeW);
+    lbl.transition().duration(350).attr('opacity', show ? 0.88 : 0).attr('fill', lineColor);
   });
-}
-
-function addNodeRings() {
-  if (typeof KG_BLUEPRINT === 'undefined') return;
-  KG_BLUEPRINT.nodes.forEach(function(n) {
-    var g = d3.select('#kgn-' + n.id);
-    if (g.select('.kg-node-paper-ring').empty()) {
-      g.append('rect').attr('class','kg-node-paper-ring')
-        .attr('width',124).attr('height',44).attr('x',-62).attr('y',-22)
-        .attr('rx',10).attr('ry',10).attr('fill','none')
-        .attr('stroke','#f59e0b').attr('stroke-width',3)
-        .attr('opacity',0).attr('pointer-events','none');
-    }
-  });
-}
-
-function restorePaperProfile() {
-  _loadLibrary();
-  renderPaperLibraryList();
-  _updateComparativeAvailability();
-  // Restore KG toggle if library has papers
-  if (_paperLibrary.length > 0) {
-    var toggle = document.getElementById('kg-trace-toggle');
-    if (toggle) toggle.style.display = 'flex';
-  }
-}
-
-function _updateComparativeAvailability() {
-  // Called after library changes — updates the export modal if it's open
-  var btn = document.getElementById('export-comparative-btn');
-  if (!btn) return;
-  var hasPapers = _paperLibrary.length > 0;
-  btn.disabled = !hasPapers;
-  btn.title = hasPapers ? '' : 'Add at least one paper in the Methods tab first';
-}
-
-// Auto-init if renderResults already ran
-if (window._paperProfilePending) {
-  window._paperProfilePending = false;
-  initPaperNodeGrid();
-  restorePaperProfile();
 }
 
 // ── Export Modal ─────────────────────────────────────────────────────────────
@@ -7688,396 +7645,23 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeTrainerGuide();
   }
 });
-// Initialize categorized node grid
-function initPaperNodeGrid() {
-  const cats = { problem: [], logic: [], tool: [], diag: [] };
-  KG_BLUEPRINT.nodes.forEach(n => cats[n.cat].push(n));
-  
-  const buildGroup = (title, color, nodes) => {
-    return `<div style="margin-bottom:10px;">
-      <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:${color};font-weight:700;margin-bottom:6px;border-bottom:.5px solid ${color}40;padding-bottom:4px;">${title}</div>
-      ${nodes.map(n => `<label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text);margin-bottom:4px;cursor:pointer;">
-        <input type="checkbox" class="paper-node-chk" value="${n.id}" onchange="checkTraceReady()"> ${n.label}
-      </label>`).join('')}
-    </div>`;
-  };
-
-  document.getElementById('grid-col-problems').innerHTML = buildGroup('Problems', 'var(--kg-problem)', cats.problem);
-  document.getElementById('grid-col-logic').innerHTML = buildGroup('Logic', 'var(--kg-logic)', cats.logic);
-  document.getElementById('grid-col-tools').innerHTML = buildGroup('Tools', 'var(--kg-tool)', cats.tool);
-  document.getElementById('grid-col-diags').innerHTML = buildGroup('Diagnostics', 'var(--kg-diag)', cats.diag);
-  
-  // Populate preset dropdown
-  const sel = document.getElementById('paper-preset-select');
-  if (sel && sel.options.length === 1 && typeof FOUNDATIONAL_PAPERS !== 'undefined') {
-    FOUNDATIONAL_PAPERS.forEach((p, i) => {
-      sel.innerHTML += `<option value="${i}">${p.title.substring(0, 50)}...</option>`;
-    });
-  }
-}
-
-// Auto-fill from selection
+// ── Canonical paper-library helpers ───────────────────────────────────────────
 function autoFillPaper(idx) {
-  if (idx === "") return;
-  const paper = FOUNDATIONAL_PAPERS[idx];
-  document.getElementById('paper-cite-input').value = `${paper.authors} (${paper.year}) — ${paper.title}`;
-  
-  // Map tags to node IDs and check them
-  const tagToNode = { 'hedonic':'t_ols', 'did':'t_did', 'iv':'t_iv', 'rd':'t_rd', 'spatial':'t_sar', 'panel':'t_fe', 'inference':'d_robust' };
-  const nodesToSelect = (paper.tags || []).map(t => tagToNode[t]).filter(Boolean);
-  
-  document.querySelectorAll('.paper-node-chk').forEach(chk => {
-    chk.checked = nodesToSelect.includes(chk.value);
-  });
-  checkTraceReady();
-}
+  if (idx === "" || typeof FOUNDATIONAL_PAPERS === 'undefined') return;
+  var paper = FOUNDATIONAL_PAPERS[idx];
+  if (!paper) return;
+  var cite = document.getElementById('paper-cite-input');
+  if (cite) cite.value = paper.authors + ' (' + paper.year + ') — ' + paper.title;
 
-// Calculate deterministic match score
-function getMatchScoreHTML(selectedNodes) {
-  if (!window._kgActive || _kgActive.size === 0) return '';
-  const overlap = selectedNodes.filter(n => _kgActive.has(n)).length;
-  const pct = Math.round((overlap / _kgActive.size) * 100);
-  
-  let color = 'var(--hint)';
-  if (pct >= 60) color = 'var(--kg-tool)';
-  else if (pct >= 30) color = 'var(--kg-diag)';
-  
-  return `<span style="margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;border:.5px solid ${color}40;color:${color};background:${color}15;">${pct}% Match</span>`;
-}
-
-// Helper to hide empty state when adding items
-function updateEmptyState() {
-  const empty = document.getElementById('paper-empty-state');
-  const list = document.getElementById('paper-library-list');
-  if (empty) empty.style.display = list.children.length > 1 ? 'none' : 'block';
-}
-// --- ADD PAPER & TRACE LOGIC ---
-function initPaperNodeGrid() {
-  const cats = { problem: [], logic: [], tool: [], diag: [] };
-  KG_BLUEPRINT.nodes.forEach(n => cats[n.cat].push(n));
-  
-  const buildGroup = (title, color, nodes) => {
-    return `<div style="margin-bottom:10px;">
-      <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:${color};font-weight:700;margin-bottom:6px;border-bottom:.5px solid ${color}40;padding-bottom:4px;">${title}</div>
-      ${nodes.map(n => `<label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text);margin-bottom:4px;cursor:pointer;">
-        <input type="checkbox" class="paper-node-chk" value="${n.id}" onchange="checkTraceReady()"> ${n.label}
-      </label>`).join('')}
-    </div>`;
+  var tagToNode = {
+    hedonic:'t_ols', did:'t_did', iv:'t_iv', rd:'t_rd', spatial:'t_sar',
+    panel:'t_fe', inference:'d_robust'
   };
-
-  const pCol = document.getElementById('grid-col-problems');
-  if (pCol) {
-      pCol.innerHTML = buildGroup('Problems', 'var(--kg-problem)', cats.problem);
-      document.getElementById('grid-col-logic').innerHTML = buildGroup('Logic', 'var(--kg-logic)', cats.logic);
-      document.getElementById('grid-col-tools').innerHTML = buildGroup('Tools', 'var(--kg-tool)', cats.tool);
-      document.getElementById('grid-col-diags').innerHTML = buildGroup('Diagnostics', 'var(--kg-diag)', cats.diag);
-  }
-  
-  const sel = document.getElementById('paper-preset-select');
-  if (sel && sel.options.length === 1 && typeof FOUNDATIONAL_PAPERS !== 'undefined') {
-    FOUNDATIONAL_PAPERS.forEach((p, i) => {
-      sel.innerHTML += `<option value="${i}">${p.title.substring(0, 50)}...</option>`;
-    });
-  }
-}
-
-function autoFillPaper(idx) {
-  if (idx === "") return;
-  const paper = FOUNDATIONAL_PAPERS[idx];
-  document.getElementById('paper-cite-input').value = `${paper.authors} (${paper.year}) — ${paper.title}`;
-  
-  const tagToNode = { 'hedonic':'t_ols', 'did':'t_did', 'iv':'t_iv', 'rd':'t_rd', 'spatial':'t_sar', 'panel':'t_fe', 'inference':'d_robust' };
-  const nodesToSelect = (paper.tags || []).map(t => tagToNode[t]).filter(Boolean);
-  
-  document.querySelectorAll('.paper-node-chk').forEach(chk => {
-    chk.checked = nodesToSelect.includes(chk.value);
+  var nodesToSelect = (paper.tags || []).map(function(t){ return tagToNode[t]; }).filter(Boolean);
+  document.querySelectorAll('#paper-node-grid input[type=checkbox]').forEach(function(cb) {
+    cb.checked = nodesToSelect.indexOf(cb.value) !== -1;
   });
-  checkTraceReady();
-}
-
-function getMatchScoreHTML(selectedNodes) {
-  if (!window._kgActive || _kgActive.size === 0) return '';
-  const overlap = selectedNodes.filter(n => _kgActive.has(n)).length;
-  const pct = Math.round((overlap / _kgActive.size) * 100);
-  
-  let color = 'var(--hint)';
-  if (pct >= 60) color = 'var(--kg-tool)';
-  else if (pct >= 30) color = 'var(--kg-diag)';
-  
-  return `<span style="margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;border:.5px solid ${color}40;color:${color};background:${color}15;">${pct}% Match</span>`;
-}
-
-function updateEmptyState() {
-  const empty = document.getElementById('paper-empty-state');
-  const list = document.getElementById('paper-library-list');
-  if (empty && list) empty.style.display = list.children.length > 1 ? 'none' : 'block';
-}
-
-function openAddPaperForm() {
-  document.getElementById('add-paper-form').style.display = 'block';
-  document.getElementById('add-paper-btn').style.display = 'none';
-  const col = document.getElementById('grid-col-problems');
-  if (col && col.innerHTML.trim() === '') initPaperNodeGrid();
-}
-
-function closeAddPaperForm() {
-  document.getElementById('add-paper-form').style.display = 'none';
-  document.getElementById('add-paper-btn').style.display = 'inline-flex';
-  document.getElementById('paper-cite-input').value = '';
-  document.getElementById('paper-preset-select').value = '';
-  document.querySelectorAll('.paper-node-chk').forEach(c => c.checked = false);
-  checkTraceReady();
-}
-
-function checkTraceReady() {
-  const btn = document.getElementById('paper-trace-btn');
-  const cite = document.getElementById('paper-cite-input');
-  if (!btn || !cite) return;
-  const hasText = cite.value.trim().length > 0;
-  const hasChecked = document.querySelectorAll('.paper-node-chk:checked').length > 0;
-  btn.disabled = !(hasText && hasChecked);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const citeInput = document.getElementById('paper-cite-input');
-  if (citeInput) citeInput.addEventListener('input', checkTraceReady);
-});
-
-let _mappedPapers = [];
-let _currentTraceMode = 'mydesign';
-let _activePaperNodes = [];
-
-function applyPaperTrace() {
-  const cite = document.getElementById('paper-cite-input').value.trim();
-  const checkedNodes = Array.from(document.querySelectorAll('.paper-node-chk:checked')).map(c => c.value);
-  
-  _mappedPapers.push({ title: cite, nodes: checkedNodes });
-  renderMappedPapers();
-  closeAddPaperForm();
-  updateEmptyState();
-  viewPaperOnKG(_mappedPapers.length - 1);
-}
-
-function renderMappedPapers() {
-  const list = document.getElementById('paper-library-list');
-  if (!list) return;
-  if (_mappedPapers.length === 0) {
-     list.innerHTML = `<div id="paper-empty-state" style="color:var(--hint);font-size:12.5px;font-style:italic;padding:8px 0;">No papers mapped yet.</div>`;
-     return;
-  }
-  list.innerHTML = _mappedPapers.map((p, i) => {
-    const scoreHTML = typeof getMatchScoreHTML === 'function' ? getMatchScoreHTML(p.nodes) : '';
-    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:.5px solid var(--border);border-radius:8px;">
-      <div style="flex:1;font-size:13px;color:var(--text);font-weight:500;">${esc(p.title)}</div>
-      ${scoreHTML}
-      <button onclick="viewPaperOnKG(${i})" style="background:var(--surface);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;">View on KG →</button>
-    </div>`;
-  }).join('');
-}
-
-function viewPaperOnKG(idx) {
-  const p = _mappedPapers[idx];
-  if (!p) return;
-  
-  switchTab('graph');
-  
-  const bar = document.getElementById('paper-trace-active-bar');
-  const lbl = document.getElementById('paper-trace-active-label');
-  if (bar) bar.style.display = 'flex';
-  if (lbl) lbl.textContent = 'Viewing diff: ' + p.title;
-  
-  const traceToggle = document.getElementById('kg-trace-toggle');
-  if(traceToggle) traceToggle.style.display = 'flex';
-
-  // Show the toggles inside the KG left rail (visible in full screen)
-  const railMode = document.getElementById('kg-rail-mode-section');
-  if(railMode) railMode.style.display = 'block';
-  
-  _activePaperNodes = p.nodes;
-  
-  if (!_kgRevealed) {
-    revealKgPath();
-    setTimeout(() => setKgTraceMode('diff'), 1200); 
-  } else {
-    setKgTraceMode('diff');
-  }
-}
-
-function clearActivePaperTrace() {
-  const bar = document.getElementById('paper-trace-active-bar');
-  if (bar) bar.style.display = 'none';
-  
-  const traceToggle = document.getElementById('kg-trace-toggle');
-  if(traceToggle) traceToggle.style.display = 'none';
-
-  const railMode = document.getElementById('kg-rail-mode-section');
-  if(railMode) railMode.style.display = 'none';
-  
-  _activePaperNodes = [];
-  setKgTraceMode('mydesign');
-}
-
-function setKgTraceMode(mode) {
-  _currentTraceMode = mode;
-  
-  // Update both the top bar and the left rail buttons
-  document.querySelectorAll('.kg-trace-mode-btn, .kg-rail-mode-btn').forEach(btn => {
-    btn.classList.remove('active-mydesign', 'active-paper', 'active-diff');
-    if (btn.id.includes(mode)) btn.classList.add('active-' + mode);
-  });
-
-  const legend = document.getElementById('kg-rail-legend-diff');
-  if (legend) legend.style.display = mode === 'diff' ? 'flex' : 'none';
-  
-  applyGraphColors();
-}
-
-function applyGraphColors() {
-  if (!_kgRevealed || typeof KG_BLUEPRINT === 'undefined') return;
-
-  const colorMap = {
-    problem: '#ef4444',
-    logic:   '#3b82f6',
-    tool:    '#10b981',
-    diag:    '#f59e0b'
-  };
-  const myDesignNodes = _kgActive instanceof Set ? _kgActive : new Set(_kgActive || []);
-  const paperNodes = new Set(_activePaperNodes || []);
-
-  // Mode-specific palette: My Design keeps the architecture colors,
-  // Paper is deliberately amber/orange, Diff uses comparison semantics.
-  KG_BLUEPRINT.nodes.forEach(n => {
-    const gNode = document.getElementById('kgn-' + n.id);
-    if (!gNode) return;
-
-    const g = d3.select(gNode);
-    const rect = g.select('rect');
-    const text = g.selectAll('text');
-    const centerDot = g.selectAll('circle').filter(function() {
-      return d3.select(this).attr('r') == 5;
-    });
-
-    const categoryColor = colorMap[n.cat] || '#94a3b8';
-    const inMyDesign = myDesignNodes.has(n.id);
-    const inPaper = paperNodes.has(n.id);
-
-    let isActive = false;
-    let fill = 'rgba(51,65,85,0.22)';
-    let stroke = '#334155';
-    let strokeW = 1;
-    let txtColor = '#64748b';
-    let glowUrl = null;
-
-    if (_currentTraceMode === 'mydesign') {
-      isActive = inMyDesign;
-      if (isActive) {
-        fill = categoryColor + '26';
-        stroke = categoryColor;
-        strokeW = 2.6;
-        txtColor = '#ffffff';
-        glowUrl = 'url(#glow-' + n.cat + ')';
-      }
-    } else if (_currentTraceMode === 'paper') {
-      isActive = inPaper;
-      if (isActive) {
-        fill = '#f59e0b2b';
-        stroke = '#f59e0b';
-        strokeW = 3;
-        txtColor = '#fff7ed';
-        glowUrl = 'url(#glow-diag)';
-      }
-    } else if (_currentTraceMode === 'diff') {
-      isActive = inMyDesign || inPaper;
-      if (inMyDesign && inPaper) {
-        // Shared by both designs.
-        fill = '#22c55e2b';
-        stroke = '#22c55e';
-        strokeW = 3.2;
-        txtColor = '#f0fdf4';
-        glowUrl = 'url(#glow-tool)';
-      } else if (inPaper) {
-        // Paper-only.
-        fill = '#fb923c2b';
-        stroke = '#fb923c';
-        strokeW = 3.2;
-        txtColor = '#fff7ed';
-        glowUrl = 'url(#glow-diag)';
-      } else if (inMyDesign) {
-        // Your-design-only: visible, but intentionally subdued.
-        fill = '#47556933';
-        stroke = '#64748b';
-        strokeW = 1.8;
-        txtColor = '#cbd5e1';
-      }
-    }
-
-    // This class controls the graph's opacity/label emphasis rules.
-    gNode.classList.toggle('is-active', isActive);
-
-    rect.transition().duration(350)
-      .attr('fill', fill)
-      .attr('stroke', stroke)
-      .attr('stroke-width', strokeW);
-    rect.attr('filter', glowUrl);
-
-    text.transition().duration(350).attr('fill', txtColor);
-    if (!centerDot.empty()) {
-      centerDot.transition().duration(350).attr('opacity', isActive ? 0.95 : 0);
-    }
-  });
-
-  KG_BLUEPRINT.edges.forEach((e, idx) => {
-    const line = d3.select('#kge-' + idx);
-    const lbl = d3.select('#kgel-' + idx);
-    if (line.empty()) return;
-
-    const sInMyDesign = myDesignNodes.has(e.s);
-    const tInMyDesign = myDesignNodes.has(e.t);
-    const sInPaper = paperNodes.has(e.s);
-    const tInPaper = paperNodes.has(e.t);
-
-    let showLine = false;
-    let lineColor = '#334155';
-    let strokeW = 0.7;
-
-    if (_currentTraceMode === 'mydesign') {
-      showLine = sInMyDesign && tInMyDesign;
-      if (showLine) {
-        const sourceNode = KG_BLUEPRINT.nodes.find(n => n.id === e.s);
-        lineColor = sourceNode ? colorMap[sourceNode.cat] : '#7eb6ff';
-        strokeW = 1.8;
-      }
-    } else if (_currentTraceMode === 'paper') {
-      showLine = sInPaper && tInPaper;
-      if (showLine) {
-        lineColor = '#f59e0b';
-        strokeW = 2.2;
-      }
-    } else if (_currentTraceMode === 'diff') {
-      if (sInMyDesign && tInMyDesign && sInPaper && tInPaper) {
-        showLine = true;
-        lineColor = '#22c55e';
-        strokeW = 2.6;
-      } else if (sInPaper && tInPaper) {
-        showLine = true;
-        lineColor = '#fb923c';
-        strokeW = 2.6;
-      } else if (sInMyDesign && tInMyDesign) {
-        showLine = true;
-        lineColor = '#64748b';
-        strokeW = 1.2;
-      }
-    }
-
-    line.transition().duration(350)
-      .attr('stroke', lineColor)
-      .attr('opacity', showLine ? 0.88 : 0)
-      .attr('stroke-width', strokeW);
-
-    lbl.transition().duration(350)
-      .attr('opacity', showLine ? 0.88 : 0)
-      .attr('fill', lineColor);
-  });
+  onPaperNodeChange();
 }
 
 </script>
