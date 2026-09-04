@@ -7878,35 +7878,148 @@ function renderMappedPapers() {
 function viewPaperOnKG(idx) {
   const p = _mappedPapers[idx];
   if (!p) return;
+  
   switchTab('graph');
+  
   const bar = document.getElementById('paper-trace-active-bar');
   const lbl = document.getElementById('paper-trace-active-label');
   if (bar) bar.style.display = 'flex';
   if (lbl) lbl.textContent = `Viewing diff: ${p.title}`;
+  
+  // Show toggle above the grid
   const traceToggle = document.getElementById('kg-trace-toggle');
   if(traceToggle) traceToggle.style.display = 'flex';
+
+  // Show toggle inside the KG left rail (so it's visible in full screen)
+  const railMode = document.getElementById('kg-rail-mode-section');
+  if(railMode) railMode.style.display = 'block';
+  
   _activePaperNodes = p.nodes;
-  if (!_kgRevealed) revealKgPath();
-  setTimeout(() => setKgTraceMode('diff'), _kgRevealed ? 0 : 1200);
+  
+  // Wait out the theatrical reveal animation if the graph hasn't been drawn yet
+  if (!_kgRevealed) {
+    revealKgPath();
+    setTimeout(() => setKgTraceMode('diff'), 3000); 
+  } else {
+    setKgTraceMode('diff');
+  }
 }
 
 function clearActivePaperTrace() {
   const bar = document.getElementById('paper-trace-active-bar');
   if (bar) bar.style.display = 'none';
+  
   const traceToggle = document.getElementById('kg-trace-toggle');
   if(traceToggle) traceToggle.style.display = 'none';
+
+  const railMode = document.getElementById('kg-rail-mode-section');
+  if(railMode) railMode.style.display = 'none';
+  
   _activePaperNodes = [];
   setKgTraceMode('mydesign');
 }
 
 function setKgTraceMode(mode) {
   _currentTraceMode = mode;
-  document.querySelectorAll('.kg-trace-mode-btn').forEach(btn => {
+  
+  // Update both sets of buttons (the one above the grid and the one in the KG rail)
+  document.querySelectorAll('.kg-trace-mode-btn, .kg-rail-mode-btn').forEach(btn => {
     btn.classList.remove('active-mydesign', 'active-paper', 'active-diff');
-    const btnMode = btn.id.replace('kg-mode-', '');
-    if (btnMode === mode) btn.classList.add(`active-${mode}`);
+    if (btn.id.includes(mode)) btn.classList.add(`active-${mode}`);
   });
+
+  // Show the color legend only when in Diff mode
+  const legend = document.getElementById('kg-rail-legend-diff');
+  if (legend) legend.style.display = mode === 'diff' ? 'flex' : 'none';
+  
   applyGraphColors();
+}
+
+function applyGraphColors() {
+  if (!_kgRevealed) return;
+  
+  const colorMap = { problem:'#ef4444', logic:'#3b82f6', tool:'#10b981', diag:'#f59e0b' };
+  const myDesignNodes = window._kgActive || new Set();
+  const paperNodes = new Set(_activePaperNodes || []);
+  
+  KG_BLUEPRINT.nodes.forEach(n => {
+    const gNode = document.getElementById('kgn-' + n.id);
+    if (!gNode) return;
+    const g = d3.select(gNode);
+    const rect = g.select('rect');
+    const text = g.selectAll('text');
+    const color = colorMap[n.cat];
+    
+    const inMyDesign = myDesignNodes.has(n.id);
+    const inPaper = paperNodes.has(n.id);
+    
+    let isActive = false;
+    let fill = 'rgba(51,65,85,0.3)';
+    let stroke = '#334155';
+    let strokeW = 1;
+    let txtColor = '#374151';
+    let glowClass = '';
+    
+    if (_currentTraceMode === 'mydesign') {
+      isActive = inMyDesign;
+      if (isActive) { fill = color + '22'; stroke = color; strokeW = 2; txtColor = '#ffffff'; glowClass = 'glow-'+n.cat; }
+    } else if (_currentTraceMode === 'paper') {
+      isActive = inPaper;
+      if (isActive) { fill = color + '22'; stroke = color; strokeW = 2; txtColor = '#ffffff'; glowClass = 'glow-'+n.cat; }
+    } else if (_currentTraceMode === 'diff') {
+      isActive = inMyDesign || inPaper;
+      if (inMyDesign && inPaper) {
+         fill = '#22c55e22'; stroke = '#22c55e'; strokeW = 2.5; txtColor = '#ffffff'; glowClass = 'glow-tool'; // Green
+      } else if (inPaper) {
+         fill = '#fb923c22'; stroke = '#fb923c'; strokeW = 2.5; txtColor = '#ffffff'; glowClass = 'glow-diag'; // Orange
+      } else if (inMyDesign) {
+         fill = color + '11'; stroke = color; strokeW = 1; txtColor = color; glowClass = ''; // Dimmed original color
+      }
+    }
+    
+    // Toggle the active class so the CSS text-sizing triggers correctly
+    gNode.classList.toggle('is-active', isActive);
+    
+    rect.node().className.baseVal = 'kg-node-rect'; // Reset glow classes
+    if (glowClass) rect.classed(glowClass, true);
+
+    rect.transition().duration(400).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', strokeW);
+    text.transition().duration(400).attr('fill', txtColor);
+  });
+  
+  KG_BLUEPRINT.edges.forEach((e, idx) => {
+    const line = d3.select('#kge-' + idx);
+    const lbl = d3.select('#kgel-' + idx);
+    if (line.empty()) return;
+    
+    const sInMyDesign = myDesignNodes.has(e.s);
+    const tInMyDesign = myDesignNodes.has(e.t);
+    const sInPaper = paperNodes.has(e.s);
+    const tInPaper = paperNodes.has(e.t);
+    
+    let showLine = false;
+    let lineColor = '#cbd5e1';
+    let strokeW = 0.7;
+    
+    if (_currentTraceMode === 'mydesign') {
+      showLine = sInMyDesign && tInMyDesign;
+      if(showLine) lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'paper') {
+      showLine = sInPaper && tInPaper;
+      if(showLine) lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'diff') {
+      if (sInMyDesign && tInMyDesign && sInPaper && tInPaper) {
+        showLine = true; lineColor = '#22c55e'; strokeW = 2.5;
+      } else if (sInPaper && tInPaper) {
+        showLine = true; lineColor = '#fb923c'; strokeW = 2.5;
+      } else if (sInMyDesign && tInMyDesign) {
+        showLine = true; lineColor = '#475569'; strokeW = 1; 
+      }
+    }
+    
+    line.transition().duration(400).attr('stroke', showLine ? lineColor : '#334155').attr('opacity', showLine ? 0.8 : 0).attr('stroke-width', showLine ? strokeW : 0.7);
+    lbl.transition().duration(400).attr('opacity', showLine ? 0.85 : 0).attr('fill', lineColor);
+  });
 }
 
 function applyGraphColors() {
