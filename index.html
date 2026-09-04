@@ -1527,7 +1527,7 @@ function _ensureToolsMenu(){
   const m=document.createElement('div');
   m.id='hdr-tools-menu';
   m.className='hdr-tools-menu';
-  m.innerHTML=`<button class="hdr-tools-item" onclick="closeToolsMenu();document.querySelector('.ov-impl-item.export')?.scrollIntoView({behavior:'smooth',block:'center'});"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
+  m.innerHTML=`<button class="hdr-tools-item" onclick="closeToolsMenu();openExportModal();"><span class="hdr-tools-icon">↓</span>Export log</button><button class="hdr-tools-item" onclick="openLibrary();closeToolsMenu()"><span class="hdr-tools-icon">⊞</span>Reference library</button><button class="hdr-tools-item" onclick="openAuditTool();closeToolsMenu()"><span class="hdr-tools-icon">⌂</span>Audit code</button>`;
   document.body.appendChild(m);
 }
 function toggleToolsMenu(e){
@@ -7129,6 +7129,92 @@ function exportReviewerCard(u) {
   setTimeout(() => w.print(), 600);
 }
 
+
+// ── MEETING-READY EXPORTS (canonical overrides) ─────────────────────────────
+function _exportEsc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+}
+function _exportLines(v) {
+  return String(v || '').split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+}
+function _exportPrintCSS() {
+  return `
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap');
+*{box-sizing:border-box} body{margin:0;background:#f3f6f8;color:#102235;font-family:'Instrument Sans',Arial,sans-serif;font-size:12.5px;line-height:1.55}
+.sheet{width:210mm;min-height:297mm;margin:0 auto;background:#fff;position:relative;padding:17mm 18mm 18mm}
+.topline{height:5px;background:linear-gradient(90deg,#173b5e 0 48%,#4f8aa7 48% 72%,#d9a441 72% 100%);margin:-17mm -18mm 12mm}
+.eyebrow{font:600 9px/1.2 'Courier New',monospace;letter-spacing:.16em;text-transform:uppercase;color:#4f7893;margin-bottom:6px}
+h1{font-family:'Source Serif 4',Georgia,serif;font-size:27px;line-height:1.12;font-weight:600;margin:0 0 7px;color:#102235;letter-spacing:-.02em}.subtitle{font-size:12px;color:#607489;margin-bottom:18px}
+.identity{display:grid;grid-template-columns:1.3fr .8fr .8fr;gap:8px;margin:14px 0 18px}.idcell{border-top:1px solid #bfd0dc;padding-top:6px}.idlabel{font:600 8px/1.2 'Courier New',monospace;text-transform:uppercase;letter-spacing:.12em;color:#7890a2}.idvalue{font-size:11.5px;color:#20394d;margin-top:3px}
+h2{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#315c78;margin:20px 0 8px;font-weight:700;border-bottom:1px solid #d9e4ea;padding-bottom:5px}.lead{font-family:'Source Serif 4',Georgia,serif;font-size:15px;line-height:1.55;color:#1e3446;margin:0}
+.spine{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.spine-card{background:#f5f8fa;border:1px solid #d9e5ec;border-radius:7px;padding:10px;min-height:76px}.spine-k{font:600 8px 'Courier New',monospace;letter-spacing:.1em;text-transform:uppercase;color:#668398}.spine-v{font-family:'Source Serif 4',Georgia,serif;font-size:13.5px;font-weight:600;color:#15354e;margin-top:5px;line-height:1.35}
+.callout{border-left:3px solid #d9a441;background:#fffaf0;padding:10px 12px;margin:8px 0;color:#3f4650}.callout.blue{border-left-color:#4f8aa7;background:#f4f9fc}.callout strong{color:#18374e}.agenda{counter-reset:item;list-style:none;padding:0;margin:5px 0}.agenda li{counter-increment:item;display:grid;grid-template-columns:24px 1fr;gap:7px;padding:7px 0;border-bottom:1px solid #e8eef2}.agenda li:before{content:counter(item,decimal-leading-zero);font:600 9px 'Courier New',monospace;color:#6a8799;padding-top:2px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}.check{padding:6px 0;border-bottom:1px solid #edf1f4}.check:before{content:'□';margin-right:7px;color:#51768d}.method{page-break-inside:avoid;border:1px solid #dce6ec;border-radius:7px;padding:10px 12px;margin:8px 0}.method-head{display:flex;justify-content:space-between;gap:10px}.method-label{font:600 8px 'Courier New',monospace;letter-spacing:.1em;text-transform:uppercase;color:#6e8798}.method-name{font-family:'Source Serif 4',Georgia,serif;font-size:14px;font-weight:600;margin:3px 0;color:#17364e}.method-detail{color:#425b6c;font-size:11.5px}.tag{font:600 8px 'Courier New',monospace;padding:3px 6px;border-radius:10px;background:#eaf2f6;color:#466b81;white-space:nowrap;height:max-content}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric-row{display:flex;gap:6px;flex-wrap:wrap}.metric{border:1px solid #dbe5eb;background:#f8fafb;border-radius:6px;padding:7px 9px;min-width:72px}.metric b{display:block;font-size:17px;color:#173b5e}.metric span{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#718899}.paper{border-left:3px solid #c98e2b;padding:8px 11px;background:#fffaf2;margin:8px 0;page-break-inside:avoid}.paper-title{font-family:'Source Serif 4',Georgia,serif;font-size:13.5px;font-weight:600;color:#293d4c}.small{font-size:10.5px;color:#688092}.footer{position:absolute;left:18mm;right:18mm;bottom:8mm;border-top:1px solid #dce5ea;padding-top:5px;display:flex;justify-content:space-between;font:9px 'Courier New',monospace;color:#8a9aa6}
+.pagebreak{page-break-before:always}.muted{color:#6d8190}.warn{color:#8a5a14}.good{color:#25624f} table{width:100%;border-collapse:collapse}th{font:600 8px 'Courier New',monospace;text-transform:uppercase;letter-spacing:.08em;color:#718899;text-align:left;border-bottom:1px solid #bfcfd9;padding:5px}td{padding:6px 5px;border-bottom:1px solid #edf1f4;vertical-align:top;font-size:11px}
+@media print{body{background:#fff}.sheet{margin:0;box-shadow:none;page-break-after:always}@page{size:A4;margin:0}}
+`;
+}
+function _exportOpen(title, inner) {
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+_exportEsc(title)+'</title><style>'+_exportPrintCSS()+'</style></head><body>'+inner+'</body></html>';
+  var w=window.open('','_blank'); if(!w){alert('Pop-up blocked. Please allow pop-ups for this site to generate the PDF.');return;}
+  w.document.write(html); w.document.close(); setTimeout(function(){w.focus();w.print();},700);
+}
+function _exportIdentity(u, type, dateStr) {
+  return '<div class="topline"></div><div class="eyebrow">'+_exportEsc(type)+'</div><h1>'+_exportEsc(u.studytitle || 'Econometric research design')+'</h1><div class="subtitle">'+_exportEsc(u.note || u.meeting || '')+'</div>'+ 
+    '<div class="identity"><div class="idcell"><div class="idlabel">Researcher</div><div class="idvalue">'+_exportEsc(u.author||'—')+(u.institution?'<br>'+_exportEsc(u.institution):'')+'</div></div><div class="idcell"><div class="idlabel">Advisor / audience</div><div class="idvalue">'+_exportEsc(u.advisor||u.committee||'—')+'</div></div><div class="idcell"><div class="idlabel">Date</div><div class="idvalue">'+_exportEsc(u.date||dateStr)+'</div></div></div>';
+}
+function _exportCore() {
+  var idSec=_toolkit&&_toolkit.sections?_toolkit.sections.find(function(s){return s.label==='Identification strategy';}):null;
+  var estSec=_toolkit&&_toolkit.sections?_toolkit.sections.find(function(s){return s.label==='Estimator & model specification';}):null;
+  var infSec=_toolkit&&_toolkit.sections?_toolkit.sections.find(function(s){return /inference|diagnostic/i.test(s.label);}):null;
+  var assumptionMap={'t_iv':['Instrument relevance','Exclusion restriction','Instrument independence'],'t_did':['Parallel trends','No anticipation','Stable treatment / no interference where required'],'t_rd':['No precise manipulation at cutoff','Continuity of potential outcomes at cutoff'],'t_ols':['Conditional exogeneity / no omitted confounding','Correct functional form'],'t_fe':['Strict exogeneity conditional on fixed effects','Time-varying confounding addressed'],'t_dml':['Neyman orthogonality','Cross-fitting','Sufficient nuisance-model quality'],'t_cf':['Unconfoundedness','Overlap','Honest sample splitting']};
+  var assumptions=[]; if(_toolkit&&_toolkit.active){Object.keys(assumptionMap).forEach(function(k){if(_toolkit.active.has(k)) assumptions=assumptions.concat(assumptionMap[k]);});}
+  assumptions=Array.from(new Set(assumptions));
+  var diagMap={'d_firststage':'First-stage strength / weak-IV diagnostics','d_sargan':'Overidentification test where justified','d_pretrend':'Pre-trend / event-study diagnostics','d_hausman':'Specification / endogeneity comparison','d_moran':'Spatial residual dependence','d_robust':'Robust / clustered inference','d_ftest':'Functional-form joint test'};
+  var diags=[]; if(_toolkit&&_toolkit.active){Object.keys(diagMap).forEach(function(k){if(_toolkit.active.has(k))diags.push(diagMap[k]);});}
+  var gaps=_toolkit&&_toolkit.gaps?_toolkit.gaps.slice():[];
+  return {idSec:idSec,estSec:estSec,infSec:infSec,assumptions:assumptions,diags:diags,gaps:gaps};
+}
+function _exportSpine(core){return '<div class="spine"><div class="spine-card"><div class="spine-k">Identification</div><div class="spine-v">'+_exportEsc(core.idSec?core.idSec.method:'Not yet resolved')+'</div></div><div class="spine-card"><div class="spine-k">Estimator</div><div class="spine-v">'+_exportEsc(core.estSec?core.estSec.method:'Not yet resolved')+'</div></div><div class="spine-card"><div class="spine-k">Inference / validation</div><div class="spine-v">'+_exportEsc(core.infSec?core.infSec.method:(core.diags[0]||'To be specified'))+'</div></div></div>';}
+
+function exportBrief(u){
+  u=u||{}; var base=_exportBase(), core=_exportCore();
+  var lead=(_aiPayload&&_aiPayload.narrative)||ans.context||'Current research design summary not available.';
+  var agenda=_exportLines(u.decisions); if(!agenda.length) agenda=core.gaps.slice(0,5); if(!agenda.length) agenda=['Confirm the identifying variation and counterfactual','Agree on the minimum diagnostic evidence required before the next meeting'];
+  var questions=agenda.map(function(x){return '<li>'+_exportEsc(x)+'</li>';}).join('');
+  var assumptions=core.assumptions.length?core.assumptions.map(function(x){return '<div class="check">'+_exportEsc(x)+'</div>';}).join(''):'<div class="muted">No method-specific assumptions mapped yet.</div>';
+  var diags=core.diags.length?core.diags.map(function(x){return '<div class="check">'+_exportEsc(x)+'</div>';}).join(''):'<div class="muted">No diagnostics mapped yet.</div>';
+  var papers=_paperLibrary&&_paperLibrary.length?_paperLibrary.slice(0,4).map(function(p){return '<div class="paper"><div class="paper-title">'+_exportEsc(p.title||p.cite)+'</div><div class="small">'+_exportEsc([p.authors,p.year].filter(Boolean).join(' · '))+'</div></div>';}).join(''):'<div class="muted">No comparison papers mapped yet.</div>';
+  var body='<section class="sheet">'+_exportIdentity(u,'Advisor meeting memo',base.dateStr)+'<h2>Design in one paragraph</h2><p class="lead">'+_exportEsc(lead)+'</p><h2>Methodological spine</h2>'+_exportSpine(core)+
+    '<h2>Purpose of this meeting</h2><div class="callout blue"><strong>Decision target:</strong> '+_exportEsc(u.meetinggoal||'Use this meeting to pressure-test the identification strategy and decide the next empirical step.')+'</div><h2>Questions / decisions for the advisor</h2><ol class="agenda">'+questions+'</ol><div class="two"><div><h2>Assumptions I need to defend</h2><div class="checks">'+assumptions+'</div></div><div><h2>Evidence I should bring</h2><div class="checks">'+diags+'</div></div></div><h2>Literature anchors currently mapped</h2>'+papers+'<div class="footer"><span>Econometric Advisor · advisor meeting memo</span><span>'+_exportEsc(u.date||base.dateStr)+'</span></div></section>';
+  _exportOpen('Advisor Meeting Memo',body);
+}
+
+function exportAppendix(u){
+  u=u||{}; var base=_exportBase(),core=_exportCore();
+  var methods=''; if(_toolkit&&_toolkit.sections){methods=_toolkit.sections.map(function(s){return '<div class="method"><div class="method-head"><div><div class="method-label">'+_exportEsc(s.label)+'</div><div class="method-name">'+_exportEsc(s.method)+'</div></div><div class="tag">'+_exportEsc(({critical:'essential',high:'strong',medium:'relevant',low:'reference'}[s.conf]||s.conf||''))+'</div></div>'+(s.detail?'<div class="method-detail">'+_exportEsc(s.detail)+'</div>':'')+(s.watch?'<div class="callout"><strong>Committee pressure point:</strong> '+_exportEsc(s.watch)+'</div>':'')+'</div>';}).join('');}
+  var robust=_exportLines(u.robustness); if(!robust.length) robust=core.diags.slice();
+  var literature=_paperLibrary&&_paperLibrary.length?_paperLibrary.map(function(p){return '<div class="paper"><div class="paper-title">'+_exportEsc(p.title||p.cite)+'</div><div class="small">'+_exportEsc([p.authors,p.year].filter(Boolean).join(' · '))+' · '+(p.nodes?p.nodes.size:0)+' mapped KG nodes</div></div>';}).join(''):'<div class="muted">No papers mapped.</div>';
+  var body='<section class="sheet">'+_exportIdentity(u,'Committee methods memo',base.dateStr)+'<h2>Design summary</h2><p class="lead">'+_exportEsc((_aiPayload&&_aiPayload.narrative)||ans.context||'Current design summary not available.')+'</p><h2>Methodological spine</h2>'+_exportSpine(core)+'<h2>Identification and estimation architecture</h2>'+methods+'<h2>Assumptions requiring explicit justification</h2><div class="checks">'+(core.assumptions.map(function(x){return '<div class="check">'+_exportEsc(x)+'</div>';}).join('')||'<div class="muted">No assumptions mapped.</div>')+'</div><h2>Robustness and diagnostic agenda</h2><ol class="agenda">'+robust.map(function(x){return '<li>'+_exportEsc(x)+'</li>';}).join('')+'</ol><h2>Mapped literature anchors</h2>'+literature+(u.note?'<div class="callout blue"><strong>Circulation note:</strong> '+_exportEsc(u.note)+'</div>':'')+'<div class="footer"><span>Econometric Advisor · committee methods memo</span><span>'+_exportEsc(u.version||u.date||base.dateStr)+'</span></div></section>';
+  _exportOpen('Committee Methods Memo',body);
+}
+
+function exportReviewerCard(u){
+  u=u||{};var base=_exportBase(),core=_exportCore();var agenda=_exportLines(u.decisions);if(!agenda.length)agenda=core.gaps.slice(0,4);if(!agenda.length)agenda=['Is the identifying assumption credible?','What is the most important falsification or robustness test?'];
+  var body='<section class="sheet">'+_exportIdentity(u,'One-page discussion card',base.dateStr)+'<h2>Design at a glance</h2>'+_exportSpine(core)+'<div class="two"><div><h2>Assumptions to interrogate</h2><div class="checks">'+(core.assumptions.slice(0,6).map(function(x){return '<div class="check">'+_exportEsc(x)+'</div>';}).join('')||'<div class="muted">—</div>')+'</div></div><div><h2>Diagnostics / evidence</h2><div class="checks">'+(core.diags.slice(0,6).map(function(x){return '<div class="check">'+_exportEsc(x)+'</div>';}).join('')||'<div class="muted">—</div>')+'</div></div></div><h2>Questions for the room</h2><ol class="agenda">'+agenda.slice(0,5).map(function(x){return '<li>'+_exportEsc(x)+'</li>';}).join('')+'</ol><h2>Study context</h2><p>'+_exportEsc(ans.context||((_aiPayload&&_aiPayload.narrative)||'—'))+'</p><div class="callout"><strong>Use this sheet as a discussion guide.</strong> A mapped method or diagnostic is not automatically a recommendation; the meeting should decide whether it is justified for this design.</div><div class="footer"><span>Econometric Advisor · one-page discussion card</span><span>'+_exportEsc(u.meeting||u.date||base.dateStr)+'</span></div></section>';
+  _exportOpen('One-Page Discussion Card',body);
+}
+
+function exportComparative(u){
+  u=u||{};if(!_paperLibrary||!_paperLibrary.length){alert('Map at least one paper in Methods before creating a literature positioning memo.');return;}var base=_exportBase();var my=_kgActive||new Set();
+  var nodeMap={};Object.keys(_PAPER_NODES||{}).forEach(function(cat){(_PAPER_NODES[cat]||[]).forEach(function(n){nodeMap[n.id]={label:n.label,cat:cat};});});
+  var catName={problem:'Problem',logic:'Strategic logic',tool:'Tool / estimator',diag:'Diagnostic'};
+  var sections=_paperLibrary.map(function(p,i){var pn=p.nodes||new Set(),shared=[],only=[];pn.forEach(function(id){(my.has(id)?shared:only).push(id);});var pct=pn.size?Math.round(shared.length/pn.size*100):0;var rows=only.map(function(id){var n=nodeMap[id]||{label:id,cat:''};return '<tr><td>'+_exportEsc(catName[n.cat]||n.cat)+'</td><td>'+_exportEsc(n.label)+'</td></tr>';}).join('');return '<div class="paper"><div class="paper-title">'+_exportEsc(p.title||p.cite)+'</div><div class="small">'+_exportEsc([p.authors,p.year].filter(Boolean).join(' · '))+'</div><div class="metric-row" style="margin-top:8px"><div class="metric"><b>'+shared.length+'</b><span>shared</span></div><div class="metric"><b>'+only.length+'</b><span>paper-only</span></div><div class="metric"><b>'+pct+'%</b><span>paper overlap</span></div></div>'+(u['overlap_'+i]?'<div class="callout blue"><strong>Common ground:</strong> '+_exportEsc(u['overlap_'+i])+'</div>':'')+(only.length?'<h2>Paper-only architecture</h2><table><thead><tr><th>Layer</th><th>Concept</th></tr></thead><tbody>'+rows+'</tbody></table>':'')+(u['gap_'+i]?'<div class="callout"><strong>Interpretation of the difference:</strong> '+_exportEsc(u['gap_'+i])+'</div>':'')+(u['beyond_'+i]?'<div class="callout blue"><strong>Where my design departs / contributes:</strong> '+_exportEsc(u['beyond_'+i])+'</div>':'')+'</div>';}).join('');
+  var body='<section class="sheet">'+_exportIdentity(u,'Literature positioning memo',base.dateStr)+'<h2>Purpose</h2><p class="lead">This memo uses the Knowledge Graph as an architectural comparison: shared nodes indicate methodological common ground; paper-only nodes identify elements used or emphasized by the literature that are absent from the current research design. Difference does not by itself imply that an element should be adopted.</p><h2>Paper comparisons</h2>'+sections+(u.synthesis?'<h2>Positioning statement</h2><div class="callout blue">'+_exportEsc(u.synthesis)+'</div>':'')+'<div class="footer"><span>Econometric Advisor · literature positioning memo</span><span>'+_exportEsc(u.date||base.dateStr)+'</span></div></section>';
+  _exportOpen('Literature Positioning Memo',body);
+}
+
 // ── Paper Profile & KG Trace ─────────────────────────────────────────────────
 // Multi-paper library — replaces single _paperProfile
 var _paperLibrary = []; // array of {id, cite, title, authors, year, nodes: Set}
@@ -7643,10 +7729,10 @@ function _renderExportModal() {
   if (_exportModalStep === 1) {
     title.textContent = 'Export Research Log';
     var formats = [
-      { id:'brief', icon:'◈', label:'Research Design Brief', desc:'A structured decision log for advisor meetings. Covers identification strategy, key assumptions, open questions, and implications of each design choice. 2-3 pages.', audience:'For: Advisor & committee meetings' },
-      { id:'appendix', icon:'≡', label:'Methods Appendix', desc:'Full technical specification of your econometric architecture. Covers estimators, diagnostics, confidence levels, and complete assumption inventory. For thesis appendix.', audience:'For: Thesis appendix / replication package' },
-      { id:'reviewer', icon:'⊡', label:'Reviewer Reference Card', desc:'A compact methodological reference for committee members. Covers identification strategy, estimator, key assumptions to verify, and required diagnostics.', audience:'For: Committee reviewers' },
-      { id:'comparative', icon:'⇌', label:'Comparative Design Analysis', desc:'A structured comparison of your identification architecture against one or more mapped papers. Shows methodological overlap, gaps, and your unique contributions. Available once papers are mapped in the Methods tab.', audience:'For: Literature positioning / advisor meetings' }
+      { id:'brief', icon:'◈', label:'Advisor Meeting Memo', desc:'A decision-oriented 2–3 page memo: the causal claim, methodological spine, assumptions that need defending, unresolved choices, and the questions you want your advisor to help decide.', audience:'Best for: recurring thesis-advisor meetings' },
+      { id:'appendix', icon:'≡', label:'Committee Methods Memo', desc:'A technical but readable methods packet: identification logic, estimator stack, assumptions, diagnostics, robustness agenda, and literature anchors. Designed to circulate before a committee meeting.', audience:'Best for: committee review / proposal meetings' },
+      { id:'reviewer', icon:'⊡', label:'One-Page Discussion Card', desc:'A single-page meeting handout that puts the design, assumptions, vulnerabilities, diagnostics, and discussion questions on one sheet.', audience:'Best for: live meetings / defense table' },
+      { id:'comparative', icon:'⇌', label:'Literature Positioning Memo', desc:'Compares your research architecture with mapped papers, emphasizing common ground, paper-only additions, and where your design departs. Available after papers are mapped.', audience:'Best for: literature positioning / contribution discussions' }
     ];
     var rows = formats.map(function(f) {
       var btn = document.createElement('button');
@@ -7680,10 +7766,10 @@ function _renderExportModal() {
     body.appendChild(wrap);
   } else {
     var fmtMeta = {
-      brief:    { label:'Research Design Brief',    desc:'Confirm details for your advisor meeting document.' },
-      appendix: { label:'Methods Appendix',         desc:'Confirm details for your thesis appendix.' },
-      reviewer: { label:'Reviewer Reference Card',  desc:'Confirm details for your committee reviewer document.' },
-      comparative: { label:'Comparative Design Analysis', desc:'Add context for each paper comparison and a synthesis note.' }
+      brief:    { label:'Advisor Meeting Memo', desc:'Frame the meeting around decisions and questions—not a generic status report.' },
+      appendix: { label:'Committee Methods Memo', desc:'Prepare a circulated methods document with enough structure for substantive committee feedback.' },
+      reviewer: { label:'One-Page Discussion Card', desc:'Create a compact handout for keeping a live meeting focused on the econometric design.' },
+      comparative: { label:'Literature Positioning Memo', desc:'Add your interpretation of where the mapped literature aligns with, extends, or challenges your design.' }
     };
     var meta = fmtMeta[_exportModalFormat];
     title.textContent = meta.label;
@@ -7741,37 +7827,40 @@ function _renderExportModal() {
 function _getExportFields(fmt) {
   var today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
   var common = [
-    { id:'author', label:'Your name', placeholder:'e.g. Iain Holmes' },
+    { id:'author', label:'Researcher', placeholder:'e.g. Iain Holmes' },
     { id:'institution', label:'Institution', placeholder:'e.g. NC State University' },
-    { id:'degree', label:'Degree programme', placeholder:'e.g. M.S. Economics' },
+    { id:'degree', label:'Programme', placeholder:'e.g. M.S. Economics' },
     { id:'date', label:'Document date', placeholder:today, value:today },
+    { id:'studytitle', label:'Working study title', placeholder:'Your current thesis / paper title', full:true },
   ];
   if (fmt === 'brief') return common.concat([
-    { id:'advisor', label:'Advisor name', placeholder:'e.g. Dr. Zachery Brown' },
-    { id:'meeting', label:'Meeting date / context', placeholder:'e.g. May 29, 2026 — Pre-thesis meeting' },
-    { id:'committee', label:'Committee members present', placeholder:'e.g. Dr. Stephanie Bolyard (DEQ)', full:true },
-    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
+    { id:'advisor', label:'Advisor / meeting lead', placeholder:'e.g. Dr. ...' },
+    { id:'meeting', label:'Meeting context', placeholder:'e.g. Sept. 10 — identification check-in' },
+    { id:'meetinggoal', label:'What I need from this meeting', placeholder:'e.g. Decide whether the identifying variation is credible enough to proceed', full:true, type:'textarea' },
+    { id:'decisions', label:'Decisions / questions to resolve', placeholder:'One item per line, e.g. Keep the current IV?\nAdd county trends?\nWhich robustness check is essential?', full:true, type:'textarea' },
   ]);
   if (fmt === 'appendix') return common.concat([
-    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
-    { id:'version', label:'Document version', placeholder:'e.g. Draft v1 — May 2026' },
-    { id:'note', label:'Author note (optional)', placeholder:'e.g. Prepared for thesis committee review', full:true },
+    { id:'advisor', label:'Advisor', placeholder:'e.g. Dr. ...' },
+    { id:'committee', label:'Committee / intended readers', placeholder:'e.g. Thesis committee', full:true },
+    { id:'version', label:'Version', placeholder:'e.g. Methods memo v2' },
+    { id:'note', label:'Circulation note', placeholder:'e.g. Prepared for proposal meeting; comments requested on identification and inference', full:true, type:'textarea' },
+    { id:'robustness', label:'Planned robustness / sensitivity work', placeholder:'One item per line; optional', full:true, type:'textarea' },
   ]);
   if (fmt === 'comparative') {
     var paperFields = [];
     _paperLibrary.forEach(function(p, i) {
-      paperFields.push({ id:'overlap_' + i, label:'Overlap with ' + p.cite + ' — your interpretation', placeholder:'e.g. Both studies exploit a natural experiment in contamination exposure...', full:true, type:'textarea' });
-      paperFields.push({ id:'gap_' + i, label:'Where you diverge from ' + p.cite + ' — and why', placeholder:'e.g. They use DiD on NJ data; I use spatial IV because NC disclosure events are not sharp...', full:true, type:'textarea' });
-      paperFields.push({ id:'beyond_' + i, label:'What your design adds beyond ' + p.cite, placeholder:'e.g. Cross-validation with hedonic pricing provides revealed preference anchor...', full:true, type:'textarea' });
+      paperFields.push({ id:'overlap_' + i, label:'Common ground with ' + p.cite, placeholder:'What is genuinely comparable about the identification or empirical architecture?', full:true, type:'textarea' });
+      paperFields.push({ id:'gap_' + i, label:'What this paper contains that yours does not', placeholder:'Which paper-only elements are relevant enough to discuss—and which are not?', full:true, type:'textarea' });
+      paperFields.push({ id:'beyond_' + i, label:'Where your design departs / contributes', placeholder:'What does your empirical design add, change, or identify differently?', full:true, type:'textarea' });
     });
     return common.concat(paperFields).concat([
-      { id:'synthesis', label:'Cross-paper synthesis — what the literature together implies for your design', placeholder:'e.g. Marcus & Mueller establish the housing price mechanism; Dias et al. provide the water-pathway IV logic. Together they bracket the two viable identification strategies for NC PFAS...', full:true, type:'textarea' }
+      { id:'synthesis', label:'Positioning statement for advisor / committee', placeholder:'In 3–5 sentences: where your study sits in the literature and what methodological contribution or adaptation is defensible.', full:true, type:'textarea' }
     ]);
   }
   if (fmt === 'reviewer') return common.concat([
-    { id:'advisor', label:'Thesis advisor', placeholder:'e.g. Dr. Zachery Brown' },
-    { id:'studytitle', label:'Working study title', placeholder:'e.g. PFAS Contamination and Residential Property Values', full:true },
-    { id:'defence', label:'Defence / review date', placeholder:'e.g. Fall 2026' },
+    { id:'advisor', label:'Advisor', placeholder:'e.g. Dr. ...' },
+    { id:'meeting', label:'Meeting / defense context', placeholder:'e.g. Committee methods meeting' },
+    { id:'decisions', label:'Questions I want the room to answer', placeholder:'One item per line; these become the discussion agenda', full:true, type:'textarea' },
   ]);
   return common;
 }
@@ -7792,7 +7881,18 @@ function _generateFromModal() {
     version: _getFieldVal('version'),
     note: _getFieldVal('note'),
     defence: _getFieldVal('defence'),
+    meetinggoal: _getFieldVal('meetinggoal'),
+    decisions: _getFieldVal('decisions'),
+    robustness: _getFieldVal('robustness'),
+    synthesis: _getFieldVal('synthesis'),
   };
+  if (_exportModalFormat === 'comparative') {
+    _paperLibrary.forEach(function(p, i) {
+      u['overlap_' + i] = _getFieldVal('overlap_' + i);
+      u['gap_' + i] = _getFieldVal('gap_' + i);
+      u['beyond_' + i] = _getFieldVal('beyond_' + i);
+    });
+  }
   closeExportModal();
   if (_exportModalFormat === 'brief') exportBrief(u);
   else if (_exportModalFormat === 'appendix') exportAppendix(u);
