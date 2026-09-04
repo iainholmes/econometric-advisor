@@ -4478,7 +4478,6 @@ let _kgZoom=null,_kgZoomLayer=null,_kgNeighbors={},_kgEdgesByEndpoint={};
 
 function initKnowledgeGraph(activeSet){
   _kgActive=activeSet||new Set();
-  setTimeout(addNodeRings, 300);
   _kgRevealed=false;
   const svg=d3.select('#kg-canvas');
   if(svg.empty())return;
@@ -4796,22 +4795,23 @@ function initKnowledgeGraph(activeSet){
 
     g.attr('opacity', nodeOpacity);
 
-    // Outer radial glow — only for active nodes
-    if(isActive) {
-      g.append('circle')
-        .attr('r', r*2.8)
-        .attr('fill', 'url(#oggrad-'+n.cat+')')
-        .attr('pointer-events','none');
+    // Always create the same visual layers for every node. Mode switching can
+    // then animate nodes without having to rebuild the SVG.
+    g.append('circle')
+      .attr('class','kg-node-outer-glow')
+      .attr('r', r*2.8)
+      .attr('fill', 'url(#oggrad-'+n.cat+')')
+      .attr('opacity', isActive ? 1 : 0)
+      .attr('pointer-events','none');
 
-      // Mid ring
-      g.append('circle')
-        .attr('r', r+6)
-        .attr('fill','none')
-        .attr('stroke', col)
-        .attr('stroke-width', 1)
-        .attr('opacity', 0.3)
-        .attr('pointer-events','none');
-    }
+    g.append('circle')
+      .attr('class','kg-node-mid-ring')
+      .attr('r', r+6)
+      .attr('fill','none')
+      .attr('stroke', col)
+      .attr('stroke-width', 1)
+      .attr('opacity', isActive ? 0.3 : 0)
+      .attr('pointer-events','none');
 
     // Main circle
     g.append('circle')
@@ -4822,20 +4822,20 @@ function initKnowledgeGraph(activeSet){
       .attr('stroke-width', isActive?2.5:1)
       .attr('filter', isActive?'url(#glow-'+n.cat+')':null);
 
-    // Radial gradient overlay
+    // Radial gradient / mode fill overlay
     g.append('circle')
+      .attr('class','kg-node-fill')
       .attr('r', r)
       .attr('fill', isActive?'url(#rgrad-'+n.cat+')':'rgba(51,65,85,0.3)')
       .attr('pointer-events','none');
 
-    // Center dot — only for active
-    if(isActive) {
-      g.append('circle')
-        .attr('r', 5)
-        .attr('fill','#ffffff')
-        .attr('opacity', 0.95)
-        .attr('pointer-events','none');
-    }
+    // Center dot is always present so mode switching can reveal it.
+    g.append('circle')
+      .attr('class','kg-node-center-dot')
+      .attr('r', 5)
+      .attr('fill','#ffffff')
+      .attr('opacity', isActive ? 0.95 : 0)
+      .attr('pointer-events','none');
 
     // Label
     const labelY = r+18;
@@ -7355,15 +7355,20 @@ function resetKgColors() {
   if (typeof KG_BLUEPRINT === 'undefined') return;
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var g = d3.select('#kgn-' + n.id);
-    g.select('rect').transition().duration(300)
-      .attr('fill','#0a1d33').attr('stroke','#1e3a5a').attr('stroke-width',1);
-    g.select('.kg-node-text').transition().duration(300)
-      .attr('fill','#94a3b8').attr('font-weight',400);
-    g.select('.kg-node-paper-ring').attr('opacity',0);
+    if (g.empty()) return;
+    g.classed('is-active', false).transition().duration(250).attr('opacity', 0.22);
+    g.select('.kg-node-outer-glow').transition().duration(250).attr('opacity', 0);
+    g.select('.kg-node-mid-ring').transition().duration(250).attr('opacity', 0);
+    g.select('.kg-node-rect').transition().duration(250)
+      .attr('r',22).attr('fill','#060e1a').attr('stroke','#334155').attr('stroke-width',1).attr('filter',null);
+    g.select('.kg-node-fill').transition().duration(250)
+      .attr('r',22).attr('fill','rgba(51,65,85,0.3)');
+    g.select('.kg-node-center-dot').transition().duration(250).attr('opacity',0);
+    g.selectAll('text').transition().duration(250).attr('fill','#64748b').attr('font-size',11).attr('font-weight',400).attr('y',40);
   });
   KG_BLUEPRINT.edges.forEach(function(e,idx) {
-    d3.select('#kge-'+idx).transition().duration(300)
-      .attr('stroke','#1e3a5a').attr('stroke-width',0.5).attr('opacity',0);
+    d3.select('#kge-'+idx).transition().duration(250).attr('opacity',0);
+    d3.select('#kgel-'+idx).transition().duration(250).attr('opacity',0);
   });
 }
 
@@ -7373,42 +7378,59 @@ function applyGraphColors() {
   var colorMap = {problem:'#ef4444', logic:'#3b82f6', tool:'#10b981', diag:'#f59e0b'};
   var myDesignNodes = _kgActive instanceof Set ? _kgActive : new Set(_kgActive || []);
   var activePaper = _paperLibrary.find(function(p) { return p.id === _activePaperId; });
-  var paperNodes = activePaper ? activePaper.nodes : new Set();
+  var paperNodes = activePaper && activePaper.nodes instanceof Set ? activePaper.nodes : new Set(activePaper ? activePaper.nodes || [] : []);
 
   KG_BLUEPRINT.nodes.forEach(function(n) {
     var gNode = document.getElementById('kgn-' + n.id);
     if (!gNode) return;
     var g = d3.select(gNode);
-    var rect = g.select('rect');
-    var text = g.selectAll('text');
-    var centerDot = g.selectAll('circle').filter(function() { return d3.select(this).attr('r') == 5; });
+    var main = g.select('.kg-node-rect');
+    var fillCircle = g.select('.kg-node-fill');
+    var outer = g.select('.kg-node-outer-glow');
+    var ring = g.select('.kg-node-mid-ring');
+    var dot = g.select('.kg-node-center-dot');
+    var label = g.select('.kg-node-label');
+    var shadow = g.select('.kg-node-label-shadow');
     var categoryColor = colorMap[n.cat] || '#94a3b8';
     var inMy = myDesignNodes.has(n.id);
     var inPaper = paperNodes.has(n.id);
 
-    var isActive = false, fill = 'rgba(51,65,85,0.22)', stroke = '#334155', strokeW = 1, txt = '#64748b', glow = null;
+    var isActive = false;
+    var stroke = '#334155', strokeW = 1, textColor = '#64748b';
+    var overlayFill = 'rgba(51,65,85,0.3)', glow = null, ringColor = categoryColor;
 
     if (_kgTraceMode === 'mydesign') {
       isActive = inMy;
-      if (isActive) { fill = categoryColor + '26'; stroke = categoryColor; strokeW = 2.6; txt = '#fff'; glow = 'url(#glow-' + n.cat + ')'; }
+      if (isActive) {
+        stroke = categoryColor; strokeW = 2.6; textColor = '#ffffff';
+        overlayFill = 'url(#rgrad-' + n.cat + ')'; glow = 'url(#glow-' + n.cat + ')'; ringColor = categoryColor;
+      }
     } else if (_kgTraceMode === 'paper') {
       isActive = inPaper;
-      if (isActive) { fill = '#f59e0b2b'; stroke = '#f59e0b'; strokeW = 3; txt = '#fff7ed'; glow = 'url(#glow-diag)'; }
+      if (isActive) {
+        stroke = '#f59e0b'; strokeW = 3; textColor = '#fff7ed';
+        overlayFill = 'rgba(245,158,11,0.30)'; glow = 'url(#glow-diag)'; ringColor = '#f59e0b';
+      }
     } else if (_kgTraceMode === 'diff') {
-      // Diff means incremental content: light ONLY nodes used by the selected
-      // paper that are absent from the user's own research design.
+      // DIFF = concepts present in the selected paper but absent from the user's design.
       isActive = inPaper && !inMy;
       if (isActive) {
-        fill = '#fb923c2b'; stroke = '#fb923c'; strokeW = 3.2;
-        txt = '#fff7ed'; glow = 'url(#glow-diag)';
+        stroke = '#fb923c'; strokeW = 3.2; textColor = '#fff7ed';
+        overlayFill = 'rgba(251,146,60,0.32)'; glow = 'url(#glow-diag)'; ringColor = '#fb923c';
       }
     }
 
+    var r = isActive ? 38 : 22;
     gNode.classList.toggle('is-active', isActive);
-    rect.transition().duration(350).attr('fill', fill).attr('stroke', stroke).attr('stroke-width', strokeW);
-    rect.attr('filter', glow);
-    text.transition().duration(350).attr('fill', txt);
-    if (!centerDot.empty()) centerDot.transition().duration(350).attr('opacity', isActive ? 0.95 : 0);
+    g.transition().duration(350).attr('opacity', isActive ? 1 : 0.22);
+    main.transition().duration(350).attr('r',r).attr('fill','#060e1a').attr('stroke',stroke).attr('stroke-width',strokeW);
+    main.attr('filter', glow);
+    fillCircle.transition().duration(350).attr('r',r).attr('fill',overlayFill);
+    outer.transition().duration(350).attr('r',r*2.8).attr('fill', isActive && _kgTraceMode !== 'mydesign' ? 'rgba(245,158,11,0.12)' : 'url(#oggrad-'+n.cat+')').attr('opacity',isActive?1:0);
+    ring.transition().duration(350).attr('r',r+6).attr('stroke',ringColor).attr('opacity',isActive?0.35:0);
+    dot.transition().duration(350).attr('opacity',isActive?0.95:0);
+    label.transition().duration(350).attr('y',r+18).attr('fill',textColor).attr('font-size',isActive?16:11).attr('font-weight',isActive?700:400);
+    shadow.transition().duration(350).attr('y',r+18).attr('font-size',isActive?16:11).attr('font-weight',isActive?700:400).attr('stroke-width',isActive?3:1.5);
   });
 
   KG_BLUEPRINT.edges.forEach(function(e, idx) {
@@ -7424,14 +7446,13 @@ function applyGraphColors() {
       show = sPaper && tPaper;
       if (show) { lineColor = '#f59e0b'; strokeW = 2.2; }
     } else if (_kgTraceMode === 'diff') {
-      // Show only paper-path edges whose endpoints are both incremental nodes.
-      // Shared/design-only structure stays dark so the visual answer is unambiguous.
+      // Only connect nodes that are themselves paper-only additions.
       show = sPaper && tPaper && !sMy && !tMy;
       if (show) { lineColor = '#fb923c'; strokeW = 2.6; }
     }
 
-    line.transition().duration(350).attr('stroke', lineColor).attr('opacity', show ? 0.88 : 0).attr('stroke-width', strokeW);
-    lbl.transition().duration(350).attr('opacity', show ? 0.88 : 0).attr('fill', lineColor);
+    line.transition().duration(350).attr('stroke',lineColor).attr('opacity',show?0.88:0).attr('stroke-width',strokeW);
+    lbl.transition().duration(350).attr('opacity',show?0.88:0).attr('fill',lineColor);
   });
 }
 
