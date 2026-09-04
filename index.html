@@ -543,6 +543,17 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-paper-plaque.mode-diff .kg-paper-plaque-kicker{color:#fb923c}
 .kg-paper-plaque.mode-diff .kg-paper-plaque-kicker::before{background:#fb923c}
 .kg-paper-plaque.mode-diff .kg-paper-plaque-mode{border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.08);color:#fdba74}
+.kg-paper-plaque-stats{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(255,255,255,.08)}
+.kg-paper-stat{display:flex;align-items:baseline;gap:5px;padding:4px 8px;border-radius:7px;background:rgba(255,255,255,.045);border:.5px solid rgba(255,255,255,.08);font-family:'JetBrains Mono',ui-monospace,monospace}
+.kg-paper-stat-num{font-size:12px;font-weight:700;color:#fff}.kg-paper-stat-lbl{font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:#8fa8bc}
+.kg-paper-plaque-cats{font-size:10px;color:#9fb3c5;margin-top:7px;line-height:1.55;font-family:'JetBrains Mono',ui-monospace,monospace}
+.kg-paper-plaque-action{pointer-events:auto;margin-top:10px;background:rgba(245,158,11,.10);border:.5px solid rgba(245,158,11,.34);color:#fbbf24;border-radius:7px;padding:7px 10px;font-size:10.5px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.02em;transition:all .15s}
+.kg-paper-plaque-action:hover{background:rgba(245,158,11,.18);border-color:#f59e0b;color:#fff}.kg-paper-plaque.mode-diff .kg-paper-plaque-action{background:rgba(249,115,22,.10);border-color:rgba(249,115,22,.34);color:#fdba74}
+.kg-compare-note{background:linear-gradient(135deg,rgba(249,115,22,.10),rgba(10,29,51,.8));border:.5px solid rgba(249,115,22,.28);border-left:3px solid #fb923c;border-radius:8px;padding:12px 14px;color:var(--text);font-size:13px;line-height:1.7}
+.kg-compare-note.shared{border-left-color:#22c55e;border-color:rgba(34,197,94,.24);background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(10,29,51,.8))}
+.kg-compare-advice{display:none;margin-top:9px;padding-top:9px;border-top:.5px solid rgba(255,255,255,.09);color:#c9d7e3}.kg-compare-advice.open{display:block}
+.kg-compare-why-btn{margin-top:10px;background:transparent;border:.5px solid rgba(249,115,22,.35);color:#fdba74;border-radius:7px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:inherit}
+.kg-compare-why-btn:hover{border-color:#fb923c;color:#fff}
 @media(max-width:760px){.kg-paper-plaque{top:12px;left:12px;max-width:calc(100% - 72px);padding:11px 13px}.kg-paper-plaque-title{font-size:14px}.kg-paper-plaque-authors{font-size:11px}}
 .kg-expand-backdrop{position:fixed;inset:0;background:rgba(2,14,31,.86);backdrop-filter:blur(4px);z-index:159;opacity:0;pointer-events:none;transition:opacity .25s}
 .kg-expand-backdrop.active{opacity:1;pointer-events:all}
@@ -4476,6 +4487,9 @@ function renderKnowledgeGraph(tk){
           <div class="kg-paper-plaque-title" id="kg-paper-plaque-title"></div>
           <div class="kg-paper-plaque-authors" id="kg-paper-plaque-authors"></div>
           <div class="kg-paper-plaque-mode" id="kg-paper-plaque-mode">Paper architecture</div>
+          <div class="kg-paper-plaque-stats" id="kg-paper-plaque-stats"></div>
+          <div class="kg-paper-plaque-cats" id="kg-paper-plaque-cats"></div>
+          <button class="kg-paper-plaque-action" id="kg-paper-plaque-action" onclick="kgReviewPaperAdditions(event)">Review paper-only additions →</button>
         </div>
         <svg class="kg-canvas" id="kg-canvas" viewBox="0 0 1600 1150" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="kg-controls">
@@ -5393,6 +5407,28 @@ function onKgNodeClick(nodeId){
     </div>`;
   }
 
+  // Comparison context: distinguish a mapped paper concept from an actual
+  // recommendation to add it to the user's design.
+  var _cmpPaper = _paperLibrary.find(function(p){ return p.id === _activePaperId; });
+  if (_cmpPaper && _cmpPaper.nodes && _cmpPaper.nodes.has(n.id)) {
+    var _isPaperOnly = !_inToolkit;
+    var _cmpTitle = _cmpPaper.title || _cmpPaper.cite || 'the selected paper';
+    var _cmpClass = _isPaperOnly ? '' : ' shared';
+    var _cmpLead = _isPaperOnly
+      ? '<strong>Paper-only addition.</strong> This concept is part of the curated architecture for <em>' + esc(_cmpTitle) + '</em>, but it is not currently part of your research design.'
+      : '<strong>Shared concept.</strong> Both your research design and <em>' + esc(_cmpTitle) + '</em> map to this concept.';
+    var _adviceByCat = {
+      problem: 'Ask whether this threat to identification or inference plausibly exists in your setting. If it does, the next step is to make the threat explicit and decide whether your current design already mitigates it.',
+      logic: 'Ask whether your causal claim depends on this identifying logic or assumption. If it does, state it explicitly and defend it with institutional knowledge, design evidence, or falsification checks.',
+      tool: 'Treat this as a candidate estimator or design component, not an automatic recommendation. Check whether its identifying assumptions fit your data-generating process better than — or complement — your current approach.',
+      diag: 'Ask whether this diagnostic tests an assumption or inference risk that your current workflow leaves unchecked. If yes, adding the diagnostic may strengthen the credibility of the design without changing the core estimator.'
+    };
+    html += '<div class="kg-drawer-section"><div class="kg-drawer-lbl">Role in this comparison</div>' +
+      '<div class="kg-compare-note' + _cmpClass + '">' + _cmpLead +
+      (_isPaperOnly ? '<button class="kg-compare-why-btn" onclick="toggleKgCompareAdvice(this)">Why might this matter for my design?</button><div class="kg-compare-advice">' + esc(_adviceByCat[n.cat] || '') + '<br><br><span style="color:var(--hint);font-size:11.5px">This is a review prompt, not a recommendation to adopt the concept automatically.</span></div>' : '') +
+      '</div></div>';
+  }
+
   if(outgoing.length){
     html+=`<div class="kg-drawer-section"><div class="kg-drawer-lbl">${esc(n.label)} connects to</div>`;
     outgoing.forEach(e=>{
@@ -5429,6 +5465,14 @@ function onKgNodeClick(nodeId){
   document.getElementById('kg-drawer-body').innerHTML=html;
   document.getElementById('kg-drawer-overlay').classList.add('open');
   document.getElementById('kg-drawer').classList.add('open');
+}
+
+function toggleKgCompareAdvice(btn){
+  if(!btn) return;
+  var panel = btn.nextElementSibling;
+  if(!panel) return;
+  var open = panel.classList.toggle('open');
+  btn.textContent = open ? 'Hide design review prompt' : 'Why might this matter for my design?';
 }
 
 function closeKgDrawer(){
@@ -7371,6 +7415,43 @@ function updateKgComparisonPlaque() {
   }
   if (kickerEl) kickerEl.textContent = _kgTraceMode === 'diff' ? 'What this paper adds' : 'Comparison study';
   if (modeEl) modeEl.textContent = _kgTraceMode === 'diff' ? 'Paper-only nodes' : 'Paper architecture';
+
+  var my = _kgActive || new Set();
+  var pn = paper.nodes || new Set();
+  var shared = 0, added = 0;
+  var cats = {problem:0,logic:0,tool:0,diag:0};
+  pn.forEach(function(id){
+    if (my.has(id)) shared += 1;
+    else {
+      added += 1;
+      var node = KG_BLUEPRINT.nodes.find(function(n){ return n.id === id; });
+      if (node && cats.hasOwnProperty(node.cat)) cats[node.cat] += 1;
+    }
+  });
+  var statsEl = document.getElementById('kg-paper-plaque-stats');
+  if (statsEl) {
+    statsEl.innerHTML =
+      '<span class="kg-paper-stat"><span class="kg-paper-stat-num">' + my.size + '</span><span class="kg-paper-stat-lbl">your design</span></span>' +
+      '<span class="kg-paper-stat"><span class="kg-paper-stat-num">' + pn.size + '</span><span class="kg-paper-stat-lbl">paper</span></span>' +
+      '<span class="kg-paper-stat"><span class="kg-paper-stat-num">' + shared + '</span><span class="kg-paper-stat-lbl">shared</span></span>' +
+      '<span class="kg-paper-stat"><span class="kg-paper-stat-num">' + added + '</span><span class="kg-paper-stat-lbl">paper-only</span></span>';
+  }
+  var catsEl = document.getElementById('kg-paper-plaque-cats');
+  if (catsEl) {
+    catsEl.textContent = added
+      ? 'Paper-only by layer: ' + cats.problem + ' problems · ' + cats.logic + ' logic · ' + cats.tool + ' tools · ' + cats.diag + ' diagnostics'
+      : 'No paper-only concepts: this mapped paper architecture is fully contained in your current design.';
+  }
+  var actionEl = document.getElementById('kg-paper-plaque-action');
+  if (actionEl) {
+    actionEl.style.display = added ? 'inline-block' : 'none';
+    actionEl.textContent = _kgTraceMode === 'diff' ? 'Showing ' + added + ' paper-only additions' : 'Review ' + added + ' paper-only additions →';
+  }
+}
+
+function kgReviewPaperAdditions(ev) {
+  if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+  setKgTraceMode('diff');
 }
 
 function setKgTraceMode(mode) {
