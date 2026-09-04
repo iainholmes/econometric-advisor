@@ -7884,22 +7884,20 @@ function viewPaperOnKG(idx) {
   const bar = document.getElementById('paper-trace-active-bar');
   const lbl = document.getElementById('paper-trace-active-label');
   if (bar) bar.style.display = 'flex';
-  if (lbl) lbl.textContent = `Viewing diff: ${p.title}`;
+  if (lbl) lbl.textContent = 'Viewing diff: ' + p.title;
   
-  // Show toggle above the grid
   const traceToggle = document.getElementById('kg-trace-toggle');
   if(traceToggle) traceToggle.style.display = 'flex';
 
-  // Show toggle inside the KG left rail (so it's visible in full screen)
+  // Show the toggles inside the KG left rail (visible in full screen)
   const railMode = document.getElementById('kg-rail-mode-section');
   if(railMode) railMode.style.display = 'block';
   
   _activePaperNodes = p.nodes;
   
-  // Wait out the theatrical reveal animation if the graph hasn't been drawn yet
   if (!_kgRevealed) {
     revealKgPath();
-    setTimeout(() => setKgTraceMode('diff'), 3000); 
+    setTimeout(() => setKgTraceMode('diff'), 1200); 
   } else {
     setKgTraceMode('diff');
   }
@@ -7922,17 +7920,117 @@ function clearActivePaperTrace() {
 function setKgTraceMode(mode) {
   _currentTraceMode = mode;
   
-  // Update both sets of buttons (the one above the grid and the one in the KG rail)
+  // Update both the top bar and the left rail buttons
   document.querySelectorAll('.kg-trace-mode-btn, .kg-rail-mode-btn').forEach(btn => {
     btn.classList.remove('active-mydesign', 'active-paper', 'active-diff');
-    if (btn.id.includes(mode)) btn.classList.add(`active-${mode}`);
+    if (btn.id.includes(mode)) btn.classList.add('active-' + mode);
   });
 
-  // Show the color legend only when in Diff mode
   const legend = document.getElementById('kg-rail-legend-diff');
   if (legend) legend.style.display = mode === 'diff' ? 'flex' : 'none';
   
   applyGraphColors();
+}
+
+function applyGraphColors() {
+  if (!_kgRevealed) return;
+  
+  const colorMap = { problem:'#ef4444', logic:'#3b82f6', tool:'#10b981', diag:'#f59e0b' };
+  const myDesignNodes = _kgActive || new Set();
+  const paperNodes = new Set(_activePaperNodes || []);
+  
+  KG_BLUEPRINT.nodes.forEach(n => {
+    const gNode = document.getElementById('kgn-' + n.id);
+    if (!gNode) return;
+    
+    const g = d3.select(gNode);
+    const rect = g.select('rect');
+    const text = g.selectAll('text');
+    const centerDot = g.selectAll('circle').filter(function() { return d3.select(this).attr('r') == 5; });
+    const color = colorMap[n.cat];
+    
+    const inMyDesign = myDesignNodes.has(n.id);
+    const inPaper = paperNodes.has(n.id);
+    
+    let isActive = false;
+    let fill = 'rgba(51,65,85,0.3)';
+    let stroke = '#334155';
+    let strokeW = 1;
+    let txtColor = '#374151';
+    let glowUrl = null;
+    
+    if (_currentTraceMode === 'mydesign') {
+      isActive = inMyDesign;
+      if (isActive) { fill = color + '22'; stroke = color; strokeW = 2.5; txtColor = '#ffffff'; glowUrl = 'url(#glow-'+n.cat+')'; }
+    } else if (_currentTraceMode === 'paper') {
+      isActive = inPaper;
+      if (isActive) { fill = color + '22'; stroke = color; strokeW = 2.5; txtColor = '#ffffff'; glowUrl = 'url(#glow-'+n.cat+')'; }
+    } else if (_currentTraceMode === 'diff') {
+      isActive = inMyDesign || inPaper;
+      if (inMyDesign && inPaper) {
+         fill = '#22c55e22'; stroke = '#22c55e'; strokeW = 3; txtColor = '#ffffff'; glowUrl = 'url(#glow-tool)'; // Green for overlapping
+      } else if (inPaper) {
+         fill = '#fb923c22'; stroke = '#fb923c'; strokeW = 3; txtColor = '#ffffff'; glowUrl = 'url(#glow-diag)'; // Orange for paper-only
+      } else if (inMyDesign) {
+         fill = color + '11'; stroke = color; strokeW = 1.5; txtColor = color; glowUrl = null; // Dimmed for my-design-only
+      }
+    }
+    
+    // CRITICAL FIX: This CSS toggle makes the node big and visible
+    gNode.classList.toggle('is-active', isActive);
+    
+    rect.transition().duration(400)
+        .attr('fill', fill)
+        .attr('stroke', stroke)
+        .attr('stroke-width', strokeW);
+        
+    rect.attr('filter', glowUrl);
+    text.transition().duration(400).attr('fill', txtColor);
+    
+    if (!centerDot.empty()) {
+        centerDot.transition().duration(400).attr('opacity', isActive ? 0.95 : 0);
+    }
+  });
+  
+  KG_BLUEPRINT.edges.forEach((e, idx) => {
+    const line = d3.select('#kge-' + idx);
+    const lbl = d3.select('#kgel-' + idx);
+    if (line.empty()) return;
+    
+    const sInMyDesign = myDesignNodes.has(e.s);
+    const tInMyDesign = myDesignNodes.has(e.t);
+    const sInPaper = paperNodes.has(e.s);
+    const tInPaper = paperNodes.has(e.t);
+    
+    let showLine = false;
+    let lineColor = '#cbd5e1';
+    let strokeW = 0.7;
+    
+    if (_currentTraceMode === 'mydesign') {
+      showLine = sInMyDesign && tInMyDesign;
+      if(showLine) lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'paper') {
+      showLine = sInPaper && tInPaper;
+      if(showLine) lineColor = colorMap[KG_BLUEPRINT.nodes.find(n=>n.id===e.s).cat];
+    } else if (_currentTraceMode === 'diff') {
+      if (sInMyDesign && tInMyDesign && sInPaper && tInPaper) {
+        showLine = true; lineColor = '#22c55e'; strokeW = 2.5; // Green
+      } else if (sInPaper && tInPaper) {
+        showLine = true; lineColor = '#fb923c'; strokeW = 2.5; // Orange
+      } else if (sInMyDesign && tInMyDesign) {
+        showLine = true; lineColor = '#475569'; strokeW = 1.2; // Dimmed
+      }
+    }
+    
+    line.transition().duration(400)
+      .attr('stroke', showLine ? lineColor : '#334155')
+      .attr('opacity', showLine ? 0.8 : 0)
+      .attr('stroke-width', showLine ? strokeW : 0.7);
+      
+    lbl.transition().duration(400)
+      .attr('opacity', showLine ? 0.85 : 0)
+      .attr('fill', lineColor);
+  });
 }
 
 function applyGraphColors() {
