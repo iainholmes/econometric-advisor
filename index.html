@@ -7185,19 +7185,49 @@ h1,h2,h3{font-family:'STIX Two Text','Times New Roman',serif;color:#111}h2{font-
 .setup-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid #d4dde2;margin-top:3mm}.setup-cell{padding:3.5mm 4mm;border-right:1px solid #d4dde2}.setup-cell:last-child{border-right:0}.setup-k{font-family:Arial,sans-serif;font-size:6.8pt;letter-spacing:.1em;text-transform:uppercase;color:#77848d}.setup-v{font-size:10pt;margin-top:1mm;color:#223846;line-height:1.35}
 .advisor-notes{margin-top:7mm;border-top:2px solid var(--brand-primary,#17384f);padding-top:3mm}.advisor-notes-title{font-family:Arial,sans-serif;font-size:7.2pt;letter-spacing:.13em;text-transform:uppercase;color:#355f78}.advisor-notes-lines{height:28mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 7mm,#dfe5e9 7.1mm,#dfe5e9 7.3mm)}
 @media print{
+html,body,.sheet,.sheet *,.sheet:before,.sheet:after{
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
 body{background:#fff}
-.sheet{margin:0;box-shadow:none;page-break-after:always;min-height:284mm;overflow:visible}
+.sheet{
+  margin:0;
+  box-shadow:none;
+  page-break-after:always;
+  min-height:284mm;
+  overflow:visible;
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
+.defense-sheet:before,
+.advisor-sheet:before,
+.focus-panel,
+.editorial-card,
+.editorial-card.amber,
+.cycle-card,
+.cycle-card.next,
+.finding-card,
+.defense-thesis,
+.defense-panel,
+.defense-closing,
+.committee-card,
+.section-ribbon{
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
 .footer{position:fixed;left:21mm;right:21mm;bottom:4.5mm;display:grid;grid-template-columns:1fr 16mm 1fr;align-items:center;min-height:8mm;background:#fff;z-index:80}
 .institution-footer-logo{position:static;transform:none;grid-column:2;justify-self:center;width:12mm;height:8mm;display:flex;align-items:center;justify-content:center}
 .institution-footer-logo img{max-width:11mm;max-height:7.5mm}
 h1,h2,h3,.defense-section-head,.section-ribbon,.brief-section-title{break-after:avoid-page;page-break-after:avoid}
 .box,.paper,.editorial-card,.committee-card,.finding-card,.defense-thesis,.defense-panel,.defense-closing,.meeting-outcome-strip,.cycle-card,.setup-cell,.docket-row,.consensus-cell,.rung,.agenda li,.checks li{break-inside:avoid-page;page-break-inside:avoid}
+.print-guidance{display:none!important}
 @page{size:A4;margin:0 0 13mm 0}
 }
 `;
 }
 function _exportOpen(title, inner) {
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+_exportEsc(title)+'</title><style>'+_exportPrintCSS()+'</style></head><body>'+inner+'</body></html>';
+  var guidance='<div class="print-guidance" style="position:fixed;right:14px;top:14px;z-index:9999;background:#07192c;color:#e7f1fb;border:1px solid #31516e;border-radius:8px;padding:9px 12px;font:12px/1.35 Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.22);max-width:270px"><strong style="color:#fff">PDF print settings</strong><br>For the closest match to this preview, enable <b>Background graphics</b> and disable <b>Headers and footers</b> in the browser print dialog.</div>';
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+_exportEsc(title)+'</title><style>'+_exportPrintCSS()+'</style></head><body>'+guidance+inner+'</body></html>';
   var w=window.open('','_blank'); if(!w){alert('Pop-up blocked. Please allow pop-ups for this site to generate the PDF.');return;}
   w.document.write(html); w.document.close();
   setTimeout(function(){
@@ -7212,7 +7242,7 @@ function _exportOpen(title, inner) {
       if(w.document.fonts&&w.document.fonts.ready){w.document.fonts.ready.then(sync);}
       Array.prototype.forEach.call(w.document.images||[],function(img){if(!img.complete)img.addEventListener('load',sync,{once:true});});
     }catch(e){}
-    setTimeout(function(){w.focus();w.print();},250);
+    setTimeout(function(){w.focus();w.print();},500);
   },650);
 }
 function _exportIdentity(u, type, dateStr) {
