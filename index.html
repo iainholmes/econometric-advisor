@@ -529,15 +529,30 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-hint-icon{font-size:11px;opacity:.7}
 /* EXPAND MODE — overlay near-fullscreen */
 .kg-expanded{position:fixed;inset:32px;z-index:160;border-radius:14px;border:.5px solid var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.6);background:#0a1d33}
-.kg-expanded .kg-canvas{height:calc(100vh - 64px)}
+.kg-expanded .kg-canvas-area{display:flex;flex-direction:column;min-width:0;min-height:0;height:calc(100vh - 64px)}
+.kg-expanded .kg-canvas{height:auto;flex:1 1 auto;min-height:0}
 /* Full-screen comparison plaque: anchors the selected study to the graph without
    competing with the nodes. Hidden outside expanded mode and when no paper is active. */
 .kg-paper-plaque{display:none;position:absolute;top:18px;left:18px;z-index:7;max-width:min(560px,calc(100% - 150px));padding:14px 17px 13px 18px;background:linear-gradient(135deg,rgba(5,18,35,.94),rgba(10,29,51,.88));border:.5px solid rgba(245,158,11,.34);border-left:3px solid #f59e0b;border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.28);backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(-5px);transition:opacity .22s ease,transform .22s ease}
-.kg-expanded .kg-paper-plaque.visible{display:block;opacity:1;transform:translateY(0)}
+.kg-expanded .kg-paper-plaque.visible{
+  display:block;
+  position:relative;
+  top:auto;
+  left:auto;
+  flex:0 0 auto;
+  width:auto;
+  max-width:none;
+  margin:12px 64px 8px 14px;
+  padding:11px 15px 10px 16px;
+  opacity:1;
+  transform:none;
+  box-shadow:0 8px 22px rgba(0,0,0,.22);
+  backdrop-filter:blur(8px);
+}
 .kg-paper-plaque-kicker{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f59e0b;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .kg-paper-plaque-kicker::before{content:'';width:18px;height:1px;background:#f59e0b;opacity:.7}
-.kg-paper-plaque-title{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:17px;font-weight:600;line-height:1.35;color:#fff;letter-spacing:-.01em;text-wrap:balance}
-.kg-paper-plaque-authors{font-family:'Instrument Sans',-apple-system,sans-serif;font-size:12px;line-height:1.5;color:#b9cad9;margin-top:5px}
+.kg-paper-plaque-title{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:16px;font-weight:700;line-height:1.35;color:#fff;letter-spacing:.01em;text-wrap:balance}
+.kg-paper-plaque-authors{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;line-height:1.5;color:#b9cad9;margin-top:5px;letter-spacing:.015em}
 .kg-paper-plaque-mode{display:inline-block;margin-top:9px;padding:3px 8px;border-radius:999px;border:.5px solid rgba(245,158,11,.28);background:rgba(245,158,11,.08);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#fbbf24}
 .kg-paper-plaque.mode-diff{border-color:rgba(249,115,22,.42);border-left-color:#fb923c}
 .kg-paper-plaque.mode-diff .kg-paper-plaque-kicker{color:#fb923c}
@@ -549,12 +564,24 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .kg-paper-plaque-cats{font-size:10px;color:#9fb3c5;margin-top:7px;line-height:1.55;font-family:'JetBrains Mono',ui-monospace,monospace}
 .kg-paper-plaque-action{pointer-events:auto;margin-top:10px;background:rgba(245,158,11,.10);border:.5px solid rgba(245,158,11,.34);color:#fbbf24;border-radius:7px;padding:7px 10px;font-size:10.5px;font-weight:600;cursor:pointer;font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.02em;transition:all .15s}
 .kg-paper-plaque-action:hover{background:rgba(245,158,11,.18);border-color:#f59e0b;color:#fff}.kg-paper-plaque.mode-diff .kg-paper-plaque-action{background:rgba(249,115,22,.10);border-color:rgba(249,115,22,.34);color:#fdba74}
+.kg-expanded .kg-paper-plaque-title{font-size:14px;line-height:1.28;max-width:920px}
+.kg-expanded .kg-paper-plaque-authors{font-size:10.5px;margin-top:3px}
+.kg-expanded .kg-paper-plaque-mode{margin-top:6px}
+.kg-expanded .kg-paper-plaque-stats{margin-top:7px;padding-top:7px}
+.kg-expanded .kg-paper-plaque-cats{margin-top:5px}
+.kg-expanded .kg-paper-plaque-action{margin-top:7px;padding:6px 9px}
+
 .kg-compare-note{background:linear-gradient(135deg,rgba(249,115,22,.10),rgba(10,29,51,.8));border:.5px solid rgba(249,115,22,.28);border-left:3px solid #fb923c;border-radius:8px;padding:12px 14px;color:var(--text);font-size:13px;line-height:1.7}
 .kg-compare-note.shared{border-left-color:#22c55e;border-color:rgba(34,197,94,.24);background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(10,29,51,.8))}
 .kg-compare-advice{display:none;margin-top:9px;padding-top:9px;border-top:.5px solid rgba(255,255,255,.09);color:#c9d7e3}.kg-compare-advice.open{display:block}
 .kg-compare-why-btn{margin-top:10px;background:transparent;border:.5px solid rgba(249,115,22,.35);color:#fdba74;border-radius:7px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:inherit}
 .kg-compare-why-btn:hover{border-color:#fb923c;color:#fff}
-@media(max-width:760px){.kg-paper-plaque{top:12px;left:12px;max-width:calc(100% - 72px);padding:11px 13px}.kg-paper-plaque-title{font-size:14px}.kg-paper-plaque-authors{font-size:11px}}
+@media(max-width:760px){
+.kg-paper-plaque{top:12px;left:12px;max-width:calc(100% - 72px);padding:11px 13px}
+.kg-paper-plaque-title{font-size:14px}
+.kg-paper-plaque-authors{font-size:11px}
+.kg-expanded .kg-paper-plaque.visible{margin:8px 52px 6px 8px;max-height:150px;overflow:auto}
+}
 .kg-expand-backdrop{position:fixed;inset:0;background:rgba(2,14,31,.86);backdrop-filter:blur(4px);z-index:159;opacity:0;pointer-events:none;transition:opacity .25s}
 .kg-expand-backdrop.active{opacity:1;pointer-events:all}
 @media(max-width:760px){.kg-expanded{inset:14px}}
