@@ -7386,6 +7386,7 @@ function _exportCurrentSetup(){var c=_exportCore();return {identification:c.idSe
 
 var _exportBrandAssets={logo1:'',logo2:'',primary:'#17384f',accent:'#b07b2d'};
 var _exportVisualAssets={advisor:'',defense1:'',defense2:'',defense3:''};
+var _advisorReviewFiles=[];
 function _exportHexToRgb(hex){hex=(hex||'').replace('#','').trim();if(hex.length===3)hex=hex.split('').map(function(c){return c+c;}).join('');if(!/^[0-9a-f]{6}$/i.test(hex))return null;return {r:parseInt(hex.slice(0,2),16),g:parseInt(hex.slice(2,4),16),b:parseInt(hex.slice(4,6),16)};}
 function _exportRgbToHex(r,g,b){return '#'+[r,g,b].map(function(x){return Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0');}).join('');}
 function _exportDarken(hex,amt){var c=_exportHexToRgb(hex);if(!c)return '#102f43';var f=Math.max(0,Math.min(1,1-(amt||.22)));return _exportRgbToHex(c.r*f,c.g*f,c.b*f);}
@@ -7413,14 +7414,14 @@ function _advisorPdfHex(hex,fallback){
 function _advisorPdfSafeText(text){
   var s=String(text==null?'':text);
   var map={
-    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u2022':'-','\u00b7':' - ',
+    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u2022':'-','\u25aa':'-','\u25e6':'-','\u2713':'-','\u2714':'-','\u00b7':' - ',
     '\u2013':'-','\u2014':'--','\u2212':'-','\u00d7':'x','\u2264':'<=','\u2265':'>=',
     '\u2018':"'",'\u2019':"'",'\u201c':'"','\u201d':'"','\u2026':'...',
     '\u03b2':'beta','\u03b1':'alpha','\u03b3':'gamma','\u03b4':'delta','\u03b5':'epsilon',
     '\u03bb':'lambda','\u03bc':'mu','\u03c1':'rho','\u03c3':'sigma','\u03c4':'tau','\u03c6':'phi',
     '\u00b2':'2','\u00b3':'3','\u2080':'0','\u2081':'1','\u2082':'2','\u2083':'3','\u2084':'4','\u2085':'5','\u2086':'6','\u2087':'7','\u2088':'8','\u2089':'9'
   };
-  s=s.replace(/[\u2192\u2190\u2194\u21d2\u2022\u00b7\u2013\u2014\u2212\u00d7\u2264\u2265\u2018\u2019\u201c\u201d\u2026\u03b2\u03b1\u03b3\u03b4\u03b5\u03bb\u03bc\u03c1\u03c3\u03c4\u03c6\u00b2\u00b3\u2080-\u2089]/g,function(ch){return map[ch]||'';});
+  s=s.replace(/[\u2192\u2190\u2194\u21d2\u2022\u25aa\u25e6\u2713\u2714\u00b7\u2013\u2014\u2212\u00d7\u2264\u2265\u2018\u2019\u201c\u201d\u2026\u03b2\u03b1\u03b3\u03b4\u03b5\u03bb\u03bc\u03c1\u03c3\u03c4\u03c6\u00b2\u00b3\u2080-\u2089]/g,function(ch){return map[ch]||'';});
   // Keep printable ASCII plus common Latin-1/WinAnsi characters; replace anything else safely.
   s=s.replace(/[^\x20-\x7E\xA0-\xFF]/g,'?');
   return s;
@@ -7448,6 +7449,27 @@ function _advisorPdfText(page,text,x,y,opt){
   return y-lines.length*lineHeight;
 }
 
+function _advisorPdfBulletList(page,text,x,y,opt){
+  opt=opt||{};var font=opt.font,size=opt.size||9,color=opt.color||PDFLib.rgb(.1,.1,.1),maxWidth=opt.maxWidth||240,lineHeight=opt.lineHeight||11,maxItems=opt.maxItems||5;
+  var raw=String(text||'').replace(/\r/g,'\n');
+  var items=raw.split(/\n+|(?:\s+[•▪◦✓✔]\s*)|(?:\s+\?-\s*)/).map(function(s){return s.replace(/^\s*[-–—•▪◦✓✔?]+\s*/,'').trim();}).filter(Boolean);
+  if(items.length<=1 && raw.indexOf(' - ')>=0)items=raw.split(/\s+-\s+/).map(function(s){return s.trim();}).filter(Boolean);
+  items=items.slice(0,maxItems);
+  items.forEach(function(item){
+    var bullet='- ',lines=_advisorPdfWrap(item,font,size,maxWidth-12,3);
+    page.drawText(bullet,{x:x,y:y,size:size,font:font,color:color});
+    lines.forEach(function(line,i){page.drawText(line,{x:x+12,y:y-i*lineHeight,size:size,font:font,color:color});});
+    y-=Math.max(1,lines.length)*lineHeight+2;
+  });
+  return y;
+}
+function _advisorFileLabel(file){
+  var name=(file&&file.name)||'Review material';
+  var ext=(name.split('.').pop()||'FILE').toUpperCase();
+  var size=file&&file.size?Math.max(1,Math.round(file.size/1024))+' KB':'';
+  return {name:name,ext:ext,size:size};
+}
+
 async function _finalizeAdvisorMeetingPdf(file,meetingNumber,studyTitle){
   if(!file)return;
   if(typeof PDFLib==='undefined')throw new Error('PDF library did not load.');
@@ -7471,7 +7493,19 @@ async function downloadFillableAdvisorPDF(u,targetWindow){
   var meetingNo=_advisorNormalizeMeetingNumber(u.meetingnumber);pdfDoc.setTitle('Meeting '+meetingNo+' — Advisor Meeting Brief');pdfDoc.setAuthor(_advisorPdfSafeText(u.author||'Econometric Advisor'));pdfDoc.setSubject('Fillable advisor meeting brief');
   var serif=await pdfDoc.embedFont(StandardFonts.TimesRoman),serifBold=await pdfDoc.embedFont(StandardFonts.TimesRomanBold),sans=await pdfDoc.embedFont(StandardFonts.Helvetica),sansBold=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   var W=595.28,H=841.89,primary=_advisorPdfHex(u.brandprimary,'#17384f'),accent=_advisorPdfHex(u.brandaccent,'#b07b2d'),navy=rgb(.055,.16,.23),muted=rgb(.39,.45,.49),line=rgb(.79,.84,.87),soft=rgb(.96,.975,.982),cream=rgb(.985,.965,.91),white=rgb(1,1,1);
-  var logo1=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo1),logo2=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo2),visual=await _advisorEmbedImage(pdfDoc,_exportVisualAssets.advisor);
+  var logo1=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo1),logo2=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo2);
+  var reviewFiles=Array.from(_advisorReviewFiles||[]).slice(0,5),reviewAssets=[];
+  for(var rfi=0;rfi<reviewFiles.length;rfi++){
+    var rf=reviewFiles[rfi],bytes=await rf.arrayBuffer(),info=_advisorFileLabel(rf),img=null;
+    try{
+      if(/^image\/png$/i.test(rf.type))img=await pdfDoc.embedPng(bytes);
+      else if(/^image\/(jpeg|jpg)$/i.test(rf.type))img=await pdfDoc.embedJpg(bytes);
+    }catch(_){}
+    try{
+      if(typeof pdfDoc.attach==='function')await pdfDoc.attach(bytes,_advisorPdfSafeText(rf.name||('review_material_'+(rfi+1))),{mimeType:rf.type||'application/octet-stream',description:_advisorPdfSafeText(u.reviewmaterialsfocus||u.evidence||'Advisor review material')});
+    }catch(e){console.warn('Could not embed review attachment:',rf.name,e);}
+    reviewAssets.push({file:rf,info:info,img:img});
+  }
   function footer(page,label){
     page.drawLine({start:{x:56,y:42},end:{x:539,y:42},thickness:.6,color:line});
     var fl=_advisorPdfSafeText(label);page.drawText(fl,{x:56,y:25,size:7,font:sans,color:muted});
@@ -7483,44 +7517,117 @@ async function downloadFillableAdvisorPDF(u,targetWindow){
   function card(page,x,y,w,h,fill,border){page.drawRectangle({x:x,y:y,width:w,height:h,color:fill,borderColor:border||line,borderWidth:.65});}
 
   // PAGE 1 — concise pre-meeting brief
-  var p1=pdfDoc.addPage([W,H]);p1.drawRectangle({x:0,y:0,width:12,height:H,color:primary});
-  p1.drawLine({start:{x:56,y:790},end:{x:509,y:790},thickness:1,color:primary});
+  var p1=pdfDoc.addPage([W,H]);p1.drawRectangle({x:0,y:0,width:12,height:H,color:navy});
+  p1.drawLine({start:{x:56,y:790},end:{x:539,y:790},thickness:1,color:primary});
   label(p1,'Biweekly Research Brief'+(u.institution?' · '+u.institution:''),56,771);
-  p1.drawText('Advisor Meeting Brief',{x:56,y:739,size:27,font:serifBold,color:navy});p1.drawText('MEETING '+meetingNo,{x:414,y:744,size:8.5,font:sansBold,color:primary});
-  if(u.studytitle)_advisorPdfText(p1,u.studytitle,56,719,{font:serif,size:11,color:muted,maxWidth:385,lineHeight:13,maxLines:2});
-  if(logo1){var hs=logo1.scaleToFit(48,48);p1.drawImage(logo1,{x:503-hs.width,y:739-hs.height/2,width:hs.width,height:hs.height});}
+  p1.drawText('Advisor Meeting Brief',{x:56,y:739,size:27,font:serifBold,color:navy});
+  // Meeting identifier and study title share one clean metadata row beneath the title.
+  p1.drawRectangle({x:56,y:702,width:70,height:20,color:primary});
+  p1.drawText('MEETING '+meetingNo,{x:65,y:709,size:7.5,font:sansBold,color:white});
+  if(u.studytitle)_advisorPdfText(p1,u.studytitle,139,714,{font:serif,size:10.5,color:muted,maxWidth:335,lineHeight:12,maxLines:2});
+  if(logo1){var hs=logo1.scaleToFit(43,43);p1.drawImage(logo1,{x:539-hs.width,y:724,width:hs.width,height:hs.height});}
 
-  card(p1,56,645,145,48,soft,line);label(p1,'Current Meeting',68,675);value(p1,u.currentmeeting,68,655,120,12,1);
-  p1.drawLine({start:{x:213,y:666},end:{x:226,y:666},thickness:1.2,color:primary});p1.drawLine({start:{x:222,y:670},end:{x:226,y:666},thickness:1.2,color:primary});p1.drawLine({start:{x:222,y:662},end:{x:226,y:666},thickness:1.2,color:primary});
-  card(p1,236,645,145,48,cream,rgb(.88,.82,.68));label(p1,'Next Meeting',248,675);value(p1,u.nextmeeting,248,655,120,12,1);
+  // Meeting cycle — aligned and centered as a single band.
+  card(p1,56,628,145,50,soft,line);label(p1,'Current Meeting',68,660);value(p1,u.currentmeeting,68,640,120,11.5,1);
+  p1.drawLine({start:{x:215,y:652},end:{x:228,y:652},thickness:1.1,color:primary});p1.drawLine({start:{x:224,y:656},end:{x:228,y:652},thickness:1.1,color:primary});p1.drawLine({start:{x:224,y:648},end:{x:228,y:652},thickness:1.1,color:primary});
+  card(p1,242,628,145,50,cream,rgb(.88,.82,.68));label(p1,'Next Meeting',254,660);value(p1,u.nextmeeting,254,640,120,11.5,1);
 
-  var metaY=610; p1.drawLine({start:{x:56,y:622},end:{x:509,y:622},thickness:.6,color:line});
-  var meta=[['Researcher',u.author],['Advisor',u.advisor],['Prepared',u.date]],mx=[56,220,385];
-  meta.forEach(function(m,i){label(p1,m[0],mx[i],metaY);value(p1,m[1],mx[i],592,i===2?120:145,9.6,1);});
-  p1.drawLine({start:{x:56,y:577},end:{x:509,y:577},thickness:.6,color:line});
+  // Researcher metadata fills the right-hand side of the date band instead of leaving dead space.
+  label(p1,'Researcher',405,661);value(p1,u.author,405,642,125,9.3,1);
+  label(p1,'Advisor',405,622);value(p1,u.advisor,405,603,125,9.3,1);
+  p1.drawLine({start:{x:56,y:588},end:{x:539,y:588},thickness:.6,color:line});
 
-  label(p1,'Working Empirical Setup',56,553);var sx=151,sw=119,sh=58;
-  [['Identification',u.identification],['Estimator',u.estimator],['Inference',u.inference]].forEach(function(m,i){card(p1,sx+i*sw,510,sw,58,white,line);label(p1,m[0],sx+10+i*sw,551);_advisorPdfText(p1,m[1]||'To be resolved',sx+10+i*sw,532,{font:serif,size:8.8,color:navy,maxWidth:sw-20,lineHeight:10.5,maxLines:3});});
+  // Working empirical setup
+  label(p1,'Working Empirical Setup',56,566);var sx=151,sw=129;
+  [['Identification',u.identification],['Estimator',u.estimator],['Inference',u.inference]].forEach(function(m,i){
+    card(p1,sx+i*sw,515,sw,58,white,line);label(p1,m[0],sx+10+i*sw,557);
+    _advisorPdfText(p1,m[1]||'To be resolved',sx+10+i*sw,539,{font:serif,size:8.4,color:navy,maxWidth:sw-20,lineHeight:10.2,maxLines:3});
+  });
 
-  // Data snapshot only when supplied
+  // Data snapshot: two lines allowed so provisional values do not get chopped.
   var snaps=[['Sample',u.samplesize],['Unit',u.unitobs],['Period',u.studyperiod],['Geography',u.geography]].filter(function(s){return s[1];});
-  var nextY=493;
-  if(snaps.length){var cw=453/snaps.length;snaps.forEach(function(s,i){card(p1,56+i*cw,459,cw,31,white,line);label(p1,s[0],63+i*cw,480);_advisorPdfText(p1,s[1],63+i*cw,466,{font:serif,size:7.8,color:navy,maxWidth:cw-14,lineHeight:8.8,maxLines:1});});nextY=444;}
+  var snapshotBottom=465;
+  if(snaps.length){
+    var cw=483/snaps.length;
+    snaps.forEach(function(s,i){
+      card(p1,56+i*cw,snapshotBottom,cw,38,white,line);
+      label(p1,s[0],64+i*cw,snapshotBottom+25);
+      _advisorPdfText(p1,s[1],64+i*cw,snapshotBottom+12,{font:serif,size:7.2,color:navy,maxWidth:cw-16,lineHeight:8.2,maxLines:2});
+    });
+  }
 
-  var cardsY=nextY-100, leftW=272,rightW=171;
-  card(p1,56,cardsY,leftW,88,soft,line);p1.drawRectangle({x:56,y:cardsY+85,width:leftW,height:3,color:primary});label(p1,'What Changed Since Last Time',70,cardsY+68);_advisorPdfText(p1,u.progress||'Summarize the material change since the prior meeting.',70,cardsY+49,{font:serif,size:9.1,color:navy,maxWidth:leftW-28,lineHeight:11.2,maxLines:4});
-  card(p1,338,cardsY,rightW,88,cream,rgb(.89,.84,.74));p1.drawRectangle({x:338,y:cardsY+85,width:rightW,height:3,color:accent});label(p1,'Evidence Ready to Review',350,cardsY+68);_advisorPdfText(p1,u.evidence||'Identify the one result, figure, table, or diagnostic to examine together.',350,cardsY+49,{font:serif,size:9,color:navy,maxWidth:rightW-24,lineHeight:11,maxLines:4});
-  if(visual){var vs=visual.scaleToFit(rightW-26,32);p1.drawImage(visual,{x:350+(rightW-26-vs.width)/2,y:cardsY+5,width:vs.width,height:vs.height});}
+  // Progress + review materials, balanced 60/40 instead of a tiny evidence thumbnail.
+  var cardsY=350,leftW=286,rightW=187;
+  card(p1,56,cardsY,leftW,96,soft,line);p1.drawRectangle({x:56,y:cardsY+93,width:leftW,height:3,color:navy});
+  label(p1,'What Changed Since Last Time',70,cardsY+75);
+  _advisorPdfBulletList(p1,u.progress||'Summarize the material change since the prior meeting.',70,cardsY+57,{font:serif,size:8.6,color:navy,maxWidth:leftW-28,lineHeight:10.5,maxItems:5});
 
-  var focusY=cardsY-101;card(p1,56,focusY,453,83,primary,primary);p1.drawText('01',{x:72,y:focusY+42,size:28,font:serifBold,color:rgb(.53,.72,.84)});label(p1,'Decision / Guidance Needed Today',130,focusY+57);_advisorPdfText(p1,u.currentissue||'State the one decision, judgment, or methodological question you need help resolving.',130,focusY+37,{font:serifBold,size:12.2,color:white,maxWidth:355,lineHeight:15,maxLines:3});
+  card(p1,352,cardsY,rightW,96,cream,rgb(.89,.84,.74));p1.drawRectangle({x:352,y:cardsY+93,width:rightW,height:3,color:primary});
+  label(p1,'Review Materials',366,cardsY+75);
+  var reviewCount=reviewAssets.length;
+  var reviewLead=reviewCount?(reviewCount+' attached file'+(reviewCount===1?'':'s')):(u.evidence||'No files attached');
+  _advisorPdfText(p1,reviewLead,366,cardsY+56,{font:serifBold,size:9.3,color:navy,maxWidth:rightW-28,lineHeight:11,maxLines:2});
+  if(reviewCount){
+    var names=reviewAssets.slice(0,2).map(function(a){return a.info.name;}).join(' · ');
+    _advisorPdfText(p1,names,366,cardsY+31,{font:serif,size:7.2,color:muted,maxWidth:rightW-28,lineHeight:8.5,maxLines:2});
+  }else if(u.evidence){
+    _advisorPdfText(p1,u.evidence,366,cardsY+31,{font:serif,size:7.5,color:muted,maxWidth:rightW-28,lineHeight:9,maxLines:2});
+  }
 
-  if(u.blockers){var riskY=focusY-58;label(p1,'Open Risk to Keep in View',56,riskY+38);_advisorPdfText(p1,u.blockers,56,riskY+22,{font:serif,size:8.7,color:navy,maxWidth:453,lineHeight:10.5,maxLines:3});}
+  // The central ask is now a restrained decision panel, always dark and readable.
+  var focusY=232;card(p1,56,focusY,483,94,navy,navy);
+  p1.drawRectangle({x:56,y:focusY,width:5,height:94,color:primary});
+  p1.drawText('01',{x:77,y:focusY+48,size:28,font:serifBold,color:rgb(.53,.72,.84)});
+  label(p1,'Decision / Guidance Needed Today',136,focusY+66);
+  _advisorPdfText(p1,u.currentissue||'State the one decision, judgment, or methodological question you need help resolving.',136,focusY+45,{font:serifBold,size:11.4,color:white,maxWidth:375,lineHeight:14,maxLines:3});
+
+  // Optional risk is concise and visually subordinate.
+  if(u.blockers){
+    label(p1,'Open Risk to Keep in View',56,198);
+    _advisorPdfText(p1,u.blockers,56,181,{font:serif,size:8.5,color:navy,maxWidth:483,lineHeight:10.5,maxLines:3});
+  }
+  if(u.reviewmaterialsfocus){
+    label(p1,'Advisor Review Focus',56,145);
+    _advisorPdfText(p1,u.reviewmaterialsfocus,56,128,{font:serif,size:8.5,color:navy,maxWidth:483,lineHeight:10.5,maxLines:3});
+  }
   footer(p1,'Meeting '+meetingNo+' · Advisor Meeting Brief · Pre-Meeting');
 
-  // PAGE 2 — intentionally low-burden fillable meeting page
+  // Optional review-materials page. Source files are also embedded in the PDF package when supported.
+  if(reviewAssets.length){
+    var pr=pdfDoc.addPage([W,H]);pr.drawRectangle({x:0,y:0,width:12,height:H,color:navy});
+    pr.drawLine({start:{x:56,y:790},end:{x:539,y:790},thickness:1,color:primary});
+    label(pr,'Meeting '+meetingNo+' · Supporting Material',56,770);
+    pr.drawText('Review Materials',{x:56,y:738,size:25,font:serifBold,color:navy});
+    _advisorPdfText(pr,u.reviewmaterialstitle||'Materials prepared for discussion',56,713,{font:serif,size:11,color:muted,maxWidth:410,lineHeight:13,maxLines:2});
+    if(u.reviewmaterialsfocus){
+      label(pr,'Review Focus',56,680);
+      _advisorPdfText(pr,u.reviewmaterialsfocus,56,661,{font:serifBold,size:10.3,color:navy,maxWidth:470,lineHeight:13,maxLines:3});
+    }
+
+    var ry=610;
+    reviewAssets.forEach(function(a,i){
+      var h=a.img?112:68;
+      if(ry-h<75)return;
+      card(pr,56,ry-h,483,h,soft,line);
+      pr.drawRectangle({x:56,y:ry-h,width:4,height:h,color:i===0?primary:navy});
+      pr.drawText(String(i+1).padStart(2,'0'),{x:70,y:ry-25,size:15,font:serifBold,color:primary});
+      label(pr,a.info.ext+' · ATTACHED',105,ry-19);
+      _advisorPdfText(pr,a.info.name,105,ry-38,{font:serifBold,size:9.5,color:navy,maxWidth:a.img?260:390,lineHeight:11.5,maxLines:2});
+      if(a.info.size)_advisorPdfText(pr,a.info.size,105,ry-60,{font:sans,size:6.8,color:muted,maxWidth:180,lineHeight:8,maxLines:1});
+      if(a.img){
+        var ims=a.img.scaleToFit(145,h-20);
+        pr.drawImage(a.img,{x:539-ims.width-12,y:ry-h+(h-ims.height)/2,width:ims.width,height:ims.height});
+      }
+      ry-=h+12;
+    });
+    _advisorPdfText(pr,'The attached source files travel with this PDF when the viewer supports embedded PDF attachments. Image files are previewed here; other file types are listed by name and type.',56,66,{font:serif,size:7.6,color:muted,maxWidth:470,lineHeight:9.5,maxLines:3});
+    footer(pr,'Meeting '+meetingNo+' · Review Materials');
+  }
+
+  // FINAL PAGE — intentionally low-burden fillable meeting page
   var p2=pdfDoc.addPage([W,H]);p2.drawRectangle({x:0,y:0,width:12,height:H,color:primary});
   p2.drawLine({start:{x:56,y:790},end:{x:539,y:790},thickness:1,color:primary});label(p2,'Meeting Notes',56,770);
-  p2.drawText('Advisor Notes & Decisions',{x:56,y:738,size:25,font:serifBold,color:navy});p2.drawText('MEETING '+meetingNo,{x:430,y:744,size:8.5,font:sansBold,color:primary});
+  p2.drawText('Advisor Notes & Decisions',{x:56,y:738,size:25,font:serifBold,color:navy});p2.drawRectangle({x:447,y:735,width:78,height:20,color:primary});p2.drawText('MEETING '+meetingNo,{x:458,y:742,size:7.5,font:sansBold,color:white});
   _advisorPdfText(p2,'Two fields only. Type directly into the boxes during the meeting; the completed PDF can be saved as the meeting record.',56,714,{font:serif,size:10.2,color:muted,maxWidth:455,lineHeight:13,maxLines:2});
   if(u.currentissue){label(p2,'Today\'s Decision / Guidance Need',56,674);_advisorPdfText(p2,u.currentissue,56,655,{font:serifBold,size:10.5,color:navy,maxWidth:455,lineHeight:13,maxLines:3});}
 
@@ -7569,11 +7676,12 @@ function exportBrief(u){
   var setup='<div class="setup-strip"><div class="setup-cell"><div class="setup-k">Identification</div><div class="setup-v">'+_exportEsc(u.identification||'To be resolved')+'</div></div><div class="setup-cell"><div class="setup-k">Estimator</div><div class="setup-v">'+_exportEsc(u.estimator||'To be resolved')+'</div></div><div class="setup-cell"><div class="setup-k">Inference</div><div class="setup-v">'+_exportEsc(u.inference||'To be resolved')+'</div></div></div>';
   var snapVals=[['Sample',u.samplesize],['Unit',u.unitobs],['Study Period',u.studyperiod],['Geography',u.geography]].filter(function(x){return x[1];});
   var projectSnapshot=snapVals.length?'<div class="advisor-project-snapshot">'+snapVals.map(function(x){return '<div class="data-glance-cell"><div class="data-glance-k">'+_exportEsc(x[0])+'</div><div class="data-glance-v">'+_exportEsc(x[1])+'</div></div>';}).join('')+'</div>':'';
-  var advisorVisual=_exportVisualAssets.advisor?'<div class="advisor-evidence-visual"><img src="'+_exportVisualAssets.advisor+'" alt="Evidence for advisor review">'+(u.advisorvisualtitle?'<div class="advisor-evidence-title">'+_exportEsc(u.advisorvisualtitle)+'</div>':'')+(u.advisorvisualcaption?'<div class="advisor-evidence-caption">'+_exportEsc(u.advisorvisualcaption)+'</div>':'')+'</div>':'';
+  var reviewNames=(_advisorReviewFiles||[]).slice(0,5).map(function(f){return f.name;});
+  var reviewHtml=reviewNames.length?'<div class="advisor-evidence-visual"><div class="advisor-evidence-title">'+_exportEsc(u.reviewmaterialstitle||('Review Materials · '+reviewNames.length+' file'+(reviewNames.length===1?'':'s')))+'</div><div class="advisor-evidence-caption">'+reviewNames.map(_exportEsc).join(' · ')+'</div>'+(u.reviewmaterialsfocus?'<div class="advisor-evidence-caption" style="margin-top:1.2mm"><strong>Review focus:</strong> '+_exportEsc(u.reviewmaterialsfocus)+'</div>':'')+'</div>':'';
   var focus='<div class="focus-panel"><div class="focus-num">01</div><div class="focus-copy"><div class="focus-label">Decision / Guidance Needed Today</div><div class="focus-text">'+_exportEsc(u.currentissue||'State the single empirical question that should be resolved before leaving the meeting.')+'</div></div></div>';
   var headerLogo=_exportHeaderLogo(),footerLogo=_exportFooterLogo();var mast=_exportAdvisorIdentity(u,base.dateStr);if(headerLogo)mast=mast.replace('<div class="advisor-docket">','<div class="advisor-brand-logos">'+headerLogo+'</div><div class="advisor-docket">');var body='<section class="sheet advisor-sheet" style="'+_exportBrandVars(u)+'">'+mast+
     '<div class="brief-section"><div class="brief-section-title">Working Empirical Setup</div><div class="brief-section-content">'+setup+projectSnapshot+'</div></div>'+
-    '<div class="editorial-grid" style="margin-top:7mm"><div class="editorial-card"><div class="editorial-tag">What Changed Since Last Time</div><div class="editorial-body">'+_exportEsc(progressText).replace(/\n/g,'<br>')+'</div></div><div class="editorial-card amber"><div class="editorial-tag">Evidence Ready to Review</div><div class="editorial-body">'+_exportEsc(evidenceText).replace(/\n/g,'<br>')+'</div>'+advisorVisual+'</div></div>'+focus+
+    '<div class="editorial-grid" style="margin-top:7mm"><div class="editorial-card"><div class="editorial-tag">What Changed Since Last Time</div><div class="editorial-body">'+_exportEsc(progressText).replace(/\n/g,'<br>')+'</div></div><div class="editorial-card amber"><div class="editorial-tag">Review Materials</div><div class="editorial-body">'+_exportEsc(evidenceText).replace(/\n/g,'<br>')+'</div>'+reviewHtml+'</div></div>'+focus+
     (u.blockers?'<div class="brief-section"><div class="brief-section-title">Open Risks</div><div class="brief-section-content"><div class="editorial-body">'+_exportEsc(u.blockers).replace(/\n/g,'<br>')+'</div></div></div>':'')+
     (isPost
       ? '<div class="meeting-completion"><div class="meeting-completion-label">Guidance &amp; Decision Notes</div><div class="meeting-completion-content">'+_exportEsc(u.advisorguidance||'No guidance or decision notes recorded.').replace(/\n/g,'<br>')+'</div></div>'+
@@ -8140,6 +8248,7 @@ function toggleMethodsLegend(e) {
 }
 function openExportModal() {
   _exportVisualAssets={advisor:'',defense1:'',defense2:'',defense3:''};
+  _advisorReviewFiles=[];
   _exportModalStep = 1;
   _exportModalFormat = null;
   document.getElementById('export-modal').style.display = 'flex';
@@ -8238,13 +8347,14 @@ function _renderExportModal() {
         inp = document.createElement('input');
         inp.type = f.type === 'file' ? 'file' : (f.type === 'color' ? 'color' : 'text');
         if(f.accept)inp.accept=f.accept;
+        if(f.multiple)inp.multiple=true;
       }
       inp.id = 'ef-' + f.id;
       if(f.type!=='file'&&f.type!=='select')inp.placeholder = f.placeholder || '';
       if(f.type!=='file')inp.value = f.value || '';
       inp.style.cssText = 'width:100%;background:#020e1f;border:.5px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12.5px;font-family:var(--sans);box-sizing:border-box';
       if(f.type==='color'){inp.style.height='38px';inp.style.padding='3px';}
-      if(f.type==='file'){inp.style.padding='6px';inp.onchange=function(){var file=this.files&&this.files[0];if(f.id==='brandlogo1'||f.id==='brandlogo2'){_handleExportBrandLogo(f.id==='brandlogo2'?'logo2':'logo1',file);}else if(f.id==='advisorevidencevisual'){_handleExportVisual('advisor',file);}else if(f.id==='defensevisual1'){_handleExportVisual('defense1',file);}else if(f.id==='defensevisual2'){_handleExportVisual('defense2',file);}else if(f.id==='defensevisual3'){_handleExportVisual('defense3',file);}};}
+      if(f.type==='file'){inp.style.padding='6px';inp.onchange=function(){var file=this.files&&this.files[0];if(f.id==='brandlogo1'||f.id==='brandlogo2'){_handleExportBrandLogo(f.id==='brandlogo2'?'logo2':'logo1',file);}else if(f.id==='advisorreviewfiles'){_advisorReviewFiles=Array.from(this.files||[]).slice(0,5);}else if(f.id==='defensevisual1'){_handleExportVisual('defense1',file);}else if(f.id==='defensevisual2'){_handleExportVisual('defense2',file);}else if(f.id==='defensevisual3'){_handleExportVisual('defense3',file);}};}
       cell.appendChild(inp);
       grid.appendChild(cell);
     });
@@ -8296,7 +8406,7 @@ function _renderExportModal() {
 function _getExportFields(fmt) {
   var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});var prefs=_exportMeetingPrefs(),setup=_exportCurrentSetup();
   var common=[{id:'author',label:'Researcher',placeholder:'e.g. Iain Holmes'},{id:'institution',label:'Institution',placeholder:'e.g. NC State University'},{id:'date',label:'Document Date',placeholder:today,value:today},{id:'studytitle',label:'Working Study Title',placeholder:'Your thesis or paper title',full:true}];
-  if(fmt==='brief')return common.concat([{id:'briefmode',label:'Advisor Brief Type',type:'select',value:'pre',options:[{v:'pre',l:'Pre-Meeting Handout'},{v:'post',l:'Post-Meeting Record'}],full:true},{id:'meetingnumber',label:'Meeting No.',value:_advisorNextMeetingNumber(),placeholder:'01'},{id:'advisor',label:'Advisor',placeholder:'e.g. Professor Jane Smith'},{id:'brandlogo1',label:'Primary Institution Logo',type:'file',accept:'image/*'},{id:'brandlogo2',label:'Secondary Institution Logo',type:'file',accept:'image/*'},{id:'brandprimary',label:'Primary Brand Color',type:'color',value:_exportBrandAssets.primary},{id:'brandaccent',label:'Accent Brand Color',type:'color',value:_exportBrandAssets.accent},{id:'currentmeeting',label:'Current Meeting Date',value:prefs.currentDate,placeholder:'September 17, 2026'},{id:'nextmeeting',label:'Next Meeting Date',value:prefs.nextDate,placeholder:'October 1, 2026'},{id:'identification',label:'Current Identification Strategy',value:setup.identification,placeholder:'Editable — prefilled from current design'},{id:'estimator',label:'Current Estimator',value:setup.estimator,placeholder:'Editable — prefilled from current design'},{id:'inference',label:'Current Inference Plan',value:setup.inference,placeholder:'Editable — prefilled from current design'},{id:'progress',label:'What Changed Since Last Meeting',placeholder:'New result, revised specification, data milestone, or resolved issue.',full:true,type:'textarea'},{id:'evidence',label:'Evidence Ready to Review',placeholder:'Tables, figures, diagnostics, estimates, coding output...',full:true,type:'textarea'},{id:'currentissue',label:'Decision / Guidance Needed Today',placeholder:'In one concise prompt, what do you need your advisor to help decide, evaluate, or resolve?',full:true,type:'textarea'},{id:'blockers',label:'Open Risks',placeholder:'Optional: only include a risk your advisor needs to know about for today\'s discussion.',full:true,type:'textarea'},{id:'advisorguidance',label:'Guidance & Decision Notes',placeholder:'Enter after the meeting: the advisor\'s reasoning, recommendation, and any decision reached.',full:true,type:'textarea',postOnly:true},{id:'nextsteps',label:'Agreed Next Steps',placeholder:'Enter after the meeting: one concrete action per line.',full:true,type:'textarea',postOnly:true},{id:'samplesize',label:'Sample Size',placeholder:'e.g. 18,420 parcel-year observations'},{id:'unitobs',label:'Unit of Observation',placeholder:'e.g. Parcel-year'},{id:'studyperiod',label:'Study Period',placeholder:'e.g. 2012–2026'},{id:'geography',label:'Geography',placeholder:'e.g. North Carolina'},{id:'advisorevidencevisual',label:'Optional Key Figure / Map / Table Snapshot',type:'file',accept:'image/*',full:true},{id:'advisorvisualtitle',label:'Visual Title',placeholder:'e.g. Exposure map or main coefficient plot'},{id:'advisorvisualcaption',label:'What Should the Advisor Focus On?',placeholder:'One concise sentence explaining why this visual matters.',full:true}]);
+  if(fmt==='brief')return common.concat([{id:'briefmode',label:'Advisor Brief Type',type:'select',value:'pre',options:[{v:'pre',l:'Pre-Meeting Handout'},{v:'post',l:'Post-Meeting Record'}],full:true},{id:'meetingnumber',label:'Meeting No.',value:_advisorNextMeetingNumber(),placeholder:'01'},{id:'advisor',label:'Advisor',placeholder:'e.g. Professor Jane Smith'},{id:'brandlogo1',label:'Primary Institution Logo',type:'file',accept:'image/*'},{id:'brandlogo2',label:'Secondary Institution Logo',type:'file',accept:'image/*'},{id:'brandprimary',label:'Primary Brand Color',type:'color',value:_exportBrandAssets.primary},{id:'brandaccent',label:'Accent Brand Color',type:'color',value:_exportBrandAssets.accent},{id:'currentmeeting',label:'Current Meeting Date',value:prefs.currentDate,placeholder:'September 17, 2026'},{id:'nextmeeting',label:'Next Meeting Date',value:prefs.nextDate,placeholder:'October 1, 2026'},{id:'identification',label:'Current Identification Strategy',value:setup.identification,placeholder:'Editable — prefilled from current design'},{id:'estimator',label:'Current Estimator',value:setup.estimator,placeholder:'Editable — prefilled from current design'},{id:'inference',label:'Current Inference Plan',value:setup.inference,placeholder:'Editable — prefilled from current design'},{id:'progress',label:'What Changed Since Last Meeting',placeholder:'New result, revised specification, data milestone, or resolved issue.',full:true,type:'textarea'},{id:'evidence',label:'Review Materials Summary',placeholder:'Optional: briefly name the evidence you want to review (e.g. dry-run exposure map, identification memo, preliminary table).',full:true,type:'textarea'},{id:'currentissue',label:'Decision / Guidance Needed Today',placeholder:'In one concise prompt, what do you need your advisor to help decide, evaluate, or resolve?',full:true,type:'textarea'},{id:'blockers',label:'Open Risks',placeholder:'Optional: only include a risk your advisor needs to know about for today\'s discussion.',full:true,type:'textarea'},{id:'advisorguidance',label:'Guidance & Decision Notes',placeholder:'Enter after the meeting: the advisor\'s reasoning, recommendation, and any decision reached.',full:true,type:'textarea',postOnly:true},{id:'nextsteps',label:'Agreed Next Steps',placeholder:'Enter after the meeting: one concrete action per line.',full:true,type:'textarea',postOnly:true},{id:'samplesize',label:'Sample Size',placeholder:'e.g. 18,420 parcel-year observations'},{id:'unitobs',label:'Unit of Observation',placeholder:'e.g. Parcel-year'},{id:'studyperiod',label:'Study Period',placeholder:'e.g. 2012–2026'},{id:'geography',label:'Geography',placeholder:'e.g. North Carolina'},{id:'advisorreviewfiles',label:'Attach Review Materials',type:'file',accept:'image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt',multiple:true,full:true},{id:'reviewmaterialstitle',label:'Review Materials Title',placeholder:'e.g. Dry-run exposure map & design notes'},{id:'reviewmaterialsfocus',label:'Advisor Review Focus',placeholder:'One concise sentence: what should your advisor evaluate in these materials?',full:true}]);
   if(fmt==='reviewer')return common.concat([{id:'committeemembers',label:'Committee Members',placeholder:'One professor per line',full:true,type:'textarea'},{id:'committeedate',label:'Committee Meeting Date',value:prefs.nextDate,placeholder:'September 17, 2026'},{id:'meetingtype',label:'Meeting Type',placeholder:'e.g. Proposal Review, Methods Review, Progress Meeting'},{id:'identification',label:'Current Identification Strategy',value:setup.identification,placeholder:'Editable — prefilled from current design'},{id:'estimator',label:'Current Estimator',value:setup.estimator,placeholder:'Editable — prefilled from current design'},{id:'inference',label:'Current Inference Plan',value:setup.inference,placeholder:'Editable — prefilled from current design'},{id:'progress',label:'Progress / Evidence Since Last Committee Review',placeholder:'What changed materially since the committee last reviewed the project?',full:true,type:'textarea'},{id:'committeequestion',label:'Question Requiring Committee Judgment',placeholder:'What central issue should the committee discuss and resolve?',full:true,type:'textarea'},{id:'threat',label:'Principal Threat / Point of Tension',placeholder:'What is the strongest methodological or feasibility concern?',full:true,type:'textarea'},{id:'alternatives',label:'Alternatives to Compare',placeholder:'One competing design, specification, or interpretation per line',full:true,type:'textarea'},{id:'decisions',label:'Decisions Requiring Consensus',placeholder:'One decision or endorsement per line',full:true,type:'textarea'},{id:'evidence',label:'Evidence to Examine',placeholder:'One table, figure, diagnostic, or result per line',full:true,type:'textarea'},{id:'committeeactions',label:'Outcomes / Assignments',placeholder:'One agreed revision, responsibility, or next action per line',full:true,type:'textarea'}]);
   if(fmt==='defense')return common.concat([{id:'defensemember',label:'Committee Member for This Copy',placeholder:'e.g. Professor Jane Smith'},{id:'defensememberrole',label:'Committee Member Role',placeholder:'e.g. Chair, Methods Reader, External Member'},{id:'defensefocus',label:'Committee Member Review Focus',placeholder:'e.g. Identification strategy, welfare interpretation, policy implications'},{id:'brandlogo1',label:'Primary Institution Logo',type:'file',accept:'image/*'},{id:'brandlogo2',label:'Secondary Institution Logo',type:'file',accept:'image/*'},{id:'brandprimary',label:'Primary Brand Color',type:'color',value:_exportBrandAssets.primary},{id:'brandaccent',label:'Accent Brand Color',type:'color',value:_exportBrandAssets.accent},{id:'committeemembers',label:'Full Committee Roster',placeholder:'One professor per line',full:true,type:'textarea'},{id:'defensedate',label:'Defense Date',placeholder:'e.g. April 15, 2027'},{id:'defensetime',label:'Defense Time',placeholder:'e.g. 11:30 AM'},{id:'location',label:'Location / Room',placeholder:'e.g. Nelson Hall 3400'},{id:'researchquestion',label:'Central Research Question',placeholder:'One sentence.',full:true,type:'textarea'},{id:'contribution',label:'Core Contribution',placeholder:'What does this thesis add to the literature, evidence base, or policy discussion?',full:true,type:'textarea'},{id:'identification',label:'Identification Strategy',value:setup.identification,placeholder:'Editable — prefilled from current design'},{id:'estimator',label:'Primary Estimator',value:setup.estimator,placeholder:'Editable — prefilled from current design'},{id:'inference',label:'Inference / Validation',value:setup.inference,placeholder:'Editable — prefilled from current design'},{id:'findings',label:'Three Headline Findings',placeholder:'One result per line (maximum three)',full:true,type:'textarea'},{id:'robustness',label:'Robustness / Validation Evidence',placeholder:'What evidence makes the main result credible?',full:true,type:'textarea'},{id:'limitations',label:'Limitations / Scope Conditions',placeholder:'What should the committee understand about the boundaries of the claim?',full:true,type:'textarea'},{id:'defensequestions',label:'Questions Likely to Arise',placeholder:'One anticipated committee question per line',full:true,type:'textarea'},{id:'takeaway',label:'Final Takeaway',placeholder:'The one conclusion every committee member should remember.',full:true,type:'textarea'},{id:'samplesize',label:'Sample Size',placeholder:'e.g. 18,420 parcel-year observations'},{id:'unitobs',label:'Unit of Observation',placeholder:'e.g. Parcel-year'},{id:'studyperiod',label:'Study Period',placeholder:'e.g. 2012–2026'},{id:'geography',label:'Geography',placeholder:'e.g. North Carolina'},{id:'defensevisual1',label:'Evidence Exhibit 1 — Figure / Map / Table',type:'file',accept:'image/*',full:true},{id:'defensevisualtitle1',label:'Exhibit 1 Title',placeholder:'e.g. Main treatment-effect estimate'},{id:'defensevisualcaption1',label:'Exhibit 1 — Why This Matters',placeholder:'One sentence explaining the evidentiary point.',full:true},{id:'defensevisual2',label:'Evidence Exhibit 2 — Figure / Map / Table',type:'file',accept:'image/*',full:true},{id:'defensevisualtitle2',label:'Exhibit 2 Title',placeholder:'e.g. Exposure geography'},{id:'defensevisualcaption2',label:'Exhibit 2 — Why This Matters',placeholder:'One sentence explaining the evidentiary point.',full:true},{id:'defensevisual3',label:'Evidence Exhibit 3 — Figure / Map / Table',type:'file',accept:'image/*',full:true},{id:'defensevisualtitle3',label:'Exhibit 3 Title',placeholder:'e.g. Robustness or heterogeneity result'},{id:'defensevisualcaption3',label:'Exhibit 3 — Why This Matters',placeholder:'One sentence explaining the evidentiary point.',full:true}]);
   if(fmt==='appendix')return common.concat([{id:'version',label:'Appendix Version',placeholder:'e.g. September 2026 draft'},{id:'researchquestion',label:'Research Question and Estimand',placeholder:'State the causal / structural question and target parameter in publication-ready language.',full:true,type:'textarea'},{id:'data',label:'Data and Sample',placeholder:'Data source, unit of observation, sample restrictions, period, outcome, treatment / exposure.',full:true,type:'textarea'},{id:'identification',label:'Identification Strategy',value:setup.identification,placeholder:'Explain the identifying variation and counterfactual.',full:true,type:'textarea'},{id:'estimator',label:'Primary Estimator',value:setup.estimator,placeholder:'Estimator, functional form, controls / fixed effects, weighting.',full:true,type:'textarea'},{id:'assumptions',label:'Assumptions and Threats',placeholder:'One per line. Optional format: Assumption | How it will be defended or probed',full:true,type:'textarea'},{id:'inference',label:'Inference Plan',value:setup.inference,placeholder:'Clustering / sampling level, finite-sample concerns, uncertainty quantification.',full:true,type:'textarea'},{id:'diagnostics',label:'Validation / Diagnostic Protocol',placeholder:'One per line. Optional format: Diagnostic | Purpose | Interpretation rule',full:true,type:'textarea'},{id:'robustness',label:'Specification and Robustness Ladder',placeholder:'One robustness step per line, ordered from baseline to strongest sensitivity exercise.',full:true,type:'textarea'},{id:'reproducibility',label:'Reproducibility and Implementation Notes',placeholder:'Data provenance, sample construction, variable definitions, software/version, replication-code location.',full:true,type:'textarea'},{id:'note',label:'Private Author Note',placeholder:'Optional drafting note; visibly marked for removal before submission.',full:true,type:'textarea'}]);
@@ -8308,7 +8418,7 @@ function _getFieldVal(id) {
   if(!el)return '';if(el.type==='file')return '';return (el.value||'').trim();
 }
 async function _generateFromModal() {
-  var u={briefmode:_getFieldVal('briefmode')||'pre',meetingnumber:_advisorNormalizeMeetingNumber(_getFieldVal('meetingnumber')),author:_getFieldVal('author'),institution:_getFieldVal('institution'),date:_getFieldVal('date'),studytitle:_getFieldVal('studytitle'),advisor:_getFieldVal('advisor'),committee:_getFieldVal('committee'),committeemembers:_getFieldVal('committeemembers'),committeedate:_getFieldVal('committeedate'),meetingtype:_getFieldVal('meetingtype'),currentmeeting:_getFieldVal('currentmeeting'),nextmeeting:_getFieldVal('nextmeeting'),meetingtime:_getFieldVal('meetingtime'),cadence:_getFieldVal('cadence'),progress:_getFieldVal('progress'),currentissue:_getFieldVal('currentissue'),advisorguidance:_getFieldVal('advisorguidance'),decisions:_getFieldVal('decisions'),evidence:_getFieldVal('evidence'),blockers:_getFieldVal('blockers'),nextsteps:_getFieldVal('nextsteps'),committeeactions:_getFieldVal('committeeactions'),identification:_getFieldVal('identification'),estimator:_getFieldVal('estimator'),inference:_getFieldVal('inference'),committeequestion:_getFieldVal('committeequestion'),threat:_getFieldVal('threat'),alternatives:_getFieldVal('alternatives'),preread:_getFieldVal('preread'),sectiontitle:_getFieldVal('sectiontitle'),version:_getFieldVal('version'),researchquestion:_getFieldVal('researchquestion'),data:_getFieldVal('data'),assumptions:_getFieldVal('assumptions'),robustness:_getFieldVal('robustness'),diagnostics:_getFieldVal('diagnostics'),reproducibility:_getFieldVal('reproducibility'),note:_getFieldVal('note'),synthesis:_getFieldVal('synthesis'),thesisparagraph:_getFieldVal('thesisparagraph'),defensedate:_getFieldVal('defensedate'),defensetime:_getFieldVal('defensetime'),location:_getFieldVal('location'),contribution:_getFieldVal('contribution'),findings:_getFieldVal('findings'),limitations:_getFieldVal('limitations'),defensequestions:_getFieldVal('defensequestions'),takeaway:_getFieldVal('takeaway'),samplesize:_getFieldVal('samplesize'),unitobs:_getFieldVal('unitobs'),studyperiod:_getFieldVal('studyperiod'),geography:_getFieldVal('geography'),advisorvisualtitle:_getFieldVal('advisorvisualtitle'),advisorvisualcaption:_getFieldVal('advisorvisualcaption'),defensevisualtitle1:_getFieldVal('defensevisualtitle1'),defensevisualcaption1:_getFieldVal('defensevisualcaption1'),defensevisualtitle2:_getFieldVal('defensevisualtitle2'),defensevisualcaption2:_getFieldVal('defensevisualcaption2'),defensevisualtitle3:_getFieldVal('defensevisualtitle3'),defensevisualcaption3:_getFieldVal('defensevisualcaption3'),defensemember:_getFieldVal('defensemember'),defensememberrole:_getFieldVal('defensememberrole'),defensefocus:_getFieldVal('defensefocus'),brandprimary:_getFieldVal('brandprimary')||_exportBrandAssets.primary,brandaccent:_getFieldVal('brandaccent')||_exportBrandAssets.accent};
+  var u={briefmode:_getFieldVal('briefmode')||'pre',meetingnumber:_advisorNormalizeMeetingNumber(_getFieldVal('meetingnumber')),author:_getFieldVal('author'),institution:_getFieldVal('institution'),date:_getFieldVal('date'),studytitle:_getFieldVal('studytitle'),advisor:_getFieldVal('advisor'),committee:_getFieldVal('committee'),committeemembers:_getFieldVal('committeemembers'),committeedate:_getFieldVal('committeedate'),meetingtype:_getFieldVal('meetingtype'),currentmeeting:_getFieldVal('currentmeeting'),nextmeeting:_getFieldVal('nextmeeting'),meetingtime:_getFieldVal('meetingtime'),cadence:_getFieldVal('cadence'),progress:_getFieldVal('progress'),currentissue:_getFieldVal('currentissue'),advisorguidance:_getFieldVal('advisorguidance'),decisions:_getFieldVal('decisions'),evidence:_getFieldVal('evidence'),blockers:_getFieldVal('blockers'),nextsteps:_getFieldVal('nextsteps'),committeeactions:_getFieldVal('committeeactions'),identification:_getFieldVal('identification'),estimator:_getFieldVal('estimator'),inference:_getFieldVal('inference'),committeequestion:_getFieldVal('committeequestion'),threat:_getFieldVal('threat'),alternatives:_getFieldVal('alternatives'),preread:_getFieldVal('preread'),sectiontitle:_getFieldVal('sectiontitle'),version:_getFieldVal('version'),researchquestion:_getFieldVal('researchquestion'),data:_getFieldVal('data'),assumptions:_getFieldVal('assumptions'),robustness:_getFieldVal('robustness'),diagnostics:_getFieldVal('diagnostics'),reproducibility:_getFieldVal('reproducibility'),note:_getFieldVal('note'),synthesis:_getFieldVal('synthesis'),thesisparagraph:_getFieldVal('thesisparagraph'),defensedate:_getFieldVal('defensedate'),defensetime:_getFieldVal('defensetime'),location:_getFieldVal('location'),contribution:_getFieldVal('contribution'),findings:_getFieldVal('findings'),limitations:_getFieldVal('limitations'),defensequestions:_getFieldVal('defensequestions'),takeaway:_getFieldVal('takeaway'),samplesize:_getFieldVal('samplesize'),unitobs:_getFieldVal('unitobs'),studyperiod:_getFieldVal('studyperiod'),geography:_getFieldVal('geography'),reviewmaterialstitle:_getFieldVal('reviewmaterialstitle'),reviewmaterialsfocus:_getFieldVal('reviewmaterialsfocus'),defensevisualtitle1:_getFieldVal('defensevisualtitle1'),defensevisualcaption1:_getFieldVal('defensevisualcaption1'),defensevisualtitle2:_getFieldVal('defensevisualtitle2'),defensevisualcaption2:_getFieldVal('defensevisualcaption2'),defensevisualtitle3:_getFieldVal('defensevisualtitle3'),defensevisualcaption3:_getFieldVal('defensevisualcaption3'),defensemember:_getFieldVal('defensemember'),defensememberrole:_getFieldVal('defensememberrole'),defensefocus:_getFieldVal('defensefocus'),brandprimary:_getFieldVal('brandprimary')||_exportBrandAssets.primary,brandaccent:_getFieldVal('brandaccent')||_exportBrandAssets.accent};
   if(_exportModalFormat==='comparative')_paperLibrary.forEach(function(p,i){u['overlap_'+i]=_getFieldVal('overlap_'+i);u['gap_'+i]=_getFieldVal('gap_'+i);u['beyond_'+i]=_getFieldVal('beyond_'+i);});
   if(_exportModalFormat==='brief'&&u.briefmode==='pre'){
     var btn=document.getElementById('export-gen-btn'),oldText=btn?btn.textContent:'';
