@@ -7378,8 +7378,23 @@ function _advisorPdfHex(hex,fallback){
   var n=parseInt(hex,16);if(!isFinite(n))n=parseInt(String(fallback||'#17384f').replace('#',''),16);
   return PDFLib.rgb(((n>>16)&255)/255,((n>>8)&255)/255,(n&255)/255);
 }
+function _advisorPdfSafeText(text){
+  var s=String(text==null?'':text);
+  var map={
+    '\u2192':'->','\u2190':'<-','\u2194':'<->','\u21d2':'=>','\u2022':'-','\u00b7':' - ',
+    '\u2013':'-','\u2014':'--','\u2212':'-','\u00d7':'x','\u2264':'<=','\u2265':'>=',
+    '\u2018':"'",'\u2019':"'",'\u201c':'"','\u201d':'"','\u2026':'...',
+    '\u03b2':'beta','\u03b1':'alpha','\u03b3':'gamma','\u03b4':'delta','\u03b5':'epsilon',
+    '\u03bb':'lambda','\u03bc':'mu','\u03c1':'rho','\u03c3':'sigma','\u03c4':'tau','\u03c6':'phi',
+    '\u00b2':'2','\u00b3':'3','\u2080':'0','\u2081':'1','\u2082':'2','\u2083':'3','\u2084':'4','\u2085':'5','\u2086':'6','\u2087':'7','\u2088':'8','\u2089':'9'
+  };
+  s=s.replace(/[\u2192\u2190\u2194\u21d2\u2022\u00b7\u2013\u2014\u2212\u00d7\u2264\u2265\u2018\u2019\u201c\u201d\u2026\u03b2\u03b1\u03b3\u03b4\u03b5\u03bb\u03bc\u03c1\u03c3\u03c4\u03c6\u00b2\u00b3\u2080-\u2089]/g,function(ch){return map[ch]||'';});
+  // Keep printable ASCII plus common Latin-1/WinAnsi characters; replace anything else safely.
+  s=s.replace(/[^\x20-\x7E\xA0-\xFF]/g,'?');
+  return s;
+}
 function _advisorPdfWrap(text,font,size,maxWidth,maxLines){
-  var words=String(text||'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean),lines=[],line='';
+  var words=_advisorPdfSafeText(text).replace(/\s+/g,' ').trim().split(' ').filter(Boolean),lines=[],line='';
   words.forEach(function(word){
     var test=line?line+' '+word:word;
     if(font.widthOfTextAtSize(test,size)<=maxWidth){line=test;}
@@ -7389,8 +7404,8 @@ function _advisorPdfWrap(text,font,size,maxWidth,maxLines){
   if(maxLines&&lines.length>maxLines){
     lines=lines.slice(0,maxLines);
     var last=lines[maxLines-1];
-    while(last.length&&font.widthOfTextAtSize(last+'…',size)>maxWidth)last=last.slice(0,-1);
-    lines[maxLines-1]=last+'…';
+    while(last.length&&font.widthOfTextAtSize(last+'...',size)>maxWidth)last=last.slice(0,-1);
+    lines[maxLines-1]=last+'...';
   }
   return lines;
 }
@@ -7407,17 +7422,17 @@ async function downloadFillableAdvisorPDF(u){
   _exportSaveMeetingPrefs(u);
   var PDFDocument=PDFLib.PDFDocument,StandardFonts=PDFLib.StandardFonts,rgb=PDFLib.rgb;
   var pdfDoc=await PDFDocument.create();
-  pdfDoc.setTitle('Advisor Meeting Brief');pdfDoc.setAuthor(u.author||'Econometric Advisor');pdfDoc.setSubject('Fillable advisor meeting brief');
+  pdfDoc.setTitle('Advisor Meeting Brief');pdfDoc.setAuthor(_advisorPdfSafeText(u.author||'Econometric Advisor'));pdfDoc.setSubject('Fillable advisor meeting brief');
   var serif=await pdfDoc.embedFont(StandardFonts.TimesRoman),serifBold=await pdfDoc.embedFont(StandardFonts.TimesRomanBold),sans=await pdfDoc.embedFont(StandardFonts.Helvetica),sansBold=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   var W=595.28,H=841.89,primary=_advisorPdfHex(u.brandprimary,'#17384f'),accent=_advisorPdfHex(u.brandaccent,'#b07b2d'),navy=rgb(.055,.16,.23),muted=rgb(.39,.45,.49),line=rgb(.79,.84,.87),soft=rgb(.96,.975,.982),cream=rgb(.985,.965,.91),white=rgb(1,1,1);
   var logo1=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo1),logo2=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo2),visual=await _advisorEmbedImage(pdfDoc,_exportVisualAssets.advisor);
   function footer(page,label){
     page.drawLine({start:{x:56,y:42},end:{x:539,y:42},thickness:.6,color:line});
-    page.drawText(label,{x:56,y:25,size:7,font:sans,color:muted});
-    var d=u.currentmeeting||u.date||'';page.drawText(d,{x:539-sans.widthOfTextAtSize(d,7),y:25,size:7,font:sans,color:muted});
+    var fl=_advisorPdfSafeText(label);page.drawText(fl,{x:56,y:25,size:7,font:sans,color:muted});
+    var d=_advisorPdfSafeText(u.currentmeeting||u.date||'');page.drawText(d,{x:539-sans.widthOfTextAtSize(d,7),y:25,size:7,font:sans,color:muted});
     if(logo2){var s=logo2.scaleToFit(28,20);page.drawImage(logo2,{x:(W-s.width)/2,y:19,width:s.width,height:s.height});}
   }
-  function label(page,t,x,y){page.drawText(String(t).toUpperCase(),{x:x,y:y,size:6.7,font:sansBold,color:muted,characterSpacing:1.0});}
+  function label(page,t,x,y){page.drawText(_advisorPdfSafeText(t).toUpperCase(),{x:x,y:y,size:6.7,font:sansBold,color:muted});}
   function value(page,t,x,y,width,size,maxLines,font){return _advisorPdfText(page,t||'—',x,y,{font:font||serifBold,size:size||10,color:navy,maxWidth:width,lineHeight:(size||10)*1.2,maxLines:maxLines||2});}
   function card(page,x,y,w,h,fill,border){page.drawRectangle({x:x,y:y,width:w,height:h,color:fill,borderColor:border||line,borderWidth:.65});}
 
@@ -7430,7 +7445,7 @@ async function downloadFillableAdvisorPDF(u){
   if(logo1){var hs=logo1.scaleToFit(48,48);p1.drawImage(logo1,{x:503-hs.width,y:739-hs.height/2,width:hs.width,height:hs.height});}
 
   card(p1,56,645,145,48,soft,line);label(p1,'Current Meeting',68,675);value(p1,u.currentmeeting,68,655,120,12,1);
-  p1.drawText('→',{x:214,y:662,size:16,font:sans,color:primary});
+  p1.drawLine({start:{x:213,y:666},end:{x:226,y:666},thickness:1.2,color:primary});p1.drawLine({start:{x:222,y:670},end:{x:226,y:666},thickness:1.2,color:primary});p1.drawLine({start:{x:222,y:662},end:{x:226,y:666},thickness:1.2,color:primary});
   card(p1,236,645,145,48,cream,rgb(.88,.82,.68));label(p1,'Next Meeting',248,675);value(p1,u.nextmeeting,248,655,120,12,1);
 
   var metaY=610; p1.drawLine({start:{x:56,y:622},end:{x:509,y:622},thickness:.6,color:line});
@@ -7476,9 +7491,14 @@ async function downloadFillableAdvisorPDF(u){
   form.updateFieldAppearances(sans);
   footer(p2,'Advisor Meeting Brief · Fillable Meeting Record');
 
-  var bytes=await pdfDoc.save();var blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  var bytes=await pdfDoc.save();
+  if(!bytes||!bytes.length)throw new Error('The PDF generator returned an empty file.');
+  var blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
   var baseName=(u.studytitle||'Advisor Meeting Brief').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,70);
-  a.href=url;a.download=(baseName||'Advisor_Meeting_Brief')+'_Fillable.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  a.href=url;a.download=(baseName||'Advisor_Meeting_Brief')+'_Fillable.pdf';a.style.display='none';document.body.appendChild(a);
+  a.dispatchEvent(new MouseEvent('click',{view:window,bubbles:true,cancelable:true}));
+  setTimeout(function(){a.remove();URL.revokeObjectURL(url);},10000);
+  return true;
 }
 
 function exportBrief(u){
@@ -8215,7 +8235,23 @@ function _getFieldVal(id) {
 }
 async function _generateFromModal() {
   var u={briefmode:_getFieldVal('briefmode')||'pre',author:_getFieldVal('author'),institution:_getFieldVal('institution'),date:_getFieldVal('date'),studytitle:_getFieldVal('studytitle'),advisor:_getFieldVal('advisor'),committee:_getFieldVal('committee'),committeemembers:_getFieldVal('committeemembers'),committeedate:_getFieldVal('committeedate'),meetingtype:_getFieldVal('meetingtype'),currentmeeting:_getFieldVal('currentmeeting'),nextmeeting:_getFieldVal('nextmeeting'),meetingtime:_getFieldVal('meetingtime'),cadence:_getFieldVal('cadence'),progress:_getFieldVal('progress'),currentissue:_getFieldVal('currentissue'),advisorguidance:_getFieldVal('advisorguidance'),decisions:_getFieldVal('decisions'),evidence:_getFieldVal('evidence'),blockers:_getFieldVal('blockers'),nextsteps:_getFieldVal('nextsteps'),committeeactions:_getFieldVal('committeeactions'),identification:_getFieldVal('identification'),estimator:_getFieldVal('estimator'),inference:_getFieldVal('inference'),committeequestion:_getFieldVal('committeequestion'),threat:_getFieldVal('threat'),alternatives:_getFieldVal('alternatives'),preread:_getFieldVal('preread'),sectiontitle:_getFieldVal('sectiontitle'),version:_getFieldVal('version'),researchquestion:_getFieldVal('researchquestion'),data:_getFieldVal('data'),assumptions:_getFieldVal('assumptions'),robustness:_getFieldVal('robustness'),diagnostics:_getFieldVal('diagnostics'),reproducibility:_getFieldVal('reproducibility'),note:_getFieldVal('note'),synthesis:_getFieldVal('synthesis'),thesisparagraph:_getFieldVal('thesisparagraph'),defensedate:_getFieldVal('defensedate'),defensetime:_getFieldVal('defensetime'),location:_getFieldVal('location'),contribution:_getFieldVal('contribution'),findings:_getFieldVal('findings'),limitations:_getFieldVal('limitations'),defensequestions:_getFieldVal('defensequestions'),takeaway:_getFieldVal('takeaway'),samplesize:_getFieldVal('samplesize'),unitobs:_getFieldVal('unitobs'),studyperiod:_getFieldVal('studyperiod'),geography:_getFieldVal('geography'),advisorvisualtitle:_getFieldVal('advisorvisualtitle'),advisorvisualcaption:_getFieldVal('advisorvisualcaption'),defensevisualtitle1:_getFieldVal('defensevisualtitle1'),defensevisualcaption1:_getFieldVal('defensevisualcaption1'),defensevisualtitle2:_getFieldVal('defensevisualtitle2'),defensevisualcaption2:_getFieldVal('defensevisualcaption2'),defensevisualtitle3:_getFieldVal('defensevisualtitle3'),defensevisualcaption3:_getFieldVal('defensevisualcaption3'),defensemember:_getFieldVal('defensemember'),defensememberrole:_getFieldVal('defensememberrole'),defensefocus:_getFieldVal('defensefocus'),brandprimary:_getFieldVal('brandprimary')||_exportBrandAssets.primary,brandaccent:_getFieldVal('brandaccent')||_exportBrandAssets.accent};
-  if(_exportModalFormat==='comparative')_paperLibrary.forEach(function(p,i){u['overlap_'+i]=_getFieldVal('overlap_'+i);u['gap_'+i]=_getFieldVal('gap_'+i);u['beyond_'+i]=_getFieldVal('beyond_'+i);});closeExportModal();if(_exportModalFormat==='brief'){if(u.briefmode==='pre')await downloadFillableAdvisorPDF(u);else exportBrief(u);}else if(_exportModalFormat==='appendix')exportAppendix(u);else if(_exportModalFormat==='reviewer')exportReviewerCard(u);else if(_exportModalFormat==='defense')exportDefenseBrief(u);else if(_exportModalFormat==='comparative')exportComparative(u);
+  if(_exportModalFormat==='comparative')_paperLibrary.forEach(function(p,i){u['overlap_'+i]=_getFieldVal('overlap_'+i);u['gap_'+i]=_getFieldVal('gap_'+i);u['beyond_'+i]=_getFieldVal('beyond_'+i);});
+  if(_exportModalFormat==='brief'&&u.briefmode==='pre'){
+    var btn=document.getElementById('export-gen-btn'),oldText=btn?btn.textContent:'';
+    try{
+      if(btn){btn.disabled=true;btn.textContent='Creating Fillable PDF…';btn.style.opacity='.72';}
+      await downloadFillableAdvisorPDF(u);
+      closeExportModal();
+    }catch(err){
+      console.error('Fillable advisor PDF export failed:',err);
+      alert('The fillable PDF could not be created. The export window will stay open so you do not lose your entries. Error: '+(err&&err.message?err.message:String(err)));
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent=oldText||'Download Fillable PDF ↓';btn.style.opacity='1';}
+    }
+    return;
+  }
+  closeExportModal();
+  if(_exportModalFormat==='brief')exportBrief(u);else if(_exportModalFormat==='appendix')exportAppendix(u);else if(_exportModalFormat==='reviewer')exportReviewerCard(u);else if(_exportModalFormat==='defense')exportDefenseBrief(u);else if(_exportModalFormat==='comparative')exportComparative(u);
 }
 document.addEventListener('keydown', function(e) {
   var modal = document.getElementById('export-modal');
