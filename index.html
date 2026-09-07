@@ -7415,7 +7415,7 @@ function _advisorPdfText(page,text,x,y,opt){
   lines.forEach(function(line,i){page.drawText(line,{x:x,y:y-i*lineHeight,size:size,font:font,color:color});});
   return y-lines.length*lineHeight;
 }
-async function downloadFillableAdvisorPDF(u){
+async function downloadFillableAdvisorPDF(u,targetWindow){
   if(typeof PDFLib==='undefined'){
     alert('The fillable-PDF library did not load. Please refresh the page while online and try again.');return;
   }
@@ -7493,11 +7493,18 @@ async function downloadFillableAdvisorPDF(u){
 
   var bytes=await pdfDoc.save();
   if(!bytes||!bytes.length)throw new Error('The PDF generator returned an empty file.');
-  var blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  var blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob);
+  if(targetWindow && !targetWindow.closed){
+    targetWindow.location.replace(url);
+    targetWindow.focus();
+    setTimeout(function(){URL.revokeObjectURL(url);},120000);
+    return true;
+  }
+  // Fallback for browsers that blocked the preview tab.
+  var a=document.createElement('a');
   var baseName=(u.studytitle||'Advisor Meeting Brief').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,70);
-  a.href=url;a.download=(baseName||'Advisor_Meeting_Brief')+'_Fillable.pdf';a.style.display='none';document.body.appendChild(a);
-  a.dispatchEvent(new MouseEvent('click',{view:window,bubbles:true,cancelable:true}));
-  setTimeout(function(){a.remove();URL.revokeObjectURL(url);},10000);
+  a.href=url;a.download=(baseName||'Advisor_Meeting_Brief')+'_Fillable.pdf';a.target='_blank';a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(function(){a.remove();URL.revokeObjectURL(url);},120000);
   return true;
 }
 
@@ -8196,6 +8203,7 @@ function _renderExportModal() {
     backBtn.textContent = '← Back';
     backBtn.onclick = _exportModalBack;
     var genBtn = document.createElement('button');
+    genBtn.id = 'export-gen-btn';
     genBtn.style.cssText = 'background:#1e40af;border:none;border-radius:6px;padding:9px 22px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);letter-spacing:.01em';
     genBtn.textContent = 'Generate PDF →';
     genBtn.onclick = _generateFromModal;
@@ -8212,7 +8220,7 @@ function _renderExportModal() {
         descP.textContent=post
           ? 'Create an archival record after the meeting. Enter the guidance / decision notes and the next steps actually agreed.'
           : 'Create a two-page fillable PDF: page 1 is your concise pre-meeting brief; page 2 gives your advisor two large editable fields for Guidance & Decision Notes and Agreed Next Steps.';
-        genBtn.textContent=post?'Generate Record PDF →':'Download Fillable PDF ↓';
+        genBtn.textContent=post?'Generate Record PDF →':'Create Fillable PDF ↗';
       };
       if(modeEl){modeEl.addEventListener('change',syncBriefMode);syncBriefMode();}
     }
@@ -8238,15 +8246,32 @@ async function _generateFromModal() {
   if(_exportModalFormat==='comparative')_paperLibrary.forEach(function(p,i){u['overlap_'+i]=_getFieldVal('overlap_'+i);u['gap_'+i]=_getFieldVal('gap_'+i);u['beyond_'+i]=_getFieldVal('beyond_'+i);});
   if(_exportModalFormat==='brief'&&u.briefmode==='pre'){
     var btn=document.getElementById('export-gen-btn'),oldText=btn?btn.textContent:'';
+    // Open synchronously while we are still inside the user's click gesture.
+    // Safari otherwise may block a download started only after asynchronous PDF generation.
+    var pdfWindow=window.open('','_blank');
+    if(pdfWindow){
+      try{
+        pdfWindow.document.open();
+        pdfWindow.document.write('<!doctype html><html><head><title>Creating Fillable Advisor PDF</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#07192b;color:#e9f1f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;height:100vh}.box{text-align:center;max-width:460px;padding:36px}.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;border-radius:50%;margin:0 auto 18px;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}h1{font-size:20px;margin:0 0 8px}p{font-size:14px;line-height:1.5;color:#aebdca}</style></head><body><div class="box"><div class="spin"></div><h1>Creating your fillable PDF…</h1><p>This tab will automatically become the Advisor Meeting Brief when generation is complete.</p></div></body></html>');
+        pdfWindow.document.close();
+      }catch(_){}
+    }
     try{
       if(btn){btn.disabled=true;btn.textContent='Creating Fillable PDF…';btn.style.opacity='.72';}
-      await downloadFillableAdvisorPDF(u);
+      await downloadFillableAdvisorPDF(u,pdfWindow);
       closeExportModal();
     }catch(err){
       console.error('Fillable advisor PDF export failed:',err);
-      alert('The fillable PDF could not be created. The export window will stay open so you do not lose your entries. Error: '+(err&&err.message?err.message:String(err)));
+      if(pdfWindow && !pdfWindow.closed){
+        try{
+          pdfWindow.document.open();
+          pdfWindow.document.write('<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#fff;color:#222;padding:40px"><h2>PDF creation failed</h2><p>'+String(err&&err.message?err.message:err).replace(/[&<>"]/g,function(c){if(c==='&')return '&amp;';if(c==='<')return '&lt;';if(c==='>')return '&gt;';return '&quot;';})+'</p><p>You can close this tab and return to the Advisor export window; your entries are still there.</p></body></html>');
+          pdfWindow.document.close();
+        }catch(_){}
+      }
+      alert('The fillable PDF could not be created. Your entries have been preserved. Error: '+(err&&err.message?err.message:String(err)));
     }finally{
-      if(btn){btn.disabled=false;btn.textContent=oldText||'Download Fillable PDF ↓';btn.style.opacity='1';}
+      if(btn){btn.disabled=false;btn.textContent=oldText||'Create Fillable PDF ↗';btn.style.opacity='1';}
     }
     return;
   }
