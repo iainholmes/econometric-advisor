@@ -7481,13 +7481,17 @@ async function downloadFillableAdvisorPDF(u,targetWindow){
   var form=pdfDoc.getForm();
   label(p2,'1 · Guidance & Decision Notes',56,598);
   _advisorPdfText(p2,'Reasoning, recommendation, decision, caveats, or anything you want the student to carry forward.',56,582,{font:serif,size:8.5,color:muted,maxWidth:455,lineHeight:10.5,maxLines:2});
-  var guidance=form.createTextField('advisor_guidance_and_decision_notes');guidance.enableMultiline();guidance.setFontSize(10);
+  var guidance=form.createTextField('advisor_guidance_and_decision_notes');guidance.enableMultiline();
   guidance.addToPage(p2,{x:56,y:313,width:483,height:252,font:sans,textColor:navy,backgroundColor:rgb(.992,.995,.997),borderColor:line,borderWidth:1});
+  guidance.setFontSize(10);
 
   label(p2,'2 · Agreed Next Steps',56,278);
   _advisorPdfText(p2,'Concrete actions only — who will do what before the next meeting.',56,262,{font:serif,size:8.5,color:muted,maxWidth:455,lineHeight:10.5,maxLines:2});
-  var steps=form.createTextField('agreed_next_steps');steps.enableMultiline();steps.setFontSize(10);
+  var steps=form.createTextField('agreed_next_steps');steps.enableMultiline();
   steps.addToPage(p2,{x:56,y:82,width:483,height:158,font:sans,textColor:navy,backgroundColor:rgb(.992,.995,.997),borderColor:line,borderWidth:1});
+  steps.setFontSize(10);
+  guidance.updateAppearances(sans);
+  steps.updateAppearances(sans);
   form.updateFieldAppearances(sans);
   footer(p2,'Advisor Meeting Brief · Fillable Meeting Record');
 
