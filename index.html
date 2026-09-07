@@ -6543,13 +6543,13 @@ function _buildExportSubmenuAbove(rect) {
   sub.id = 'export-submenu';
   sub.className = 'hdr-tools-submenu';
   sub.innerHTML = `
-    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
-      <span>Advisor Meeting Brief</span>
-      <span class="hdr-tools-sub-desc">Recurring biweekly advisor brief</span>
-    </button>
     <button class="hdr-tools-sub-item" onclick="openExportModal();setTimeout(function(){_selectExportFormat('direction')},0);_removeExportSubmenu();closeToolsMenu()">
       <span>Thesis Direction Review Brief</span>
       <span class="hdr-tools-sub-desc">Compare and refine candidate thesis directions</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
+      <span>Advisor Meeting Brief</span>
+      <span class="hdr-tools-sub-desc">Recurring biweekly advisor brief</span>
     </button>
     <button class="hdr-tools-sub-item" onclick="exportAppendix();_removeExportSubmenu();closeToolsMenu()">
       <span>Research Design Appendix</span>
@@ -6578,13 +6578,13 @@ function _buildExportSubmenu(x, y) {
   sub.id = 'export-submenu';
   sub.className = 'hdr-tools-submenu';
   sub.innerHTML = `
-    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
-      <span>Advisor Meeting Brief</span>
-      <span class="hdr-tools-sub-desc">Recurring biweekly advisor brief</span>
-    </button>
     <button class="hdr-tools-sub-item" onclick="openExportModal();setTimeout(function(){_selectExportFormat('direction')},0);_removeExportSubmenu();closeToolsMenu()">
       <span>Thesis Direction Review Brief</span>
       <span class="hdr-tools-sub-desc">Compare and refine candidate thesis directions</span>
+    </button>
+    <button class="hdr-tools-sub-item" onclick="exportBrief();_removeExportSubmenu();closeToolsMenu()">
+      <span>Advisor Meeting Brief</span>
+      <span class="hdr-tools-sub-desc">Recurring biweekly advisor brief</span>
     </button>
     <button class="hdr-tools-sub-item" onclick="exportAppendix();_removeExportSubmenu();closeToolsMenu()">
       <span>Research Design Appendix</span>
@@ -8354,12 +8354,12 @@ function _renderExportModal() {
   if (_exportModalStep === 1) {
     title.textContent = 'Export Documents';
     var formats = [
-      { id:'brief', icon:'◈', label:'Advisor Meeting Brief', desc:'A recurring working document for your biweekly advisor meeting: progress since the last meeting, the current empirical question, decisions needed, evidence to review, and commitments for the next two-week cycle.', audience:'Use for: recurring advisor meetings' },
       { id:'direction', icon:'◇', label:'Thesis Direction Review Brief', desc:'A structured comparison of multiple thesis candidates after an initial scoping meeting: prior direction, progress since review, candidate-level feasibility and design, lead-candidate deep dive, and the next advisor decision.', audience:'Use for: thesis topic refinement / direction-setting meetings' },
-      { id:'reviewer', icon:'⊡', label:'Committee Decision Memo', desc:'A multi-member committee meeting brief: progress since the last review, the central question requiring committee judgment, alternatives, evidence, consensus decisions, and assignments.', audience:'Use for: proposal, progress, and committee decision meetings' },
-      { id:'defense', icon:'◆', label:'Oral Defense Brief', desc:'A polished handout for every committee member on defense day: research question, contribution, empirical strategy, headline findings, credibility, limitations, anticipated questions, and final takeaway.', audience:'Use for: oral thesis defense' },
+      { id:'brief', icon:'◈', label:'Advisor Meeting Brief', desc:'A recurring working document for your biweekly advisor meeting: progress since the last meeting, the current empirical question, decisions needed, evidence to review, and commitments for the next two-week cycle.', audience:'Use for: recurring advisor meetings' },
+      { id:'comparative', icon:'⇌', label:'Literature Positioning Note', desc:'A standalone literature and contribution note built around the papers you selected. It focuses on relevance, differences, and positioning—not Knowledge Graph mechanics.', audience:'Use for: literature review / thesis positioning' },
       { id:'appendix', icon:'≡', label:'Research Design Appendix', desc:'A thesis-ready appendix exhibit: design summary, assumptions and threats, validation protocol, robustness ladder, and reproducibility notes. Built to attach directly to a thesis draft.', audience:'Use for: thesis appendix / methods documentation' },
-      { id:'comparative', icon:'⇌', label:'Literature Positioning Note', desc:'A standalone literature and contribution note built around the papers you selected. It focuses on relevance, differences, and positioning—not Knowledge Graph mechanics.', audience:'Use for: literature review / thesis positioning' }
+      { id:'reviewer', icon:'⊡', label:'Committee Decision Memo', desc:'A multi-member committee meeting brief: progress since the last review, the central question requiring committee judgment, alternatives, evidence, consensus decisions, and assignments.', audience:'Use for: proposal, progress, and committee decision meetings' },
+      { id:'defense', icon:'◆', label:'Oral Defense Brief', desc:'A polished handout for every committee member on defense day: research question, contribution, empirical strategy, headline findings, credibility, limitations, anticipated questions, and final takeaway.', audience:'Use for: oral thesis defense' }
     ];
     var rows = formats.map(function(f) {
       var btn = document.createElement('button');
@@ -8393,13 +8393,14 @@ function _renderExportModal() {
     body.appendChild(wrap);
   } else {
     var fmtMeta = {
+      direction: { label:'Thesis Direction Review Brief', desc:'Compare the thesis candidates after your initial scoping discussion, document what has changed, and frame the specific direction-setting judgment you need from your advisor.' },
       brief: { label:'Advisor Meeting Brief', desc:'Prepare the working document for the next advisor meeting and the following two-week research cycle.' },
       reviewer: { label:'Committee Decision Memo', desc:'Prepare a structured multi-member committee discussion with clear evidence, alternatives, decisions, and assignments.' },
       defense: { label:'Oral Defense Brief', desc:'Prepare a defense-day handout that gives each committee member the research story, evidence, and key points in a concise visual packet.' },
       appendix: { label:'Research Design Appendix', desc:'Build a polished appendix exhibit that can travel with the thesis draft as formal methods documentation.' },
       comparative: { label:'Literature Positioning Note', desc:'Draft a standalone literature-positioning document without Knowledge Graph terminology.' }
     };
-    var meta = fmtMeta[_exportModalFormat];
+    var meta = fmtMeta[_exportModalFormat] || {label:'Research Document',desc:'Complete the fields below to generate this research document.'};
     title.textContent = meta.label;
     var fields = _getExportFields(_exportModalFormat);
     var gridDiv = document.createElement('div');
