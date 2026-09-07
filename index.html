@@ -7747,6 +7747,84 @@ async function downloadFillableAdvisorPDF(u,targetWindow){
 }
 
 
+
+async function downloadFillableDirectionPDF(u,targetWindow){
+  if(typeof PDFLib==='undefined')throw new Error('PDF library did not load.');
+  var PDFDocument=PDFLib.PDFDocument,StandardFonts=PDFLib.StandardFonts,rgb=PDFLib.rgb;
+  var pdfDoc=await PDFDocument.create();
+  pdfDoc.setTitle('Thesis Direction Review Brief');
+  pdfDoc.setAuthor(_advisorPdfSafeText(u.author||'Econometric Advisor'));
+  pdfDoc.setSubject('Fillable thesis direction review brief');
+  var serif=await pdfDoc.embedFont(StandardFonts.TimesRoman),serifBold=await pdfDoc.embedFont(StandardFonts.TimesRomanBold),sans=await pdfDoc.embedFont(StandardFonts.Helvetica);
+  var W=595.28,H=841.89,primary=_advisorPdfHex(u.brandprimary,'#17384f'),accent=_advisorPdfHex(u.brandaccent,'#b07b2d'),navy=rgb(.055,.16,.23),muted=rgb(.39,.45,.49),line=rgb(.79,.84,.87),soft=rgb(.96,.975,.982),cream=rgb(.985,.965,.91),white=rgb(1,1,1);
+  var logo1=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo1),logo2=await _advisorEmbedImage(pdfDoc,_exportBrandAssets.logo2);
+  function idea(n){return {title:u['idea'+n+'title']||('Candidate '+n),status:u['idea'+n+'status']||'Status to be specified',question:u['idea'+n+'question']||'',data:u['idea'+n+'data']||'',design:u['idea'+n+'design']||'',progress:u['idea'+n+'progress']||'',contribution:u['idea'+n+'contribution']||'',risk:u['idea'+n+'risk']||''};}
+  var ideas=[idea(1),idea(2),idea(3)];
+  function footer(page,label){page.drawLine({start:{x:56,y:42},end:{x:539,y:42},thickness:.6,color:line});page.drawText(_advisorPdfSafeText(label),{x:56,y:25,size:7,font:sans,color:muted});var d=_advisorPdfSafeText(u.date||'');page.drawText(d,{x:539-sans.widthOfTextAtSize(d,7),y:25,size:7,font:sans,color:muted});if(logo2){var s=logo2.scaleToFit(28,20);page.drawImage(logo2,{x:(W-s.width)/2,y:19,width:s.width,height:s.height});}}
+  function label(page,t,x,y,color){page.drawText(_advisorPdfSafeText(t).toUpperCase(),{x:x,y:y,size:6.9,font:serifBold,color:color||muted});}
+  function rule(page,y){page.drawLine({start:{x:56,y:y},end:{x:539,y:y},thickness:.8,color:navy});}
+  function header(page,small,title){page.drawRectangle({x:0,y:0,width:12,height:H,color:primary});page.drawLine({start:{x:56,y:790},end:{x:539,y:790},thickness:1,color:primary});label(page,small,56,770);page.drawText(_advisorPdfSafeText(title),{x:56,y:737,size:22,font:serifBold,color:navy});if(logo1){var hs=logo1.scaleToFit(42,42);page.drawImage(logo1,{x:539-hs.width,y:727,width:hs.width,height:hs.height});}}
+  function sectionHead(page,num,title,y){page.drawText(_advisorPdfSafeText(String(num).padStart(2,'0')),{x:56,y:y,size:8,font:serifBold,color:accent});page.drawText(_advisorPdfSafeText(title.toUpperCase()),{x:80,y:y,size:8.7,font:serifBold,color:navy});page.drawLine({start:{x:56,y:y-10},end:{x:539,y:y-10},thickness:.8,color:navy});}
+  function card(page,x,y,w,h,fill,border){page.drawRectangle({x:x,y:y,width:w,height:h,color:fill||white,borderColor:border||line,borderWidth:.7});}
+  function txt(page,t,x,y,w,size,font,color,maxLines,lineHeight){return _advisorPdfText(page,t||'—',x,y,{font:font||serif,size:size||9,color:color||navy,maxWidth:w,lineHeight:lineHeight||((size||9)*1.22),maxLines:maxLines||0});}
+
+  // PAGE 1 — direction since prior meeting + candidate landscape
+  var p1=pdfDoc.addPage([W,H]);header(p1,'M.S. Thesis Research · Direction Review','Thesis Direction Review Brief');
+  txt(p1,'Post-scoping comparison of candidate thesis directions and the evidence needed to commit to a primary study.',56,708,430,10.2,serif,muted,2,12);
+  var meta=[['Researcher',u.author],['Advisor',u.advisor],['Review Stage',u.directionmeeting||'Direction Review'],['Prepared',u.date]];
+  var mw=120;meta.forEach(function(m,i){var x=56+i*mw;label(p1,m[0],x,672);txt(p1,m[1],x,657,mw-10,8.6,serifBold,navy,2,10);});
+  sectionHead(p1,1,'Direction Since the Prior Scoping Meeting',622);
+  card(p1,56,528,483,70,soft,line);label(p1,'Prior Working Direction',70,579);txt(p1,u.priordirection||'Summarize the direction that emerged from the prior scoping discussion.',70,560,455,9.2,serif,navy,5,11);
+  label(p1,'What Has Changed Since That Review?',56,508);txt(p1,u.sinceprior||'Summarize new data work, feasibility checks, design development, literature findings, or outreach that could change the ranking.',56,491,483,9.2,serif,navy,6,11);
+  sectionHead(p1,2,'Current Candidate Landscape',413);
+  var cw=153,gap=12,cy=175,ch=205;
+  ideas.forEach(function(it,i){var x=56+i*(cw+gap);card(p1,x,cy,cw,ch,i===2?cream:white,line);label(p1,'Candidate '+(i+1),x+10,cy+184,primary);txt(p1,it.title,x+10,cy+164,cw-20,10,serifBold,navy,2,12);label(p1,it.status,x+10,cy+136,muted);label(p1,'Research Question',x+10,cy+114);txt(p1,it.question,x+10,cy+97,cw-20,7.7,serif,navy,4,9);label(p1,'Data / Access',x+10,cy+54);txt(p1,it.data,x+10,cy+37,cw-20,7.5,serif,navy,3,8.8);});
+  footer(p1,'Thesis Direction Review Brief · Candidate Landscape');
+
+  // PAGE 2 — comparison matrix
+  var p2=pdfDoc.addPage([W,H]);header(p2,'M.S. Thesis Research · Candidate Comparison','Candidate Comparison Matrix');
+  sectionHead(p2,3,'Candidate Comparison Matrix',690);
+  var x0=56,labelW=104,colW=(483-labelW)/3,top=658,rowH=74;
+  ['Decision Dimension'].concat(ideas.map(function(i){return i.title;})).forEach(function(h,i){var x=i===0?x0:x0+labelW+(i-1)*colW,w=i===0?labelW:colW;card(p2,x,top-34,w,34,soft,line);txt(p2,h,x+7,top-13,w-14,7.3,serifBold,navy,2,8.5);});
+  var rows=[['Status','status'],['Research Question','question'],['Data / Access','data'],['Identification / Design','design'],['Work Completed','progress'],['Potential Contribution','contribution'],['Main Remaining Risk','risk']];
+  var ry=top-34;
+  rows.forEach(function(r){ry-=rowH;card(p2,x0,ry,labelW,rowH,white,line);txt(p2,r[0],x0+7,ry+rowH-18,labelW-14,7.4,serifBold,navy,3,9);ideas.forEach(function(it,j){var x=x0+labelW+j*colW;card(p2,x,ry,colW,rowH,white,line);txt(p2,it[r[1]],x+7,ry+rowH-17,colW-14,7.1,serif,navy,6,8.3);});});
+  footer(p2,'Thesis Direction Review Brief · Candidate Comparison');
+
+  // PAGE 3 — lead candidate / advisor decision
+  var p3=pdfDoc.addPage([W,H]);header(p3,'M.S. Thesis Research · Direction Review','Lead Candidate & Advisor Direction');
+  sectionHead(p3,4,'Lead-Candidate Deep Dive',690);
+  card(p3,56,598,483,64,navy,navy);label(p3,'Current Lead Candidate',72,641,white);txt(p3,u.leadcandidate||'State the current lead candidate.',72,620,445,13,serifBold,white,2,15);
+  card(p3,56,420,286,150,soft,line);label(p3,'Why It Is Currently Leading',72,548);txt(p3,u.leadcase||'Explain what progress, evidence, feasibility, or contribution currently makes this the strongest direction.',72,528,255,9.1,serif,navy,9,11);
+  card(p3,354,420,185,150,cream,line);label(p3,'What Could Still Change the Ranking?',368,548);txt(p3,u.leaduncertainty||'Identify the unresolved issue that could cause another candidate to overtake the current lead.',368,528,157,8.7,serif,navy,10,10.3);
+  label(p3,'Next Validation Step Before Committing',56,394);txt(p3,u.nextvalidation||'Specify the next piece of evidence needed before locking the thesis topic.',56,375,483,9.2,serif,navy,5,11);
+  sectionHead(p3,5,'Advisor Direction Requested',302);
+  card(p3,56,182,483,88,navy,navy);label(p3,'Decision Requested From Advisor',72,246,white);txt(p3,u.advisordecision||'Should the current lead remain primary, should another candidate be elevated, and what must be resolved before final commitment?',72,225,445,10.6,serifBold,white,4,13);
+  label(p3,'Suggested Discussion Prompts',56,154);txt(p3,'1. Which direction should remain primary?\n2. What must be resolved before final commitment?\n3. Which candidate(s) should be deprioritized?\n4. What should be completed before the next meeting?',56,137,483,8.6,serif,navy,6,10.5);
+  footer(p3,'Thesis Direction Review Brief · Lead Candidate');
+
+  // PAGE 4 — genuinely fillable advisor response page
+  var p4=pdfDoc.addPage([W,H]);header(p4,'Advisor Response · Thesis Direction Review','Advisor Direction & Notes');
+  txt(p4,'Complete this page during the meeting. The fields remain editable after export and can be saved with the PDF.',56,708,455,10,serif,muted,2,12);
+  sectionHead(p4,6,'Recommended Direction',662);
+  var form=pdfDoc.getForm();
+  var boxY=589,boxW=151;
+  ideas.forEach(function(it,i){var x=56+i*(boxW+15);card(p4,x,boxY,boxW,50,white,line);var cb=form.createCheckBox('recommended_candidate_'+(i+1));cb.addToPage(p4,{x:x+12,y:boxY+18,width:14,height:14,borderColor:primary,borderWidth:1});label(p4,'Candidate '+(i+1),x+34,boxY+31,muted);txt(p4,it.title,x+34,boxY+17,boxW-44,8.5,serifBold,navy,2,10);});
+  sectionHead(p4,1,'Advisor Direction & Rationale',548);
+  txt(p4,'Recommendation, reasoning, cautions, conditions, or anything that should govern the topic decision.',56,524,455,8.4,serif,muted,2,10);
+  var rationale=form.createTextField('direction_advisor_rationale');rationale.enableMultiline();rationale.addToPage(p4,{x:56,y:302,width:483,height:202,font:serif,textColor:navy,backgroundColor:rgb(.992,.995,.997),borderColor:line,borderWidth:1});rationale.setFontSize(10);
+  sectionHead(p4,2,'Agreed Validation Steps / Next Actions',270);
+  txt(p4,'Concrete work to complete before the topic is formally committed.',56,246,455,8.4,serif,muted,2,10);
+  var next=form.createTextField('direction_validation_next_actions');next.enableMultiline();next.addToPage(p4,{x:56,y:82,width:483,height:144,font:serif,textColor:navy,backgroundColor:rgb(.992,.995,.997),borderColor:line,borderWidth:1});next.setFontSize(10);
+  rationale.updateAppearances(serif);next.updateAppearances(serif);form.updateFieldAppearances(serif);
+  footer(p4,'Thesis Direction Review Brief · Fillable Advisor Response');
+
+  var bytes=await pdfDoc.save();if(!bytes||!bytes.length)throw new Error('The PDF generator returned an empty file.');
+  var blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob);
+  if(targetWindow && !targetWindow.closed){targetWindow.location.replace(url);targetWindow.focus();setTimeout(function(){URL.revokeObjectURL(url);},120000);return true;}
+  var a=document.createElement('a'),baseName=(u.leadcandidate||'Thesis_Direction_Review').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,58);a.href=url;a.download='Thesis_Direction_Review_Brief_'+(baseName||'Candidates')+'_Fillable.pdf';a.target='_blank';a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url);},120000);return true;
+}
+
 function exportDirectionBrief(u){
   u=u||{};var base=_exportBase(),headerLogo=_exportHeaderLogo(),footerLogo=_exportFooterLogo();
   function esc(v){return _exportEsc(v||'—').replace(/\n/g,'<br>');}
@@ -8484,6 +8562,10 @@ function _renderExportModal() {
     gridDiv.appendChild(footer);
     body.innerHTML = '';
     body.appendChild(gridDiv);
+    if(_exportModalFormat==='direction'){
+      descP.textContent='Generate a four-page thesis-direction packet. The final Advisor Direction & Notes page contains real editable PDF form fields for the recommended direction, rationale, and agreed next actions.';
+      genBtn.textContent='Create Fillable PDF ↗';
+    }
     if(_exportModalFormat==='brief'){
       var ledger=document.createElement('div');
       ledger.style.cssText='grid-column:1/-1;margin-top:16px;padding-top:14px;border-top:.5px solid var(--border)';
@@ -8546,6 +8628,15 @@ async function _generateFromModal() {
     leadcandidate:_getFieldVal('leadcandidate'),leadcase:_getFieldVal('leadcase'),leaduncertainty:_getFieldVal('leaduncertainty'),nextvalidation:_getFieldVal('nextvalidation'),advisordecision:_getFieldVal('advisordecision')};
   u.reviewitems=_advisorReviewFiles.map(function(f,i){return {name:f.name,title:_getFieldVal('reviewtitle_'+i)||f.name.replace(/\.[^.]+$/,''),question:_getFieldVal('reviewquestion_'+i)||''};});
   if(_exportModalFormat==='comparative')_paperLibrary.forEach(function(p,i){u['overlap_'+i]=_getFieldVal('overlap_'+i);u['gap_'+i]=_getFieldVal('gap_'+i);u['beyond_'+i]=_getFieldVal('beyond_'+i);});
+  if(_exportModalFormat==='direction'){
+    var dbtn=document.getElementById('export-gen-btn'),dold=dbtn?dbtn.textContent:'';
+    var directionWindow=window.open('','_blank');
+    if(directionWindow){try{directionWindow.document.open();directionWindow.document.write('<!doctype html><html><head><title>Creating Fillable Thesis Direction Brief</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#07192b;color:#e9f1f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;height:100vh}.box{text-align:center;max-width:460px;padding:36px}.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;border-radius:50%;margin:0 auto 18px;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}h1{font-size:20px;margin:0 0 8px}p{font-size:14px;line-height:1.5;color:#aebdca}</style></head><body><div class="box"><div class="spin"></div><h1>Creating your fillable PDF…</h1><p>The final advisor-response page will contain editable PDF fields.</p></div></body></html>');directionWindow.document.close();}catch(_){}}
+    try{if(dbtn){dbtn.disabled=true;dbtn.textContent='Creating Fillable PDF…';dbtn.style.opacity='.72';}await downloadFillableDirectionPDF(u,directionWindow);closeExportModal();}
+    catch(err){console.error('Fillable direction PDF export failed:',err);if(directionWindow&&!directionWindow.closed){try{directionWindow.document.open();directionWindow.document.write('<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#fff;color:#222;padding:40px"><h2>PDF creation failed</h2><p>'+String(err&&err.message?err.message:err).replace(/[&<>\"]/g,function(c){if(c==='&')return '&amp;';if(c==='<')return '&lt;';if(c==='>')return '&gt;';return '&quot;';})+'</p></body></html>');directionWindow.document.close();}catch(_){}}alert('The fillable Thesis Direction Review PDF could not be created. Your entries are still present. Error: '+(err&&err.message?err.message:String(err)));}
+    finally{if(dbtn){dbtn.disabled=false;dbtn.textContent=dold||'Create Fillable PDF ↗';dbtn.style.opacity='1';}}
+    return;
+  }
   if(_exportModalFormat==='brief'&&u.briefmode==='pre'){
     var btn=document.getElementById('export-gen-btn'),oldText=btn?btn.textContent:'';
     // Open synchronously while we are still inside the user's click gesture.
