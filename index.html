@@ -1142,7 +1142,11 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 <style>.ov-research-col-label--lit{color:#c084fc !important;background:rgba(168,85,247,.1) !important;border-left-color:#a855f7 !important;}</style>
 <style id="ih-identity-style">
 /* Approved personal artwork; keep the application's native identity. */
-.ih-personal-signature{display:block;flex:none;width:40px;height:auto;background:#fff;}
+.ih-personal-signature{display:block;flex:none;width:40px;height:auto;background:transparent;}
+.ih-personal-signature img{display:block;width:100%;height:auto;}
+.ih-personal-signature .ih-mark-night{display:none;}
+.ih-personal-signature.ih-on-dark .ih-mark-day,[data-theme="dark"] .ih-personal-signature .ih-mark-day{display:none;}
+.ih-personal-signature.ih-on-dark .ih-mark-night,[data-theme="dark"] .ih-personal-signature .ih-mark-night{display:block;}
 .ih-app-signature{display:flex;justify-content:center;align-items:center;padding:16px 24px calc(20px + env(safe-area-inset-bottom,0px));}
 @media print{.ih-app-signature{display:none;}}
 </style>
@@ -1398,7 +1402,7 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
   <div class="results" id="results-inner"></div>
 </div>
 
-<footer class="ih-app-signature"><img class="ih-personal-signature" src="assets/identity/ih-signature.png" width="466" height="438" alt="IH. — Iain Holmes" decoding="async"></footer>
+<footer class="ih-app-signature"><span class="ih-personal-signature ih-on-dark"><img class="ih-mark-day" src="assets/identity/ih-signature.png?v=20261012-seamless2" width="466" height="438" alt="IH. — Iain Holmes" decoding="async"><img class="ih-mark-night" src="assets/identity/ih-signature-night.png?v=20261012-seamless2" width="466" height="438" alt="IH. — Iain Holmes" decoding="async"></span></footer>
 
 <div class="modal-bg" id="api-modal" style="display:none">
   <div class="modal" style="position:relative">
