@@ -1150,6 +1150,24 @@ textarea.ctx{width:100%;min-height:120px;background:var(--bg2);border:.5px solid
 .ih-app-signature{display:flex;justify-content:center;align-items:center;padding:16px 24px calc(20px + env(safe-area-inset-bottom,0px));}
 @media print{.ih-app-signature{display:none;}}
 </style>
+<style id="ih-house-dividers">
+/* IH_HOUSE_DIVIDER_V1: refine an existing structural rule; preserve its box. */
+.ov-toolkit-band {
+  --ih-divider-ink:var(--surface);
+  --ih-divider-terminal:var(--hint);
+  --ih-divider-cap:clamp(8px,1vw,14px);
+  --ih-divider-shoulder:calc(var(--ih-divider-cap) + 6px);
+  position:relative;
+  border-bottom-color:transparent;
+}
+.ov-toolkit-band::after {
+  content:"";position:absolute;inset-inline:0;bottom:-0.5px;height:3px;pointer-events:none;
+  background:linear-gradient(to right,var(--ih-divider-terminal) 0 var(--ih-divider-shoulder),var(--ih-divider-ink) var(--ih-divider-shoulder) calc(100% - var(--ih-divider-shoulder)),var(--ih-divider-terminal) calc(100% - var(--ih-divider-shoulder)) 100%);
+  clip-path:polygon(0 0,var(--ih-divider-cap) 0,var(--ih-divider-shoulder) 33.333%,calc(100% - var(--ih-divider-shoulder)) 33.333%,calc(100% - var(--ih-divider-cap)) 0,100% 0,100% 100%,calc(100% - var(--ih-divider-cap)) 100%,calc(100% - var(--ih-divider-shoulder)) 66.667%,var(--ih-divider-shoulder) 66.667%,var(--ih-divider-cap) 100%,0 100%);
+}
+@media(forced-colors:active) { .ov-toolkit-band::after {background:CanvasText} }
+@media print { .ov-toolkit-band {border-bottom-color:currentColor} .ov-toolkit-band::after {display:none} }
+</style>
 </head>
 <body>
 
